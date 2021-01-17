@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<h1>Sign Up</h1>
+
+{% if error %}
+<ul>
+    <li>&#9432;&nbsp; {{ error }}</li>
+</ul>
+{% endif %}
+
+<form action="/accounts/register/" method="POST">
+    <p>
+        <label for="name">Your Name:</label>
+        <input type="text" name="name" value="{{ form.name.value }}">
+        {% if form.name.errors | length > 0 %}
+            {{ form.name.errors }}
+        {% endif %}
+    </p>
+
+    <p>
+        <label for="email">Email:</label>
+        <input name="email" type="email" value="{{ form.email.value }}">
+        {% if form.email.errors | length > 0 %}
+            {{ form.email.errors }}
+        {% endif %}
+    </p>
+    
+    <p>
+        <label for="password">Password:</label>
+        <input name="password" type="password">
+        {% if form.password.errors | length > 0 %}
+            {{ form.password.errors }}
+        {% endif %}
+    </p>
+
+    <button type="submit">Create Account</button>
+</form>
+{% endblock %}
