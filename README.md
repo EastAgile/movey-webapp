@@ -3,6 +3,11 @@ A.K.A, the actix-web starter you probably wish you had. This is provided as-is, 
 anyone is free to extend it or rework it as they desire - just give some credit if
 you base a web framework off of it. :)
 
+A disclaimer: this is used internally, and while it's very usable, it might not be
+perfect. You might need to tweak a thing or two. Don't be shocked if you need to
+alter `jelly` for your own needs. Pull requests for things that should be "standard"
+are welcome.
+
 ## What's This?
 If you've ever written a web service in Rust that's needed some of
 the following:
@@ -142,7 +147,7 @@ In this case, `EmailField` will check that the email is a mostly-valid email add
 For more supported field types, see the `jelly/forms` module.
 
 ## Request Helpers
-A personal pet peeve: the default actix-web view definitions are mind-numbingly verbose. Code is read far more than it's written, and thus Jelly includes some choices to make writing views less of a headache: namel, access to things like database pools and authentication are implemented as traits on `HttpRequest`.
+A personal pet peeve: the default actix-web view definitions are mind-numbingly verbose. Code is read far more than it's written, and thus Jelly includes some choices to make writing views less of a headache: namely, access to things like database pools and authentication are implemented as traits on `HttpRequest`.
 
 This makes the necessary view imports a bit cleaner, requiring just the prelude for some traits, and makes view definitons much cleaner overall. It's important to note that if, for whatever reason, you need to use standard actix-web view definitions, you totally can - Jelly doesn't restrict this, just provides a (we think) nicer alternative.
 
