@@ -85,7 +85,9 @@ Templates are written in [Tera](https://github.com/Keats/tera). If you've writte
 
 The provided `templates` has a top-level `layout.html`, which should be your global public layout. The `templates/dashboard` folder is what a user sees upon logging in.
 
-In development, your templates are automatically reloaded on edit. In production, this is disabled.
+In development, your templates are automatically reloaded on edit. Jelly also provides a stock "an error happened" view, similar to what Django does.
+
+In production, both of these are disabled.
 
 ## Static
 The `static` folder is where you can place any static things. In development, [actix-files]() is preconfigured to serve content from that directory, in order to make life easier for just running on your machine. This is disabled in the `production` build, mostly because we tend to shove this behind Nginx. You can swap this as needed.
@@ -98,17 +100,12 @@ For instance, you could do:
 **forms.rs**
 ``` rs
 use serde::{Deserialize, Serialize};
-use jelly::forms::{EmailField, PasswordField, TextField, Validation};
-
-fn default_redirect_path() -> String { "/".into() }
+use jelly::forms::{EmailField, PasswordField, Validation};
 
 #[derive(Default, Debug, Deserialize, Serialize)]
 pub struct LoginForm {
     pub email: EmailField,
-    pub password: PasswordField,
-
-    #[serde(default = "default_redirect_path")]
-    pub redirect: String
+    pub password: PasswordField
 }
 
 impl Validation for LoginForm {
@@ -145,7 +142,7 @@ In this case, `EmailField` will check that the email is a mostly-valid email add
 For more supported field types, see the `jelly/forms` module.
 
 ## Request Helpers
-A personal pet peeve: the default actix-web view definitions are mind-numbingly verbose. Code is read far more than it's written, and thus Jelly includes some choices to make writing views less of a headache: name, access to things database pools and authentication are implemented as traits on `HttpRequest`.
+A personal pet peeve: the default actix-web view definitions are mind-numbingly verbose. Code is read far more than it's written, and thus Jelly includes some choices to make writing views less of a headache: namel, access to things like database pools and authentication are implemented as traits on `HttpRequest`.
 
 This makes the necessary view imports a bit cleaner, requiring just the prelude for some traits, and makes view definitons much cleaner overall. It's important to note that if, for whatever reason, you need to use standard actix-web view definitions, you totally can - Jelly doesn't restrict this, just provides a (we think) nicer alternative.
 
@@ -155,6 +152,8 @@ You can call `request.is_authenticated()?` to check if a User is authenticated. 
 You can call `request.user()?` to get the `User` for a request. This does not incur a database hit, and just loads cached information from the signed cookie session. Users are, by default anonymous - and can be checked with `is_anonymous`.
 
 If you want the _full_ user Account object, you can call `Account::get(user.id, &db_pool).await?`, or write your own method.
+
+You can restrict access to only authenticated users on a URL basis by using `jelly::guards::Auth`; example usage can be found in `src/dashboard/mod.rs`.
 
 ### Rendering a Template
 You can call `request.render(http_code, template_path, model)`, where:

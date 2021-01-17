@@ -5,7 +5,6 @@ use actix_web::guard::{Guard, Header};
 pub mod auth;
 pub use auth::{Auth, AuthMiddleware};
 
-
 pub fn accepts_json() -> impl Guard {
     Header("content-type", "application/json")
 }
