@@ -42,7 +42,7 @@ impl Job for SendAccountOddRegisterAttemptEmail {
                 model.insert("name", name);
                 model.insert("action_url", format!("{}/accounts/reset/", var("DOMAIN")
                         .expect("DOMAIN not set?")
-                );
+                ));
                 model
             });
             

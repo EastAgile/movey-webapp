@@ -103,7 +103,7 @@ Writing the same email/password/etc verification logic is a chore, and one of th
 For instance, you could do:
 
 **forms.rs**
-``` rs
+``` rust
 use serde::{Deserialize, Serialize};
 use jelly::forms::{EmailField, PasswordField, Validation};
 
@@ -121,7 +121,7 @@ impl Validation for LoginForm {
 ```
 
 **views.rs**
-``` rs
+``` rust
 /// POST-handler for logging in.
 pub async fn authenticate(
     request: HttpRequest,
