@@ -64,7 +64,7 @@ If you're ready to push a release build, you probably want to run:
 cargo build --release --no-default-features --features production
 ```
 
-For configuring email dispatch, see the README in `templates/email`.
+For configuring email dispatch, see the README in `email_templates`.
 
 ## Accounts
 Accounts is modeled to provide the most common features you would expect from a user
