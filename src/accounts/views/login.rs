@@ -40,11 +40,9 @@ pub async fn authenticate(
 
     let db = request.db_pool()?;
     if let Ok(user) = Account::authenticate(&form, db).await {
-        if user.is_admin {
-            Account::update_last_login(user.id, db).await?;
-            request.set_user(user)?;
-            return request.redirect("/dashboard/");
-        }
+        Account::update_last_login(user.id, db).await?;
+        request.set_user(user)?;
+        return request.redirect("/dashboard/");
     }
 
     request.render(400, "accounts/login.html", {
