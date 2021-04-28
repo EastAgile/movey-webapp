@@ -125,6 +125,8 @@ impl Account {
         password: &str,
         pool: &PgPool
     ) -> Result<(), Error> {
+        let password = make_password(&password);
+        
         sqlx::query!("
             UPDATE accounts
             SET password = $2, last_login = now()
