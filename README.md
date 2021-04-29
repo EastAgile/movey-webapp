@@ -8,6 +8,16 @@ perfect. You might need to tweak a thing or two. Don't be shocked if you need to
 alter `jelly` for your own needs. Pull requests for things that should be "standard"
 are welcome.
 
+## Notice Re: Licensing
+The current crate used in this repository for background jobs has a potential licensing issue, depending on what you're looking to do with the code here. The _refresh_ branch of this repository will change this, but the merge is pending some things calming down in actix-web 4.0. [Learn more here](https://github.com/secretkeysio/jelly-actix-web-starter/issues/9)
+
+In the meantime, you have two options:
+
+- You can see if what you're doing gels with the license on background-jobs
+- If not, you could just rip out background jobs and your HTTP responses on endpoints that use a background job (dispatching emails) will be slightly longer until the refresh branch is merged.
+
+I've personally done the latter, and isn't too bad - hopefully, this passes soon. If the actix-web 4.0 beta's hit a stable state I'm also open to merging the refresh branch temporarily pinned to working betas.
+
 ## What's This?
 If you've ever written a web service in Rust that's needed some of
 the following:
