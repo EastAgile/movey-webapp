@@ -1,12 +1,12 @@
-use std::collections::HashMap;
 use std::env::var;
-use std::pin::Pin;
 use std::future::Future;
+use std::pin::Pin;
 
-use jelly::serde::{Deserialize, Serialize};
 use jelly::anyhow::{anyhow, Error};
 use jelly::email::Email;
-use jelly::jobs::{DEFAULT_QUEUE, Job, JobState};
+use jelly::jobs::{Job, JobState, DEFAULT_QUEUE};
+use jelly::serde::{Deserialize, Serialize};
+use jelly::tera::Context;
 
 use crate::accounts::Account;
 
@@ -20,36 +20,51 @@ use crate::accounts::Account;
 /// registering the standard "verify" flow.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SendAccountOddRegisterAttemptEmail {
-    pub to: String
+    pub to: String,
+}
+
+pub fn build_context(name: &str) -> Context {
+    let mut context = Context::new();
+    context.insert("name", name);
+    context.insert(
+        "action_url",
+        &format!(
+            "{}/accounts/reset/",
+            var("DOMAIN").expect("DOMAIN not set?")
+        ),
+    );
+    context
 }
 
 impl Job for SendAccountOddRegisterAttemptEmail {
     type State = JobState;
-    type Future = Pin<Box<dyn Future<Output=Result<(), Error>> + Send>>;
+    type Future = Pin<Box<dyn Future<Output = Result<(), Error>> + Send>>;
 
     const NAME: &'static str = "SendAccountOddRegisterAttemptEmailJob";
     const QUEUE: &'static str = DEFAULT_QUEUE;
 
     fn run(self, state: JobState) -> Self::Future {
         Box::pin(async move {
-            let name = Account::fetch_name_from_email(&self.to, &state.pool).await.map_err(|e| {
-                anyhow!("Error fetching user name/email for odd registration attempt: {:?}", e)
-            })?;
+            let name = Account::fetch_name_from_email(&self.to, &state.pool)
+                .await
+                .map_err(|e| {
+                    anyhow!(
+                        "Error fetching user name for odd registration attempt: {:?}",
+                        e
+                    )
+                })?;
 
-            let email = Email::new("odd-registration-attempt", &[self.to], {
-                let mut model = HashMap::new();
-                model.insert("preview", "Did you want to reset your password?".into());
-                model.insert("name", name);
-                model.insert("action_url", format!("{}/accounts/reset/", var("DOMAIN")
-                        .expect("DOMAIN not set?")
-                ));
-                model
-            });
-            
-            email.send()?;
-            
+            let email = Email::new(
+                "email/odd-registration-attempt",
+                &[self.to],
+                "Did you want to reset your password?",
+                build_context(&name),
+                state.templates,
+            );
+
+            email?.send()?;
+
             Ok(())
         })
     }
 }
-

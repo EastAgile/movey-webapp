@@ -38,9 +38,13 @@ sqlx = { version = "0.4.2", default-features = false, features = ["runtime-actix
 tera = "1.5"
 validator = "0.11"
 zxcvbn = "2.0.1"
+lettre = { version="0.10.0-rc.3", optional = true }
 
 [features]
-default = []
+default = [ ]
+email-smtp = [ "lettre" ]
+email-postmark = [ ]
+email-sendgrid = [ ]
 static = ["actix-files"]
 template_watcher = ["notify"]
 production = ["actix-web/secure-cookies", "djangohashers/pbkdf2"]

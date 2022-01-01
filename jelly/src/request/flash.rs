@@ -1,8 +1,8 @@
-use actix_web::HttpRequest;
 use actix_session::UserSession;
+use actix_web::HttpRequest;
 
-use crate::templates::FlashMessage;
 use crate::error::Error;
+use crate::templates::FlashMessage;
 
 /// `FlashMessages` implements a one-time-message (hence "Flash") that is useful
 /// for old-school HTML flows that need to display messages in a standardized way
@@ -25,12 +25,12 @@ impl FlashMessages for HttpRequest {
 
         let mut messages: Vec<FlashMessage> = match session.get("flsh")? {
             Some(messages) => messages,
-            None => Vec::new()
+            None => Vec::new(),
         };
 
         messages.push(FlashMessage {
             title: title.to_string(),
-            message: message.to_string()
+            message: message.to_string(),
         });
         session.set("flsh", messages)?;
 
@@ -42,7 +42,7 @@ impl FlashMessages for HttpRequest {
 
         let messages = match session.get("flsh")? {
             Some(messages) => messages,
-            None => Vec::new()
+            None => Vec::new(),
         };
 
         session.remove("flsh");

@@ -1,6 +1,6 @@
+use serde::{Deserialize, Deserializer, Serialize};
 use std::fmt;
 use std::ops::Deref;
-use serde::{Deserialize, Deserializer, Serialize};
 
 use super::Validation;
 
@@ -8,7 +8,7 @@ use super::Validation;
 #[derive(Debug, Default, Serialize)]
 pub struct SlugField {
     pub value: String,
-    pub errors: Vec<String>
+    pub errors: Vec<String>,
 }
 
 impl fmt::Display for SlugField {
@@ -20,11 +20,11 @@ impl fmt::Display for SlugField {
 impl<'de> Deserialize<'de> for SlugField {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
-        D: Deserializer<'de>
+        D: Deserializer<'de>,
     {
         Deserialize::deserialize(deserializer).map(|t| SlugField {
             value: t,
-            errors: Vec::new()
+            errors: Vec::new(),
         })
     }
 }

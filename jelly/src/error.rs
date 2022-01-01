@@ -1,9 +1,9 @@
-//! A custom Error type, along with a custom Result wrapper, that we use for 
-//! returning responses. This module handles converting several differing 
+//! A custom Error type, along with a custom Result wrapper, that we use for
+//! returning responses. This module handles converting several differing
 //! error formats into the one we use for responding.
 
-use std::{error, fmt};
 use actix_web::{HttpResponse, ResponseError};
+use std::{error, fmt};
 
 /// This enum represents the largest classes of errors we can expect to
 /// encounter in the lifespan of our application. Feel free to add to this
@@ -20,7 +20,7 @@ pub enum Error {
     Radix(radix::RadixErr),
     InvalidPassword,
     InvalidAccountToken,
-    PasswordHasher(djangohashers::HasherError)
+    PasswordHasher(djangohashers::HasherError),
 }
 
 impl fmt::Display for Error {
@@ -38,10 +38,11 @@ impl error::Error for Error {
             Error::Template(e) => Some(e),
             Error::Json(e) => Some(e),
             Error::Radix(e) => Some(e),
-            
-            Error::Generic(_) | Error::InvalidPassword |
-            Error::InvalidAccountToken |
-            Error::PasswordHasher(_) => None,
+
+            Error::Generic(_)
+            | Error::InvalidPassword
+            | Error::InvalidAccountToken
+            | Error::PasswordHasher(_) => None,
         }
     }
 }
@@ -99,7 +100,8 @@ impl ResponseError for Error {
 /// A generic method for rendering an error to present to the browser.
 /// This should only be called in non-production settings.
 pub(crate) fn render<E: std::fmt::Debug>(e: E) -> String {
-    format!(r#"<!DOCTYPE html>
+    format!(
+        r#"<!DOCTYPE html>
         <html>
         <head>
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -130,5 +132,7 @@ pub(crate) fn render<E: std::fmt::Debug>(e: E) -> String {
             <code>{:#?}<code>
         </body>
         </html>
-    "#, e)
+    "#,
+        e
+    )
 }

@@ -1,5 +1,5 @@
-use jelly::prelude::*;
 use jelly::accounts::OneTimeUseTokenGenerator;
+use jelly::prelude::*;
 use jelly::request::DatabasePool;
 use jelly::Result;
 
@@ -15,7 +15,7 @@ pub async fn validate_token(
     request: &HttpRequest,
     uidb64: &str,
     ts: &str,
-    token: &str
+    token: &str,
 ) -> Result<Account> {
     if let Ok(uid_bytes) = base64_url::decode(&uidb64) {
         if let Ok(uid_str) = std::str::from_utf8(&uid_bytes) {

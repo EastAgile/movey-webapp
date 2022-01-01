@@ -104,6 +104,8 @@ In development, your templates are automatically reloaded on edit. Jelly also pr
 
 In production, both of these are disabled.
 
+Your template may use any of the environment variable starting with `JELLY_`.
+
 ## Static
 The `static` folder is where you can place any static things. In development, [actix-files]() is preconfigured to serve content from that directory, in order to make life easier for just running on your machine. This is disabled in the `production` build, mostly because we tend to shove this behind Nginx. You can swap this as needed.
 
@@ -201,8 +203,16 @@ You can use `accounts/jobs` for a basis to create your own background jobs, and 
 
 You can call `request.queue(MyJob {...})?` to dispatch a job in the background.
 
+## Email
+Email may be sent with the help of different drivers:
+- [postmark](https://postmarkapp.com) (enabled with feature `jelly/email-postmark`),
+- [sendgrid](https://sendgrid.com) (enabled with feature `jelly/email-sendgrid`),
+- smtp (enabled with feature `jelly/email-smtp`).
+
+You can enable several or all features, in which case all selected drivers will be tried until one success or all fails.
+
 ## The End
-Hopefully, this helps people get going with more web services in Rust, and provides a common base to work off of. There's three things to note here:
+Hopefully, this helps people get going with more web services in Rust, and provides a common base to work off of. There are three things to note here:
 
 - This is released under a "do-whatever-you-want" license. Just give credit if you use it as the basis for a web framework of your own.
 - Someone else is more than welcome to take this further and make a true web framework.

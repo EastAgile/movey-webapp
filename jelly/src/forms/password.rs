@@ -1,17 +1,17 @@
+use serde::{Deserialize, Deserializer, Serialize};
 use std::fmt;
 use std::ops::Deref;
-use serde::{Deserialize, Deserializer, Serialize};
 use zxcvbn::zxcvbn;
 
 use super::Validation;
 
-/// A field for validating password strength. Will also include 
+/// A field for validating password strength. Will also include
 /// hints on how to make a better password.
 #[derive(Debug, Default, Serialize)]
 pub struct PasswordField {
     pub value: String,
     pub errors: Vec<String>,
-    pub hints: Vec<String>
+    pub hints: Vec<String>,
 }
 
 impl PasswordField {
@@ -21,7 +21,7 @@ impl PasswordField {
             return false;
         }
 
-        // The unwrap is safe, as it only errors if the 
+        // The unwrap is safe, as it only errors if the
         // password is blank, which we already
         // handle above.
         let estimate = zxcvbn(&self.value, user_inputs).unwrap();
@@ -31,9 +31,11 @@ impl PasswordField {
                     self.errors.push(format!("{}", warning));
                 }
 
-                self.hints = feedback.suggestions().iter().map(|s| {
-                    format!("{}", s)
-                }).collect();
+                self.hints = feedback
+                    .suggestions()
+                    .iter()
+                    .map(|s| format!("{}", s))
+                    .collect();
             }
 
             return false;
@@ -52,12 +54,12 @@ impl fmt::Display for PasswordField {
 impl<'de> Deserialize<'de> for PasswordField {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
-        D: Deserializer<'de>
+        D: Deserializer<'de>,
     {
         Deserialize::deserialize(deserializer).map(|t| PasswordField {
             value: t,
             errors: Vec::new(),
-            hints: Vec::new()
+            hints: Vec::new(),
         })
     }
 }

@@ -1,5 +1,5 @@
-use sqlx::postgres::PgPool;
 use actix_web::HttpRequest;
+use sqlx::postgres::PgPool;
 
 use crate::error::Error;
 
@@ -20,6 +20,8 @@ impl DatabasePool for HttpRequest {
             return Ok(&pool);
         }
 
-        Err(Error::Generic("Unable to retrieve Database Pool.".to_string()))
+        Err(Error::Generic(
+            "Unable to retrieve Database Pool.".to_string(),
+        ))
     }
 }

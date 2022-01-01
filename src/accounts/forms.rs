@@ -1,7 +1,9 @@
-use serde::{Deserialize, Serialize};
 use jelly::forms::{EmailField, PasswordField, TextField, Validation};
+use serde::{Deserialize, Serialize};
 
-fn default_redirect_path() -> String { "/".into() }
+fn default_redirect_path() -> String {
+    "/".into()
+}
 
 #[derive(Default, Debug, Deserialize, Serialize)]
 pub struct LoginForm {
@@ -9,7 +11,7 @@ pub struct LoginForm {
     pub password: PasswordField,
 
     #[serde(default = "default_redirect_path")]
-    pub redirect: String
+    pub redirect: String,
 }
 
 impl Validation for LoginForm {
@@ -22,22 +24,20 @@ impl Validation for LoginForm {
 pub struct NewAccountForm {
     pub name: TextField,
     pub email: EmailField,
-    pub password: PasswordField
+    pub password: PasswordField,
 }
 
 impl Validation for NewAccountForm {
     fn is_valid(&mut self) -> bool {
-        self.name.is_valid() && 
-        self.email.is_valid() &&
-        self.password.validate_with(&[
-            &self.name, &self.email
-        ])
+        self.name.is_valid()
+            && self.email.is_valid()
+            && self.password.validate_with(&[&self.name, &self.email])
     }
 }
 
 #[derive(Default, Debug, Deserialize, Serialize)]
 pub struct EmailForm {
-    pub email: EmailField
+    pub email: EmailField,
 }
 
 impl Validation for EmailForm {
@@ -54,7 +54,7 @@ pub struct ChangePasswordForm {
     pub email: Option<String>,
 
     pub password: PasswordField,
-    pub password_confirm: PasswordField
+    pub password_confirm: PasswordField,
 }
 
 impl Validation for ChangePasswordForm {
@@ -64,12 +64,13 @@ impl Validation for ChangePasswordForm {
         }
 
         if self.password.value != self.password_confirm.value {
-            self.password.errors.push("Passwords must match.".to_string());
+            self.password
+                .errors
+                .push("Passwords must match.".to_string());
             return false;
         }
 
-        self.password.validate_with(&[
-            &self.name.as_ref().unwrap(), &self.email.as_ref().unwrap()
-        ])
+        self.password
+            .validate_with(&[&self.name.as_ref().unwrap(), &self.email.as_ref().unwrap()])
     }
 }

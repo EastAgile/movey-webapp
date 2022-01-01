@@ -1,10 +1,10 @@
 use std::env;
 
-use sha2::Sha256;
-use radix::RadixNum;
-use hmac::{Hmac, Mac, NewMac};
-use chrono::{Utc, TimeZone};
+use chrono::{TimeZone, Utc};
 use constant_time_eq::constant_time_eq;
+use hmac::{Hmac, Mac, NewMac};
+use radix::RadixNum;
+use sha2::Sha256;
 
 use crate::error::Error;
 
@@ -29,27 +29,25 @@ fn hash(value: &str, timestamp: u64) -> Result<String, Error> {
 
     // This is enforced at server startup, so it's safe to do here...
     // but we'll .expect() to provide some clarity to be safe.
-    let secret_key = env::var("SECRET_KEY")
-        .expect("Unable to pull SECRET_KEY for account token generation");
+    let secret_key =
+        env::var("SECRET_KEY").expect("Unable to pull SECRET_KEY for account token generation");
 
     let key = format!("{}{}", KEY_SALT, secret_key);
-    let mut hasher = HmacSha256::new_varkey(key.as_bytes()).map_err(|e| {
-        Error::Generic(format!("Error generating HMACSHA256: {:?}", e))
-    })?;
+    let mut hasher = HmacSha256::new_varkey(key.as_bytes())
+        .map_err(|e| Error::Generic(format!("Error generating HMACSHA256: {:?}", e)))?;
 
     hasher.update(value.as_bytes());
 
     let result = hasher.finalize();
-    
+
     // A "straightforward" way to adapt Python's [::2] syntax.
     let hash = format!("{:x}", result.into_bytes())
         .split("")
         .enumerate()
-        .filter(|&(idx, _)| {
-            idx == 0 || (idx - 1) % 2 == 0
-        }).map(|(_, c)| {
-            c
-        }).collect::<Vec<&str>>().join("");
+        .filter(|&(idx, _)| idx == 0 || (idx - 1) % 2 == 0)
+        .map(|(_, c)| c)
+        .collect::<Vec<&str>>()
+        .join("");
 
     Ok(format!("{}-{}", ts.as_str().to_lowercase(), hash))
 }
@@ -71,17 +69,19 @@ pub trait OneTimeUseTokenGenerator {
     /// if not configured).
     fn create_reset_token(&self) -> Result<String, Error> {
         let value = self.hash_value();
-        let since = num_seconds();  
+        let since = num_seconds();
         hash(&value, since as u64)
     }
 
-    /// Validates that the token we received is still acceptable; 
+    /// Validates that the token we received is still acceptable;
     /// internally this does both constant time comparison checks
     /// as well as timestamp validation.
     fn is_token_valid(&self, token: &str) -> bool {
         // Try to split the token, barf if a bad format is found.
         let split = token.split("-").collect::<Vec<&str>>();
-        if split.len() != 2 { return false; }
+        if split.len() != 2 {
+            return false;
+        }
 
         // We intentionally ignore a class of errors and will simply report
         // to the user that the token is invalid or expired.
@@ -93,13 +93,13 @@ pub trait OneTimeUseTokenGenerator {
                 if cmp_token.is_err() {
                     return false;
                 }
-                
+
                 // This is important - must be constant time or it's vulnerable to a
                 // timing attack.
                 if !constant_time_eq(cmp_token.unwrap().as_bytes(), token.as_bytes()) {
                     return false;
                 }
-                
+
                 // A bit kludgy, but it works fine.
                 let timeout = match env::var("PASSWORD_RESET_TIMEOUT") {
                     Ok(v) => {
@@ -108,9 +108,9 @@ pub trait OneTimeUseTokenGenerator {
                         } else {
                             259200
                         }
-                    },
+                    }
 
-                    Err(_) => 259200
+                    Err(_) => 259200,
                 };
 
                 let since = num_seconds() as usize;

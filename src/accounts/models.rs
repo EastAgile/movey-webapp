@@ -1,12 +1,12 @@
 // Implements a basic Account model, with support for creating/updating/deleting
 // users, along with welcome email and verification.
 
-use jelly::accounts::{User, OneTimeUseTokenGenerator};
-use jelly::djangohashers::{make_password, check_password};
-use jelly::serde::{Deserialize, Serialize};
+use jelly::accounts::{OneTimeUseTokenGenerator, User};
 use jelly::chrono::{DateTime, Utc};
+use jelly::djangohashers::{check_password, make_password};
 use jelly::error::Error;
-use jelly::sqlx::{self, postgres::PgPool, FromRow, types::Json};
+use jelly::serde::{Deserialize, Serialize};
+use jelly::sqlx::{self, postgres::PgPool, types::Json, FromRow};
 
 use super::forms::{LoginForm, NewAccountForm};
 
@@ -29,36 +29,53 @@ pub struct Account {
     pub has_verified_email: bool,
     pub last_login: Option<DateTime<Utc>>,
     pub created: DateTime<Utc>,
-    pub updated: DateTime<Utc>
+    pub updated: DateTime<Utc>,
 }
 
 impl Account {
     pub async fn get(uid: i32, pool: &PgPool) -> Result<Self, Error> {
-        Ok(sqlx::query_as_unchecked!(Account, "
+        Ok(sqlx::query_as_unchecked!(
+            Account,
+            "
             SELECT
                 id, name, email, password, profile, plan,
                 is_active, is_admin, has_verified_email,
                 last_login, created, updated
             FROM accounts WHERE id = $1
-        ", uid).fetch_one(pool).await?)
+        ",
+            uid
+        )
+        .fetch_one(pool)
+        .await?)
     }
 
     pub async fn get_by_email(email: &str, pool: &PgPool) -> Result<Self, Error> {
-        Ok(sqlx::query_as_unchecked!(Account, "
+        Ok(sqlx::query_as_unchecked!(
+            Account,
+            "
             SELECT 
                 id, name, email, password, profile, plan,
                 is_active, is_admin, has_verified_email,
                 last_login, created, updated
             FROM accounts WHERE email = $1
-        ", email).fetch_one(pool).await?)
+        ",
+            email
+        )
+        .fetch_one(pool)
+        .await?)
     }
 
     pub async fn authenticate(form: &LoginForm, pool: &PgPool) -> Result<User, Error> {
-        let user = sqlx::query!("
+        let user = sqlx::query!(
+            "
             SELECT
                 id, name, password, is_admin
             FROM accounts WHERE email = $1
-        ", form.email.value).fetch_one(pool).await?;
+        ",
+            form.email.value
+        )
+        .fetch_one(pool)
+        .await?;
 
         if !check_password(&form.password, &user.password)? {
             return Err(Error::InvalidPassword);
@@ -68,24 +85,34 @@ impl Account {
             id: user.id,
             name: user.name,
             is_admin: user.is_admin,
-            is_anonymous: false
+            is_anonymous: false,
         })
     }
-    
+
     pub async fn fetch_email(id: i32, pool: &PgPool) -> Result<(String, String), Error> {
-        let data = sqlx::query!("
+        let data = sqlx::query!(
+            "
             SELECT
                 name, email
             FROM accounts WHERE id = $1
-        ", id).fetch_one(pool).await?;
+        ",
+            id
+        )
+        .fetch_one(pool)
+        .await?;
 
         Ok((data.name, data.email))
     }
 
     pub async fn fetch_name_from_email(email: &str, pool: &PgPool) -> Result<String, Error> {
-        let data = sqlx::query!("
+        let data = sqlx::query!(
+            "
             SELECT name FROM accounts WHERE email = $1
-        ", email).fetch_one(pool).await?;
+        ",
+            email
+        )
+        .fetch_one(pool)
+        .await?;
 
         Ok(data.name)
     }
@@ -93,29 +120,47 @@ impl Account {
     pub async fn register(form: &NewAccountForm, pool: &PgPool) -> Result<i32, Error> {
         let password = make_password(&form.password);
 
-        Ok(sqlx::query!("
+        Ok(sqlx::query!(
+            "
             INSERT INTO accounts (name, email, password) 
             VALUES ($1, $2, $3)
             RETURNING id
-        ", form.name.value, form.email.value, password).fetch_one(pool).await?.id)
+        ",
+            form.name.value,
+            form.email.value,
+            password
+        )
+        .fetch_one(pool)
+        .await?
+        .id)
     }
 
     pub async fn mark_verified(id: i32, pool: &PgPool) -> Result<(), Error> {
-        sqlx::query!("
+        sqlx::query!(
+            "
             UPDATE accounts
             SET has_verified_email = true, last_login = now()
             WHERE id = $1
-        ", id).execute(pool).await?;
+        ",
+            id
+        )
+        .execute(pool)
+        .await?;
 
         Ok(())
     }
 
     pub async fn update_last_login(id: i32, pool: &PgPool) -> Result<(), Error> {
-        sqlx::query!("
+        sqlx::query!(
+            "
             UPDATE accounts
             SET last_login = now()
             WHERE id = $1
-        ", id).execute(pool).await?;
+        ",
+            id
+        )
+        .execute(pool)
+        .await?;
 
         Ok(())
     }
@@ -123,15 +168,21 @@ impl Account {
     pub async fn update_password_and_last_login(
         id: i32,
         password: &str,
-        pool: &PgPool
+        pool: &PgPool,
     ) -> Result<(), Error> {
         let password = make_password(&password);
-        
-        sqlx::query!("
+
+        sqlx::query!(
+            "
             UPDATE accounts
             SET password = $2, last_login = now()
             WHERE id = $1
-        ", id, password).execute(pool).await?;
+        ",
+            id,
+            password
+        )
+        .execute(pool)
+        .await?;
 
         Ok(())
     }
@@ -145,7 +196,7 @@ impl OneTimeUseTokenGenerator for Account {
             self.password,
             match self.last_login {
                 Some(ts) => format!("{}", ts.timestamp()),
-                None => "Unverified".to_string()
+                None => "Unverified".to_string(),
             },
             self.email
         )

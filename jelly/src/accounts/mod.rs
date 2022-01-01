@@ -1,4 +1,4 @@
-//! This module contains useful components for building Authentication 
+//! This module contains useful components for building Authentication
 //! rituals. These are typically pieces that are used across projects,
 //! but not necessarily a full framework.
 
@@ -17,7 +17,7 @@ pub struct User {
     pub id: i32,
     pub name: String,
     pub is_admin: bool,
-    pub is_anonymous: bool
+    pub is_anonymous: bool,
 }
 
 impl Default for User {
@@ -27,7 +27,7 @@ impl Default for User {
             id: 0,
             name: String::new(),
             is_admin: false,
-            is_anonymous: true
+            is_anonymous: true,
         }
     }
 }

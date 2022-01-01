@@ -3,9 +3,9 @@
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>*|MC:SUBJECT|*</title>
+	<title>{{ subject }}</title>
         <style type="text/css">
-			/* /\/\/\/\/\/\/\/\/ CLIENT-SPECIFIC STYLES /\/\/\/\/\/\/\/\/ */
+			/* ///////// CLIENT-SPECIFIC STYLES ///////// */
 			#outlook a{padding:0;} /* Force Outlook to provide a "view in browser" message */
 			.ReadMsgBody{width:100%;} .ExternalClass{width:100%;} /* Force Hotmail to display emails at full width */
 			.ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {line-height: 100%;} /* Force Hotmail to display normal line spacing */
@@ -13,13 +13,13 @@
 			table, td{mso-table-lspace:0pt; mso-table-rspace:0pt;} /* Remove spacing between tables in Outlook 2007 and up */
 			img{-ms-interpolation-mode:bicubic;} /* Allow smoother rendering of resized image in Internet Explorer */
 
-			/* /\/\/\/\/\/\/\/\/ RESET STYLES /\/\/\/\/\/\/\/\/ */
+			/* ///////// RESET STYLES ///////// */
 			body{margin:0; padding:0;}
 			img{border:0; height:auto; line-height:100%; outline:none; text-decoration:none;}
 			table{border-collapse:collapse !important;}
 			body, #bodyTable, #bodyCell{height:100% !important; margin:0; padding:0; width:100% !important;}
 
-			/* /\/\/\/\/\/\/\/\/ TEMPLATE STYLES /\/\/\/\/\/\/\/\/ */
+			/* ///////// TEMPLATE STYLES ///////// */
 
 			/* ========== Page Styles ========== */
 
@@ -317,17 +317,17 @@
 				/*@editable*/ text-decoration:underline;
 			}
 
-			/* /\/\/\/\/\/\/\/\/ MOBILE STYLES /\/\/\/\/\/\/\/\/ */
+			/* ///////// MOBILE STYLES ///////// */
 
             @media only screen and (max-width: 480px){
-				/* /\/\/\/\/\/\/ CLIENT-SPECIFIC MOBILE STYLES /\/\/\/\/\/\/ */
+				/* /////// CLIENT-SPECIFIC MOBILE STYLES /////// */
 				body, table, td, p, a, li, blockquote{-webkit-text-size-adjust:none !important;} /* Prevent Webkit platforms from changing default text sizes */
                 body{width:100% !important; min-width:100% !important;} /* Prevent iOS Mail from adding padding to the body */
 
-				/* /\/\/\/\/\/\/ MOBILE RESET STYLES /\/\/\/\/\/\/ */
+				/* /////// MOBILE RESET STYLES /////// */
 				#bodyCell{padding:10px !important;}
 
-				/* /\/\/\/\/\/\/ MOBILE TEMPLATE STYLES /\/\/\/\/\/\/ */
+				/* /////// MOBILE TEMPLATE STYLES /////// */
 
 				/* ======== Page Styles ======== */
 
@@ -447,7 +447,7 @@
                                     <table border="0" cellpadding="0" cellspacing="0" width="100%" id="templatePreheader">
                                         <tr>
                                             <td valign="top" class="preheaderContent" style="padding-top:10px; padding-right:20px; padding-bottom:10px; padding-left:20px;">
-                                                {{ preview }}
+                                                {{ subject }}
                                             </td>
                                         </tr>
                                     </table>
@@ -473,7 +473,7 @@
                                     <table border="0" cellpadding="0" cellspacing="0" width="100%" id="templateBody">
                                         <tr>
                                             <td valign="top" class="bodyContent">
-                                                {{{ @content }}}
+					       {% block content %}{% endblock %}
                                             </td>
                                         </tr>
                                     </table>
@@ -494,7 +494,7 @@
                                         </tr>
                                         <tr>
                                             <td valign="top" class="footerContent" style="padding-top:0; padding-bottom:40px;">
-                                            	<a href=\"{{{ pm:unsubscribe }}}\" style=\"text-decoration:none;\">Unsubscribe</a>
+                                            	<a href="mailto:postmaster@example.com" style="text-decoration:none;">Unsubscribe</a>
                                             </td>
                                         </tr>
                                     </table>

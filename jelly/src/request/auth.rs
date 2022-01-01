@@ -1,5 +1,5 @@
-use actix_web::HttpRequest;
 use actix_session::UserSession;
+use actix_web::HttpRequest;
 
 use crate::accounts::User;
 use crate::error::Error;
@@ -23,7 +23,10 @@ pub trait Authentication {
 impl Authentication for HttpRequest {
     #[inline(always)]
     fn is_authenticated(&self) -> Result<bool, Error> {
-        Ok(self.get_session().get::<serde_json::Value>("sku")?.is_some())
+        Ok(self
+            .get_session()
+            .get::<serde_json::Value>("sku")?
+            .is_some())
     }
 
     fn set_user(&self, account: User) -> Result<(), Error> {
@@ -34,7 +37,7 @@ impl Authentication for HttpRequest {
     fn user(&self) -> Result<User, Error> {
         match self.get_session().get("sku")? {
             Some(user) => Ok(user),
-            None => Ok(User::default())
+            None => Ok(User::default()),
         }
     }
 }

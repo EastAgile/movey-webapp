@@ -1,5 +1,7 @@
-<h1>Hello!</h1>
-<p>An account with this email was created just now. If this wasn't you, feel free to disregard - but if it <em>was</em>, please verify your account by clicking the button below.</p>
+{% extends "email/layout.html" %}
+{% block content %}
+<h1>What's up?</h1>
+<p>Someone just attempted to register for an account with your email address. Was this you? If not, feel free to disregard. If it was, did you mean to reset your password? If so, use the button or link below.</p>
 <!-- Action -->
 <table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0">
   <tr>
@@ -11,7 +13,7 @@
             <table border="0" cellspacing="0" cellpadding="0">
               <tr>
                 <td>
-                  <a href="{{action_url}}" class="button button--" target="_blank">Verify My Account</a>
+                  <a href="{{ action_url }}" class="button button--" target="_blank">Reset Your Password</a>
                 </td>
               </tr>
             </table>
@@ -21,7 +23,7 @@
     </td>
   </tr>
 </table>
-<p>If you have any questions, feel free to <a href="">email our support team</a>.</p>
+<p>If you have any questions, feel free to <a href="mailto:{{ JELLY_SUPPORT_EMAIL }}">email our support team</a>.</p>
 <p>Thanks,
   <br>- The Team</p>
 <!-- Sub copy -->
@@ -29,8 +31,8 @@
   <tr>
     <td>
       <p class="sub">If you’re having trouble with the button above, copy and paste the URL below into your web browser.</p>
-      <p class="sub">{{action_url}}</p>
+      <p class="sub">{{ action_url }}</p>
     </td>
   </tr>
 </table>
-
+{% endblock %}

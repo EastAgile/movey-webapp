@@ -4,7 +4,8 @@
 //! Ex:
 //!
 //! ```rust
-//! use crate::utils::forms::{EmailField, PasswordField, Validation};
+//! use jelly::forms::{EmailField, PasswordField, Validation};
+//! use serde::Deserialize;
 //!
 //! #[derive(Debug, Default, Deserialize)]
 //! pub struct MyForm {
@@ -41,5 +42,7 @@ pub use text::TextField;
 /// can simply write your validation method as `field.is_valid()`.
 pub trait Validation {
     /// Checks if the data held is valid. Should return a bool value.
-    fn is_valid(&mut self) -> bool { false }
+    fn is_valid(&mut self) -> bool {
+        false
+    }
 }

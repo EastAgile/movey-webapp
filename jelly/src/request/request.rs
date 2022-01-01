@@ -1,29 +1,21 @@
+use std::env;
 use std::sync::{Arc, RwLock};
 
-use actix_web::{HttpRequest, HttpResponse};
 use actix_web::http::header::LOCATION;
+use actix_web::{HttpRequest, HttpResponse};
 use serde::Serialize;
-use tera::{Tera, Context};
+use tera::{Context, Tera};
 
-use crate::error::Error;
 use super::{Authentication, FlashMessages};
+use crate::error::Error;
 
 /// A trait for making certain types of response handling easier.
 pub trait Render {
     /// Shorthand for rendering a template, with a specific HTTP response code.
-    fn render(
-        &self,
-        code: usize,
-        template: &str,
-        context: Context
-    ) -> Result<HttpResponse, Error>;
+    fn render(&self, code: usize, template: &str, context: Context) -> Result<HttpResponse, Error>;
 
     /// Shorthand for returning a JSON payload.
-    fn json<S: Serialize>(
-        &self,
-        code: usize,
-        payload: S
-    ) -> Result<HttpResponse, Error>;
+    fn json<S: Serialize>(&self, code: usize, payload: S) -> Result<HttpResponse, Error>;
 
     /// Handy redirects helper.
     fn redirect(&self, location: &str) -> Result<HttpResponse, Error>;
@@ -34,16 +26,21 @@ impl Render for HttpRequest {
         &self,
         code: usize,
         template: &str,
-        mut context: Context
+        mut context: Context,
     ) -> Result<HttpResponse, Error> {
         let data: Option<&Arc<RwLock<Tera>>> = self.app_data();
 
-        // We pull the user and flash messages for all requests; 
+        // We pull the user and flash messages for all requests;
         // it's blank if a User is anonymous (not authenticated).
-        let user = self.user()?; 
+        let user = self.user()?;
         let messages = self.get_flash_messages()?;
         context.insert("user", &user);
         context.insert("flash_messages", &messages);
+        for (k, v) in env::vars() {
+            if k.starts_with("JELLY_") {
+                context.insert(k, &v);
+            }
+        }
 
         if let Some(eng) = data {
             let engine = eng.read().map_err(|e| {
@@ -56,33 +53,34 @@ impl Render for HttpRequest {
                 200 => HttpResponse::Ok(),
                 400 => HttpResponse::BadRequest(),
                 404 => HttpResponse::NotFound(),
-                _ => HttpResponse::Ok()
-            }.content_type("text/html; charset=utf-8").body(body))
+                _ => HttpResponse::Ok(),
+            }
+            .content_type("text/html; charset=utf-8")
+            .body(body))
         } else {
-            Err(Error::Generic("Unable to locate Templates cache".to_string()))
+            Err(Error::Generic(
+                "Unable to locate Templates cache".to_string(),
+            ))
         }
     }
 
-    fn json<S: Serialize>(
-        &self,
-        code: usize,
-        payload: S
-    ) -> Result<HttpResponse, Error> {
+    fn json<S: Serialize>(&self, code: usize, payload: S) -> Result<HttpResponse, Error> {
         let o = serde_json::to_string(&payload)?;
 
         Ok(match code {
             200 => HttpResponse::Ok(),
             400 => HttpResponse::BadRequest(),
             404 => HttpResponse::NotFound(),
-            _ => HttpResponse::Ok()
-        }.content_type("application/json").body(o))
+            _ => HttpResponse::Ok(),
+        }
+        .content_type("application/json")
+        .body(o))
     }
-    
+
     fn redirect(&self, location: &str) -> Result<HttpResponse, Error> {
         Ok(HttpResponse::Found()
             .header(LOCATION, location)
             .finish()
-            .into_body()
-        )
+            .into_body())
     }
 }

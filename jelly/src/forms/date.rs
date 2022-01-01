@@ -1,17 +1,17 @@
 use std::fmt;
 use std::ops::Deref;
 
+use super::Validation;
 use chrono::NaiveDate;
 use log::error;
 use serde::{Deserialize, Deserializer};
-use super::Validation;
 
 /// A field for accepting and validating a date string.
 #[derive(Debug, Default)]
 pub struct DateField {
     pub value: String,
     pub date: Option<chrono::NaiveDate>,
-    pub errors: Vec<String>
+    pub errors: Vec<String>,
 }
 
 impl fmt::Display for DateField {
@@ -23,12 +23,12 @@ impl fmt::Display for DateField {
 impl<'de> Deserialize<'de> for DateField {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
-        D: Deserializer<'de>
+        D: Deserializer<'de>,
     {
         Deserialize::deserialize(deserializer).map(|t| DateField {
             value: t,
             date: None,
-            errors: Vec::new()
+            errors: Vec::new(),
         })
     }
 }
@@ -47,7 +47,7 @@ impl Validation for DateField {
             Ok(date) => {
                 self.date = Some(date);
                 true
-            },
+            }
 
             Err(e) => {
                 error!("Error parsing DateField: {}", e);

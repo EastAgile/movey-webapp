@@ -1,11 +1,11 @@
-use jelly::prelude::*;
 use jelly::accounts::User;
-use jelly::actix_web::{HttpRequest, web::Path};
+use jelly::actix_web::{web::Path, HttpRequest};
+use jelly::prelude::*;
 use jelly::request::DatabasePool;
 use jelly::Result;
 
-use crate::accounts::Account;
 use crate::accounts::views::utils::validate_token;
+use crate::accounts::Account;
 
 /// Just renders a standard "Check your email and verify" page.
 pub async fn verify(request: HttpRequest) -> Result<HttpResponse> {
@@ -16,10 +16,10 @@ pub async fn verify(request: HttpRequest) -> Result<HttpResponse> {
 /// token and user, signs them in, and redirects to the dashboard.
 ///
 /// In general, we do not want to leak information, so any errors here
-/// should simply report as "invalid or expired". 
+/// should simply report as "invalid or expired".
 pub async fn with_token(
     request: HttpRequest,
-    Path((uidb64, ts, token)): Path<(String, String, String)>
+    Path((uidb64, ts, token)): Path<(String, String, String)>,
 ) -> Result<HttpResponse> {
     if let Ok(account) = validate_token(&request, &uidb64, &ts, &token).await {
         let db = request.db_pool()?;
@@ -29,7 +29,7 @@ pub async fn with_token(
             id: account.id,
             name: account.name,
             is_admin: account.is_admin,
-            is_anonymous: false
+            is_anonymous: false,
         })?;
 
         return request.redirect("/dashboard/");

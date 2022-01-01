@@ -1,17 +1,17 @@
+use serde::{Deserialize, Deserializer, Serialize};
 use std::fmt;
 use std::ops::Deref;
-use serde::{Deserialize, Deserializer, Serialize};
 
 use super::Validation;
 
-/// A simple BoolField. 
-/// 
+/// A simple BoolField.
+///
 /// Checks to see if the value is `true` or not in validation. This means
 /// that your input should literally pass `true` or `false`.
 #[derive(Debug, Default, Serialize)]
 pub struct BoolField {
     pub value: bool,
-    pub errors: Vec<String>
+    pub errors: Vec<String>,
 }
 
 impl fmt::Display for BoolField {
@@ -23,11 +23,11 @@ impl fmt::Display for BoolField {
 impl<'de> Deserialize<'de> for BoolField {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
-        D: Deserializer<'de>
+        D: Deserializer<'de>,
     {
         Deserialize::deserialize(deserializer).map(|t| BoolField {
             value: t,
-            errors: Vec::new()
+            errors: Vec::new(),
         })
     }
 }

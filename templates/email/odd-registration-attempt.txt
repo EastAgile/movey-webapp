@@ -1,0 +1,17 @@
+
+What's up?
+
+
+Someone just attempted to register for an account with your email address. Was
+this you? If not, feel free to disregard. If it was, did you mean to reset
+your password? If so, use the link below.
+
+{{ action_url }}
+
+
+If you have any questions, feel free to email our support team at
+{{ JELLY_SUPPORT_EMAIL }}.
+
+Thanks,
+
+  - The Team

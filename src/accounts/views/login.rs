@@ -1,10 +1,10 @@
+use jelly::actix_web::{web::Form, HttpRequest};
 use jelly::prelude::*;
-use jelly::actix_web::{HttpRequest, web::Form};
 use jelly::request::{Authentication, DatabasePool};
 use jelly::Result;
 
-use crate::accounts::Account;
 use crate::accounts::forms::LoginForm;
+use crate::accounts::Account;
 
 /// The login form.
 pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
@@ -20,10 +20,7 @@ pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
 }
 
 /// POST-handler for logging in.
-pub async fn authenticate(
-    request: HttpRequest,
-    form: Form<LoginForm>
-) -> Result<HttpResponse> {
+pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result<HttpResponse> {
     if request.is_authenticated()? {
         return request.redirect("/dashboard/");
     }

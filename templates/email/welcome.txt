@@ -1,0 +1,12 @@
+Welcome {{ name }}!
+
+Thanks for signing up. We’re thrilled to have you on board.
+
+If you have any questions, feel free to email our support team: {{ JELLY_SUPPORT_EMAIL }}
+
+Thanks,
+- The Team
+
+
+P.S. Need immediate help getting started? Check out our help documentation: {{ help_url }}.
+Or, just reply to this email, the support team is always ready to help!
