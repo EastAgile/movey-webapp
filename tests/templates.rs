@@ -27,7 +27,7 @@ mod template_should_work_for {
     use mainlib::accounts::jobs;
     use std::env;
     use std::sync::{Arc, RwLock};
-    use test_env_log::test;
+    use test_log::test;
 
     #[test]
     fn odd_registration_attempt() -> Result<(), anyhow::Error> {

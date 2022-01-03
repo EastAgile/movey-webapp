@@ -1,6 +1,6 @@
 use super::common::env_exists_and_not_empty;
 pub use super::common::Email;
-use anyhow::Result;
+use anyhow::{anyhow, Context, Result};
 use serde::Serialize;
 use std::env::var;
 
@@ -37,7 +37,7 @@ pub fn check_conf() {
 
 impl Email {
     /// Send the email.
-    pub fn send_via_sendgrid(&self) -> Result<(), anyhow::Error> {
+    pub fn send_via_sendgrid(&self, base_api_url: &str) -> Result<(), anyhow::Error> {
         let text_plain = "text/plain".to_string();
         let text_html = "text/html".to_string();
         let data = SendgridV3Data {
@@ -60,11 +60,24 @@ impl Email {
         debug!("sendgrid payload: {}", serde_json::to_string(&data)?);
 
         let api_key = var("SENDGRID_API_KEY").expect("SENDGRID_API_KEY not set!");
-        minreq::post("https://api.sendgrid.com/v3/mail/send")
+        let resp = minreq::post(base_api_url.to_owned() + "/v3/mail/send") // TODO use external server  for test
             .with_header("Authorization: Bearer", api_key)
-            .with_json(&self)?
-            .send()?;
-        debug!("Mail sent to {} via sendgrid.", &self.to);
-        Ok(())
+            .with_json(&data)?
+            .with_timeout(30)
+            .send()
+            .context("Posting mail vias sendgrid API")?;
+
+        if resp.status_code == 200 {
+            debug!("Mail sent to {} via sendgrid.", &self.to);
+            Ok(())
+        } else {
+            Err(anyhow!(
+                "Sending mail to {} via sendgrid failed. API call returns code {} : {} \n {} ",
+                &self.to,
+                resp.status_code,
+                resp.reason_phrase,
+                resp.as_str()?
+            ))
+        }
     }
 }

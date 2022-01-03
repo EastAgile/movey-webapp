@@ -48,3 +48,8 @@ email-sendgrid = [ ]
 static = ["actix-files"]
 template_watcher = ["notify"]
 production = ["actix-web/secure-cookies", "djangohashers/pbkdf2"]
+
+[dev-dependencies]
+anyhow = "1.0.42"
+httpmock = "0.6.5"
+test-log = "0.2.8"

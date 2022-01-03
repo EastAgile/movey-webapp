@@ -29,11 +29,11 @@ impl Email {
        let mut res = Result::Err(anyhow!("No email provider configured"));
         #[cfg(feature = "email-postmark")]
         if res.is_err() {
-            res = Email::send_via_postmark(&self);
+            res = Email::send_via_postmark(&self, "https://api.postmarkapp.com" );
         }
         #[cfg(feature = "email-sendgrid")]
         if res.is_err() {
-            res = Email::send_via_sendgrid(&self);
+            res = Email::send_via_sendgrid(&self, "https://api.sendgrid.com");
         }
         #[cfg(feature = "email-smtp")]
         if res.is_err() {
