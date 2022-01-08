@@ -1,0 +1,127 @@
+name: Rust Tests
+
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '*.*'
+  pull_request:
+
+
+
+env:
+  CARGO_TERM_COLOR: always
+
+
+jobs:
+
+
+  test-server:
+    name: Test Server
+    strategy:
+      matrix:
+        os:
+        - ubuntu-latest
+          #- windows-latest
+          #- macOS-latest
+        rust:
+          - stable
+          - beta
+            #- nightly
+    runs-on: ${{ matrix.os }}
+    services:
+      postgres:
+        image: postgres:11
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: jelly
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - name: Setup | Checkout
+        uses: actions/checkout@v2
+      - name: Setup | Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          profile: minimal
+          override: true
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+      - name: Deactivate rusty-hook dependencie
+        run: sed -ie "/^rusty-hook/s/^/#/" Cargo.toml || true
+      - name: set up test .env file
+        run: cp .test-env .env
+      - name: Migrate database
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+        run: |
+          cargo install --version=0.5.9 sqlx-cli --no-default-features --features postgres
+          sqlx migrate run
+      - name: Test
+        uses: actions-rs/cargo@v1
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+        with:
+          command: test
+          args: --features=jelly/email-postmark,jelly/email-sendgrid,jelly/email-smtp
+
+  test-jelly:
+    name: Test Jelly 
+    strategy:
+      matrix:
+        os:
+        - ubuntu-latest
+          #- windows-latest
+          #- macOS-latest
+        rust:
+          - stable
+          - beta
+            #- nightly
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Setup | Checkout
+        uses: actions/checkout@v2
+      - name: Setup | Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          profile: minimal
+          override: true
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo
+      - name: Deactivate rusty-hook dependencie
+        run: sed -ie "/^rusty-hook/s/^/#/" Cargo.toml || true
+      - name: Test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --features=email-postmark,email-sendgrid,email-smtp --manifest-path jelly/Cargo.toml 
+

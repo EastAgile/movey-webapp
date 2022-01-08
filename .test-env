@@ -1,0 +1,71 @@
+# renamed to .env.
+
+# The URL this should sit on.
+BIND_TO="127.0.0.1:17001"
+
+# Your domain. In production this is used for secure
+# cookie handling.
+DOMAIN="http://127.0.0.1:17001"
+
+# Your domain. In production this is used for secure
+# session handling.
+# Needs to be set for production usage,
+# it's due to cookie handling for local hosts vs domains.
+SESSIONID_DOMAIN="https://www.example.com:17001"
+
+# Your database URL.
+#
+DATABASE_URL="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/jelly"
+
+# Your SECRET_KEY value, used notably for secure cookies.
+# If you change this, existing secure cookies will become invalid
+# and users will need to reauthenticate.
+#
+# This is similar to Django, so feel free to check a guide for creating
+# one. Be mindful of special characters here - e.g, "$" needs to be "\$".
+#
+SECRET_KEY="none"
+
+# Your postmarkapp.com API key, for sending emails. If you swap the Email
+# engine, then change this accordingly.
+#
+# Uncomment to use.
+POSTMARK_API_KEY="none"
+POSTMARK_MESSAGE_STREAM="outbound"
+
+
+# Your sendgrid.com API key, for sending emails. 
+#
+# Uncomment to use.
+SENDGRID_API_KEY="none"
+
+# EMAIL DEFAULT SENDER
+EMAIL_DEFAULT_FROM="example <test@example.com>"
+
+# EMAIL SMTP CONFIGURATION
+EMAIL_SMTP_HOST="localhost"
+EMAIL_SMTP_PORT="1025"
+EMAIL_SMTP_USERNAME="maildev"
+EMAIL_SMTP_PASSWORD="mailpass"
+# Disable TLS. Use only for local development.
+EMAIL_SMTP_NOTLS=1
+
+# Templates to monitor and/or use. e.g:
+#
+# /My/Templates/Path/**/*
+#
+# Uncomment to use.
+TEMPLATES_GLOB="templates/**/*"
+
+# Uncomment and set to your path to your static root, for static files.
+STATIC_ROOT="static"
+
+# Just force these here to make life easier. ;P
+RUST_BACKTRACE=1
+RUST_LOG="info,actix_web=trace,background_jobs_core=debug"
+
+# All variables starting with JELLY_ are exported in templates context and as
+# such can be use in response and mail templates
+#
+JELLY_SUPPORT_EMAIL="support@example.com"
+JELLY_HELP_URL="http://example.com/help"
