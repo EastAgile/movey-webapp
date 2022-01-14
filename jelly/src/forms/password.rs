@@ -29,6 +29,8 @@ impl PasswordField {
             if let Some(feedback) = estimate.feedback() {
                 if let Some(warning) = feedback.warning() {
                     self.errors.push(format!("{}", warning));
+                } else {
+                    self.errors.push(format!("{}", "Password not strong enough."));
                 }
 
                 self.hints = feedback
