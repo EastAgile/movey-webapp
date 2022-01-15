@@ -20,7 +20,7 @@ async-trait = "0.1.24"
 background-jobs = "0.8.0"
 chrono = { version = "0.4", features = ["serde"] }
 constant_time_eq = "0.1.5"
-djangohashers = { version = "1.5.1", default-features = false, features = ["with_pbkdf2"] }
+djangohashers = { version = "1.5.3", default-features = false, features = ["with_pbkdf2"] }
 dotenv = "0.15.0"
 env_logger = { version = "0.8.1", default-features = false, features = ["termcolor", "atty", "humantime"] }
 futures = "0.3"
