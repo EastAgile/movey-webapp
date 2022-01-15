@@ -35,7 +35,7 @@ impl Job for SendVerifyAccountEmail {
                 .await
                 .map_err(|e| anyhow!("Error fetching account for verification: {:?}", e))?;
 
-            let domain = env::var("DOMAIN").expect("No DOMAIN value set!");
+            let domain = env::var("JELLY_DOMAIN").expect("No JELLY_DOMAIN value set!");
 
             let verify_url = format!(
                 "{}/accounts/verify/{}-{}/",

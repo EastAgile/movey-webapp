@@ -54,7 +54,7 @@ impl Server {
         Email::check_conf();
 
         let bind = env::var("BIND_TO").expect("BIND_TO not set!");
-        let _root_domain = env::var("DOMAIN").expect("DOMAIN not set!");
+        let _root_domain = env::var("JELLY_DOMAIN").expect("JELLY_DOMAIN not set!");
 
         #[cfg(feature = "production")]
         let domain = env::var("SESSIONID_DOMAIN").expect("SESSIONID_DOMAIN not set!");

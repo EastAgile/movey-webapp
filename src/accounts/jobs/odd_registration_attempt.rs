@@ -30,7 +30,7 @@ pub fn build_context(name: &str) -> Context {
         "action_url",
         &format!(
             "{}/accounts/reset/",
-            var("DOMAIN").expect("DOMAIN not set?")
+            var("JELLY_DOMAIN").expect("JELLY_DOMAIN not set?")
         ),
     );
     context

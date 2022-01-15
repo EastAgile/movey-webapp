@@ -35,7 +35,7 @@ impl Job for SendResetPasswordEmail {
                 .await
                 .map_err(|e| anyhow!("Error fetching account for password reset: {:?}", e))?;
 
-            let domain = env::var("DOMAIN").expect("No DOMAIN value set!");
+            let domain = env::var("JELLY_DOMAIN").expect("No JELLY_DOMAIN value set!");
 
             let verify_url = format!(
                 "{}/accounts/reset/{}-{}/",
