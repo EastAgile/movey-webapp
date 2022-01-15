@@ -5,7 +5,7 @@ BIND_TO="127.0.0.1:17001"
 
 # Your domain. In production this is used for secure
 # cookie handling.
-DOMAIN="http://127.0.0.1:17001"
+JELLY_DOMAIN="http://127.0.0.1:17001"
 
 # Your domain. In production this is used for secure
 # session handling.
