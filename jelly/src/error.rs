@@ -4,6 +4,10 @@
 
 use actix_web::{HttpResponse, ResponseError};
 use std::{error, fmt};
+use diesel::{
+    r2d2::PoolError,
+    result::{Error as DBError},
+};
 
 /// This enum represents the largest classes of errors we can expect to
 /// encounter in the lifespan of our application. Feel free to add to this
@@ -13,7 +17,8 @@ use std::{error, fmt};
 pub enum Error {
     ActixWeb(actix_web::error::Error),
     Anyhow(anyhow::Error),
-    Database(sqlx::Error),
+    Pool(PoolError),
+    Database(DBError),
     Generic(String),
     Template(tera::Error),
     Json(serde_json::error::Error),
@@ -35,6 +40,7 @@ impl error::Error for Error {
             Error::ActixWeb(e) => Some(e),
             Error::Anyhow(e) => Some(e.root_cause()),
             Error::Database(e) => Some(e),
+            Error::Pool(e) => Some(e),
             Error::Template(e) => Some(e),
             Error::Json(e) => Some(e),
             Error::Radix(e) => Some(e),
@@ -59,9 +65,15 @@ impl From<serde_json::error::Error> for Error {
     }
 }
 
-impl From<sqlx::Error> for Error {
-    fn from(e: sqlx::Error) -> Self {
+impl From<DBError> for Error {
+    fn from(e: DBError) -> Self {
         Error::Database(e)
+    }
+}
+
+impl From<PoolError> for Error {
+    fn from(e: PoolError) -> Self {
+        Error::Pool(e)
     }
 }
 
@@ -115,12 +127,12 @@ pub(crate) fn render<E: std::fmt::Debug>(e: E) -> String {
                     color: #111;
                     font-family: -apple-system, "Helvetica Neue", Helvetica, "Segoe UI", Ubuntu, arial, sans-serif;
                 }}
-                
+
                 h1 {{ margin: 0; background: #F05758; border-bottom: 1px solid #C7484A; padding: 20px; font-size: 30px; font-weight: 600; line-height: 40px; }}
-                
+
                 code {{
                     display: block;
-                    font-family: "Anonymous Pro", Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif; 
+                    font-family: "Anonymous Pro", Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
                     font-size: 16px;
                     line-height: 20px;
                     padding: 20px;

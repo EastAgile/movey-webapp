@@ -17,8 +17,8 @@ pub use djangohashers;
 pub use futures;
 pub use serde;
 pub use serde_json;
-pub use sqlx;
 pub use tera;
+pub use diesel;
 
 #[macro_use]
 pub extern crate log;
@@ -38,3 +38,4 @@ mod templates;
 pub use server::Server;
 
 pub type Result<T> = std::result::Result<T, crate::error::Error>;
+pub type DieselPgPool = diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<diesel::PgConnection>>;

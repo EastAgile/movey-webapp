@@ -1,5 +1,8 @@
 use jelly::forms::{EmailField, PasswordField, TextField, Validation};
 use serde::{Deserialize, Serialize};
+use diesel::{Insertable};
+
+use crate::schema::accounts;
 
 fn default_redirect_path() -> String {
     "/".into()

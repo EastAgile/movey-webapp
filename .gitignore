@@ -9,3 +9,4 @@ jelly/Cargo.lock
 **/*.rs.bk
 
 .env
+.DS_Store

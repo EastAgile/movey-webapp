@@ -12,8 +12,6 @@ create table if not exists accounts (
     name text not null,
     email text not null unique,
     password text not null,
-    profile jsonb not null default '{}',
-    plan integer not null default 0,
     is_active boolean not null default true,
     is_admin boolean not null default false,
     has_verified_email boolean not null default false,

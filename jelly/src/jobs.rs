@@ -1,8 +1,8 @@
 //! This module contains types used in Job registration and handling.
 
-use sqlx::postgres::PgPool;
 use std::sync::{Arc, RwLock};
 use tera::Tera;
+use crate::DieselPgPool;
 
 pub use background_jobs::{Job, WorkerConfig};
 
@@ -13,13 +13,13 @@ pub const DEFAULT_QUEUE: &'static str = "default";
 #[derive(Clone)]
 pub struct JobState {
     pub name: String,
-    pub pool: PgPool,
+    pub pool: DieselPgPool,
     pub templates: Arc<RwLock<Tera>>,
 }
 
 impl JobState {
     /// Creates a new `JobState` object.
-    pub fn new(name: &str, pool: PgPool, templates: Arc<RwLock<Tera>>) -> Self {
+    pub fn new(name: &str, pool: DieselPgPool, templates: Arc<RwLock<Tera>>) -> Self {
         JobState {
             name: name.to_owned(),
             pool,

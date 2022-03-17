@@ -7,7 +7,7 @@ use jelly::prelude::*;
 use jelly::Result;
 
 use crate::accounts::forms::{ChangePasswordForm, EmailForm};
-use crate::accounts::jobs::{SendPasswordWasResetEmail, SendResetPasswordEmail};
+// use crate::accounts::jobs::{SendPasswordWasResetEmail, SendResetPasswordEmail};
 use crate::accounts::views::utils::validate_token;
 use crate::accounts::Account;
 
@@ -35,9 +35,9 @@ pub async fn request_reset(request: HttpRequest, form: Form<EmailForm>) -> Resul
         });
     }
 
-    request.queue(SendResetPasswordEmail {
-        to: form.email.value,
-    })?;
+    // request.queue(SendResetPasswordEmail {
+    //     to: form.email.value,
+    // })?;
 
     request.render(200, "accounts/reset_password/requested.html", {
         let mut context = Context::new();
@@ -97,9 +97,9 @@ pub async fn reset(
         let pool = request.db_pool()?;
         Account::update_password_and_last_login(account.id, &form.password, pool).await?;
 
-        request.queue(SendPasswordWasResetEmail {
-            to: account.email.clone(),
-        })?;
+        // request.queue(SendPasswordWasResetEmail {
+        //     to: account.email.clone(),
+        // })?;
 
         request.set_user(User {
             id: account.id,
