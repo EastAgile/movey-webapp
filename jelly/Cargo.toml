@@ -38,13 +38,14 @@ sha2 = "0.9"
 tera = "1.5"
 validator = "0.11"
 zxcvbn = "2.0.1"
-lettre = { version="0.10.0-rc.3", optional = true }
+lettre = { version="0.10.0-rc.3", optional = true, features = ["file-transport"] }
 
 [features]
 default = [ ]
 email-smtp = [ "lettre" ]
 email-postmark = [ ]
 email-sendgrid = [ ]
+email-local = [ "lettre" ]
 static = ["actix-files"]
 template_watcher = ["notify"]
 production = ["actix-web/secure-cookies", "djangohashers/with_pbkdf2"]

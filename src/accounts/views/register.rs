@@ -4,7 +4,7 @@ use jelly::request::{Authentication, DatabasePool};
 use jelly::Result;
 
 use crate::accounts::forms::NewAccountForm;
-// use crate::accounts::jobs::{SendAccountOddRegisterAttemptEmail, SendVerifyAccountEmail};
+use crate::accounts::jobs::{SendAccountOddRegisterAttemptEmail, SendVerifyAccountEmail};
 use crate::accounts::Account;
 
 pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
@@ -44,14 +44,14 @@ pub async fn create_account(
     let db = request.db_pool()?;
     match Account::register(&form, db).await {
         Ok(uid) => {
-            // request.queue(SendVerifyAccountEmail { to: uid })?;
+            request.queue(SendVerifyAccountEmail { to: uid })?;
         }
 
         Err(e) => {
             error!("Error with registering: {:?}", e);
-            // request.queue(SendAccountOddRegisterAttemptEmail {
-            //     to: form.email.value.clone(),
-            // })?;
+            request.queue(SendAccountOddRegisterAttemptEmail {
+                to: form.email.value.clone(),
+            })?;
         }
     }
 

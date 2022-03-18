@@ -3,7 +3,7 @@
 use jelly::actix_web::web::{get, post, resource, scope, ServiceConfig};
 
 pub mod forms;
-// pub mod jobs;
+pub mod jobs;
 pub mod models;
 pub mod views;
 

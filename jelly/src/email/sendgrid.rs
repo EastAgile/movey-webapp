@@ -61,7 +61,7 @@ impl Email {
 
         let api_key = var("SENDGRID_API_KEY").expect("SENDGRID_API_KEY not set!");
         let resp = minreq::post(base_api_url.to_owned() + "/v3/mail/send") // TODO use external server  for test
-            .with_header("Authorization: Bearer", api_key)
+            .with_header("Authorization", format!("{} {}", "Bearer", api_key))
             .with_json(&data)?
             .with_timeout(30)
             .send()

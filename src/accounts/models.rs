@@ -37,7 +37,7 @@ impl Account {
             .find(uid)
             .first::<Account>(&connection)?;
 
-        return Ok(result);
+        Ok(result)
     }
 
     pub async fn get_by_email(account_email: &str, pool: &DieselPgPool) -> Result<Self, Error> {
@@ -46,7 +46,7 @@ impl Account {
             .filter(email.eq(account_email))
             .first::<Account>(&connection)?;
 
-        return Ok(result);
+        Ok(result)
     }
 
     pub async fn authenticate(form: &LoginForm, pool: &DieselPgPool) -> Result<User, Error> {
@@ -59,7 +59,7 @@ impl Account {
             return Err(Error::InvalidPassword);
         }
 
-        return Ok(User {
+        Ok(User {
             id: user.id,
             name: user.name,
             is_admin: user.is_admin,
@@ -68,47 +68,37 @@ impl Account {
     }
 
     pub async fn fetch_email(uid: i32, pool: &DieselPgPool) -> Result<(String, String), Error> {
-        // let data = sqlx::query!(
-        //     "
-        //     SELECT
-        //         name, email
-        //     FROM accounts WHERE id = $1
-        // ",
-        //     id
-        // )
-        // .fetch_one(pool)
-        // .await?;
+        let connection = pool.get()?;
+        let result = accounts
+            .find(uid)
+            .select((name, email))
+            .first::<(String, String)>(&connection)?;
 
-        // Ok((data.name, data.email))
-        Err(Error::Generic("Not implemented!".to_string()))
+        Ok(result)
     }
 
     pub async fn fetch_name_from_email(account_email: &str, pool: &DieselPgPool) -> Result<String, Error> {
-        // let data = sqlx::query!(
-        //     "
-        //     SELECT name FROM accounts WHERE email = $1
-        // ",
-        //     email
-        // )
-        // .fetch_one(pool)
-        // .await?;
+        let connection = pool.get()?;
+        let result = accounts
+            .filter(email.eq(account_email))
+            .select(name)
+            .first::<String>(&connection)?;
 
-        // Ok(data.name)
-        Err(Error::Generic("Not implemented!".to_string()))
+        Ok(result)
     }
 
-    pub async fn register(form: &NewAccountForm, pool: &DieselPgPool) -> Result<(), Error> {
+    pub async fn register(form: &NewAccountForm, pool: &DieselPgPool) -> Result<i32, Error> {
         let connection = pool.get()?;
         let hashword = make_password(&form.password);
 
         let mut new_record = NewAccount::from_form(form);
         new_record.password = hashword.to_string();
 
-        diesel::insert_into(accounts::table)
+        let record = diesel::insert_into(accounts::table)
             .values(new_record)
             .get_result::<Account>(&connection)?;
 
-        return Ok(())
+        Ok(record.id)
     }
 
     pub async fn mark_verified(uid: i32, pool: &DieselPgPool) -> Result<(), Error> {
@@ -118,7 +108,7 @@ impl Account {
             .set((has_verified_email.eq(true), last_login.eq(offset::Utc::now())))
             .execute(&connection)?;
 
-        return Ok(())
+        Ok(())
     }
 
     pub async fn update_last_login(uid: i32, pool: &DieselPgPool) -> Result<(), Error> {
@@ -128,7 +118,7 @@ impl Account {
             .set(last_login.eq(offset::Utc::now()))
             .execute(&connection)?;
 
-        return Ok(())
+        Ok(())
     }
 
     pub async fn update_password_and_last_login(
@@ -143,7 +133,7 @@ impl Account {
             .set((password.eq(hashword), last_login.eq(offset::Utc::now())))
             .execute(&connection)?;
 
-        return Ok(())
+        Ok(())
     }
 }
 
