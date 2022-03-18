@@ -11,6 +11,7 @@ extern crate log;
 pub mod accounts;
 pub mod dashboard;
 pub mod pages;
+pub mod api;
 
 pub mod schema;
 
@@ -25,6 +26,7 @@ pub async fn main() -> io::Result<()> {
         .register_service(accounts::configure)
         .register_jobs(accounts::jobs::configure)
         .register_service(dashboard::configure)
+        .register_service(api::configure)
         .run()
         .await?
         .await
