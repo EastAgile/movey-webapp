@@ -6,6 +6,7 @@ pub mod forms;
 pub mod jobs;
 pub mod models;
 pub mod views;
+mod tests;
 
 pub use models::Account;
 

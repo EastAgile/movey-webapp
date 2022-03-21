@@ -8,12 +8,17 @@ extern crate diesel;
 #[macro_use]
 extern crate log;
 
+#[macro_use]
+extern crate diesel_migrations;
+
 pub mod accounts;
 pub mod dashboard;
 pub mod pages;
 pub mod api;
 
 pub mod schema;
+
+mod test;
 
 use jelly::Server;
 

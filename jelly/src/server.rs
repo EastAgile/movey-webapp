@@ -7,9 +7,8 @@ use actix_web::{dev, middleware, web, App, HttpResponse, HttpServer};
 use background_jobs::memory_storage::Storage;
 use background_jobs::{create_server, WorkerConfig};
 
-use diesel::r2d2::{Pool, ConnectionManager};
-
 use crate::email::{Configurable, Email};
+use crate::database;
 use crate::jobs::{JobState, DEFAULT_QUEUE};
 
 /// This struct provides a slightly simpler way to write `main.rs` in
@@ -69,16 +68,7 @@ impl Server {
         let template_store = crate::templates::load();
         let templates = template_store.templates.clone();
 
-        let db_uri = env::var("DATABASE_URL").expect("DATABASE_URL not set!");
-        let pool_size = env::var("DATABASE_POOL_SIZE")
-            .unwrap_or_else(|_| "15".to_string())
-            .parse()
-            .expect("DATABASE_POOL_SIZE must be a number");
-        let manager = ConnectionManager::new(db_uri);
-        let pool = Pool::builder()
-            .max_size(pool_size)
-            .build(manager)
-            .expect("Unable to connect to database!");
+        let pool = database::init_database();
 
         let apps = Arc::new(self.apps);
         let jobs = Arc::new(self.jobs);

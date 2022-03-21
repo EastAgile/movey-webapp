@@ -49,6 +49,7 @@ email-local = [ "lettre" ]
 static = ["actix-files"]
 template_watcher = ["notify"]
 production = ["actix-web/secure-cookies", "djangohashers/with_pbkdf2"]
+test = [ ]
 
 [dev-dependencies]
 anyhow = "1.0.42"

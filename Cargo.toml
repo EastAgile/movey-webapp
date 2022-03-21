@@ -14,19 +14,24 @@ path = "src/main.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
+actix-rt = "*"
 base64-url = "1.4.8"
+diesel = { version = "1.4.8", features = ["postgres", "r2d2", "chrono"] }
+diesel_migrations = "1.4.0"
+dotenv = "0.15.0"
 jelly = { path = "jelly", features = ["email-local"] }
+lazy_static = "1.4.0"
 log = "*"
 serde = { version = "1" }
 serde_json = "1.0.79"
-diesel = { version = "1.4.8", features = ["postgres", "r2d2", "chrono"] }
 
 [features]
 default = ["jelly/template_watcher", "jelly/static"]
 production = ["jelly/production"]
+
 [dev-dependencies]
 anyhow = "1.0.42"
 dotenv = "0.15.0"
 env_logger = "0.9.0"
-lazy_static = "1.4.0"
 test-log = "0.2.8"
+jelly = { path = "jelly", features = ["test"] }

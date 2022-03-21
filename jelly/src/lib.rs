@@ -32,6 +32,7 @@ pub mod jobs;
 pub mod prelude;
 pub mod request;
 pub mod utils;
+pub mod database;
 
 mod server;
 mod templates;
