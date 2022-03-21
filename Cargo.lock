@@ -1808,7 +1808,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "movey_test"
+name = "movey_app"
 version = "0.1.0"
 dependencies = [
  "anyhow",
