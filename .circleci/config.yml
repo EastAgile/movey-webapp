@@ -13,4 +13,4 @@ jobs:
       - run: cargo --version
       - run:
           name: Run Tests
-          command: "cargo test"
+          command: "cargo test --features test"
