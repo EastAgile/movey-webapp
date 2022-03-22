@@ -11,6 +11,14 @@ jobs:
     steps:
       - checkout
       - run: cargo --version
+      - run: cargo install diesel_cli --no-default-features --features "postgres"
       - run:
-          name: Run Tests
-          command: "cargo test --features test"
+          name: Run Unit Tests
+          command: "cargo test --lib --features test"
+      - run:
+          name: Setup test server for integration tests
+          command: "DATABASE_URL=postgres://circleci@localhost/movey_app_test diesel setup && PORT=8182 cargo run"
+          background: true
+      - run:
+          name: Run Integration Tests
+          command: "cargo test --test '*' --features test"
