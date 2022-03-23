@@ -67,7 +67,7 @@ impl Email {
             .send()
             .context("Posting mail vias sendgrid API")?;
 
-        if resp.status_code == 200 {
+        if resp.status_code >= 200 && resp.status_code <= 299 {
             debug!("Mail sent to {} via sendgrid.", &self.to);
             Ok(())
         } else {
