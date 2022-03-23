@@ -5,7 +5,8 @@ use super::super::world::TestWorld;
 
 #[given("I visit the root page")]
 async fn visit_root_page(world: &mut TestWorld) {
-    world.go_to_root_url().await
+    world.go_to_root_url().await;
+    world.driver.get("http://localhost:17002/home").await.unwrap();
 }
 
 #[when("I click on the Register link")]
