@@ -18,7 +18,7 @@ pub mod api;
 
 pub mod schema;
 
-mod test;
+pub mod test;
 
 use jelly::Server;
 

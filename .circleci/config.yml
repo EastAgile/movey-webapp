@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  browser-tools: circleci/browser-tools@1.1.3
+
 jobs:
   build:
     docker:
@@ -14,11 +17,17 @@ jobs:
       - run: cargo install diesel_cli --no-default-features --features "postgres"
       - run:
           name: Run Unit Tests
-          command: "cargo test --lib --features test"
+          command: "cargo test --lib --features test -- --test-threads=1"
       - run:
           name: Setup test server for integration tests
-          command: "DATABASE_URL=postgres://circleci@localhost/movey_app_test diesel setup && PORT=8182 cargo run"
+          command: "DATABASE_URL=$DATABASE_URL_TEST diesel setup && PORT=17002 cargo run --features test"
+          background: true
+      - browser-tools/install-chrome
+      - browser-tools/install-chromedriver
+      - run:
+          name: Start chromedriver
+          command: chromedriver --port=4444
           background: true
       - run:
           name: Run Integration Tests
-          command: "cargo test --test '*' --features test"
+          command: "cargo test --features test --test integration_tests -- --concurrency 1"

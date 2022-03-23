@@ -38,37 +38,13 @@ pub struct DatabaseTestContext {
 #[cfg(test)]
 impl DatabaseTestContext {
     pub fn new() -> Self {
-        let database_base_url = env::var("DATABASE_URL_TEST_BASE").expect("DATABASE_URL_TEST_BASE must be set");
-        let conn = PgConnection::establish(&database_base_url).expect("Cannot connect to base database.");
-
-        Self::drop_database(&conn);
-
-        let query = diesel::sql_query(format!("CREATE DATABASE {}", TEST_DB_NAME).as_str());
-        query
-            .execute(&conn)
-            .expect(format!("Could not create database {}", TEST_DB_NAME).as_str());
-
-        let database_url = env::var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST must be set");
-        let conn = PgConnection::establish(&database_url).expect("Cannot connect to test database.");
-        embedded_migrations::run(&conn).unwrap();
+        TestDatabaseHelper::create_test_database();
 
         Self {}
     }
 
     fn drop_database(conn: &PgConnection) {
-        let disconnect_users = format!(
-            "SELECT pg_terminate_backend(pid)
-FROM pg_stat_activity
-WHERE datname = '{}';",
-            TEST_DB_NAME
-        );
-
-        diesel::sql_query(disconnect_users.as_str())
-            .execute(conn)
-            .unwrap();
-
-        let query = diesel::sql_query(format!("DROP DATABASE {}", TEST_DB_NAME).as_str());
-        query.execute(conn);
+        TestDatabaseHelper::drop_test_database(conn)
     }
 }
 
@@ -81,5 +57,52 @@ impl Drop for DatabaseTestContext {
             PgConnection::establish(&database_base_url).expect("Cannot connect to test database.");
 
         Self::drop_database(&conn);
+    }
+}
+
+pub struct TestDatabaseHelper {}
+impl TestDatabaseHelper {
+    pub fn create_test_database() {
+        let database_base_url = env::var("DATABASE_URL_TEST_BASE").expect("DATABASE_URL_TEST_BASE must be set");
+        let conn = PgConnection::establish(&database_base_url).expect("Cannot connect to base database.");
+
+        Self::drop_test_database(&conn);
+
+        let query = diesel::sql_query(format!("CREATE DATABASE {}", TEST_DB_NAME).as_str());
+        query
+            .execute(&conn)
+            .expect(format!("Could not create database {}", TEST_DB_NAME).as_str());
+
+        let database_url = env::var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST must be set");
+        let conn = PgConnection::establish(&database_url).expect("Cannot connect to test database.");
+        embedded_migrations::run(&conn).unwrap();
+    }
+
+    pub fn drop_test_database(conn: &PgConnection) {
+        let disconnect_users = format!(
+            "SELECT pg_terminate_backend(pid)
+FROM pg_stat_activity
+WHERE datname = '{}';",
+            TEST_DB_NAME
+        );
+
+        diesel::sql_query(disconnect_users.as_str())
+            .execute(conn)
+            .unwrap();
+
+        let query = diesel::sql_query(format!("DROP DATABASE {}", TEST_DB_NAME).as_str());
+        match query.execute(conn) {
+            Ok(_) => {},
+            Err(_) => {}
+        };
+    }
+
+    pub fn cleanup_test_database() {
+        let database_base_url = env::var("DATABASE_URL_TEST_BASE")
+        .expect("DATABASE_URL_TEST_BASE must be set");
+        let conn =
+            PgConnection::establish(&database_base_url).expect("Cannot connect to test database.");
+
+        Self::drop_test_database(&conn);
     }
 }
