@@ -4,6 +4,7 @@ use std::sync::Arc;
 use actix_session::CookieSession;
 use actix_web::web::ServiceConfig;
 use actix_web::{dev, middleware, web, App, HttpResponse, HttpServer};
+use actix_web_middleware_redirect_scheme::RedirectSchemeBuilder;
 use background_jobs::memory_storage::Storage;
 use background_jobs::{create_server, WorkerConfig};
 
@@ -89,10 +90,14 @@ impl Server {
                 .domain(&domain)
                 .secure(true);
 
+            let should_redirect_https = env::var("REDIRECT_HTTPS")
+                .unwrap_or_else(|_| "false".to_string()) != "false";
+
             let mut app = App::new()
                 .app_data(pool.clone())
                 .app_data(templates.clone())
                 .wrap(middleware::Logger::default())
+                .wrap(RedirectSchemeBuilder::new().enable(should_redirect_https).build())
                 .wrap(session_storage)
                 // Depending on your CORS needs, you may opt to change this
                 // block. Up to you.
