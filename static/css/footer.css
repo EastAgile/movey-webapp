@@ -1,0 +1,74 @@
+footer {
+  background: #02143A;
+  position: absolute;
+  bottom: 0;
+  padding: 0 10%;
+}
+
+.footer-container {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 1fr 4fr 1fr;
+      grid-template-columns: 1fr 4fr 1fr;
+  margin: 40px auto;
+}
+
+.footer-container .footer-about .title {
+  color: var(--text-blue);
+  text-align: center;
+}
+
+.footer-container .footer-about .about-us {
+  color: var(--text-gray);
+  margin-top: 20px;
+}
+
+.footer-container .footer-center .link-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
+  color: white;
+}
+
+.footer-container .footer-center .link-container a {
+  color: white;
+}
+
+.footer-container .footer-center .link-container a:link {
+  text-decoration: underline;
+}
+
+.footer-container .footer-center .social-icons {
+  list-style-type: none;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  width: 40%;
+  margin: 30px auto;
+}
+
+.footer-container .footer-center .social-icons li {
+  border: 1px solid var(--text-blue);
+  padding: 10px 15px;
+  border-radius: 50%;
+}
+
+.footer-container .footer-center .social-icons li a {
+  color: var(--text-blue);
+}
+
+.footer-container .footer-center .social-icons li a:link {
+  text-decoration: none;
+}
+
+.footer-container .footer-copyright {
+  color: var(--text-gray);
+}
+/*# sourceMappingURL=footer.css.map */

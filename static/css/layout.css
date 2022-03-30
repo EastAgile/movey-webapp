@@ -1,0 +1,9 @@
+:root {
+  --text-blue: #44A1E7;
+  --text-gray: #808FB0;
+  --sub-title-font: 'Syncopate', sans-serif;
+  font-family: 'Mulish', sans-serif;
+}
+body {
+  margin: 0;
+}
