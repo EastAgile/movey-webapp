@@ -1,0 +1,127 @@
+.background {
+  width: 100vw;
+  height: 100vh;
+  background: url(./Map.png);
+  background-color: #f8f9fb;
+  background-position-y: -15rem;
+}
+.background .logo {
+  color: var(--dark-blue-color);
+  font-weight: 900;
+  font-size: xx-large;
+  padding: 2rem 3rem;
+  background-color: transparent;
+}
+.background .signup_wrapper::before {
+  content: url(large_curve.svg);
+  position: fixed;
+  left: 57vw;
+  top: 3vh;
+}
+.background .signup_wrapper::after {
+  content: url(small_curve.svg);
+  position: fixed;
+  left: 25vw;
+  bottom: 11vh;
+}
+.background .signup_wrapper .signup {
+  position: relative;
+  z-index: 99;
+  background-color: white;
+  width: 25%;
+  min-width: 424px;
+  height: fit-content;
+  padding: 1.5rem 3rem;
+  margin: 10vh auto;
+}
+.background .signup_wrapper .signup h1 {
+  font-family: var(--sub-title-font);
+  color: var(--blue-color);
+  margin-bottom: 2rem;
+}
+.background .signup_wrapper .signup #thirdparty {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2.5rem;
+}
+.background .signup_wrapper .signup #thirdparty button {
+  display: flex;
+  align-items: center;
+  width: 49%;
+  font-family: "Mulish";
+  font-size: medium;
+  padding: 0.5rem;
+  background-color: white;
+  border-radius: 4px;
+  border: 2px solid var(--gray-color);
+}
+.background .signup_wrapper .signup #thirdparty button i {
+  font-size: x-large;
+  margin-right: 0.5rem;
+}
+.background .signup_wrapper .signup #separator {
+  color: var(--gray-color);
+  margin-bottom: 1rem;
+}
+.background .signup_wrapper .signup #separator div {
+  border-top: 2px solid var(--gray-color);
+}
+.background .signup_wrapper .signup #separator p {
+  width: fit-content;
+  font-size: large;
+  line-height: 1.5rem;
+  margin: -0.75rem auto 0;
+  background: white;
+  padding: 0 1rem;
+}
+.background .signup_wrapper .signup form #usr_input_label {
+  display: inline-block;
+  font-size: large;
+  font-weight: 500;
+  color: var(--dark-blue-color);
+  margin-top: 1rem;
+}
+.background .signup_wrapper .signup form #usr_input {
+  width: 95%;
+  font-family: "Mulish";
+  font-size: large;
+  padding: 0.5rem;
+  margin: 0.25rem 0;
+  border-radius: 4px;
+  color: var(--dark-blue-color);
+}
+.background .signup_wrapper .signup form .error {
+  font-family: "Mulish";
+  color: var(--blue-color);
+  margin-bottom: 1rem;
+}
+.background .signup_wrapper .signup form button {
+  width: 100%;
+  padding: 0.75rem;
+  margin: 1.5rem 0;
+  border-radius: 4px;
+  border: none;
+  background-color: var(--blue-color);
+  color: white;
+  font-family: "Mulish";
+  font-size: large;
+}
+.background .signup_wrapper .signup form #iagree {
+  margin: 1rem 0;
+}
+.background .signup_wrapper .signup form #iagree input {
+  border-radius: 4px;
+  color: var(--blue-color);
+}
+.background .signup_wrapper .signup form #iagree a {
+  color: var(--dark-blue-color);
+}
+.background .signup_wrapper .signup #signin_inv {
+  color: var(--dark-blue-color);
+}
+.background .signup_wrapper .signup #signin_inv a {
+  text-decoration: none;
+  color: var(--blue-color);
+}
+
+/*# sourceMappingURL=signup.css.map */
