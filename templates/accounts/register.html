@@ -1,9 +1,17 @@
-{% extends "layout.html" %}
+{% extends "accounts/layout.html" %}
 
 {% block title %}Sign Up{% endblock %}
 
+{% block meta %}
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="447664159207-fmberk9bafq0trijapdf4fsbqqv9ht5k.apps.googleusercontent.com">
+{% endblock %}
+{% block script %}
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+{% endblock %}
+
+
 {% block content %}
-<h1>Sign Up</h1>
 
 {% if error %}
 <ul>
@@ -11,23 +19,102 @@
 </ul>
 {% endif %}
 
-<form action="/accounts/register/" method="POST">
-    <p>
-        <label for="email">Email:</label>
-        <input name="email" type="email" value="{{ form.email.value }}">
-        {% if form.email.errors | length > 0 %}
-            <p class="error">{{ form.email.errors }}</p>
-        {% endif %}
-    </p>
+<div class="background">
 
-    <p>
-        <label for="password">Password:</label>
-        <input name="password" type="password">
-        {% if form.password.errors | length > 0 %}
-        <p class="error">{{ form.password.errors }}</p>
-        {% endif %}
-    </p>
+    <div class="logo">
+        <svg width="236" height="31" viewBox="0 0 236 31" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M105.464 0.370117C102.632 0.370117 100.042 0.679462 97.7036 1.31085C95.3758 1.93003 93.3534 2.86207 91.6599 4.12524C89.9563 5.39596 88.6372 6.98773 87.7138 8.89C86.7826 10.7953 86.3337 12.9647 86.3337 15.3701C86.3337 17.7764 86.783 19.9513 87.7131 21.868L87.7145 21.8709C88.6385 23.7608 89.9576 25.3453 91.6599 26.615C93.3521 27.8772 95.3732 28.8155 97.6999 29.4476L97.7035 29.4486L97.7072 29.4495C100.044 30.0674 102.633 30.3701 105.464 30.3701C108.295 30.3701 110.872 30.0674 113.185 29.4487L113.187 29.4482L113.19 29.4476C115.517 28.8154 117.533 27.8766 119.214 26.6124C120.904 25.3414 122.21 23.7555 123.12 21.8649L123.122 21.862C124.037 19.9468 124.479 17.774 124.479 15.3701C124.479 12.9674 124.037 10.8005 123.121 8.89688C122.211 6.99346 120.905 5.40007 119.214 4.12788C117.532 2.86301 115.515 1.93056 113.187 1.31128C110.873 0.679259 108.295 0.370117 105.464 0.370117ZM135.513 1.04247H125.056L139.531 29.6593H149.194L163.773 1.04247H153.309L144.42 19.4624L135.513 1.04247ZM195.459 1.04247H166.515V29.6593H195.727V21.8086H176.056V18.8825H194.46V11.0317H176.056V8.89324H195.459V1.04247ZM209.35 1.04247H198.473L212.502 18.1684V29.6593H221.832V18.1684L235.862 1.04247H224.983L217.185 10.9796L209.35 1.04247ZM101.91 8.58099C102.905 8.37032 104.086 8.25931 105.464 8.25931C107.529 8.25931 109.154 8.49575 110.378 8.92631C111.654 9.37518 112.586 9.93549 113.233 10.572L113.236 10.5751L113.239 10.5782C113.925 11.2417 114.376 11.9682 114.623 12.7616L114.625 12.7699L114.628 12.7782C114.913 13.6438 115.053 14.5065 115.053 15.3701C115.053 16.2338 114.913 17.1043 114.627 17.9853L114.625 17.9896L114.624 17.9939C114.378 18.774 113.927 19.496 113.239 20.162L113.236 20.1651L113.233 20.1682C112.586 20.8047 111.654 21.3651 110.378 21.8139C109.154 22.2445 107.529 22.4809 105.464 22.4809C104.086 22.4809 102.902 22.3763 101.904 22.1771C100.887 21.9615 100.039 21.6808 99.3461 21.3463C98.6398 20.9925 98.0749 20.5956 97.6339 20.1652C97.171 19.7132 96.8149 19.2417 96.5539 18.7522C96.2822 18.2296 96.0878 17.6892 95.9683 17.1287C95.8543 16.5328 95.7982 15.9469 95.7982 15.3701C95.7982 14.807 95.8542 14.2346 95.9679 13.6519C96.0874 13.0908 96.2816 12.5577 96.5517 12.0499L96.5539 12.0456L96.5562 12.0414C96.8175 11.5395 97.1732 11.0632 97.6339 10.6135L97.6387 10.6088L97.6435 10.6041C98.0841 10.1634 98.6479 9.76219 99.3525 9.40987C100.039 9.06644 100.883 8.78648 101.897 8.58352L101.904 8.58229L101.91 8.58099Z" fill="#001F60"/>
+            <path d="M20.9209 0.370118C27.465 0.370119 30.783 4.45452 33.5474 7.72218C36.3126 11.0804 38.1557 13.0773 41.842 13.0773C45.5283 13.0773 47.4641 11.0804 50.1365 7.72218C52.809 4.45453 56.2196 0.370121 62.763 0.370121C69.3071 0.370122 72.6251 4.45453 75.3895 7.72218C78.1547 11.0804 79.9978 13.0773 83.6841 13.0773L83.6841 30.3701C77.14 30.3701 73.8221 26.2857 71.0576 23.0181C68.2925 19.6598 66.4493 17.6629 62.763 17.6629C59.0767 17.6629 57.1409 19.6598 54.4685 23.0181C51.796 26.2857 48.3854 30.3701 41.842 30.3701C35.2979 30.3701 31.98 26.2857 29.2155 23.018C26.4504 19.6598 24.6072 17.6629 20.9209 17.6629C17.2346 17.6629 15.2988 19.6598 12.6264 23.018C9.9539 26.2857 6.54329 30.3701 -0.00012207 30.3701L-0.000120326 13.0773C3.68617 13.0773 5.62197 11.0804 8.29444 7.72218C10.9669 4.45452 14.3775 0.370118 20.9209 0.370118Z" fill="#001F60"/>
+        </svg>
+    </div>
 
-    <button type="submit" class="create_account_btn">Create Account</button>
-</form>
+    
+    <div class="signup_wrapper">
+
+        <div class="signup">
+    
+            <h1>Sign Up</h1>
+    
+            <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+            
+
+            <div id="thirdparty">
+                <button>
+                    <i class="fa fa-google" aria-hidden="true" ></i>
+                    Sign up with Google
+                </button>
+                <button>
+                    <i class="fa fa-github" aria-hidden="true" style="color:var(--blue-color);"></i>
+                    Sign up with Github
+                </button>
+            </div>
+    
+            <div id="separator">
+                <div>
+                    <p>
+                        or use your email
+                    </p>
+                </div>
+            </div>
+    
+                
+            <form action="/accounts/register/" method="POST">
+                
+                <label for="email" id="usr_input_label">Email Address</label>
+                <input name="email" type="email" id="usr_input" value="{{ form.email.value }}">
+                {% if form.email.errors | length > 0 %}
+                    {% for err in form.email.errors %}
+                        <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
+                    {% endfor %}
+                {% endif %}
+    
+                <label for="password" id="usr_input_label">Password</label>
+                <input name="password" type="password" id="usr_input">
+                {% if form.password.errors | length > 0 %}
+                    {% for err in form.password.errors %}
+                        <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
+                    {% endfor %}
+                {% endif %}
+    
+                <button type="submit" class="create_account_btn">
+                    Create an Account
+                </button>
+    
+                <input type="checkbox" name="iagree" id="iagree">
+                <label for="iagree" id="iagree">
+                    I agree to <a href="#">Term of Service</a> and <a href="#">Privacy Policy</a>
+                </label>
+    
+            </form>
+    
+    
+            <p id="signin_inv">Already a member? <a href="/accounts/login/">Sign in</a></p>
+    
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+    function onSignIn(googleUser) {
+        // Useful data for your client-side scripts:
+        var profile = googleUser.getBasicProfile();
+        console.log("ID: " + profile.getId()); // Don't send this directly to your server!
+        console.log('Full Name: ' + profile.getName());
+        console.log('Given Name: ' + profile.getGivenName());
+        console.log('Family Name: ' + profile.getFamilyName());
+        console.log("Image URL: " + profile.getImageUrl());
+        console.log("Email: " + profile.getEmail());
+
+        // The ID token you need to pass to your backend:
+        var id_token = googleUser.getAuthResponse().id_token;
+        console.log("ID Token: " + id_token);
+    }
+</script>
+
+
+
+
+
 {% endblock %}
