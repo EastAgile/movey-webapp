@@ -1,8 +1,11 @@
 .home-container {
-  background-color: #001F60;
-  padding: 70px 20% 0 20%;
+  background: var(--dark-blue-color);
+  padding: 120px 20% 0 20%;
+  margin-top: 100px;
   text-align: center;
-  height: 90vh;
+  height: calc(100vh - 330px);
+  overflow: scroll;
+  box-sizing: border-box;
   .subtitle {
     font-family: var(--sub-title-font);
     color: white;
@@ -28,7 +31,7 @@
         padding: 12px;
         border: none;
         width: 100%;
-        color: #001F60;
+        color: var(--dark-blue-color);
       }
     }
   }
@@ -40,7 +43,7 @@
     text-align: center;
     font-size: 1.2rem;
     .stat-package {
-      border-right: 2px solid var(--text-blue);
+      border-right: 2px solid var(--blue-color);
     }
     .stat-no {
       font-weight: bold;
@@ -48,11 +51,11 @@
       margin-bottom: 5px;
     }
     .stat-name {
-      color: var(--text-blue);
+      color: var(--blue-color);
     }
   }
   .social-container {
-    color: var(--text-gray);
+    color: var(--gray-color);
     .social-icons {
       list-style-type: none;
       display: flex;
@@ -60,11 +63,11 @@
       width: 40%;
       margin: 20px auto;
       li {
-        border: 1px solid var(--text-blue);
+        border: 1px solid var(--blue-color);
         border-radius: 5px;
         padding: 7px 20px;
         a {
-          color: var(--text-gray);
+          color: var(--gray-color);
           &:link {
             text-decoration: none;
           }

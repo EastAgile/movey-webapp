@@ -1,0 +1,54 @@
+header {
+  height: 100px;
+  padding: 30px;
+  background: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  box-sizing: border-box;
+}
+.header-container {
+  display: grid;
+  grid-template-columns: 40% auto;
+  .sub-title {
+    font-weight: bold;
+    font-size: 2rem;
+  }
+  a {
+    color: var(--dark-blue-color);
+    text-decoration: none;
+  }
+  nav {
+    display: flex;
+    justify-content: space-between;
+
+    ul {
+      list-style-type: none;
+      margin: 0;
+      display: flex;
+      li {
+        margin: 0 10px;
+      }
+    }
+
+    button {
+      cursor: pointer;
+      padding: 10px;
+      
+      &.sign-in {
+        background: none;
+        border: none;
+        margin: 0;
+        color: var(--dark-blue-color);
+      }
+      &.sign-up {
+        background: var(--blue-color);
+        border: none;
+        border-radius: 5px;
+        color: white;
+        
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
 :root {
-  --text-blue: #44A1E7;
-  --text-gray: #808FB0;
+  --blue-color: #44A1E7;
+  --gray-color: #808FB0;
+  --dark-blue-color: #001F60;
   --sub-title-font: 'Syncopate', sans-serif;
   font-family: 'Mulish', sans-serif;
 }

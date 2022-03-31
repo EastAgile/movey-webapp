@@ -1,8 +1,12 @@
 .home-container {
-  background-color: #001F60;
-  padding: 70px 20% 0 20%;
+  background: var(--dark-blue-color);
+  padding: 120px 20% 0 20%;
+  margin-top: 100px;
   text-align: center;
-  height: 90vh;
+  height: calc(100vh - 330px);
+  overflow: scroll;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
 }
 
 .home-container .subtitle {
@@ -37,7 +41,7 @@
   padding: 12px;
   border: none;
   width: 100%;
-  color: #001F60;
+  color: var(--dark-blue-color);
 }
 
 .home-container .stat-container {
@@ -52,7 +56,7 @@
 }
 
 .home-container .stat-container .stat-package {
-  border-right: 2px solid var(--text-blue);
+  border-right: 2px solid var(--blue-color);
 }
 
 .home-container .stat-container .stat-no {
@@ -62,11 +66,11 @@
 }
 
 .home-container .stat-container .stat-name {
-  color: var(--text-blue);
+  color: var(--blue-color);
 }
 
 .home-container .social-container {
-  color: var(--text-gray);
+  color: var(--gray-color);
 }
 
 .home-container .social-container .social-icons {
@@ -82,13 +86,13 @@
 }
 
 .home-container .social-container .social-icons li {
-  border: 1px solid var(--text-blue);
+  border: 1px solid var(--blue-color);
   border-radius: 5px;
   padding: 7px 20px;
 }
 
 .home-container .social-container .social-icons li a {
-  color: var(--text-gray);
+  color: var(--gray-color);
 }
 
 .home-container .social-container .social-icons li a:link {

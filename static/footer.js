@@ -45,6 +45,6 @@ class Footer {
           © 2021 Tokners. All rights reserved.
           </div>
         </div>
-    </footer>>`;
+    </footer>`;
   }
 }

@@ -1,8 +1,13 @@
 footer {
   background: #02143A;
-  position: absolute;
+  height: 250px;
+  padding: 30px;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  position: fixed;
   bottom: 0;
-  padding: 0 10%;
+  left: 0;
+  right: 0;
 }
 
 .footer-container {
@@ -14,12 +19,12 @@ footer {
 }
 
 .footer-container .footer-about .title {
-  color: var(--text-blue);
+  color: var(--blue-color);
   text-align: center;
 }
 
 .footer-container .footer-about .about-us {
-  color: var(--text-gray);
+  color: var(--gray-color);
   margin-top: 20px;
 }
 
@@ -55,13 +60,13 @@ footer {
 }
 
 .footer-container .footer-center .social-icons li {
-  border: 1px solid var(--text-blue);
+  border: 1px solid var(--blue-color);
   padding: 10px 15px;
   border-radius: 50%;
 }
 
 .footer-container .footer-center .social-icons li a {
-  color: var(--text-blue);
+  color: var(--blue-color);
 }
 
 .footer-container .footer-center .social-icons li a:link {
@@ -69,6 +74,6 @@ footer {
 }
 
 .footer-container .footer-copyright {
-  color: var(--text-gray);
+  color: var(--gray-color);
 }
 /*# sourceMappingURL=footer.css.map */
