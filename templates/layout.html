@@ -22,14 +22,8 @@
     <![endif]-->
 </head>
 <body>
-    <div id="header"></div>
+    {% include "header.html" %}
     {% block content %}{% endblock %}
-    <div id="footer"></div>
-    <script src="static/header.js"></script>
-    <script src="static/footer.js"></script>
-    <script>
-      new Header("header");
-      new Footer("footer");
-    </script>
+    {% include "footer.html" %}
 </body>
 </html>
