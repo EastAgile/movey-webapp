@@ -6,64 +6,37 @@ header {
   top: 0;
   left: 0;
   right: 0;
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
-}
+  box-sizing: border-box; }
 
 .header-container {
-  display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 40% auto;
-      grid-template-columns: 40% auto;
-}
+  grid-template-columns: 40% auto; }
+  .header-container .sub-title {
+    font-weight: bold;
+    font-size: 2rem; }
+  .header-container a {
+    color: var(--dark-blue-color);
+    text-decoration: none; }
+  .header-container nav {
+    display: flex;
+    justify-content: space-between; }
+    .header-container nav ul {
+      list-style-type: none;
+      margin: 0;
+      display: flex; }
+      .header-container nav ul li {
+        margin: 0 10px; }
+    .header-container nav button {
+      cursor: pointer;
+      padding: 10px; }
+      .header-container nav button.sign-in {
+        background: none;
+        border: none;
+        margin: 0;
+        color: var(--dark-blue-color); }
+      .header-container nav button.sign-up {
+        background: var(--blue-color);
+        border: none;
+        border-radius: 5px;
+        color: white; }
 
-.header-container .sub-title {
-  font-weight: bold;
-  font-size: 2rem;
-}
-
-.header-container a {
-  color: var(--dark-blue-color);
-  text-decoration: none;
-}
-
-.header-container nav {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
-}
-
-.header-container nav ul {
-  list-style-type: none;
-  margin: 0;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-}
-
-.header-container nav ul li {
-  margin: 0 10px;
-}
-
-.header-container nav button {
-  cursor: pointer;
-  padding: 10px;
-}
-
-.header-container nav button.sign-in {
-  background: none;
-  border: none;
-  margin: 0;
-  color: var(--dark-blue-color);
-}
-
-.header-container nav button.sign-up {
-  background: var(--blue-color);
-  border: none;
-  border-radius: 5px;
-  color: white;
-}
-/*# sourceMappingURL=header.css.map */
