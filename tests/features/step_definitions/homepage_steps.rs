@@ -9,12 +9,12 @@ async fn a_guest_user(world: &mut TestWorld) {
 
 #[when("I access the Movey website")]
 async fn visit_home_page(world: &mut TestWorld) {
-    world.driver.get("http://localhost:17002/home").await.unwrap();
+    world.go_to_root_url().await;
 }
 
 #[then("I should see the Movey home page")]
 async fn see_home_page(world: &mut TestWorld) {
-  assert_eq!(world.driver.current_url().await.unwrap(), "http://localhost:17002/home");
+  assert_eq!(world.driver.current_url().await.unwrap(), "http://localhost:17002/");
 
   let subtitle = world.driver.find_element(By::ClassName("subtitle")).await.unwrap();
   let subtitle_text = subtitle.text().await.unwrap();

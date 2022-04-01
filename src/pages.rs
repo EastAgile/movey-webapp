@@ -2,13 +2,6 @@ use jelly::actix_web::web::{resource, ServiceConfig};
 use jelly::prelude::*;
 use jelly::Result;
 
-pub async fn index(request: HttpRequest) -> Result<HttpResponse> {
-    request.render(200, "index.html", {
-        let context = Context::new();
-        context
-    })
-}
-
 pub async fn homepage(request: HttpRequest) -> Result<HttpResponse> {
     request.render(200, "home.html", {
         let context = Context::new();
@@ -18,6 +11,5 @@ pub async fn homepage(request: HttpRequest) -> Result<HttpResponse> {
 
 pub fn configure(config: &mut ServiceConfig) {
     config
-        .service(resource("/").to(index))
-        .service(resource("/home").to(homepage));
+        .service(resource("/").to(homepage));
 }
