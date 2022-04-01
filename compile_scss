@@ -1,6 +1,0 @@
-#!/bin/sh
-
-css=".css"
-scss=".scss"
-
-for scss_file in static/css/*.scss; do sass-rs < $scss_file > ${scss_file//$scss/$css}; done
