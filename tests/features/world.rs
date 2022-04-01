@@ -26,7 +26,7 @@ impl World for TestWorld {
                 caps.add_chrome_arg("--headless").unwrap();
                 WebDriver::new("http://localhost:4444", &caps).await.unwrap()
             },
-            root_url: "http://localhost:17002".to_string()
+            root_url: "http://localhost:17002/".to_string()
         })
     }
 }
