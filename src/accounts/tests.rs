@@ -11,7 +11,6 @@ mod tests {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
         let form = NewAccountForm {
-            name: TextField { value: "Test name".to_string(), errors: vec![] },
             email: EmailField { value: "email@host.com".to_string(), errors: vec![] },
             password: PasswordField { value: "xxyyzz".to_string(), errors: vec![], hints: vec![] },
         };

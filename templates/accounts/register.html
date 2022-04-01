@@ -13,18 +13,10 @@
 
 <form action="/accounts/register/" method="POST">
     <p>
-        <label for="name">Your Name:</label>
-        <input type="text" name="name" value="{{ form.name.value }}">
-        {% if form.name.errors | length > 0 %}
-            {{ form.name.errors }}
-        {% endif %}
-    </p>
-
-    <p>
         <label for="email">Email:</label>
         <input name="email" type="email" value="{{ form.email.value }}">
         {% if form.email.errors | length > 0 %}
-            {{ form.email.errors }}
+            <p class="error">{{ form.email.errors }}</p>
         {% endif %}
     </p>
 
@@ -32,7 +24,7 @@
         <label for="password">Password:</label>
         <input name="password" type="password">
         {% if form.password.errors | length > 0 %}
-            {{ form.password.errors }}
+        <p class="error">{{ form.password.errors }}</p>
         {% endif %}
     </p>
 
