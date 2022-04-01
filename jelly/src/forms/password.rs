@@ -76,6 +76,44 @@ impl Deref for PasswordField {
 
 impl Validation for PasswordField {
     fn is_valid(&mut self) -> bool {
-        self.validate_with(&[])
+        if self.value.len() < 8 {
+            self.errors.push("Password is not long enough.".to_string());
+            return false
+        }
+        true
+    }
+}
+
+#[cfg(test)]
+mod PasswordField_tests {
+    use super::*;
+    #[test]
+    fn is_valid_works() {
+        let mut password = PasswordField {
+            value: "Strongpassword1@".to_string(),
+            errors: vec![], 
+            hints: vec![]
+        };
+        assert!(password.is_valid())
+    }
+
+    #[test]
+    fn is_valid_with_short_password_return_false() {
+        let mut password = PasswordField {
+            value: "1234567".to_string(),
+            errors: vec![], 
+            hints: vec![]
+        };
+        assert!(!password.is_valid())
+    }
+
+    #[test]
+    fn is_valid_with_empty_password_return_false() {
+        let mut password = PasswordField {
+            value: "".to_string(),
+            errors: vec![], 
+            hints: vec![]
+        };
+        assert!(!password.is_valid())
     }
 }
