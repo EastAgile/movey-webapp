@@ -3,7 +3,7 @@
   padding: 120px 20% 0 20%;
   margin-top: 100px;
   text-align: center;
-  height: calc(100vh - 330px);
+  //height: calc(100vh - 330px);
   overflow: scroll;
   box-sizing: border-box;
   .subtitle {
@@ -56,22 +56,26 @@
   }
   .social-container {
     color: var(--gray-color);
+    display: flex;
+    flex-direction: column;
     .social-icons {
       list-style-type: none;
       display: flex;
       justify-content: space-between;
-      width: 40%;
       margin: 20px auto;
       li {
         border: 1px solid var(--blue-color);
         border-radius: 5px;
-        padding: 7px 20px;
         a {
           color: var(--gray-color);
           &:link {
+            padding: 0px 20px;
             text-decoration: none;
           }
         }
+      }
+      li:not(:last-child) {
+        margin-right: 20px;
       }
     }
   }
