@@ -23,3 +23,8 @@ body {
   padding: 0;
   display: flex;
 }
+.icon{
+  border: 0;
+  padding: 0;
+  display: flex;
+}

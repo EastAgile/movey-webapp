@@ -6,6 +6,22 @@ header {
   left: 0;
   right: 0;
   box-sizing: border-box;
+}
+
+.header-container {
+  display: grid;
+  grid-template-columns: 40% auto;
+  .sub-title {
+    font-weight: bold;
+    font-size: 2rem;
+  }
+  a {
+    color: var(--dark-blue-color);
+    text-decoration: none;
+  }
+  nav {
+    display: flex;
+    justify-content: space-between;
 
   
   .header-container {

@@ -2,6 +2,7 @@
   background: var(--dark-blue-color);
   padding: 120px 20% 0 20%;
   text-align: center;
+  overflow: scroll;
   box-sizing: border-box;
 }
 .home-container .subtitle {
