@@ -17,6 +17,12 @@ pub struct AuthRequest {
     state: String,
 }
 
+#[derive(serde::Deserialize)]
+pub struct AuthRequest {
+    code: String,
+    state: String,
+}
+
 /// Just renders a standard "Check your email and verify" page.
 pub async fn verify(request: HttpRequest) -> Result<HttpResponse> {
     request.render(200, "accounts/verify/index.html", Context::new())

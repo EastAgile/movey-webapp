@@ -89,3 +89,12 @@ async fn receive_verification_email(_world: &mut TestWorld) {
     assert!(contents.contains("test@email.com"));
     assert!(contents.contains("Verify your new account"));
 }
+
+#[then("I should receive a verification email")]
+async fn receive_verification_email(world: &mut TestWorld) {
+    let path = std::fs::read_dir("./emails").unwrap().next();
+    let contents = std::fs::read_to_string(path.unwrap().unwrap().path()).unwrap();
+    assert!(contents.contains("test@email.com"));
+    assert!(contents.contains("Verify your new account"));
+    world.close_browser().await;
+}
