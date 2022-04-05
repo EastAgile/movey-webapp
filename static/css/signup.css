@@ -2,10 +2,11 @@
   width: 100vw;
   height: 100vh;
   background: url(../img/Map.png);
-  background-color: #f8f9fb;
+  background-color: var(--cool-gray);
   background-position-y: -15rem;
 }
 .background .logo {
+  content: url(../resources/movey_logo.svg);
   color: var(--dark-blue-color);
   font-weight: 900;
   font-size: xx-large;
@@ -29,7 +30,7 @@
   z-index: 99;
   background-color: white;
   width: 25%;
-  min-width: 424px;
+  min-width: 450px;
   height: fit-content;
   padding: 1.5rem 3rem;
   margin: 10vh auto;
@@ -39,25 +40,55 @@
   color: var(--blue-color);
   margin-bottom: 2rem;
 }
+.background .signup_wrapper .signup .g-signin2 .abcRioButton, .background .signup_wrapper .signup .g-signin2 .abcRioButtonLightBlue {
+  border-radius: 4px;
+  border: 1px solid var(--cool-gray);
+}
+.background .signup_wrapper .signup .g-signin2 .abcRioButtonContentWrapper .abcRioButtonContents span {
+  font-family: "Mulish";
+  font-size: medium;
+  font-weight: 500;
+  color: black;
+}
 .background .signup_wrapper .signup #thirdparty {
   display: flex;
   justify-content: space-between;
   margin-bottom: 2.5rem;
 }
-.background .signup_wrapper .signup #thirdparty button {
-  display: flex;
-  align-items: center;
-  width: 49%;
-  font-family: "Mulish";
-  font-size: medium;
-  padding: 0.5rem;
-  background-color: white;
-  border-radius: 4px;
-  border: 2px solid var(--gray-color);
+.background .signup_wrapper .signup #thirdparty a {
+  text-decoration: none;
+  color: black;
 }
-.background .signup_wrapper .signup #thirdparty button i {
+.background .signup_wrapper .signup #thirdparty a .github-btn {
+  width: 200px;
+  height: 40px;
+  border-radius: 4px;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.25);
+}
+.background .signup_wrapper .signup #thirdparty a .github-btn .github-icon-wrapper {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  margin: 6px;
+  border-radius: 2px;
   font-size: x-large;
-  margin-right: 0.5rem;
+}
+.background .signup_wrapper .signup #thirdparty a .github-btn .github-icon {
+  position: relative;
+  width: 18px;
+  height: 18px;
+}
+.background .signup_wrapper .signup #thirdparty a .github-btn .btn-text {
+  float: right;
+  margin: 11px 11px 0 0;
+  font-size: medium;
+  font-family: "Mulish";
+}
+.background .signup_wrapper .signup #thirdparty a .github-btn:hover {
+  box-shadow: 0 0 6px #4285f4;
+}
+.background .signup_wrapper .signup #thirdparty a .github-btn:active {
+  background: var(--cool-gray);
 }
 .background .signup_wrapper .signup #separator {
   color: var(--gray-color);
@@ -105,21 +136,22 @@
   color: white;
   font-family: "Mulish";
   font-size: large;
+  cursor: pointer;
 }
-.background .signup_wrapper .signup form #iagree {
+.background .signup_wrapper .signup form #i_agree {
   margin: 1rem 0;
 }
-.background .signup_wrapper .signup form #iagree input {
+.background .signup_wrapper .signup form #i_agree input {
   border-radius: 4px;
   color: var(--blue-color);
 }
-.background .signup_wrapper .signup form #iagree a {
+.background .signup_wrapper .signup form #i_agree a {
   color: var(--dark-blue-color);
 }
-.background .signup_wrapper .signup #signin_inv {
+.background .signup_wrapper .signup #signin_invitation {
   color: var(--dark-blue-color);
 }
-.background .signup_wrapper .signup #signin_inv a {
+.background .signup_wrapper .signup #signin_invitation a {
   text-decoration: none;
   color: var(--blue-color);
 }
