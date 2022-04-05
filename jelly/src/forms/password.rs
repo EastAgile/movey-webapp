@@ -77,10 +77,10 @@ impl Deref for PasswordField {
 impl Validation for PasswordField {
     fn is_valid(&mut self) -> bool {
         if self.value.len() < 8 {
-            self.errors.push("Password is not long enough.".to_string());
+            self.errors.push("Password not long enough.".to_string());
             return false
         }
-        true
+        self.validate_with(&[])
     }
 }
 
