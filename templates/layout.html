@@ -10,6 +10,7 @@
     <meta property="og:description" content="{% block og_description %}{% endblock %}">
     <meta property="og:site_name" content="{% block og_sitename %}{% endblock %}">
     <meta property="og:image" content="{% block og_image %}{% endblock %}">
+    {% block meta %}{% endblock %}
     {% block css %}{% endblock %}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -23,6 +24,7 @@
     <link href="static/css/layout.css" rel="stylesheet"/>
     <link href="static/css/header.css" rel="stylesheet"/>
     <link href="static/css/footer.css" rel="stylesheet"/>
+    {% block script %}{% endblock %}
     <!--[if lte IE 8]>
     (function(i,e){for(;i<10;i++)document.createElement(e[i]);})(0,['section','article','aside','header','footer','nav','figure','figcaption','time','mark']);
     <![endif]-->
