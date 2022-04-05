@@ -14,7 +14,10 @@ pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
 
     request.render(200, "accounts/register.html", {
         let mut ctx = Context::new();
+        let google_client_id =
+            std::env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID not set!");
         ctx.insert("form", &NewAccountForm::default());
+        ctx.insert("client_id", &google_client_id);
         ctx
     })
 }

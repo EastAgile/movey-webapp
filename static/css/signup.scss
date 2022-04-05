@@ -1,12 +1,12 @@
 .background {
   width: 100vw;
   height: 100vh;
-
   background: url(../img/Map.png);
-  background-color: #f8f9fb;
+  background-color: var(--cool-gray);
   background-position-y: -15rem;
 
   .logo {
+    content: url(../resources/movey_logo.svg);
     color: var(--dark-blue-color);
     font-weight: 900;
     font-size: xx-large;
@@ -30,12 +30,11 @@
 
   .signup_wrapper {
     .signup {
-
       position: relative;
       z-index: 99;
       background-color: white;
       width: 25%;
-      min-width: 424px;
+      min-width: 450px;
       height: fit-content;
       padding: 1.5rem 3rem;
       margin: 10vh auto;
@@ -46,26 +45,63 @@
         margin-bottom: 2rem;
       }
 
+      .g-signin2 {
+        .abcRioButton, .abcRioButtonLightBlue {
+          border-radius: 4px;
+          border: 1px solid var(--cool-gray);
+        }
+
+        .abcRioButtonContentWrapper {
+          .abcRioButtonContents {
+            span {
+              font-family: 'Mulish';
+              font-size: medium;
+              font-weight: 500;
+              color: black;
+            }
+          }
+        }
+      }
+
       #thirdparty {
         display: flex;
         justify-content: space-between;
         margin-bottom: 2.5rem;
-
-        button {
-          display: flex;
-          align-items: center;
-          width: 49%;
-          font-family: "Mulish";
-          font-size: medium;
-
-          padding: 0.5rem;
-          background-color: white;
-          border-radius: 4px;
-          border: 2px solid var(--gray-color);
-          
-          i {
-            font-size: x-large;
-            margin-right: 0.5rem;
+        
+        a {
+          text-decoration: none;
+          color: black;
+          .github-btn {
+            width: 200px;
+            height: 40px;
+            border-radius: 4px;
+            box-shadow: 0 2px 2px 0 rgba(0,0,0,.25);
+  
+            .github-icon-wrapper {
+              position: absolute;
+              width: 40px;
+              height: 40px;
+              margin: 6px;
+              border-radius: 2px;
+              font-size: x-large;
+            }
+            .github-icon {
+              position: relative;
+              width: 18px;
+              height: 18px;
+            }
+            .btn-text {
+              float: right;
+              margin: 11px 11px 0 0;
+              font-size: medium;
+              font-family: "Mulish";
+            }
+            &:hover {
+              box-shadow: 0 0 6px #4285f4;
+            }
+            &:active {
+              background: var(--cool-gray);
+            }
           }
         }
       }
@@ -124,9 +160,10 @@
           color: white;
           font-family: "Mulish";
           font-size: large;
+          cursor: pointer;
         }
 
-        #iagree {
+        #i_agree {
           margin: 1rem 0;
           input {
             border-radius: 4px;
@@ -139,7 +176,7 @@
         }
       }
 
-      #signin_inv {
+      #signin_invitation {
         color: var(--dark-blue-color);
 
         a {
