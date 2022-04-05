@@ -15,6 +15,7 @@ pub mod accounts;
 pub mod dashboard;
 pub mod pages;
 pub mod api;
+pub mod github_service;
 pub mod packages;
 
 pub mod schema;

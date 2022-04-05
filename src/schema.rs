@@ -16,11 +16,11 @@ table! {
 table! {
     package_versions (id) {
         id -> Int4,
-        package_id -> Nullable<Int4>,
+        package_id -> Int4,
         version -> Text,
         readme_content -> Nullable<Text>,
         license -> Nullable<Text>,
-        downloads_count -> Nullable<Int4>,
+        downloads_count -> Int4,
         created -> Timestamptz,
         updated -> Timestamptz,
     }
@@ -32,7 +32,7 @@ table! {
         name -> Text,
         description -> Text,
         repository_url -> Text,
-        total_downloads_count -> Nullable<Int4>,
+        total_downloads_count -> Int4,
         created -> Timestamptz,
         updated -> Timestamptz,
     }

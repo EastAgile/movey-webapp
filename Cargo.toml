@@ -22,8 +22,10 @@ dotenv = "0.15.0"
 jelly = { path = "jelly", features = ["email-local"] }
 lazy_static = "1.4.0"
 log = "*"
+reqwest = { version = "0.11", features = ["blocking", "json"] }
 serde = { version = "1" }
 serde_json = "1.0.79"
+toml = "0.5.8"
 
 [features]
 default = ["jelly/template_watcher", "jelly/static"]
