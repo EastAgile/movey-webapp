@@ -1,0 +1,232 @@
+.package-show-container {
+    margin-top: 110px;
+
+    .package-info-container {
+        max-width: 1574px;
+        margin: 0 auto;
+
+        .package-name-version {
+            display: flex;
+            align-items: baseline;
+            line-height: 54px;
+
+            .package-name {
+                color: var(--dark-blue-color);
+                font-size: 32px;
+                font-weight: 700;
+            }
+
+            .package-version {
+                margin-left: 20px;
+                font-size: 24px;
+                color: var(--gray-color);
+            }
+        }
+
+        .package-description {
+            font-size: 24px;
+            color: var(--gray-color);
+        }
+
+        .package-tags {
+            display: flex;
+            margin-top: 16px;
+
+            .package-tag {
+                font-size: 16px;
+                font-weight: 500;
+                line-height: 34px;
+                color: var(--dark-blue-color);
+                background-color: var(--geyser-color);
+                padding: 0 10.5px;
+                border-radius: 8px;
+                margin-right: 10px;
+            }
+        }
+    }
+
+    .horizontal-line {
+        border-top: 1px solid var(--gray-color);
+        margin: 35px 0;
+    }
+
+    .package-content-container {
+        max-width: 1574px;
+        margin: 0 auto;
+
+        .package-content-tabs {
+            display: flex;
+
+            .content-tab {
+                padding: 20px 120px;
+                font-size: 24px;
+                line-height: 36px;
+                display: flex;
+                justify-content: baseline;
+                border-bottom-width: 4px;
+                border-bottom-style: solid;
+
+                .tab-icon {
+                    width: 32px;
+                    height: 32px;
+                    background-repeat: no-repeat;
+                    margin-right: 8px;
+
+                    &.tab-icon-readme {
+                        background-image: url("/static/resources/packages/package_tab_readme_icon.svg")
+                    }
+
+                    &.tab-icon-dependency {
+                        background-image: url("/static/resources/packages/package_tab_dependency_icon.svg")
+                    }
+
+                    &.tab-icon-dependents {
+                        background-image: url("/static/resources/packages/package_tab_dependents_icon.svg")
+                    }
+
+                    &.tab-icon-versions {
+                        background-image: url("/static/resources/packages/package_tab_versions_icon.svg")
+                    }
+                }
+
+                &.tab-readme {
+                    background-color: #FBF1D2;
+                    color: #A34C00;
+                    border-bottom-color: #A34C00;
+                }
+
+                &.tab-dependency {
+                    color: #5D5FEF;
+                    border-bottom-color: #5D5FEF;
+                }
+
+                &.tab-dependents {
+                    color: #EF5DA8;
+                    border-bottom-color: #EF5DA8;
+                }
+
+                &.tab-versions{
+                    color: #44A1E7;
+                    border-bottom-color: #44A1E7;
+
+                }
+            }
+        }
+
+        .package-detail-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 32px;
+
+            .package-readme-content{
+                width: 56%;
+            }
+
+            .package-sidebar {
+                width: 33%;
+
+
+                .package-information {
+                    padding: 22px;
+                    background-color: #F2F4F7;
+                    .package-information-title {
+                        color: #001F60;
+                        font-weight: 700;
+                        font-size: 24px;
+                        line-height: 30px;
+                        margin-bottom: 16px;
+                    }
+
+                    .horizontal-line {
+                        margin: 30px -22px;
+                    }
+
+                    .package-install {
+                        .package-install-instruction {
+                            width: 483px;
+                            height: 51px;
+                            padding: 0 19px;
+                            font-size: 18px;
+                            line-height: 24px;
+                            border: 1px solid #001F60;
+                            border-radius: 4px;
+                            display: flex;
+                            align-items: center;
+                            margin-bottom: 32px;
+                        }
+
+                        .package-repo {
+                            display: flex;
+                            justify-content: baseline;
+                            align-items: center;
+                            margin-bottom: 32px;
+
+                            .package-repo-icon {
+                                width: 20px;
+                                height: 20px;
+                                background-repeat: no-repeat;
+                                background-image: url("/static/resources/packages/github_icon.svg");
+                                margin-right: 10px;
+                            }
+
+                            .package-repo-url a {
+                                color: #27AE60;
+                                font-size: 18px;
+                                line-height: 24px;
+                            }
+                        }
+                    }
+                    .package-metadata {
+                        display: flex;
+                        flex-flow: row wrap;
+
+                        .package-metadata-content {
+                            width: 45%;
+                            margin-bottom: 24px;
+
+                            .package-metadata-title {
+                                color: var(--gray-color);
+                                font-weight: 700;
+                                font-size: 16px;
+                                line-height: 20px;
+                                margin-bottom: 16px;
+                            }
+
+                            .package-metadata-value {
+                                color: var(--dark-blue-color);
+                                font-size: 24px;
+                                line-height: 30px;
+                            }
+                        }
+                    }
+                    .package-owners{
+                        .package-owners-info{
+                            color: var(--dark-blue-color);
+                            font-size: 24px;
+                        }
+                    }
+                }
+
+                .package-report {
+                    margin-top: 32px;
+                    padding: 12px 180px;
+                    border: 2px solid #EB5757;
+                    border-radius: 4px;
+                    display: flex;
+                    justify-content: center;
+                    color: #EB5757;
+                    font-weight: 700;
+                    line-height: 18px;
+
+                    .package-report-flag-icon{
+                        width: 24px;
+                        height: 24px;
+                        background-repeat: no-repeat;
+                        background-image: url("/static/resources/red-flag-icon.svg");
+                        margin-right: 10px;
+                    }
+                }
+            }
+        }
+    }
+}

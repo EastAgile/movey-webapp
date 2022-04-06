@@ -1,0 +1,194 @@
+.package-show-container {
+  margin-top: 110px;
+}
+.package-show-container .package-info-container {
+  max-width: 1574px;
+  margin: 0 auto;
+}
+.package-show-container .package-info-container .package-name-version {
+  display: flex;
+  align-items: baseline;
+  line-height: 54px;
+}
+.package-show-container .package-info-container .package-name-version .package-name {
+  color: var(--dark-blue-color);
+  font-size: 32px;
+  font-weight: 700;
+}
+.package-show-container .package-info-container .package-name-version .package-version {
+  margin-left: 20px;
+  font-size: 24px;
+  color: var(--gray-color);
+}
+.package-show-container .package-info-container .package-description {
+  font-size: 24px;
+  color: var(--gray-color);
+}
+.package-show-container .package-info-container .package-tags {
+  display: flex;
+  margin-top: 16px;
+}
+.package-show-container .package-info-container .package-tags .package-tag {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 34px;
+  color: var(--dark-blue-color);
+  background-color: var(--geyser-color);
+  padding: 0 10.5px;
+  border-radius: 8px;
+  margin-right: 10px;
+}
+.package-show-container .horizontal-line {
+  border-top: 1px solid var(--gray-color);
+  margin: 35px 0;
+}
+.package-show-container .package-content-container {
+  max-width: 1574px;
+  margin: 0 auto;
+}
+.package-show-container .package-content-container .package-content-tabs {
+  display: flex;
+}
+.package-show-container .package-content-container .package-content-tabs .content-tab {
+  padding: 20px 120px;
+  font-size: 24px;
+  line-height: 36px;
+  display: flex;
+  justify-content: baseline;
+  border-bottom-width: 4px;
+  border-bottom-style: solid;
+}
+.package-show-container .package-content-container .package-content-tabs .content-tab .tab-icon {
+  width: 32px;
+  height: 32px;
+  background-repeat: no-repeat;
+  margin-right: 8px;
+}
+.package-show-container .package-content-container .package-content-tabs .content-tab .tab-icon.tab-icon-readme {
+  background-image: url("/static/resources/packages/package_tab_readme_icon.svg");
+}
+.package-show-container .package-content-container .package-content-tabs .content-tab .tab-icon.tab-icon-dependency {
+  background-image: url("/static/resources/packages/package_tab_dependency_icon.svg");
+}
+.package-show-container .package-content-container .package-content-tabs .content-tab .tab-icon.tab-icon-dependents {
+  background-image: url("/static/resources/packages/package_tab_dependents_icon.svg");
+}
+.package-show-container .package-content-container .package-content-tabs .content-tab .tab-icon.tab-icon-versions {
+  background-image: url("/static/resources/packages/package_tab_versions_icon.svg");
+}
+.package-show-container .package-content-container .package-content-tabs .content-tab.tab-readme {
+  background-color: #FBF1D2;
+  color: #A34C00;
+  border-bottom-color: #A34C00;
+}
+.package-show-container .package-content-container .package-content-tabs .content-tab.tab-dependency {
+  color: #5D5FEF;
+  border-bottom-color: #5D5FEF;
+}
+.package-show-container .package-content-container .package-content-tabs .content-tab.tab-dependents {
+  color: #EF5DA8;
+  border-bottom-color: #EF5DA8;
+}
+.package-show-container .package-content-container .package-content-tabs .content-tab.tab-versions {
+  color: #44A1E7;
+  border-bottom-color: #44A1E7;
+}
+.package-show-container .package-content-container .package-detail-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 32px;
+}
+.package-show-container .package-content-container .package-detail-container .package-readme-content {
+  width: 56%;
+}
+.package-show-container .package-content-container .package-detail-container .package-sidebar {
+  width: 33%;
+}
+.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information {
+  padding: 22px;
+  background-color: #F2F4F7;
+}
+.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-information-title {
+  color: #001F60;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 30px;
+  margin-bottom: 16px;
+}
+.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .horizontal-line {
+  margin: 30px -22px;
+}
+.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-install .package-install-instruction {
+  width: 483px;
+  height: 51px;
+  padding: 0 19px;
+  font-size: 18px;
+  line-height: 24px;
+  border: 1px solid #001F60;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 32px;
+}
+.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-install .package-repo {
+  display: flex;
+  justify-content: baseline;
+  align-items: center;
+  margin-bottom: 32px;
+}
+.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-install .package-repo .package-repo-icon {
+  width: 20px;
+  height: 20px;
+  background-repeat: no-repeat;
+  background-image: url("/static/resources/packages/github_icon.svg");
+  margin-right: 10px;
+}
+.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-install .package-repo .package-repo-url a {
+  color: #27AE60;
+  font-size: 18px;
+  line-height: 24px;
+}
+.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-metadata {
+  display: flex;
+  flex-flow: row wrap;
+}
+.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-metadata .package-metadata-content {
+  width: 45%;
+  margin-bottom: 24px;
+}
+.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-metadata .package-metadata-content .package-metadata-title {
+  color: var(--gray-color);
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 20px;
+  margin-bottom: 16px;
+}
+.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-metadata .package-metadata-content .package-metadata-value {
+  color: var(--dark-blue-color);
+  font-size: 24px;
+  line-height: 30px;
+}
+.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-owners .package-owners-info {
+  color: var(--dark-blue-color);
+  font-size: 24px;
+}
+.package-show-container .package-content-container .package-detail-container .package-sidebar .package-report {
+  margin-top: 32px;
+  padding: 12px 180px;
+  border: 2px solid #EB5757;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  color: #EB5757;
+  font-weight: 700;
+  line-height: 18px;
+}
+.package-show-container .package-content-container .package-detail-container .package-sidebar .package-report .package-report-flag-icon {
+  width: 24px;
+  height: 24px;
+  background-repeat: no-repeat;
+  background-image: url("/static/resources/red-flag-icon.svg");
+  margin-right: 10px;
+}
+
+/*# sourceMappingURL=show.css.map */
