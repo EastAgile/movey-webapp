@@ -1,4 +1,4 @@
-use jelly::forms::{EmailField, PasswordField, TextField, Validation};
+use jelly::forms::{EmailField, PasswordField, Validation};
 use serde::{Deserialize, Serialize};
 
 fn default_redirect_path() -> String {
@@ -76,7 +76,7 @@ impl Validation for ChangePasswordForm {
 
 #[cfg(test)]
 mod form_tests {
-    mod NewAccountForm_tests {
+    mod new_account_form_tests {
         use super::super::*;
         #[test]
         fn is_valid_works() {

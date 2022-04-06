@@ -8,6 +8,7 @@
 {% endblock %}
 {% block script %}
     <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="/static/js/register_helper.js" defer></script>
 {% endblock %}
 
 
@@ -19,9 +20,9 @@
 </ul>
 {% endif %}
 
-<div class="background">
+<div class="signup_background">
 
-    <div class="logo"></div>
+    <div class="movey_logo"></div>
 
     <div class="signup_wrapper">
 
@@ -29,7 +30,7 @@
     
             <h1>Sign Up</h1>
     
-            <div id="thirdparty">
+            <div class="thirdparty">
                 <div class="g-signin2" data-onsuccess="onSignIn"
                     data-width="220"
                     data-height="40"
@@ -37,15 +38,13 @@
                 ></div>
                 <a href="/accounts/oauth">                    
                     <div class="github-btn">
-                        <div class="github-icon-wrapper">
-                            <i class="fa fa-github" aria-hidden="true" style="color:var(--blue-color);"></i>
-                        </div>
+                        <i class="fa fa-github" aria-hidden="true"></i>
                         <p class="btn-text">Sign in with Github</p>
                     </div>
                 </a>
             </div>
     
-            <div id="separator">
+            <div class="separator">
                 <div>
                     <p>
                         or use your email
@@ -55,46 +54,36 @@
     
             <form action="/accounts/register/" method="POST">
                 
-                <label for="email" id="usr_input_label">Email Address</label>
-                <input name="email" type="email" id="usr_input" value="{{ form.email.value }}">
+                <label for="email" class="usr_input_label">Email Address</label>
+                <input name="email" type="email" class="usr_input" value="{{ form.email.value }}">
                 {% if form.email.errors | length > 0 %}
                     {% for err in form.email.errors %}
                         <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
                     {% endfor %}
                 {% endif %}
     
-                <label for="password" id="usr_input_label">Password</label>
-                <input name="password" type="password" id="usr_input">
+                <label for="password" class="usr_input_label">Password</label>
+                <input name="password" type="password" class="usr_input" placeholder="8+ characters">
                 {% if form.password.errors | length > 0 %}
                     {% for err in form.password.errors %}
                         <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
                     {% endfor %}
                 {% endif %}
     
-                <button type="submit" class="create_account_btn">
+                <button type="submit" class="create_account_btn" disabled>
                     Create an Account
                 </button>
     
-                <input type="checkbox" name="i_agree" id="i_agree">
-                <label for="i_agree" id="i_agree">
+                <input type="checkbox" name="i_agree" class="i_agree">
+                <label for="i_agree" class="i_agree">
                     I agree to <a href="#">Term of Service</a> and <a href="#">Privacy Policy</a>
                 </label>
     
             </form>
     
-            <p id="signin_invitation">Already a member? <a href="/accounts/login/">Sign in</a></p>
+            <p class="signin_invitation">Already a member? <a href="/accounts/login/">Sign in</a></p>
         </div>
     </div>
 </div>
-
-
-<script>
-    function onSignIn(googleUser) {
-        // Useful data for your client-side scripts:
-        let profile = googleUser.getBasicProfile();
-        window.location.href = `/accounts/google/callback?name=${profile.getName()}`;
-    }
-</script>
-
 
 {% endblock %}

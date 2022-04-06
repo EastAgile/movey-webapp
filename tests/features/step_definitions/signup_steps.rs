@@ -14,7 +14,7 @@ async fn click_on_sign_up_button(world: &mut TestWorld) {
 
 #[when("I fill in my email and password and submit the form on the sign up page")]
 async fn fill_in_sign_up_form(world: &mut TestWorld) {
-    std::fs::remove_dir_all("./emails").unwrap();
+    std::fs::remove_dir_all("./emails").unwrap_or_default();
 
     let email_field = world.driver.find_element(By::Name("email")).await.unwrap();
     email_field.send_keys("test@email.com").await.unwrap();
@@ -25,6 +25,14 @@ async fn fill_in_sign_up_form(world: &mut TestWorld) {
         .await
         .unwrap();
     password_field.send_keys("x,W-4,jfn").await.unwrap();
+
+    let i_agree = world
+        .driver
+        .find_element(By::Name("i_agree"))
+        .await
+        .unwrap();
+    i_agree.click().await.unwrap();
+
     let create_account_button = world
         .driver
         .find_element(By::ClassName("create_account_btn"))
@@ -46,6 +54,14 @@ async fn fill_in_invalid_password(world: &mut TestWorld, email: String, invalid_
         .await
         .unwrap();
     password_field.send_keys(invalid_password).await.unwrap();
+
+    let i_agree = world
+        .driver
+        .find_element(By::Name("i_agree"))
+        .await
+        .unwrap();
+    i_agree.click().await.unwrap();
+
     let create_account_button = world
         .driver
         .find_element(By::ClassName("create_account_btn"))
