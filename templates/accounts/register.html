@@ -21,36 +21,27 @@
 
 <div class="background">
 
-    <div class="logo">
-        
-    </div>
+    <div class="logo"></div>
 
-    
     <div class="signup_wrapper">
 
         <div class="signup">
     
             <h1>Sign Up</h1>
     
-            
-            <!-- <div class="thirdparty-btn" id="my-signin2">
-            </div> -->
-            
             <div id="thirdparty">
-                
                 <div class="g-signin2" data-onsuccess="onSignIn"
                     data-width="220"
                     data-height="40"
                     data-longtitle="true"
                 ></div>
-                
                 <a href="/accounts/oauth">                    
                     <div class="github-btn">
                         <div class="github-icon-wrapper">
                             <i class="fa fa-github" aria-hidden="true" style="color:var(--blue-color);"></i>
                         </div>
                         <p class="btn-text">Sign in with Github</p>
-                      </div>
+                    </div>
                 </a>
             </div>
     
@@ -62,7 +53,6 @@
                 </div>
             </div>
     
-                
             <form action="/accounts/register/" method="POST">
                 
                 <label for="email" id="usr_input_label">Email Address</label>
@@ -92,12 +82,9 @@
     
             </form>
     
-    
             <p id="signin_invitation">Already a member? <a href="/accounts/login/">Sign in</a></p>
-    
         </div>
     </div>
-
 </div>
 
 
@@ -117,9 +104,6 @@
         console.log("ID Token: " + id_token);
     }
 </script>
-
-
-
 
 
 {% endblock %}
