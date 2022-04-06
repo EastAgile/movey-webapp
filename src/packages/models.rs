@@ -6,13 +6,16 @@ use jelly::error::Error;
 use jelly::serde::{Deserialize, Serialize};
 use jelly::DieselPgPool;
 
+use mockall_double::double;
+
 // use super::forms::{LoginForm, NewAccountForm};
 use crate::schema::packages::dsl::*;
 use crate::schema::packages;
 use crate::schema::package_versions::dsl::*;
 use crate::schema::package_versions;
 
-use crate::github_service;
+#[double]
+use crate::github_service::GithubService;
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset)]
 pub struct Package {
@@ -54,10 +57,10 @@ pub struct NewPackageVersion {
 }
 
 impl Package {
-    pub async fn create(repo_url: &String, package_description: &String, pool: &DieselPgPool) -> Result<i32, Error> {
+    pub async fn create(repo_url: &String, package_description: &String, service: &GithubService, pool: &DieselPgPool) -> Result<i32, Error> {
         let connection = pool.get()?;
 
-        let github_data = github_service::fetch_repo_data(&repo_url).unwrap();
+        let github_data = service.fetch_repo_data(&repo_url).unwrap();
 
         // TODO: check if package exists, check if version exists
 
@@ -82,5 +85,62 @@ impl Package {
             .get_result::<PackageVersion>(&connection)?;
 
         Ok(record.id)
+    }
+
+    pub async fn get(uid: i32, pool: &DieselPgPool) -> Result<Self, Error> {
+        let connection = pool.get()?;
+        let result = packages
+            .find(uid)
+            .first::<Package>(&connection)?;
+
+        Ok(result)
+    }
+
+    pub async fn get_versions(&self, pool: &DieselPgPool) -> Result<Vec<PackageVersion>, Error> {
+        let connection = pool.get()?;
+        let result = package_versions
+            .filter(package_id.eq(self.id))
+            .load::<PackageVersion>(&connection)?;
+
+        Ok(result)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use mockall::{predicate::*};
+    use crate::test::{DB_POOL, DatabaseTestContext};
+    use super::*;
+
+    use crate::github_service::GithubRepoData;
+
+    #[actix_rt::test]
+    async fn create_package_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+
+        let mut mock_github_service = GithubService::new();
+        mock_github_service.expect_fetch_repo_data()
+            .with(eq("repo_url".to_string()))
+            .returning(|_| Ok(GithubRepoData {
+                name: "name".to_string(),
+                version: "version".to_string(),
+                readme_content: "readme_content".to_string(),
+            }));
+
+        let uid = Package::create(&"repo_url".to_string(), &"package_description".to_string(), &mock_github_service, &DB_POOL).await.unwrap();
+
+        let package = Package::get(uid, &DB_POOL).await.unwrap();
+        assert_eq!(package.name, "name");
+        assert_eq!(package.description, "package_description");
+
+        let package_version = &package.get_versions(&DB_POOL).await.unwrap()[0];
+        assert_eq!(package_version.version, "version");
+        match &package_version.readme_content {
+            Some(content) => {
+                assert_eq!(content, "readme_content");
+            },
+            None => { panic!("readme content is wrong") }
+        }
     }
 }
