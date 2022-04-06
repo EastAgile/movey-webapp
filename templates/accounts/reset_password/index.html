@@ -1,12 +1,32 @@
-{% extends "layout.html" %}
+{% extends "accounts/layout.html" %}
 
-{% block title %}Reset Your Password{% endblock %}
-
+{% block title %}Forgot Password{% endblock %}
+{% block css %}
+<link href="/static/css/reset_password.css" rel="stylesheet"/>
+{% endblock %}
 {% block content %}
-<h1>Reset Your Password</h1>
-<form method="POST" action="/accounts/reset/">
-    <label for="email">Email Address:</label>
-    <input type="text" placeholder="Email Address" name="email">
-    <button class="submit">Reset</button>
-</form>
+<div class="logo"></div>
+<div class="form-wrapper">
+    <div class="email-form">
+        <h1>Forgot Password</h1>
+        <div id="description">
+            <p>
+                Enter your email address below to request a Movey account password reset.
+            </p>
+        </div>
+        <form action="/accounts/reset/" method="POST">
+            <label for="email" id="usr-input-label">Email Address</label>
+            <input name="email" type="email" id="usr-input" value="{{ form.email.value }}">
+            {% if form.email.errors | length > 0 %}
+                {% for err in form.email.errors %}
+                    <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
+                {% endfor %}
+            {% endif %}
+            <button type="submit" class="submit-btn">
+                Submit
+            </button>
+        </form>
+        <a id="signin-invitation">Back to sign in</a>
+    </div>
+</div>
 {% endblock %}
