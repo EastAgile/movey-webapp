@@ -3,7 +3,7 @@ mod tests {
     use crate::accounts::{Account};
     use crate::accounts::forms::NewAccountForm;
     use crate::test::{DB_POOL, DatabaseTestContext};
-    use jelly::forms::{EmailField, PasswordField, TextField};
+    use jelly::forms::{EmailField, PasswordField};
 
     // Sample unit test
     #[actix_rt::test]

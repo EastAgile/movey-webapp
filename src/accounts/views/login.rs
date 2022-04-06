@@ -1,5 +1,4 @@
 use jelly::actix_session::UserSession;
-use jelly::actix_web::web::head;
 use jelly::actix_web::{web, web::Form, HttpRequest};
 use jelly::prelude::*;
 use jelly::request::{Authentication, DatabasePool};

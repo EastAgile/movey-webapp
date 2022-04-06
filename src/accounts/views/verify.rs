@@ -4,16 +4,12 @@ use jelly::accounts::User;
 use jelly::actix_session::UserSession;
 use jelly::actix_web::web::Query;
 use jelly::actix_web::{web, web::Path, HttpRequest};
-use jelly::anyhow::anyhow;
 use jelly::prelude::*;
 use jelly::request::DatabasePool;
 use jelly::Result;
 use oauth2::basic::BasicClient;
-use oauth2::reqwest::{async_http_client, http_client};
-use oauth2::{
-    AuthorizationCode, Client, CsrfToken, ErrorResponse, RevocableToken,
-    TokenIntrospectionResponse, TokenResponse, TokenType,
-};
+use oauth2::reqwest::http_client;
+use oauth2::{AuthorizationCode, TokenResponse};
 
 #[derive(serde::Deserialize)]
 pub struct AuthRequest {
@@ -66,7 +62,6 @@ pub async fn callback_github(
         Ok(Some(state)) if state.eq(&params.state) => {
             request.get_session().remove("oauth_state");
             let code = AuthorizationCode::new(params.code.clone());
-            let state = CsrfToken::new(params.state.clone());
             match client.exchange_code(code).request(http_client) {
                 Ok(token) => {
                     let client = reqwest::blocking::Client::new();
@@ -85,7 +80,7 @@ pub async fn callback_github(
                     })?;
                     request.redirect("/dashboard/")
                 }
-                Err(e) => request.redirect("/accounts/register/"),
+                Err(_) => request.redirect("/accounts/register/"),
             }
         }
         _ => request.redirect("/accounts/register/"),
