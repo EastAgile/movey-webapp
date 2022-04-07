@@ -1,12 +1,12 @@
 use jelly::actix_session::UserSession;
-use jelly::actix_web::{web::Form, HttpRequest, web};
 use jelly::actix_web::web::head;
+use jelly::actix_web::{web, web::Form, HttpRequest};
 use jelly::prelude::*;
 use jelly::request::{Authentication, DatabasePool};
 use jelly::Result;
 use oauth2::basic::BasicClient;
-use oauth2::{CsrfToken, Scope};
 use oauth2::http::header;
+use oauth2::{CsrfToken, Scope};
 
 use crate::accounts::forms::LoginForm;
 use crate::accounts::Account;
@@ -66,14 +66,8 @@ pub async fn oauth(request: HttpRequest, client: web::Data<BasicClient>) -> Resu
         .add_scope(Scope::new("user:email".to_string()))
         .url();
 
-    info!(
-        "Open this URL in your browser:\n{}\n",
-        authorize_url.to_string()
-    );
-    request.get_session().set("state", &csrf_state);
+    request.get_session().set("oauth_state", &csrf_state);
     Ok(HttpResponse::Found()
         .header(header::LOCATION, authorize_url.to_string())
-        .finish()
-    )
+        .finish())
 }
-

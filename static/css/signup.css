@@ -14,13 +14,13 @@
   background-color: transparent;
 }
 .background .signup_wrapper::before {
-  content: url(large_curve.svg);
+  content: url(../resources/large_curve.svg);
   position: fixed;
   left: 57vw;
   top: 3vh;
 }
 .background .signup_wrapper::after {
-  content: url(small_curve.svg);
+  content: url(../resources/small_curve.svg);
   position: fixed;
   left: 25vw;
   bottom: 11vh;

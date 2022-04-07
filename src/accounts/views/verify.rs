@@ -1,16 +1,19 @@
-use jelly::anyhow::anyhow;
+use crate::accounts::views::utils::validate_token;
+use crate::accounts::Account;
 use jelly::accounts::User;
 use jelly::actix_session::UserSession;
-use jelly::actix_web::{web::Path, HttpRequest, web};
 use jelly::actix_web::web::Query;
+use jelly::actix_web::{web, web::Path, HttpRequest};
+use jelly::anyhow::anyhow;
 use jelly::prelude::*;
 use jelly::request::DatabasePool;
 use jelly::Result;
-use oauth2::{AuthorizationCode, Client, CsrfToken, ErrorResponse, RevocableToken, TokenIntrospectionResponse, TokenResponse, TokenType};
 use oauth2::basic::BasicClient;
 use oauth2::reqwest::{async_http_client, http_client};
-use crate::accounts::views::utils::validate_token;
-use crate::accounts::Account;
+use oauth2::{
+    AuthorizationCode, Client, CsrfToken, ErrorResponse, RevocableToken,
+    TokenIntrospectionResponse, TokenResponse, TokenType,
+};
 
 #[derive(serde::Deserialize)]
 pub struct AuthRequest {
@@ -49,36 +52,55 @@ pub async fn with_token(
     return request.render(200, "accounts/invalid_token.html", Context::new());
 }
 
-pub async fn callback(request: HttpRequest, params: Query<AuthRequest>, client: web::Data<BasicClient>) -> Result<HttpResponse> {
-    return match request.get_session().get::<String>("state") {
+#[derive(Debug, serde::Deserialize)]
+pub struct OauthUser {
+    name: String,
+}
+
+pub async fn callback_github(
+    request: HttpRequest,
+    params: Query<AuthRequest>,
+    client: web::Data<BasicClient>,
+) -> Result<HttpResponse> {
+    return match request.get_session().get::<String>("oauth_state") {
         Ok(Some(state)) if state.eq(&params.state) => {
+            request.get_session().remove("oauth_state");
             let code = AuthorizationCode::new(params.code.clone());
             let state = CsrfToken::new(params.state.clone());
             match client.exchange_code(code).request(http_client) {
                 Ok(token) => {
-                    info!("Github returned the following token:\n{:?}\n", token.access_token().secret());
-                    let html = format!(
-                        r#"<html>
-                <head><title>OAuth2 Test</title></head>
-                <body>
-                    Google returned the following state:
-                    <pre>{}</pre>
-                    Google returned the following token:
-                    <pre>{:?}</pre>
-                </body>
-                </html>"#,
-                        state.secret(),
-                        token
-                    );
-                    Ok(HttpResponse::Ok().body(html))
-                },
-                Err(e) => {
-                    Err(Error::Anyhow(anyhow!("{:?}", e)))
+                    let client = reqwest::blocking::Client::new();
+                    let response = client
+                        .get("https://api.github.com/user")
+                        .bearer_auth(token.access_token().secret())
+                        .header("User-Agent", "Movey")
+                        .send()
+                        .unwrap();
+                    let response_json: OauthUser = response.json().unwrap();
+                    request.set_user(User {
+                        id: 0,
+                        name: response_json.name,
+                        is_admin: false,
+                        is_anonymous: false,
+                    })?;
+                    request.redirect("/dashboard/")
                 }
+                Err(e) => request.redirect("/accounts/register/"),
             }
-        },
-        _ => {
-            Err(Error::Anyhow(anyhow!("asdasdsadsdsd")))
         }
-    }
+        _ => request.redirect("/accounts/register/"),
+    };
+}
+
+pub async fn callback_google(
+    request: HttpRequest,
+    user: web::Query<OauthUser>,
+) -> Result<HttpResponse> {
+    request.set_user(User {
+        id: 0,
+        name: user.name.clone(),
+        is_admin: false,
+        is_anonymous: false,
+    })?;
+    request.redirect("/dashboard/")
 }

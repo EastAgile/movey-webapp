@@ -1,19 +1,19 @@
 // Implements a basic Account model, with support for creating/updating/deleting
 // users, along with welcome email and verification.
 
-use diesel::{Queryable, Identifiable, AsChangeset, Insertable};
 use diesel::prelude::*;
+use diesel::{AsChangeset, Identifiable, Insertable, Queryable};
 
 use jelly::accounts::{OneTimeUseTokenGenerator, User};
-use jelly::chrono::{DateTime, Utc, offset};
+use jelly::chrono::{offset, DateTime, Utc};
 use jelly::djangohashers::{check_password, make_password};
 use jelly::error::Error;
 use jelly::serde::{Deserialize, Serialize};
 use jelly::DieselPgPool;
 
 use super::forms::{LoginForm, NewAccountForm};
-use crate::schema::accounts::dsl::*;
 use crate::schema::accounts;
+use crate::schema::accounts::dsl::*;
 
 /// A user Account.
 #[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset)]
@@ -172,19 +172,26 @@ impl NewAccount {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use crate::test::{DatabaseTestContext, DB_POOL};
     use diesel::result::DatabaseErrorKind;
     use diesel::result::Error::DatabaseError;
-    use crate::test::{DB_POOL, DatabaseTestContext};
     use jelly::forms::{EmailField, PasswordField};
-    use super::*;
 
     #[actix_rt::test]
     async fn register_works() {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
         let form = NewAccountForm {
-            email: EmailField { value: "email@host.com".to_string(), errors: vec![] },
-            password: PasswordField { value: "xxyyzz".to_string(), errors: vec![], hints: vec![] },
+            email: EmailField {
+                value: "email@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "xxyyzz".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
         };
         let uid = Account::register(&form, &DB_POOL).await.unwrap();
         let account = Account::get(uid, &DB_POOL).await.unwrap();
@@ -196,15 +203,22 @@ mod tests {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
         let form = NewAccountForm {
-            email: EmailField { value: "email@host.com".to_string(), errors: vec![] },
-            password: PasswordField { value: "xxyyzz".to_string(), errors: vec![], hints: vec![] },
+            email: EmailField {
+                value: "email@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "xxyyzz".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
         };
         let _ = Account::register(&form, &DB_POOL).await.unwrap();
         let result = Account::register(&form, &DB_POOL).await;
         assert!(result.is_err());
         match result {
             Err(Error::Database(DatabaseError(DatabaseErrorKind::UniqueViolation, _))) => (),
-            _ => panic!()
+            _ => panic!(),
         }
     }
     #[actix_rt::test]
@@ -212,15 +226,21 @@ mod tests {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
         let form = NewAccountForm {
-            email: EmailField { value: "".to_string(), errors: vec![] },
-            password: PasswordField { value: "xxyyzz12".to_string(), errors: vec![], hints: vec![] },
+            email: EmailField {
+                value: "".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "xxyyzz12".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
         };
         let result = Account::register(&form, &DB_POOL).await;
         assert!(result.is_err());
         match result {
             Err(Error::Database(DatabaseError(DatabaseErrorKind::__Unknown, _))) => (),
-            _ => panic!()
+            _ => panic!(),
         }
     }
 }
-
