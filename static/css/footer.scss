@@ -3,12 +3,11 @@ footer {
   height: 250px;
   padding: 30px;
   box-sizing: border-box;
-  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
 }
-.footer-container { 
+.footer-container {
   display: grid;
   grid-template-columns: 1fr 4fr 1fr;
   margin: 40px auto;
@@ -29,7 +28,7 @@ footer {
       justify-content: space-around;
       color: white;
       a {
-        color: white;  
+        color: white;
         &:link {
           text-decoration: underline;
         }
@@ -52,7 +51,7 @@ footer {
           }
         }
       }
-    } 
+    }
   }
   .footer-copyright {
     color: var(--gray-color);

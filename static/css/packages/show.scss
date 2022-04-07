@@ -1,6 +1,4 @@
 .package-show-container {
-    margin-top: 110px;
-
     .package-info-container {
         max-width: 1574px;
         margin: 0 auto;
@@ -120,15 +118,51 @@
 
             .package-readme-content{
                 width: 56%;
+                color: var(--dark-blue-color);
+                font-size: 20px;
+                margin-bottom: 40px;
+
+                code {
+                    color: var(--dark-blue-color);
+                    background-color: var(--gray-background-color);
+                    border-radius: 4px;
+                    margin: 10px 0;
+                    padding: 10px 16px;
+                    display: block;
+                    border: none;
+                    white-space: pre;
+                }
+
+                h1, h2, h3 {
+                    font-weight: 700;
+                }
+
+                h1 {
+                    font-size: 36px;
+
+                    &:not(:first-child) {
+                        margin-top: 35px;
+                    }
+                }
+
+                h2 {
+                    font-size: 28px;
+                    margin-top: 25px;
+                }
+
+                h3 {
+                    font-size: 24px;
+                    margin-top: 15px;
+                }
             }
 
             .package-sidebar {
                 width: 33%;
 
-
                 .package-information {
                     padding: 22px;
-                    background-color: #F2F4F7;
+                    background-color: var(--gray-background-color);
+
                     .package-information-title {
                         color: #001F60;
                         font-weight: 700;
@@ -217,6 +251,7 @@
                     color: #EB5757;
                     font-weight: 700;
                     line-height: 18px;
+                    cursor: pointer;
 
                     .package-report-flag-icon{
                         width: 24px;

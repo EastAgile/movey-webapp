@@ -2,7 +2,6 @@ header {
   height: 100px;
   padding: 30px;
   background: white;
-  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -35,7 +34,7 @@ header {
     button {
       cursor: pointer;
       padding: 10px;
-      
+
       &.sign-in {
         background: none;
         border: none;
@@ -47,7 +46,7 @@ header {
         border: none;
         border-radius: 5px;
         color: white;
-        
+
       }
     }
   }
