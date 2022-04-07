@@ -1,19 +1,19 @@
 // Implements a basic Account model, with support for creating/updating/deleting
 // users, along with welcome email and verification.
 
-use diesel::{Queryable, Identifiable, AsChangeset, Insertable};
 use diesel::prelude::*;
+use diesel::{AsChangeset, Identifiable, Insertable, Queryable};
 
 use jelly::accounts::{OneTimeUseTokenGenerator, User};
-use jelly::chrono::{DateTime, Utc, offset};
+use jelly::chrono::{offset, DateTime, Utc};
 use jelly::djangohashers::{check_password, make_password};
 use jelly::error::Error;
 use jelly::serde::{Deserialize, Serialize};
 use jelly::DieselPgPool;
 
 use super::forms::{LoginForm, NewAccountForm};
-use crate::schema::accounts::dsl::*;
 use crate::schema::accounts;
+use crate::schema::accounts::dsl::*;
 
 /// A user Account.
 #[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset)]
@@ -167,5 +167,97 @@ impl NewAccount {
             email: form.email.value.clone(),
             password: "".to_string(),
         };
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test::{DatabaseTestContext, DB_POOL};
+    use jelly::forms::{EmailField, PasswordField};
+
+    async fn setup_user() -> i32 {
+        let form = NewAccountForm {
+            name: Default::default(),
+            email: EmailField {
+                value: "email@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        };
+        Account::register(&form, &DB_POOL).await.unwrap()
+    }
+
+    #[actix_rt::test]
+    async fn authenticate_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        let uid = setup_user().await;
+
+        let login_form = LoginForm {
+            email: EmailField {
+                value: "email@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+            redirect: "".to_string(),
+        };
+        let user = Account::authenticate(&login_form, &DB_POOL).await.unwrap();
+        assert_eq!(user.id, uid);
+    }
+
+    #[actix_rt::test]
+    async fn authenticate_with_wrong_email_return_err() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        let uid = setup_user().await;
+
+        let login_form = LoginForm {
+            email: EmailField {
+                value: "wrong@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+            redirect: "".to_string(),
+        };
+        match Account::authenticate(&login_form, &DB_POOL).await {
+            Err(Error::Database(NotFound)) => (),
+            _ => panic!(),
+        }
+    }
+    #[actix_rt::test]
+    async fn authenticate_with_wrong_password_return_err() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        let uid = setup_user().await;
+
+        let login_form = LoginForm {
+            email: EmailField {
+                value: "email@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "wrongpassword".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+            redirect: "".to_string(),
+        };
+        match Account::authenticate(&login_form, &DB_POOL).await {
+            Err(Error::InvalidPassword) => (),
+            _ => panic!(),
+        }
     }
 }
