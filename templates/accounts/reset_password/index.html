@@ -10,13 +10,13 @@
     <div class="email-form">
         <h1>Forgot Password</h1>
         <div id="description">
-            <p>
+            <p class="light">
                 Enter your email address below to request a Movey account password reset.
             </p>
         </div>
         <form action="/accounts/reset/" method="POST">
-            <label for="email" id="usr-input-label">Email Address</label>
-            <input name="email" type="email" id="usr-input" value="{{ form.email.value }}">
+            <label for="email" class="usr-input-label">Email Address</label>
+            <input name="email" id="email" type="email" class="usr-input" value="{{ form.email.value }}">
             {% if form.email.errors | length > 0 %}
                 {% for err in form.email.errors %}
                     <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
@@ -26,7 +26,7 @@
                 Submit
             </button>
         </form>
-        <a id="signin-invitation">Back to sign in</a>
+        <a id="signin-invitation" href="/accounts/login">Back to sign in</a>
     </div>
 </div>
 {% endblock %}

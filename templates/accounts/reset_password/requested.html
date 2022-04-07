@@ -1,8 +1,24 @@
-{% extends "layout.html" %}
+{% extends "accounts/layout.html" %}
 
-{% block title %}Next Steps{% endblock %}
-
+{% block title %}Confirm request{% endblock %}
+{% block css %}
+<link href="/static/css/reset_password.css" rel="stylesheet"/>
+{% endblock %}
 {% block content %}
-<h1>Next Steps</h1>
-<p>Instructions have been sent via email.</p>
+<div class="logo"></div>
+<div class="form-wrapper">
+    <div class="email-form">
+        <h1>Thank You</h1>
+        <div id="description">
+            <p class="dark">
+                We have sent password reset instructions to {{ censored_email }} If no email is received within ten minutes, check that the sent address is correct.
+            </p>
+        </div>
+        <form action="/accounts/login/" method="GET">
+            <button type="submit" class="submit-btn">
+                Back to sign in
+            </button>
+        </form>
+    </div>
+</div>
 {% endblock %}

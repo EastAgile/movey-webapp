@@ -36,11 +36,18 @@ pub async fn request_reset(request: HttpRequest, form: Form<EmailForm>) -> Resul
     }
 
     request.queue(SendResetPasswordEmail {
-        to: form.email.value,
+        to: form.email.value.clone(),
     })?;
+
+    let email = form.email.value;
+    let mut censored_email = String::new();
+    censored_email.push_str(&email[0..1]);
+    censored_email.push_str("***");
+    censored_email.push_str(&email[email.find('@').unwrap()..]);
 
     request.render(200, "accounts/reset_password/requested.html", {
         let mut context = Context::new();
+        context.insert("censored_email", &censored_email);
         context.insert("sent", &true);
         context
     })
