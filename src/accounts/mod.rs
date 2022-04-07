@@ -6,6 +6,7 @@ use oauth2::{
     AuthUrl, ClientId, ClientSecret, RedirectUrl, TokenUrl,
 };
 use std::env::var;
+use jelly::actix_web::web;
 
 pub mod forms;
 pub mod jobs;
@@ -44,9 +45,10 @@ fn oauth_client() -> BasicClient {
 }
 
 pub fn configure(config: &mut ServiceConfig) {
+    let client = web::Data::new(oauth_client());
     config.service(
         scope("/accounts/")
-            .data::<BasicClient>(oauth_client())
+            .app_data(client.clone())
             .service(
                 resource("/register/")
                     .route(get().to(views::register::form))
