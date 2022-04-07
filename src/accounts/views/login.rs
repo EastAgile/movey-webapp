@@ -1,7 +1,11 @@
-use jelly::actix_web::{web::Form, HttpRequest};
+use jelly::actix_session::UserSession;
+use jelly::actix_web::{web, web::Form, HttpRequest};
 use jelly::prelude::*;
 use jelly::request::{Authentication, DatabasePool};
 use jelly::Result;
+use oauth2::basic::BasicClient;
+use oauth2::http::header;
+use oauth2::{CsrfToken, Scope};
 
 use crate::accounts::forms::LoginForm;
 use crate::accounts::Account;
@@ -48,4 +52,21 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
         context.insert("form", &form);
         context
     })
+}
+
+pub async fn oauth(request: HttpRequest, client: web::Data<BasicClient>) -> Result<HttpResponse> {
+    if request.is_authenticated()? {
+        return request.redirect("/dashboard/");
+    }
+
+    let (authorize_url, csrf_state) = client
+        .authorize_url(CsrfToken::new_random)
+        .add_scope(Scope::new("public_repo".to_string()))
+        .add_scope(Scope::new("user:email".to_string()))
+        .url();
+
+    request.get_session().set("oauth_state", &csrf_state);
+    Ok(HttpResponse::Found()
+        .header(header::LOCATION, authorize_url.to_string())
+        .finish())
 }
