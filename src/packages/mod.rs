@@ -9,7 +9,7 @@ pub fn configure(config: &mut ServiceConfig) {
     config.service(
         scope("/packages/")
             .service(
-                resource("/{package_id}")
+                resource("/{package_name}")
                     .route(get().to(views::controller::show_package)),
             )
     );

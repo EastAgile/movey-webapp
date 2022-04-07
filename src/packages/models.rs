@@ -96,6 +96,15 @@ impl Package {
         Ok(result)
     }
 
+    pub async fn get_by_name(package_name: &String, pool: &DieselPgPool) -> Result<Self, Error> {
+        let connection = pool.get()?;
+        let result = packages
+            .filter(name.eq(package_name))
+            .first::<Package>(&connection)?;
+
+        Ok(result)
+    }
+
     pub async fn get_versions(&self, pool: &DieselPgPool) -> Result<Vec<PackageVersion>, Error> {
         let connection = pool.get()?;
         let result = package_versions
