@@ -17,11 +17,9 @@
         <form action="/accounts/reset/" method="POST">
             <label for="email" class="usr-input-label">Email Address</label>
             <input name="email" id="email" type="email" class="usr-input" value="{{ form.email.value }}">
-            {% if form.email.errors | length > 0 %}
-                {% for err in form.email.errors %}
-                    <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
-                {% endfor %}
-            {% endif %}
+            {% for err in form.email.errors %}
+                <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
+            {% endfor %}
             <button type="submit" class="submit-btn">
                 Submit
             </button>
