@@ -118,8 +118,7 @@ pub async fn reset(
             is_anonymous: false,
         })?;
 
-        request.flash("Password Reset", "Your password was successfully reset.")?;
-        return request.redirect("/dashboard/");
+        return request.render(200, "accounts/reset_password/success.html", Context::new());
     }
 
     request.render(200, "accounts/invalid_token.html", Context::new())
