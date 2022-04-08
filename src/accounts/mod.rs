@@ -1,8 +1,8 @@
 //! URL dispatcher for user account related API endpoints.
 
 use jelly::actix_web::web::{get, post, resource, scope, ServiceConfig};
-use oauth2::basic::BasicClient;
 use oauth2::{
+    basic::BasicClient,
     AuthUrl, ClientId, ClientSecret, RedirectUrl, TokenUrl,
 };
 use std::env::var;
