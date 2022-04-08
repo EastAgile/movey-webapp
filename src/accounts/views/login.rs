@@ -3,9 +3,11 @@ use jelly::actix_web::{web, web::Form, HttpRequest};
 use jelly::prelude::*;
 use jelly::request::{Authentication, DatabasePool};
 use jelly::Result;
-use oauth2::basic::BasicClient;
-use oauth2::http::header;
-use oauth2::{CsrfToken, Scope};
+use oauth2::{
+    basic::BasicClient,
+    http::header,
+    CsrfToken, Scope,
+};
 
 use crate::accounts::forms::LoginForm;
 use crate::accounts::Account;

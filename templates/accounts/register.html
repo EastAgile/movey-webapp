@@ -8,7 +8,7 @@
 {% endblock %}
 {% block script %}
     <script src="https://apis.google.com/js/platform.js" async defer></script>
-    <script src="/static/js/register_helper.js" defer></script>
+    <script src="/static/js/signup/helper.js"></script>
 {% endblock %}
 
 
@@ -32,11 +32,10 @@
     
             <div class="thirdparty">
                 <div class="g-signin2" data-onsuccess="onSignIn"
-                    data-width="220"
                     data-height="40"
                     data-longtitle="true"
                 ></div>
-                <a href="/accounts/oauth">                    
+                <a href="/accounts/oauth">
                     <div class="github-btn">
                         <i class="fa fa-github" aria-hidden="true"></i>
                         <p class="btn-text">Sign in with Github</p>
@@ -54,36 +53,43 @@
     
             <form action="/accounts/register/" method="POST">
                 
-                <label for="email" class="usr_input_label">Email Address</label>
-                <input name="email" type="email" class="usr_input" value="{{ form.email.value }}">
-                {% if form.email.errors | length > 0 %}
-                    {% for err in form.email.errors %}
-                        <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
-                    {% endfor %}
-                {% endif %}
+                <div>
+                    <label for="email" class="usr_input_label">Email Address</label>
+                    <input name="email" type="email" class="usr_input" value="{{ form.email.value }}">
+                    {% if form.email.errors | length > 0 %}
+                        {% for err in form.email.errors %}
+                            <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
     
-                <label for="password" class="usr_input_label">Password</label>
-                <input name="password" type="password" class="usr_input" placeholder="8+ characters">
-                {% if form.password.errors | length > 0 %}
-                    {% for err in form.password.errors %}
-                        <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
-                    {% endfor %}
-                {% endif %}
+                <div>
+                    <label for="password" class="usr_input_label">Password</label>
+                    <input name="password" type="password" class="usr_input" placeholder="8+ characters">
+                    {% if form.password.errors | length > 0 %}
+                        {% for err in form.password.errors %}
+                            <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
     
                 <button type="submit" class="create_account_btn" disabled>
                     Create an Account
                 </button>
-    
-                <input type="checkbox" name="i_agree" class="i_agree">
-                <label for="i_agree" class="i_agree">
-                    I agree to <a href="#">Term of Service</a> and <a href="#">Privacy Policy</a>
-                </label>
-    
             </form>
+
+            <input type="checkbox" name="i_agree" class="i_agree">
+            <label for="i_agree" class="i_agree">
+                I agree to <a href="#">Term of Service</a> and <a href="#">Privacy Policy</a>
+            </label>
     
             <p class="signin_invitation">Already a member? <a href="/accounts/login/">Sign in</a></p>
         </div>
     </div>
 </div>
+
+<script>
+    new Helper();
+</script>
 
 {% endblock %}
