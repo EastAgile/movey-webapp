@@ -75,40 +75,39 @@ impl Validation for ChangePasswordForm {
 }
 
 #[cfg(test)]
-mod form_tests {
-    mod new_account_form_tests {
-        use super::super::*;
-        #[test]
-        fn is_valid_works() {
-            let mut new_account_form = NewAccountForm {
-                email: EmailField {
-                    value: "valid@example.com".to_string(),
-                    errors: vec![],
-                },
-                password: PasswordField {
-                    value: "Strongpassword1@".to_string(),
-                    errors: vec![],
-                    hints: vec![],
-                },
-            };
-            assert!(new_account_form.is_valid())
-        }
+mod tests {
+    use super::*;
 
-        #[test]
-        fn is_valid_with_short_password_return_false() {
-            let mut new_account_form = NewAccountForm {
-                email: EmailField {
-                    value: "valid@example.com".to_string(),
-                    errors: vec![],
-                },
-                password: PasswordField {
-                    value: "12345".to_string(),
-                    errors: vec![],
-                    hints: vec![],
-                },
-            };
-            new_account_form.is_valid();
-            assert!(!new_account_form.is_valid())
-        }
+    #[test]
+    fn is_valid_works() {
+        let mut new_account_form = NewAccountForm {
+            email: EmailField {
+                value: "valid@example.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "Strongpassword1@".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        };
+        assert!(new_account_form.is_valid())
+    }
+
+    #[test]
+    fn is_valid_with_short_password_return_false() {
+        let mut new_account_form = NewAccountForm {
+            email: EmailField {
+                value: "valid@example.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "12345".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        };
+        new_account_form.is_valid();
+        assert!(!new_account_form.is_valid())
     }
 }

@@ -65,7 +65,7 @@ pub async fn oauth(request: HttpRequest, client: web::Data<BasicClient>) -> Resu
         .add_scope(Scope::new("user:email".to_string()))
         .url();
 
-    request.get_session().set("oauth_state", &csrf_state);
+    request.get_session().set("oauth_state", &csrf_state)?;
     Ok(HttpResponse::Found()
         .header(header::LOCATION, authorize_url.to_string())
         .finish())

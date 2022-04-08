@@ -1,2 +1,2 @@
 ALTER TABLE accounts
-DROP CONSTRAINT non_empty;
+DROP CONSTRAINT non_empty_email;

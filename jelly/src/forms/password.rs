@@ -85,7 +85,7 @@ impl Validation for PasswordField {
 }
 
 #[cfg(test)]
-mod PasswordField_tests {
+mod tests {
     use super::*;
     #[test]
     fn is_valid_works() {
