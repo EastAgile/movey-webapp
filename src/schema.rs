@@ -21,8 +21,8 @@ table! {
         readme_content -> Nullable<Text>,
         license -> Nullable<Text>,
         downloads_count -> Int4,
-        created -> Timestamptz,
-        updated -> Timestamptz,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
     }
 }
 
@@ -33,8 +33,8 @@ table! {
         description -> Text,
         repository_url -> Text,
         total_downloads_count -> Int4,
-        created -> Timestamptz,
-        updated -> Timestamptz,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
     }
 }
 
