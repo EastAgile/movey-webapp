@@ -1,16 +1,14 @@
 use cucumber::{given, then, when};
-use jelly::djangohashers::make_password;
 use jelly::forms::{EmailField, PasswordField, TextField};
 use mainlib::accounts::forms::NewAccountForm;
 use mainlib::accounts::Account;
 use mainlib::test::DB_POOL;
-use serde_json::Value;
 use thirtyfour::prelude::*;
 
 use super::super::world::TestWorld;
 
 #[given("I am a user on Movey")]
-async fn an_user(world: &mut TestWorld) {
+async fn an_user(_world: &mut TestWorld) {
     let form = NewAccountForm {
         name: TextField {
             value: "Test signin".to_string(),
@@ -31,7 +29,7 @@ async fn an_user(world: &mut TestWorld) {
 
 #[given("I am not signed in")]
 async fn non_signed_in_user(world: &mut TestWorld) {
-    world.driver.delete_cookie("sessionid").await;
+    world.driver.delete_cookie("sessionid").await.unwrap_or_default();
 }
 
 #[given("I am signed in")]
@@ -63,7 +61,7 @@ async fn fill_in_sign_in_form(world: &mut TestWorld) {
     password_field.send_keys("So$trongpas0word!").await.unwrap();
     let create_account_button = world
         .driver
-        .find_element(By::XPath("/html/body/form/button"))
+        .find_element(By::ClassName("login_btn"))
         .await
         .unwrap();
     create_account_button.click().await.unwrap();
@@ -82,7 +80,7 @@ async fn fill_in_wrong_email(world: &mut TestWorld) {
     password_field.send_keys("So$trongpas0word!").await.unwrap();
     let create_account_button = world
         .driver
-        .find_element(By::XPath("/html/body/form/button"))
+        .find_element(By::ClassName("login_btn"))
         .await
         .unwrap();
     create_account_button.click().await.unwrap();
@@ -101,7 +99,7 @@ async fn fill_in_blank_email(world: &mut TestWorld) {
     password_field.send_keys("So$trongpas0word!").await.unwrap();
     let create_account_button = world
         .driver
-        .find_element(By::XPath("/html/body/form/button"))
+        .find_element(By::ClassName("login_btn"))
         .await
         .unwrap();
     create_account_button.click().await.unwrap();
@@ -120,7 +118,7 @@ async fn fill_in_wrong_password(world: &mut TestWorld) {
     password_field.send_keys("wrongpassword").await.unwrap();
     let create_account_button = world
         .driver
-        .find_element(By::XPath("/html/body/form/button"))
+        .find_element(By::ClassName("login_btn"))
         .await
         .unwrap();
     create_account_button.click().await.unwrap();
@@ -139,7 +137,7 @@ async fn fill_in_blank_password(world: &mut TestWorld) {
     password_field.send_keys("").await.unwrap();
     let create_account_button = world
         .driver
-        .find_element(By::XPath("/html/body/form/button"))
+        .find_element(By::ClassName("login_btn"))
         .await
         .unwrap();
     create_account_button.click().await.unwrap();

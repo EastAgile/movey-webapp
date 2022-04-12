@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="lt-ie9"><![endif]-->
+<!--[if gt IE 8]><!--><html><!--<![endif]-->
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{% endblock %}">
+    <meta property="og:site_name" content="{% block og_sitename %}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{% endblock %}">
+    {% block meta %}{% endblock %}
+    {% block css %}{% endblock %}
+    <link href="/static/css/layout.css" rel="stylesheet"/>
+    <link href="/static/css/signup.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="http://fonts.cdnfonts.com/css/inter" rel="stylesheet"/>
+    {% block script %}{% endblock %}
+    <!--[if lte IE 8]>
+    (function(i,e){for(;i<10;i++)document.createElement(e[i]);})(0,['section','article','aside','header','footer','nav','figure','figcaption','time','mark']);
+    <![endif]-->
+</head>
+<body>
+    {% block content %}{% endblock %}
+</body>
+</html>
