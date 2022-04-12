@@ -1,157 +1,106 @@
-{% extends "layout.html" %}
+{% extends "packages/layout.html" %}
 
-{% block title %}Package {{package.name}}{% endblock %}
-{% block css %}
-    <link href="/static/css/packages/show.css" rel="stylesheet"/>
-{% endblock %}
+{% block package_content %}
+<div class="package-detail-container">
+    <div class="package-readme-content">{{package_version.readme_content}}</div>
+    <div class="package-sidebar">
+        <div class="package-information">
+            <div class="package-install">
+                <div class="package-information-title">
+                    Install
+                </div>
+                <div class="package-install-instruction">
+                    {{package.name}} = "{{package_version.version}}"
+                </div>
 
-{% block javascript %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.0.3/showdown.min.js"></script>
-    <script src="/static/js/packages/show.js"></script>
-{% endblock %}
-
-{% block content %}
-<div class="package-show-container">
-    <div class="package-info-container">
-        <div class="package-name-version">
-            <div class="package-name">{{package.name}}</div>
-            <div class="package-version">{{package_version.version}}</div>
-        </div>
-        <div class="package-description">{{package.description}}</div>
-        <div class="package-tags">
-            <div class="package-tag">
-                Tag 1
-            </div>
-            <div class="package-tag">
-                Tag 2
-            </div>
-            <div class="package-tag">
-                Tag 3
-            </div>
-        </div>
-    </div>
-    <div class="horizontal-line"></div>
-    <div class="package-content-container">
-        <div class="package-content-tabs">
-            <div class="content-tab tab-readme">
-                <div class="tab-icon tab-icon-readme"></div>
-                <div class="tab-name">Readme</div>
-            </div>
-            <div class="content-tab tab-dependency">
-                <div class="tab-icon tab-icon-dependency"></div>
-                <div class="tab-name">Dependency</div>
-            </div>
-            <div class="content-tab tab-dependents">
-                <div class="tab-icon tab-icon-dependents"></div>
-                <div class="tab-name">Dependents</div>
-            </div>
-            <div class="content-tab tab-versions">
-                <div class="tab-icon tab-icon-versions"></div>
-                <div class="tab-name">Versions</div>
-            </div>
-        </div>
-        <div class="package-detail-container">
-            <div class="package-readme-content">{{package_version.readme_content}}</div>
-            <div class="package-sidebar">
-                <div class="package-information">
-                    <div class="package-install">
-                        <div class="package-information-title">
-                            Install
-                        </div>
-                        <div class="package-install-instruction">
-                            {{package.name}} = "{{package_version.version}}"
-                        </div>
-
-                        <div class="package-information-title">
-                            Repository
-                        </div>
-                        <div class="package-repo">
-                            <div class="package-repo-icon"></div>
-                            <div class="package-repo-url">
-                                <a href="{{package.repository_url}}">{{package.repository_url}}</a>
-                            </div>
-                        </div>
-                        <div class="horizontal-line"></div>
-                    </div>
-                    <div class="package-metadata">
-                        <div class="package-metadata-content">
-                            <div class="package-metadata-title">
-                                Version
-                            </div>
-                            <div class="package-metadata-value">
-                                {{package_version.version}}
-                            </div>
-                        </div>
-
-                        <div class="package-metadata-content">
-                            <div class="package-metadata-title">
-                                License
-                            </div>
-                            <div class="package-metadata-value">
-                                {{package_version.license}}
-                            </div>
-                        </div>
-
-                        <div class="package-metadata-content">
-                            <div class="package-metadata-title">
-                                Unpacked Size
-                            </div>
-                            <div class="package-metadata-value">
-                                271 kB
-                            </div>
-                        </div>
-
-                        <div class="package-metadata-content">
-                            <div class="package-metadata-title">
-                                Totals Files
-                            </div>
-                            <div class="package-metadata-value">
-                                32
-                            </div>
-                        </div>
-
-                        <div class="package-metadata-content">
-                            <div class="package-metadata-title">
-                                Issues
-                            </div>
-                            <div class="package-metadata-value">
-                                271 kB
-                            </div>
-                        </div>
-
-                        <div class="package-metadata-content">
-                            <div class="package-metadata-title">
-                                Pull Requests
-                            </div>
-                            <div class="package-metadata-value">
-                                100
-                            </div>
-                        </div>
-
-                        <div class="package-metadata-content">
-                            <div class="package-metadata-title">
-                                Version
-                            </div>
-                            <div class="package-metadata-value">
-                                {{package_version.version}}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="horizontal-line"></div>
-                    <div class="package-owners">
-                        <div class="package-information-title">
-                            Owners
-                        </div>
-                        <div class="package-owners-info">
-                            John Doe
-                        </div>
+                <div class="package-information-title">
+                    Repository
+                </div>
+                <div class="package-repo">
+                    <div class="package-repo-icon"></div>
+                    <div class="package-repo-url">
+                        <a href="{{package.repository_url}}">{{package.repository_url}}</a>
                     </div>
                 </div>
-                <div class="package-report">
-                    <div class="package-report-flag-icon"></div>
-                    <div>REPORT</div>
+                <div class="horizontal-line"></div>
+            </div>
+            <div class="package-metadata">
+                <div class="package-metadata-content">
+                    <div class="package-metadata-title">
+                        Version
+                    </div>
+                    <div class="package-metadata-value">
+                        {{package_version.version}}
+                    </div>
+                </div>
+
+                <div class="package-metadata-content">
+                    <div class="package-metadata-title">
+                        License
+                    </div>
+                    <div class="package-metadata-value">
+                        {{package_version.license}}
+                    </div>
+                </div>
+
+                <div class="package-metadata-content">
+                    <div class="package-metadata-title">
+                        Unpacked Size
+                    </div>
+                    <div class="package-metadata-value">
+                        271 kB
+                    </div>
+                </div>
+
+                <div class="package-metadata-content">
+                    <div class="package-metadata-title">
+                        Totals Files
+                    </div>
+                    <div class="package-metadata-value">
+                        32
+                    </div>
+                </div>
+
+                <div class="package-metadata-content">
+                    <div class="package-metadata-title">
+                        Issues
+                    </div>
+                    <div class="package-metadata-value">
+                        271 kB
+                    </div>
+                </div>
+
+                <div class="package-metadata-content">
+                    <div class="package-metadata-title">
+                        Pull Requests
+                    </div>
+                    <div class="package-metadata-value">
+                        100
+                    </div>
+                </div>
+
+                <div class="package-metadata-content">
+                    <div class="package-metadata-title">
+                        Version
+                    </div>
+                    <div class="package-metadata-value">
+                        {{package_version.version}}
+                    </div>
                 </div>
             </div>
+            <div class="horizontal-line"></div>
+            <div class="package-owners">
+                <div class="package-information-title">
+                    Owners
+                </div>
+                <div class="package-owners-info">
+                    John Doe
+                </div>
+            </div>
+        </div>
+        <div class="package-report">
+            <div class="package-report-flag-icon"></div>
+            <div>REPORT</div>
         </div>
     </div>
 </div>

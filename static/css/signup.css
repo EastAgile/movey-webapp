@@ -68,6 +68,7 @@
 }
 .signup_background .signup_wrapper .signup .thirdparty a .github-btn i {
   font-size: x-large;
+  color: var(--blue-color);
 }
 .signup_background .signup_wrapper .signup .thirdparty a .github-btn .btn-text {
   font-size: medium;
