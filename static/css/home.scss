@@ -1,7 +1,6 @@
 .home-container {
   background: var(--dark-blue-color);
   padding: 120px 20% 0 20%;
-  margin-top: 100px;
   text-align: center;
   //height: calc(100vh - 330px);
   box-sizing: border-box;
@@ -16,7 +15,7 @@
     margin-top: 50px;
     button {
       float: left;
-      padding: 12px 10px;
+      padding: 16px;
       border: none;
       cursor: pointer;
       background: white;
@@ -28,6 +27,7 @@
       overflow: hidden;
       input[type=text] {
         padding: 12px;
+        height: auto;
         border: none;
         width: 100%;
         color: var(--dark-blue-color);
