@@ -36,7 +36,7 @@ pub struct NewPackage {
     pub repository_url: String
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset, Clone)]
 pub struct PackageVersion {
     pub id: i32,
     pub package_id: i32,

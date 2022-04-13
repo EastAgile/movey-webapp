@@ -16,7 +16,7 @@ async fn visit_home_page(world: &mut TestWorld) {
     world.driver.get("http://localhost:17002/packages/test-package").await.unwrap();
 }
 
-#[then("I should see information of that package")]
+#[then("I should see latest information of that package")]
 async fn see_home_page(world: &mut TestWorld) {
   let package_name_element = world.driver.find_element(By::ClassName("package-name")).await.unwrap();
   let package_name = package_name_element.text().await.unwrap();
@@ -25,6 +25,10 @@ async fn see_home_page(world: &mut TestWorld) {
   let package_description_element = world.driver.find_element(By::ClassName("package-description")).await.unwrap();
   let package_description = package_description_element.text().await.unwrap();
   assert_eq!(package_description, "package_description");
+
+  let package_version_element = world.driver.find_element(By::ClassName("package-version")).await.unwrap();
+  let package_version = package_version_element.text().await.unwrap();
+  assert_eq!(package_version, "second_version");
 }
 
 #[when("I click on versions of that package")]
@@ -67,4 +71,19 @@ async fn see_oldest_versions(world: &mut TestWorld) {
     let second_version_item_element = version_item_elements.last().unwrap();
     let second_version_text = second_version_item_element.text().await.unwrap();
     assert_eq!(second_version_text, "second_version");
+}
+
+#[when("I click on an older version of the package")]
+async fn click_on_old_version(world: &mut TestWorld) {
+    let version_item_elements = world.driver.find_elements(By::ClassName("package-version-number")).await.unwrap();
+
+    let first_version_item_element = version_item_elements.first().unwrap();
+    first_version_item_element.click().await.unwrap();
+}
+
+#[then("I should see the older version of the package")]
+async fn see_older_version(world: &mut TestWorld) {
+    let package_version_element = world.driver.find_element(By::ClassName("package-version")).await.unwrap();
+    let package_version = package_version_element.text().await.unwrap();
+    assert_eq!(package_version, "first_version");
 }
