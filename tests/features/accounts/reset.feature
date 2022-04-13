@@ -1,18 +1,35 @@
-Feature: Reset Password
+Feature: Reset password
 
   Background:
-    Given I am not logged in
-    When I access the Sign In page
-    And I click on the Forgot Passwork link on sign in form
-    Then I should see the Forgot Password page
+    Given I have successfully requested a password reset link
+    And I have received the email that contains password reset link
+    When I access the reset password link
+    Then I should see the Reset Password page
 
-    Scenario: Registered email
-      Given I have registered an email
-      When I fill in a registered email and submit the form on Forgot Password page
-      Then I should see the Confirm Request page
-      And I should receive an email that contains valid password reset link
+    Scenario: Valid password 
+      When I fill in a valid password and repeat the password correctly
+      And I submit the form on Reset Password page
+      Then I should see the Password Changed page
+      And I should receive an email that confirms password has changed
     
-    Scenario: Unregistered email
-      When I fill in an unregistered email and submit the form on Forgot Password page
-      Then I should see the Confirm Request page
-      But I should not receive an email
+    Scenario: Password mismatch
+      When I fill in a valid password and repeat the password incorrectly
+      And I submit the form on Reset Password page
+      Then I should see the error 'Passwords must match.'
+
+    Scenario: Invalid password
+      When I fill in an invalid password <invalid_password> and repeat the password correctly
+      And I submit the form on Reset Password page
+      Then I should see the error <error_msg>
+
+    Examples:
+      | invalid_password    | error_msg                                               |
+      | aaaaaaaaaaaaaa      | 'Repeats like "aaa" are easy to guess.'                 |
+      | password123         | 'This is similar to a commonly used password.'          |
+      | abcd123             | 'Password must contain at least 8 characters.'          |
+      | qwertyuiop          | 'Straight rows of keys are easy to guess.'              |
+
+      
+
+    
+
