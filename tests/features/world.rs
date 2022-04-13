@@ -8,7 +8,8 @@ use thirtyfour::prelude::*;
 #[derive(Debug, WorldInit)]
 pub struct TestWorld {
     pub driver: WebDriver,
-    pub root_url: String
+    pub root_url: String,
+    pub reset_token: String
 }
 
 // `World` needs to be implemented, so Cucumber knows how to construct it
@@ -26,7 +27,8 @@ impl World for TestWorld {
                 caps.add_chrome_arg("--headless").unwrap();
                 WebDriver::new("http://localhost:4444", &caps).await.unwrap()
             },
-            root_url: "http://localhost:17002/".to_string()
+            root_url: "http://localhost:17002/".to_string(),
+            reset_token: String::new()
         })
     }
 }
