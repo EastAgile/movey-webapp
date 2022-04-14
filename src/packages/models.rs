@@ -161,22 +161,6 @@ impl PackageVersion {
 
         Ok(records)
     }
-
-    pub async fn update_downloads_count(&self, count: i32, pool: &DieselPgPool) -> Result<(), Error> {
-        // TODO: investigate usage of save_changes
-        let connection = pool.get()?;
-
-        match diesel::update(package_versions.filter(package_versions::id.eq(self.id)))
-            .set(downloads_count.eq(count))
-            .get_result::<PackageVersion>(&connection) {
-            Ok(_) => {
-                Ok(())
-            }
-            Err(error) => {
-                Err(Error::Database(error))
-            }
-        }
-    }
 }
 
 #[cfg(test)]
@@ -278,8 +262,9 @@ mod tests {
 
         let uid = Package::create(&"repo_url".to_string(), &"package_description".to_string(), &mock_github_service, &DB_POOL).await.unwrap();
 
-        let version_2 = PackageVersion::create(uid, "second_version".to_string(), "second_readme_content".to_string(), &DB_POOL).await.unwrap();
-        version_2.update_downloads_count(5, &DB_POOL).await.unwrap();
+        let mut version_2 = PackageVersion::create(uid, "second_version".to_string(), "second_readme_content".to_string(), &DB_POOL).await.unwrap();
+        version_2.downloads_count = 5;
+        _ = &version_2.save_changes::<PackageVersion>(&*(DB_POOL.get().unwrap())).unwrap();
 
         let versions = PackageVersion::from_package_id(uid, &PackageVersionSort::MostDownloads, &DB_POOL).await.unwrap();
 
@@ -290,7 +275,7 @@ mod tests {
 }
 
 // Helpers for integration tests only. Wondering why cfg(test) below doesn't work... (commented out for now)
-// #[cfg(test)]
+#[cfg(any(test, feature = "test"))]
 impl Package {
     pub async fn create_test_package(package_name: &String, repo_url: &String, package_description: &String, package_version: &String, package_readme_content: &String, pool: &DieselPgPool) -> Result<i32, Error> {
         let connection = pool.get()?;
