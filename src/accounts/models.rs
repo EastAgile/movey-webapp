@@ -33,9 +33,7 @@ pub struct Account {
 impl Account {
     pub async fn get(uid: i32, pool: &DieselPgPool) -> Result<Self, Error> {
         let connection = pool.get()?;
-        let result = accounts
-            .find(uid)
-            .first::<Account>(&connection)?;
+        let result = accounts.find(uid).first::<Account>(&connection)?;
 
         Ok(result)
     }
@@ -77,7 +75,10 @@ impl Account {
         Ok(result)
     }
 
-    pub async fn fetch_name_from_email(account_email: &str, pool: &DieselPgPool) -> Result<String, Error> {
+    pub async fn fetch_name_from_email(
+        account_email: &str,
+        pool: &DieselPgPool,
+    ) -> Result<String, Error> {
         let connection = pool.get()?;
         let result = accounts
             .filter(email.eq(account_email))
@@ -105,7 +106,10 @@ impl Account {
         let connection = pool.get()?;
 
         diesel::update(accounts.filter(id.eq(uid)))
-            .set((has_verified_email.eq(true), last_login.eq(offset::Utc::now())))
+            .set((
+                has_verified_email.eq(true),
+                last_login.eq(offset::Utc::now()),
+            ))
             .execute(&connection)?;
 
         Ok(())
@@ -153,11 +157,11 @@ impl OneTimeUseTokenGenerator for Account {
 }
 
 #[derive(Insertable)]
-#[table_name="accounts"]
+#[table_name = "accounts"]
 pub struct NewAccount {
     pub name: String,
     pub email: String,
-    pub password: String
+    pub password: String,
 }
 
 impl NewAccount {
@@ -210,6 +214,7 @@ mod tests {
                 errors: vec![],
                 hints: vec![],
             },
+            remember_me: "off".to_string(),
             redirect: "".to_string(),
         };
         let user = Account::authenticate(&login_form, &DB_POOL).await.unwrap();
@@ -220,7 +225,7 @@ mod tests {
     async fn authenticate_with_wrong_email_return_err() {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
-        let uid = setup_user().await;
+        let _uid = setup_user().await;
 
         let login_form = LoginForm {
             email: EmailField {
@@ -232,10 +237,11 @@ mod tests {
                 errors: vec![],
                 hints: vec![],
             },
+            remember_me: "off".to_string(),
             redirect: "".to_string(),
         };
         match Account::authenticate(&login_form, &DB_POOL).await {
-            Err(Error::Database(NotFound)) => (),
+            Err(Error::Database(_not_found)) => (),
             _ => panic!(),
         }
     }
@@ -243,7 +249,7 @@ mod tests {
     async fn authenticate_with_wrong_password_return_err() {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
-        let uid = setup_user().await;
+        let _uid = setup_user().await;
 
         let login_form = LoginForm {
             email: EmailField {
@@ -255,6 +261,7 @@ mod tests {
                 errors: vec![],
                 hints: vec![],
             },
+            remember_me: "off".to_string(),
             redirect: "".to_string(),
         };
         match Account::authenticate(&login_form, &DB_POOL).await {
