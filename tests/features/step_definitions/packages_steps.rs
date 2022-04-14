@@ -12,12 +12,12 @@ async fn package_in_system(_world: &mut TestWorld) {
 }
 
 #[when("I access the package details page")]
-async fn visit_home_page(world: &mut TestWorld) {
+async fn visit_package_page(world: &mut TestWorld) {
     world.driver.get("http://localhost:17002/packages/test-package").await.unwrap();
 }
 
 #[then("I should see latest information of that package")]
-async fn see_home_page(world: &mut TestWorld) {
+async fn see_package_latest_info(world: &mut TestWorld) {
   let package_name_element = world.driver.find_element(By::ClassName("package-name")).await.unwrap();
   let package_name = package_name_element.text().await.unwrap();
   assert_eq!(package_name, "test-package");
