@@ -1,6 +1,6 @@
 {% extends "accounts/layout.html" %}
 
-{% block title %}Confirm Request{% endblock %}
+{% block title %}Password Changed{% endblock %}
 {% block css %}
 <link href="/static/css/reset_password.css" rel="stylesheet"/>
 {% endblock %}
@@ -8,15 +8,15 @@
 <div class="logo"></div>
 <div class="form-wrapper">
     <div class="email-form">
-        <h1>Thank You</h1>
+        <h1>Password Changed!</h1>
         <div id="description">
             <p class="dark">
-                We have sent password reset instructions to {{ censored_email }}. If no email is received within ten minutes, check that the sent address is correct.
+                Your password has been changed successfully.
             </p>
         </div>
-        <form action="/accounts/login/" method="GET">
+        <form action="/" method="GET">
             <button type="submit" class="submit-btn">
-                Back to sign in
+                Back to home
             </button>
         </form>
     </div>

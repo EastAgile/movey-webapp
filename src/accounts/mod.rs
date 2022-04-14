@@ -1,12 +1,12 @@
 //! URL dispatcher for user account related API endpoints.
 
+use std::env::var;
+use jelly::actix_web::web;
 use jelly::actix_web::web::{get, post, resource, scope, ServiceConfig};
 use oauth2::basic::BasicClient;
 use oauth2::{
     AuthUrl, ClientId, ClientSecret, RedirectUrl, TokenUrl,
 };
-use std::env::var;
-use jelly::actix_web::web;
 
 pub mod forms;
 pub mod jobs;
@@ -67,7 +67,7 @@ pub fn configure(config: &mut ServiceConfig) {
             .service(
                 resource("/login/")
                     .route(get().to(views::login::form))
-                    .route(post().to(views::login::authenticate)),
+                    .route(post().to(views::login::authenticate))
             )
             .service(
                 resource("/verify/{uidb64}-{ts}-{token}/")

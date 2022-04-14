@@ -2234,6 +2234,7 @@ dependencies = [
  "mockall",
  "mockall_double",
  "oauth2",
+ "regex",
  "reqwest",
  "serde",
  "serde_json",
