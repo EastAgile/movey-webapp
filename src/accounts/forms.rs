@@ -5,10 +5,16 @@ fn default_redirect_path() -> String {
     "/".into()
 }
 
+fn default_remember_me() -> String {
+    "off".into()
+}
+
 #[derive(Default, Debug, Deserialize, Serialize)]
 pub struct LoginForm {
     pub email: EmailField,
     pub password: PasswordField,
+    #[serde(default = "default_remember_me")]
+    pub remember_me: String,
 
     #[serde(default = "default_redirect_path")]
     pub redirect: String,

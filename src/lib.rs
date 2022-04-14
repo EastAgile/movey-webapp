@@ -12,12 +12,13 @@ extern crate log;
 extern crate diesel_migrations;
 
 pub mod accounts;
+pub mod api;
 pub mod dashboard;
 pub mod pages;
-pub mod api;
 
 pub mod schema;
 
+pub mod request;
 pub mod test;
 
 use jelly::Server;

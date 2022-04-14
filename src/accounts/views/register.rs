@@ -1,14 +1,15 @@
 use jelly::actix_web::{web::Form, HttpRequest};
 use jelly::prelude::*;
-use jelly::request::{Authentication, DatabasePool};
+use jelly::request::{DatabasePool};
 use jelly::Result;
 
 use crate::accounts::forms::NewAccountForm;
 use crate::accounts::jobs::{SendAccountOddRegisterAttemptEmail, SendVerifyAccountEmail};
 use crate::accounts::Account;
+use crate::request;
 
 pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
-    if request.is_authenticated()? {
+    if request::is_authenticated(&request).await? {
         return request.redirect("/dashboard/");
     }
 
@@ -23,7 +24,7 @@ pub async fn create_account(
     request: HttpRequest,
     form: Form<NewAccountForm>,
 ) -> Result<HttpResponse> {
-    if request.is_authenticated()? {
+    if request::is_authenticated(&request).await? {
         return request.redirect("/dashboard/");
     }
 

@@ -2154,6 +2154,7 @@ dependencies = [
  "serde_json",
  "test-log",
  "thirtyfour",
+ "time 0.2.27",
  "tokio 1.17.0",
 ]
 
