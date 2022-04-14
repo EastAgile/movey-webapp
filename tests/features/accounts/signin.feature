@@ -29,11 +29,33 @@ Feature: Sign in
       When I fill in blank password and submit the form on the sign in page
       Then I should see the error 'Invalid email or password'
 
-  Rule: Signed-in user
+  Rule: Default signed-in user
       
-    @wip
-    Scenario: Already signed-in user
+    Background:
       Given I am a user on Movey
       And I am signed in
+
+    Scenario: Already signed-in user
       When I access the Sign in page
-      Then I should be redirected to the Dashboard page
+      Then I should see that Im logged in
+
+    Scenario: Default session expired
+      When I close and reopen my browser
+      And I access the Dashboard page
+      Then I should see the sign in page
+  
+  Rule: Permanently signed-in user
+
+    Background:
+      Given I am a user on Movey
+      And I am signed in with option to keep me signed in
+
+    Scenario: Permanent session works
+      When I close and reopen my browser
+      And I access the Dashboard page
+      Then I should see that Im logged in
+    
+    Scenario: Permanent session expired
+      When my permanent session is expired
+      And I access the Dashboard page
+      Then I should see the sign in page
