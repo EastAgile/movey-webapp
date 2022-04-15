@@ -7,8 +7,8 @@ use super::super::world::TestWorld;
 
 #[given("there is a package in the system")]
 async fn package_in_system(_world: &mut TestWorld) {
-    let uid = Package::create_test_package(&"test-package".to_string(), &"https://github.com/Elements-Studio/starswap-core".to_string(), &"package_description".to_string(), &"first_version".to_string(), &"first_readme_content".to_string(), &DB_POOL).await.unwrap();
-    PackageVersion::create(uid, "second_version".to_string(), "second_readme_content".to_string(), &DB_POOL).await.unwrap();
+    let uid = Package::create_test_package(&"test-package".to_string(), &"https://github.com/Elements-Studio/starswap-core".to_string(), &"package_description".to_string(), &"first_version".to_string(), &"first_readme_content".to_string(), &"rev".to_string(), &DB_POOL).await.unwrap();
+    PackageVersion::create(uid, "second_version".to_string(), "second_readme_content".to_string(), "rev_2".to_string(), &DB_POOL).await.unwrap();
 }
 
 #[when("I access the package details page")]
@@ -29,6 +29,12 @@ async fn see_package_latest_info(world: &mut TestWorld) {
   let package_version_element = world.driver.find_element(By::ClassName("package-version")).await.unwrap();
   let package_version = package_version_element.text().await.unwrap();
   assert_eq!(package_version, "second_version");
+
+  let package_instruction_element = world.driver.find_element(By::ClassName("package-install-instruction")).await.unwrap();
+  let package_instruction = package_instruction_element.text().await.unwrap();
+
+  let expected_result = format!("{} = {{ git = \"{}\", rev = \"{}\" }}", "test-package", "https://github.com/Elements-Studio/starswap-core", "rev_2");
+  assert_eq!(package_instruction, expected_result);
 }
 
 #[when("I click on versions of that package")]
