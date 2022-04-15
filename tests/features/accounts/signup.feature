@@ -20,5 +20,5 @@ Feature: Sign up
       | invalid_password           | message                          |
       | mail@xample.com            | 'Password not strong enough'     |
       | mailexample                | 'Password not strong enough'     |
-      | 12345                      | 'Password not long enough'     |
+      | 12345                      | 'Password must contain at least 8 characters.'     |
 

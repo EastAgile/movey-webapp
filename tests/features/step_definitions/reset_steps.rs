@@ -128,13 +128,3 @@ async fn fill_in_invalid_password(world: &mut TestWorld, invalid_password: Strin
     password.send_keys(invalid_password.clone()).await.unwrap();
     confirm_password.send_keys(invalid_password).await.unwrap();
 }
-
-#[then(regex = r"^I should see the error '(.*?)'$")]
-async fn see_error_msg(world: &mut TestWorld, error_msg: String) {
-    let error = world
-        .driver
-        .find_element(By::ClassName("error"))
-        .await
-        .unwrap();
-    assert!(error.text().await.unwrap().contains(error_msg.as_str()));
-}
