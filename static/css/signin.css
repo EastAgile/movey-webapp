@@ -1,0 +1,193 @@
+.login_background {
+  font-family: "Mulish";
+  width: 100vw;
+  height: 100vh;
+  min-height: 800px;
+  background: url(/static/img/Map.png);
+  background-color: var(--cool-gray);
+  background-position-y: -15rem;
+}
+.login_background .movey_logo {
+  content: url(/static/resources/movey_logo.svg);
+  top: 0;
+  position: sticky;
+  padding: 2rem 3rem;
+}
+.login_background .login_wrapper::before {
+  content: url(/static/resources/large_curve.svg);
+  position: fixed;
+  left: 57vw;
+  top: 3vh;
+}
+.login_background .login_wrapper::after {
+  content: url(/static/resources/small_curve.svg);
+  position: fixed;
+  left: 25vw;
+  bottom: 11vh;
+}
+.login_background .login_wrapper .login {
+  position: relative;
+  z-index: 99;
+  background-color: white;
+  width: 25%;
+  min-width: fit-content;
+  height: fit-content;
+  padding: 1.5rem 3rem;
+  margin: 3rem auto;
+}
+.login_background .login_wrapper .login h1 {
+  font-family: var(--sub-title-font);
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--blue-color);
+  margin-bottom: 2rem;
+}
+.login_background .login_wrapper .login .thirdparty {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 15px;
+  place-items: center/stretch;
+  margin-bottom: 2.5rem;
+}
+.login_background .login_wrapper .login .thirdparty .g-signin2 .abcRioButton, .login_background .login_wrapper .login .thirdparty .g-signin2 .abcRioButtonLightBlue {
+  width: 100% !important;
+  border-radius: 4px;
+  border: 1px solid var(--cool-gray);
+}
+.login_background .login_wrapper .login .thirdparty .g-signin2 .abcRioButton .abcRioButtonContentWrapper .abcRioButtonContents span, .login_background .login_wrapper .login .thirdparty .g-signin2 .abcRioButtonLightBlue .abcRioButtonContentWrapper .abcRioButtonContents span {
+  font-family: "Mulish";
+  font-size: 14px;
+  font-weight: 500;
+  color: black;
+}
+.login_background .login_wrapper .login .thirdparty a {
+  text-decoration: none;
+  color: black;
+}
+.login_background .login_wrapper .login .thirdparty a .github-btn {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
+  transition: border-color 0.218s ease-in-out, box-shadow 0.218s ease-in-out;
+}
+.login_background .login_wrapper .login .thirdparty a .github-btn i {
+  font-size: x-large;
+  color: var(--blue-color);
+  margin: auto 0.75rem;
+}
+.login_background .login_wrapper .login .thirdparty a .github-btn .btn-text {
+  font-size: 14px;
+  margin: auto;
+  justify-content: center;
+  overflow-x: hidden;
+}
+.login_background .login_wrapper .login .thirdparty a .github-btn:hover {
+  box-shadow: 0 0 6px var(--blue-color);
+}
+.login_background .login_wrapper .login .thirdparty a .github-btn:active {
+  background: var(--cool-gray);
+}
+.login_background .login_wrapper .login .separator {
+  color: var(--gray-color);
+  margin-bottom: 1rem;
+}
+.login_background .login_wrapper .login .separator div {
+  border-top: 2px solid var(--gray-color);
+}
+.login_background .login_wrapper .login .separator p {
+  width: fit-content;
+  font-size: 16px;
+  line-height: 1.5rem;
+  margin: -0.75rem auto 0;
+  background: white;
+  padding: 0 1rem;
+}
+.login_background .login_wrapper .login form div .usr_input_label {
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--dark-blue-color);
+  margin-top: 1rem;
+}
+.login_background .login_wrapper .login form div .usr_input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.375rem 0.75rem;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--dark-blue-color);
+  background-clip: padding-box;
+  border: 1px solid var(--cool-gray);
+  box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.25);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 4px;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+.login_background .login_wrapper .login form div .usr_input:focus {
+  color: var(--dark-blue-color);
+  border-color: #86b7fe;
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+.login_background .login_wrapper .login form div .error-container {
+  display: flex;
+  align-items: center;
+  background-color: var(--rose-color);
+  border-radius: 4px;
+  color: var(--dark-rose-color);
+  margin-top: 1.5rem;
+}
+.login_background .login_wrapper .login form div .error-container .error-icon {
+  font-size: 24px;
+  margin-left: 1.25rem;
+}
+.login_background .login_wrapper .login form div .error-container .error {
+  padding: 0.75rem 0 0.75rem 1.25rem;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+.login_background .login_wrapper .login form .login_remember {
+  display: flex;
+  justify-content: space-between;
+  margin: 1.5rem 0 0.5rem;
+  font-size: 14px;
+}
+.login_background .login_wrapper .login form .login_remember a {
+  text-decoration: none;
+  color: var(--blue-color);
+}
+.login_background .login_wrapper .login form .login_btn {
+  font-size: 14px;
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  border: none;
+  background-color: var(--blue-color);
+  color: white;
+  cursor: pointer;
+}
+.login_background .login_wrapper .login form .login_btn:disabled {
+  color: #808FB0;
+  background-color: #D9DDE7;
+}
+.login_background .login_wrapper .login .login_invitation {
+  color: var(--dark-blue-color);
+  font-size: 14px;
+}
+.login_background .login_wrapper .login .login_invitation a {
+  text-decoration: none;
+  color: var(--blue-color);
+}
+
+/*# sourceMappingURL=signin.css.map */
