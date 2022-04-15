@@ -9,9 +9,7 @@
                 <div class="package-information-title">
                     Install
                 </div>
-                <div class="package-install-instruction">
-                    {{package.name}} = "{{package_version.version}}"
-                </div>
+                <div class="package-install-instruction">{{package.name}} = { git = "{{package.repository_url}}", rev = "{{package_version.rev}}" }<div class="copy-icon"></div></div>
 
                 <div class="package-information-title">
                     Repository

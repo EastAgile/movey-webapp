@@ -54,9 +54,9 @@ pub async fn show_package_versions(
 
     let params = Query::<VersionParams>::from_query(request.query_string()).unwrap();
     let default_sort: String = String::from("latest");
-    let sort_type_text: &String = params.sort_type.as_ref().unwrap_or(&default_sort);
+    let sort_type_text: &str = params.sort_type.as_ref().unwrap_or(&default_sort);
 
-    let sort_type = match sort_type_text.as_str() {
+    let sort_type = match sort_type_text {
         "oldest" => PackageVersionSort::Oldest,
         "most_downloads" => PackageVersionSort::MostDownloads,
         _ => PackageVersionSort::Latest

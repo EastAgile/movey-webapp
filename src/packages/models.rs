@@ -46,6 +46,7 @@ pub struct PackageVersion {
     pub downloads_count: i32,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    pub rev: Option<String>
 }
 
 #[derive(Insertable)]
@@ -53,7 +54,8 @@ pub struct PackageVersion {
 pub struct NewPackageVersion {
     pub package_id: i32,
     pub version: String,
-    pub readme_content: String
+    pub readme_content: String,
+    pub rev: String
 }
 
 #[derive(Serialize, Deserialize)]
@@ -64,7 +66,7 @@ pub enum PackageVersionSort {
 }
 
 impl Package {
-    pub async fn create(repo_url: &String, package_description: &String, service: &GithubService, pool: &DieselPgPool) -> Result<i32, Error> {
+    pub async fn create(repo_url: &String, package_description: &String, version_rev: &String, service: &GithubService, pool: &DieselPgPool) -> Result<i32, Error> {
         let connection = pool.get()?;
 
         let github_data = service.fetch_repo_data(&repo_url).unwrap();
@@ -88,12 +90,9 @@ impl Package {
             }
         };
 
-        match record.get_version(&github_data.version, &pool).await {
-            Ok(_) => {}
-            Err(_) => {
-                PackageVersion::create(record.id, github_data.version, github_data.readme_content, pool).await.unwrap();
-            }
-        };
+        if let Err(_) = record.get_version(&github_data.version, &pool).await {
+            PackageVersion::create(record.id, github_data.version, github_data.readme_content, version_rev.to_string(), pool).await.unwrap();
+        }
 
         Ok(record.id)
     }
@@ -127,13 +126,14 @@ impl Package {
 }
 
 impl PackageVersion {
-    pub async fn create(version_package_id: i32, version_name: String, version_readme_content: String, pool: &DieselPgPool) -> Result<PackageVersion, Error> {
+    pub async fn create(version_package_id: i32, version_name: String, version_readme_content: String, version_rev: String, pool: &DieselPgPool) -> Result<PackageVersion, Error> {
         let connection = pool.get()?;
 
         let new_package_version = NewPackageVersion {
             package_id: version_package_id,
             version: version_name,
-            readme_content: version_readme_content
+            readme_content: version_readme_content,
+            rev: version_rev
         };
 
         let record = diesel::insert_into(package_versions::table)
@@ -160,22 +160,6 @@ impl PackageVersion {
         };
 
         Ok(records)
-    }
-
-    pub async fn update_downloads_count(&self, count: i32, pool: &DieselPgPool) -> Result<(), Error> {
-        // TODO: investigate usage of save_changes
-        let connection = pool.get()?;
-
-        match diesel::update(package_versions.filter(package_versions::id.eq(self.id)))
-            .set(downloads_count.eq(count))
-            .get_result::<PackageVersion>(&connection) {
-            Ok(_) => {
-                Ok(())
-            }
-            Err(error) => {
-                Err(Error::Database(error))
-            }
-        }
     }
 }
 
@@ -278,8 +262,9 @@ mod tests {
 
         let uid = Package::create(&"repo_url".to_string(), &"package_description".to_string(), &mock_github_service, &DB_POOL).await.unwrap();
 
-        let version_2 = PackageVersion::create(uid, "second_version".to_string(), "second_readme_content".to_string(), &DB_POOL).await.unwrap();
-        version_2.update_downloads_count(5, &DB_POOL).await.unwrap();
+        let mut version_2 = PackageVersion::create(uid, "second_version".to_string(), "second_readme_content".to_string(), &DB_POOL).await.unwrap();
+        version_2.downloads_count = 5;
+        _ = &version_2.save_changes::<PackageVersion>(&*(DB_POOL.get().unwrap())).unwrap();
 
         let versions = PackageVersion::from_package_id(uid, &PackageVersionSort::MostDownloads, &DB_POOL).await.unwrap();
 
@@ -290,9 +275,9 @@ mod tests {
 }
 
 // Helpers for integration tests only. Wondering why cfg(test) below doesn't work... (commented out for now)
-// #[cfg(test)]
+#[cfg(any(test, feature = "test"))]
 impl Package {
-    pub async fn create_test_package(package_name: &String, repo_url: &String, package_description: &String, package_version: &String, package_readme_content: &String, pool: &DieselPgPool) -> Result<i32, Error> {
+    pub async fn create_test_package(package_name: &String, repo_url: &String, package_description: &String, package_version: &String, package_readme_content: &String, version_rev: &String, pool: &DieselPgPool) -> Result<i32, Error> {
         let connection = pool.get()?;
 
         let new_package = NewPackage {
@@ -305,7 +290,7 @@ impl Package {
             .values(new_package)
             .get_result::<Package>(&connection)?;
 
-        PackageVersion::create(record.id, package_version.to_string(), package_readme_content.to_string(), pool).await.unwrap();
+        PackageVersion::create(record.id, package_version.to_string(), package_readme_content.to_string(), version_rev.to_string(), pool).await.unwrap();
 
         Ok(record.id)
     }

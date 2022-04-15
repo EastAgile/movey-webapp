@@ -65,7 +65,7 @@ impl GithubService {
         Ok(GithubRepoData {
             name: move_toml.package.name,
             version: move_toml.package.version,
-            readme_content: readme_content
+            readme_content
         })
     }
 }

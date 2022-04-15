@@ -23,6 +23,7 @@ table! {
         downloads_count -> Int4,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
+        rev -> Nullable<Text>,
     }
 }
 
