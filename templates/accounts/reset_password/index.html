@@ -4,6 +4,16 @@
 {% block css %}
 <link href="/static/css/reset_password.css" rel="stylesheet"/>
 {% endblock %}
+{% block script %}
+    <script>
+        window.onload = () => {
+            document.getElementById("email").addEventListener("change", event => {
+                let submit_btn = document.getElementById("submit-btn");
+                submit_btn.disabled = event.target.validity.typeMismatch;
+            });
+        };
+    </script>
+{% endblock %}
 {% block content %}
 <div class="logo"></div>
 <div class="form-wrapper">
@@ -20,11 +30,11 @@
             {% for err in form.email.errors %}
                 <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
             {% endfor %}
-            <button type="submit" class="submit-btn">
+            <button id="submit-btn" type="submit" class="submit-btn" disabled>
                 Submit
             </button>
         </form>
-        <a id="signin-invitation" href="/accounts/login">Back to sign in</a>
+        <a id="signin-invitation" href="/accounts/login/">Back to sign in</a>
     </div>
 </div>
 {% endblock %}
