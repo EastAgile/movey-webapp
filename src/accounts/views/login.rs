@@ -58,7 +58,10 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
         } else {
             let key = std::env::var("SECRET_KEY").expect("SECRET_KEY not set!");
             let value = user.id;
-            let max_age_days = 30;
+            let max_age_days = std::env::var("MAX_AGE_DAYS")
+                .expect("MAX_AGE_DAYS not set!")
+                .parse::<i64>()
+                .expect("MAX_AGE_DAYS must be an integer");
 
             let mut jar = CookieJar::new();
             jar.signed(&Key::derive_from(key.as_bytes())).add(

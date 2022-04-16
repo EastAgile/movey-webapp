@@ -42,6 +42,9 @@ impl Authentication for HttpRequest {
                 Some(i) => i,
                 None => return Ok(false)
             };
+            if my_cookie.len() < index + 2 {
+                return Ok(false);
+            }
             let user_id = &my_cookie[index + 1..];
 
             let key = std::env::var("SECRET_KEY").expect("SECRET_KEY not set!");
