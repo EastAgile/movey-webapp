@@ -3,8 +3,10 @@ use jelly::actix_web::{web, web::Form, HttpRequest};
 use jelly::prelude::*;
 use jelly::request::{Authentication, DatabasePool};
 use jelly::Result;
-use oauth2::basic::BasicClient;
-use oauth2::{CsrfToken, Scope};
+use oauth2::{
+    basic::BasicClient,
+    CsrfToken, Scope,
+};
 
 use crate::request;
 use jelly::actix_web::{
