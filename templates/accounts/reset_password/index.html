@@ -7,9 +7,9 @@
 {% block script %}
     <script>
         window.onload = () => {
-            document.getElementById("email").addEventListener("change", event => {
+            document.getElementById("email").addEventListener("input", event => {
                 let submit_btn = document.getElementById("submit-btn");
-                submit_btn.disabled = event.target.validity.typeMismatch;
+                submit_btn.disabled = event.target.validity.typeMismatch || event.target.value === '';
             });
         };
     </script>

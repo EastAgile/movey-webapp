@@ -1,7 +1,11 @@
 use cucumber::{given, then, when};
 use std::fs;
 use std::path::Path;
+use jelly::forms::{EmailField, PasswordField};
 use thirtyfour::prelude::*;
+use mainlib::accounts::Account;
+use mainlib::accounts::forms::NewAccountForm;
+use mainlib::test::DB_POOL;
 
 use super::super::world::TestWorld;
 
@@ -50,7 +54,21 @@ async fn see_forgot_password_page(world: &mut TestWorld) {
 }
 
 #[given("I have registered an email")]
-async fn register_email(_world: &mut TestWorld) {}
+async fn register_email(_world: &mut TestWorld) {
+    fs::remove_dir_all("./emails").unwrap_or_else(|_| ());
+    let form = NewAccountForm {
+        email: EmailField {
+            value: "test@email.com".to_string(),
+            errors: vec![],
+        },
+        password: PasswordField {
+            value: "So$trongpas0word!".to_string(),
+            errors: vec![],
+            hints: vec![],
+        },
+    };
+    Account::register(&form, &DB_POOL).await.unwrap();
+}
 
 #[when("I fill in a registered email and submit the form on Forgot Password page")]
 async fn fill_in_registered_email(world: &mut TestWorld) {

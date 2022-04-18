@@ -5,7 +5,7 @@ Feature: Request password reset link
     When I access the Sign In page
     And I click on the Forgot Passwork link on sign in form
     Then I should see the Forgot Password page
-
+    @wip
     Scenario: Registered email
       Given I have registered an email
       When I fill in a registered email and submit the form on Forgot Password page
