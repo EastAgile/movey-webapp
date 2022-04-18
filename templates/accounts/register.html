@@ -55,7 +55,7 @@
                 
                 <div>
                     <label for="email" class="usr_input_label">Email Address</label>
-                    <input name="email" type="email" class="usr_input" value="{{ form.email.value }}">
+                    <input id="email" name="email" type="email" class="usr_input" value="{{ form.email.value }}">
                     {% if form.email.errors | length > 0 %}
                         {% for err in form.email.errors %}
                             <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
@@ -65,7 +65,7 @@
     
                 <div>
                     <label for="password" class="usr_input_label">Password</label>
-                    <input name="password" type="password" class="usr_input" placeholder="8+ characters">
+                    <input id="password" name="password" type="password" class="usr_input" placeholder="8+ characters">
                     {% if form.password.errors | length > 0 %}
                         {% for err in form.password.errors %}
                             <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
@@ -78,7 +78,7 @@
                 </button>
             </form>
 
-            <input type="checkbox" name="i_agree" class="i_agree">
+            <input id="i_agree" type="checkbox" name="i_agree" class="i_agree">
             <label for="i_agree" class="i_agree">
                 I agree to <a href="#">Term of Service</a> and <a href="#">Privacy Policy</a>
             </label>
