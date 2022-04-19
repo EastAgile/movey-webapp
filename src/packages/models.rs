@@ -1,5 +1,6 @@
-use diesel::{Queryable, Identifiable, AsChangeset, Insertable};
 use diesel::prelude::*;
+use diesel::sql_types::Text;
+use diesel::{sql_query, AsChangeset, Identifiable, Insertable, Queryable};
 
 use jelly::chrono::{DateTime, Utc};
 use jelly::error::Error;
@@ -9,15 +10,15 @@ use jelly::DieselPgPool;
 use mockall_double::double;
 
 // use super::forms::{LoginForm, NewAccountForm};
-use crate::schema::packages::dsl::*;
-use crate::schema::packages;
-use crate::schema::package_versions::dsl::*;
-use crate::schema::package_versions;
-
 #[double]
 use crate::github_service::GithubService;
+use crate::schema::package_versions;
+use crate::schema::package_versions::dsl::*;
+use crate::schema::packages;
+use crate::schema::packages::dsl::*;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset, QueryableByName)]
+#[table_name = "packages"]
 pub struct Package {
     pub id: i32,
     pub name: String,
@@ -28,12 +29,18 @@ pub struct Package {
     pub updated_at: DateTime<Utc>,
 }
 
+#[derive(Debug, Serialize, Deserialize, QueryableByName)]
+#[table_name = "packages"]
+pub struct PackageSearchResult {
+    pub name: String,
+}
+
 #[derive(Insertable)]
-#[table_name="packages"]
+#[table_name = "packages"]
 pub struct NewPackage {
     pub name: String,
     pub description: String,
-    pub repository_url: String
+    pub repository_url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset, Clone)]
@@ -127,6 +134,24 @@ impl Package {
 
         Ok(result)
     }
+
+    pub async fn search(search_query: &str, pool: &DieselPgPool) -> Result<Vec<String>, Error> {
+        let connection = pool.get()?;
+        let search_query = &search_query.split(" ").collect::<Vec<&str>>().join(" & ");
+        let matched_packages: Vec<PackageSearchResult> = sql_query(
+            "SELECT name \
+                           FROM packages \
+                           WHERE tsv @@ to_tsquery($1)\
+                           ORDER BY ts_rank(tsv, to_tsquery($1), 2) DESC",
+        )
+        .bind::<Text, _>(search_query)
+        .load(&connection)
+        .unwrap();
+        return Ok(matched_packages
+            .into_iter()
+            .map(|package| package.name)
+            .collect());
+    }
 }
 
 impl PackageVersion {
@@ -172,11 +197,107 @@ impl PackageVersion {
 
 #[cfg(test)]
 mod tests {
-    use mockall::{predicate::*};
-    use crate::test::{DB_POOL, DatabaseTestContext};
     use super::*;
+    use crate::test::{DatabaseTestContext, DB_POOL};
+    use mockall::predicate::*;
 
     use crate::github_service::GithubRepoData;
+
+    async fn setup() -> Result<(), Error> {
+        let pool = &DB_POOL;
+        let connection = pool.get()?;
+        let new_package = NewPackage {
+            name: "The first package 1".to_string(),
+            description: "description 1".to_string(),
+            repository_url: "".to_string(),
+        };
+        diesel::insert_into(packages::table)
+            .values(new_package)
+            .get_result::<Package>(&connection)?;
+
+        let new_package = NewPackage {
+            name: "The first Diva".to_string(),
+            description: "randomly picked, and changes some".to_string(),
+            repository_url: "".to_string(),
+        };
+        diesel::insert_into(packages::table)
+            .values(new_package)
+            .get_result::<Package>(&connection)?;
+
+        let new_package = NewPackage {
+            name: "Charles Diya".to_string(),
+            description: "randomly picked, and changes some".to_string(),
+            repository_url: "".to_string(),
+        };
+        diesel::insert_into(packages::table)
+            .values(new_package)
+            .get_result::<Package>(&connection)?;
+        Ok(())
+    }
+
+    #[actix_rt::test]
+    async fn search_by_single_word_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        setup().await;
+        let pool = &DB_POOL;
+        let search_query = "package";
+        let search_result = Package::search(search_query, pool).await.unwrap();
+        assert_eq!(search_result.len(), 1);
+        let result = search_result.iter();
+        let mut is_found = false;
+        for package_name in result {
+            if package_name == "The first package 1" {
+                is_found = true;
+            }
+            if package_name == "Charles Diya" {
+                panic!()
+            }
+        }
+        assert!(is_found)
+    }
+
+    #[actix_rt::test]
+    async fn search_by_multiple_words_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        setup().await;
+        let pool = &DB_POOL;
+        let search_query = "the package";
+        let search_result = Package::search(search_query, pool).await.unwrap();
+        assert_eq!(search_result.len(), 1);
+        let result = search_result.iter();
+        let mut is_found = false;
+        for package_name in result {
+            if package_name == "The first package 1" {
+                is_found = true;
+            }
+            if package_name == "Charles Diya" {
+                panic!()
+            }
+        }
+        assert!(is_found)
+    }
+
+    #[actix_rt::test]
+    async fn search_return_multiple_result() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        setup().await;
+        let pool = &DB_POOL;
+        let search_query = "first";
+        let search_result = Package::search(search_query, pool).await.unwrap();
+        assert_eq!(search_result.len(), 2);
+        let result = search_result.iter();
+        for package_name in result {
+            if package_name != "The first package 1" && package_name != "The first Diva" {
+                panic!()
+            }
+            if package_name == "Charles Diya" {
+                panic!()
+            }
+        }
+    }
 
     #[actix_rt::test]
     async fn create_package_works() {
