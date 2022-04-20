@@ -84,7 +84,7 @@ pub async fn show_search_results(
     request: HttpRequest,
 ) -> Result<HttpResponse> {
     let params = Query::<PackageSearchParams>::from_query(request.query_string()).unwrap();
-    let default_sort = String::from("latest");
+    let default_sort = String::from("name");
     let sort_type_text = params.sort_type.as_ref().unwrap_or(&default_sort);
     let default_query = String::from("untitled");
     let query_text = params.query.as_ref().unwrap_or(&default_query);

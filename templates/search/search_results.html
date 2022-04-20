@@ -8,12 +8,14 @@
             <label for="packages-sort">Sort by</label>
             <select name="packages-sort" 
                     class="packages-sort"
-                    data-sort="{{sort_type}}"
-                    data-url="/packages/search/?query={{query}}" 
+                    data-sort="{{ sort_type }}"
+                    data-url="/packages/search/?query={{ query }}" 
             >
-                <option value="latest">Latest</option>
-                <option value="oldest">Oldest</option>
+                <option value="name">Name</option>
+                <option value="description">Description</option>
+                <option value="summary">Summary</option>
                 <option value="most_downloads">Most Downloads</option>
+                <option value="newly_added">Newly added</option>
             </select>
             <div class="packages-sort-chevron"></div>
         </div>
@@ -21,53 +23,68 @@
 
     <div class="package-list">
         <div class="package-list-item">
-            <div class="package-list-item-title">
-                <h1>Stripe &nbsp;<span class="version-number">5.45.1</span></h1>
-                <div class="title-tag">
-                    1st tag
+            <div class="left-wrapper">
+                <div class="package-list-item-title">
+                    <h1>Stripe &nbsp;<span class="version-number">5.45.1</span></h1>
+                    <div class="title-tag">
+                        1st tag
+                    </div>
+                </div>
+                <div class="sub-tag-list">
+                    <div class="sub-tag">First Tag</div>
+                    <div class="sub-tag">First Tag</div>
+                </div>
+                <div class="package-summary">
+                    aaaaaaaaaaaaaaaaa
                 </div>
             </div>
-            <div class="sub-tag-list">
-                <div class="sub-tag">First Tag</div>
-                <div class="sub-tag">First Tag</div>
-            </div>
-            <div class="package-summary">
-                aaaaaaaaaaaaaaaaa
+            <div class="right-wrapper">
+                <p><img src="/static/resources/reload_icon.svg"> Updated 3 months ago</p>
             </div>
         </div>
         <div class="package-list-item">
-            <div class="package-list-item-title">
-                <h1>Stripe &nbsp;<span class="version-number">5.45.1</span></h1>
-                <div class="title-tag">
-                    1st tag
+            <div class="left-wrapper">
+                <div class="package-list-item-title">
+                    <h1>Stripe &nbsp;<span class="version-number">5.45.1</span></h1>
+                    <div class="title-tag">
+                        1st tag
+                    </div>
+                </div>
+                <div class="sub-tag-list">
+                    <div class="sub-tag">First Tag</div>
+                    <div class="sub-tag">First Tag</div>
+                </div>
+                <div class="package-summary">
+                    aaaaaaaaaaaaaaaaa
                 </div>
             </div>
-            <div class="sub-tag-list">
-                <div class="sub-tag">First Tag</div>
-                <div class="sub-tag">First Tag</div>
-            </div>
-            <div class="package-summary">
-                aaaaaaaaaaaaaaaaaaaaaaaaaaaa
+            <div class="right-wrapper">
+                <p><img src="/static/resources/reload_icon.svg"> Updated 3 months ago</p>
             </div>
         </div>
         <div class="package-list-item">
-            <div class="package-list-item-title">
-                <h1>Stripe &nbsp;<span class="version-number">5.45.1</span></h1>
-                <div class="title-tag">
-                    1st tag
+            <div class="left-wrapper">
+                <div class="package-list-item-title">
+                    <h1>Stripe &nbsp;<span class="version-number">5.45.1</span></h1>
+                    <div class="title-tag">
+                        1st tag
+                    </div>
+                </div>
+                <div class="sub-tag-list">
+                    <div class="sub-tag">First Tag</div>
+                    <div class="sub-tag">First Tag</div>
+                </div>
+                <div class="package-summary">
+                    aaaaaaaaaaaaaaaaa
                 </div>
             </div>
-            <div class="sub-tag-list">
-                <div class="sub-tag">First Tag</div>
-                <div class="sub-tag">First Tag</div>
-            </div>
-            <div class="package-summary">
-                aaaaaaaaaaaaaaaaaaaaaaaaaaaa
+            <div class="right-wrapper">
+                <p><img src="/static/resources/reload_icon.svg"> Updated 3 months ago</p>
             </div>
         </div>
     </div>
 </div>
 <script>
-    new PackageVersions();
+    new Packages();
 </script>
 {% endblock %}

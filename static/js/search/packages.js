@@ -1,4 +1,4 @@
-class PackageVersions {
+class Packages {
     constructor() {
         this.sortElement = $("select[name='packages-sort']");
         this.init();
@@ -17,3 +17,4 @@ class PackageVersions {
         });
     }
 }
+

@@ -12,7 +12,9 @@
       </ul>
       <ul id="right-wrapper">
         <li>
-          <i class="fa fa-search search-btn"></i>
+          <button class="search-btn" data-active="false" onclick="toggleSearchDropDown(this)">
+            <i id="search-btn-icon" class="fa fa-search"></i>
+          </button>
         </li>
         <li>
           <a class="sign-in" href="/accounts/login/">
@@ -28,3 +30,12 @@
     </nav>
   </div>
 </header>
+<div id="search-bar">
+  <form action="">
+    <button type="submit">
+      <i class="fa fa-search"></i>
+    </button>
+    <input id="search-field" type="text" placeholder="Search packages..." name="query">
+    <i class="fa fa-times-circle" onclick="clearSearchField()"></i>
+  </form>
+</div>
