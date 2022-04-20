@@ -53,6 +53,7 @@ header {
       }
     }
   }
+
   &.dark {
     background: var(--dark-blue-color);
 
@@ -78,11 +79,8 @@ header {
 
         &.sign-up {
           color: white;
-  
         }
-    }
+      }
     }
   }
-  
 }
-

@@ -3,8 +3,6 @@ class PackageShow {
         this.readmeElement = $('.package-readme-content');
         this.instructionElement = $('.package-install-instruction');
         this.init();
-
-       
     }
 
     init() {
@@ -17,8 +15,6 @@ class PackageShow {
             setTimeout(() => {
                 $('.copy-tooltip').hide();
             }, 400);
-
         });
     }
 }
-

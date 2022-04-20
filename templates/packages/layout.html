@@ -1,4 +1,4 @@
-    {% extends "layout.html" %}
+{% extends "layout.html" %}
 
 {% block title %}Package {{package.name}}{% endblock %}
 {% block css %}
@@ -65,8 +65,4 @@
         {% block package_content %}{% endblock %}
     </div>
 </div>
-
-<script>
-    $('header').addClass("dark")
-</script>
 {% endblock %}
