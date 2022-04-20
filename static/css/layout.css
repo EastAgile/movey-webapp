@@ -15,7 +15,7 @@ body {
   margin: 0;
   font-family: 'Mulish', sans-serif;
 }
-.icon{
+.icon.flex{
   border: 0;
   padding: 0;
   display: flex;

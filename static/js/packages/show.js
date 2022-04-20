@@ -3,8 +3,6 @@ class PackageShow {
         this.readmeElement = $('.package-readme-content');
         this.instructionElement = $('.package-install-instruction');
         this.init();
-
-       
     }
 
     init() {
