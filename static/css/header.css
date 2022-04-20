@@ -11,6 +11,11 @@ header .header-container {
   display: grid;
   grid-template-columns: 40% auto;
 }
+header .header-container .header-logo {
+  background-image: url("/static/resources/logo.svg");
+  background-repeat: no-repeat;
+  height: 30px;
+}
 header .header-container .sub-title {
   font-weight: bold;
   font-size: 2rem;
@@ -50,6 +55,9 @@ header .header-container nav button.sign-up {
 }
 header.dark {
   background: var(--dark-blue-color);
+}
+header.dark .header-logo {
+  background-image: url("/static/resources/logo_white.svg");
 }
 header.dark a {
   color: white;

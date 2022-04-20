@@ -11,6 +11,12 @@ header {
   .header-container {
     display: grid;
     grid-template-columns: 40% auto;
+
+    .header-logo {
+      background-image: url('/static/resources/logo.svg');
+      background-repeat: no-repeat;
+      height: 30px;
+    }
     
     .sub-title {
       font-weight: bold;
@@ -56,6 +62,10 @@ header {
 
   &.dark {
     background: var(--dark-blue-color);
+
+    .header-logo {
+      background-image: url('/static/resources/logo_white.svg');
+    }
 
     a {
       color: white;
