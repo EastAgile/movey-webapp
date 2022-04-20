@@ -227,6 +227,19 @@
                                     display: block;
                                 }
                             }
+                            .copy-tooltip {
+                                color: darkblue;
+                                font-size: 16px;
+                                position: absolute;
+                                right: -30px;
+                                top: -10px;
+                                //transform: translate(0, -20%);
+                                background-color: #D9DDE7;
+                                border-radius: 8px;
+                                padding: 4px;
+                                display: none;
+                                // transform: translate(0, -30%);
+                            }
                         }
 
                         .package-repo {
