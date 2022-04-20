@@ -3,6 +3,8 @@ class PackageShow {
         this.readmeElement = $('.package-readme-content');
         this.instructionElement = $('.package-install-instruction');
         this.init();
+
+       
     }
 
     init() {
@@ -10,7 +12,11 @@ class PackageShow {
         this.readmeElement.html(converter.makeHtml(this.readmeElement.html()));
 
         this.instructionElement.on('click', (e) => {
-            navigator.clipboard.writeText(this.instructionElement.text());
-        })
+            navigator.clipboard.writeText(this.instructionElement.find('.instruction-command').text());
+            $('.copy-tooltip').show();
+            setTimeout(() => {
+                $('.copy-tooltip').hide();
+            }, 400);
+        });
     }
 }

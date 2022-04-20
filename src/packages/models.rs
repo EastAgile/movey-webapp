@@ -156,6 +156,7 @@ impl PackageVersion {
             }
             PackageVersionSort::MostDownloads => {
                 versions.order_by(package_versions::dsl::downloads_count.desc()).load::<PackageVersion>(&connection)?
+                //versions.load::<PackageVersion>(&connection)?
             }
         };
 
@@ -185,7 +186,7 @@ mod tests {
                 readme_content: "readme_content".to_string(),
             }));
 
-        let uid = Package::create(&"repo_url".to_string(), &"package_description".to_string(), &mock_github_service, &DB_POOL).await.unwrap();
+        let uid = Package::create(&"repo_url".to_string(), &"package_description".to_string(), &"1".to_string(),&mock_github_service, &DB_POOL).await.unwrap();
 
         let package = Package::get(uid, &DB_POOL).await.unwrap();
         assert_eq!(package.name, "name");
@@ -214,9 +215,9 @@ mod tests {
                 readme_content: "first_readme_content".to_string(),
             }));
 
-        let uid = Package::create(&"repo_url".to_string(), &"package_description".to_string(), &mock_github_service, &DB_POOL).await.unwrap();
+        let uid = Package::create(&"repo_url".to_string(), &"package_description".to_string(), &"1".to_string(),&mock_github_service, &DB_POOL).await.unwrap();
 
-        PackageVersion::create(uid, "second_version".to_string(), "second_readme_content".to_string(), &DB_POOL).await.unwrap();
+        PackageVersion::create(uid, "second_version".to_string(), "second_readme_content".to_string(), "1".to_string(), &DB_POOL).await.unwrap();
 
         let versions = PackageVersion::from_package_id(uid, &PackageVersionSort::Latest, &DB_POOL).await.unwrap();
 
@@ -237,9 +238,9 @@ mod tests {
                 readme_content: "first_readme_content".to_string(),
             }));
 
-        let uid = Package::create(&"repo_url".to_string(), &"package_description".to_string(), &mock_github_service, &DB_POOL).await.unwrap();
+        let uid = Package::create(&"repo_url".to_string(), &"package_description".to_string(), &"1".to_string(),&mock_github_service, &DB_POOL).await.unwrap();
 
-        PackageVersion::create(uid, "second_version".to_string(), "second_readme_content".to_string(), &DB_POOL).await.unwrap();
+        PackageVersion::create(uid, "second_version".to_string(), "second_readme_content".to_string(), "1".to_string(), &DB_POOL).await.unwrap();
 
         let versions = PackageVersion::from_package_id(uid, &PackageVersionSort::Oldest, &DB_POOL).await.unwrap();
 
@@ -260,9 +261,9 @@ mod tests {
                 readme_content: "first_readme_content".to_string(),
             }));
 
-        let uid = Package::create(&"repo_url".to_string(), &"package_description".to_string(), &mock_github_service, &DB_POOL).await.unwrap();
+        let uid = Package::create(&"repo_url".to_string(), &"package_description".to_string(), &"1".to_string(), &mock_github_service, &DB_POOL).await.unwrap();
 
-        let mut version_2 = PackageVersion::create(uid, "second_version".to_string(), "second_readme_content".to_string(), &DB_POOL).await.unwrap();
+        let mut version_2 = PackageVersion::create(uid, "second_version".to_string(), "second_readme_content".to_string(), "5".to_string(), &DB_POOL).await.unwrap();
         version_2.downloads_count = 5;
         _ = &version_2.save_changes::<PackageVersion>(&*(DB_POOL.get().unwrap())).unwrap();
 
