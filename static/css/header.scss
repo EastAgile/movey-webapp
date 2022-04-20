@@ -2,12 +2,13 @@ header {
   height: 100px;
   padding: 30px;
   background: white;
-  position: fixed;
+  //position: fixed;
   top: 0;
   left: 0;
   right: 0;
   box-sizing: border-box;
 }
+
 .header-container {
   display: grid;
   grid-template-columns: 40% auto;
