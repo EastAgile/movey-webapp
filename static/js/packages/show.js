@@ -12,14 +12,11 @@ class PackageShow {
         this.readmeElement.html(converter.makeHtml(this.readmeElement.html()));
 
         this.instructionElement.on('click', (e) => {
-            navigator.clipboard.writeText(this.instructionElement.text());
-            $('.copy-tooltip').show()
-            setTimeout(function() { 
-                $('.copy-tooltip').hide()
+            navigator.clipboard.writeText(this.instructionElement.find('.instruction-command').text());
+            $('.copy-tooltip').show();
+            setTimeout(() => {
+                $('.copy-tooltip').hide();
             }, 400);
-            
-        })
-
-        
+        });
     }
 }

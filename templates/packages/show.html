@@ -9,11 +9,10 @@
                 <div class="package-information-title">
                     Install
                 </div>
-                <div class="package-install-instruction">{{package.name}} = { git = "{{package.repository_url}}", rev = "{{package_version.rev}}" }
-                <div class="copy-icon"></div>
+                <div class="package-install-instruction">
+                    <span class="instruction-command">{{package.name}} = { git = "{{package.repository_url}}", rev = "{{package_version.rev}}" }</span><div class="copy-icon"></div>
                 <p class="copy-tooltip">Copied</p>
                 </div>
-                <!-- <button class="btn btn-primary" data-clipboard-text="It worked!">Click me</button> -->
                 <div class="package-information-title">
                     Repository
                 </div>
@@ -99,9 +98,5 @@
 <script>
     new PackageShow();
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.10/clipboard.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-<script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-<link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet"/>
 
 {% endblock %}
