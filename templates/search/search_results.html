@@ -9,7 +9,7 @@
             <select name="packages-sort" 
                     class="packages-sort"
                     data-sort="{{ sort_type }}"
-                    data-url="/packages/search/?query={{ query }}" 
+                    data-url="/packages/search/?query={{ query }}"
             >
                 <option value="name">Name</option>
                 <option value="description">Description</option>
@@ -41,8 +41,8 @@
                 </div>
                 <div class="right-wrapper">
                     <p data-last-update="{{ package.updated_at }}">
-                        <img  
-                            onload="displayUpdateTime(this.parentElement)" 
+                        <img
+                            onload="displayUpdateTime(this.parentElement)"
                             src="/static/resources/reload_icon.svg"
                         >
                         <span></span>

@@ -100,7 +100,7 @@ pub async fn show_search_results(
     let default_query = String::from("untitled");
     let query_text = params.query.as_ref().unwrap_or(&default_query);
     let package_list = Package::search_by_name(query_text, &sort_type, &db).await.unwrap();
-    
+
     request.render(200, "search/search_results.html", {
         let mut ctx = Context::new();
         ctx.insert("query", &query_text);

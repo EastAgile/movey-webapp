@@ -101,6 +101,8 @@ header {
     }
 }   
 
+=======
+>>>>>>> 0fe1303 ([f] 763 - Add UI for Search Results page)
 footer {
     position: static;
 }
@@ -169,20 +171,20 @@ footer {
                 justify-content: flex-start;
                 align-items: flex-end;
                 margin: 0;
-    
+
                 h1 {
                     font-size: 32px;
                     font-weight: bold;
                     color: var(--dark-blue-color);
                     margin: 0 20px 0 0;
                 }
-        
+
                 .version-number {
                     font-size: 24px;
                     font-weight: normal;
                     color: var(--gray-color);
                 }
-    
+
                 .title-tag {
                     background-color: #FCDDEC;
                     text-align: center;
@@ -193,14 +195,14 @@ footer {
                     margin-bottom: auto;
                 }
             }
-    
+
             .sub-tag-list {
                 width: 100%;
                 display: flex;
                 justify-content: flex-start;
                 margin: 0;
                 overflow: hidden;
-    
+
                 .sub-tag {
                     background-color: var(--geyser-color);
                     text-align: center;
@@ -210,12 +212,12 @@ footer {
                     color: var(--dark-blue-color);
                     margin: 0 10px;
                 }
-    
+
                 .sub-tag:first-child {
                     margin-left: 0;
                 }
             }
-    
+
             .package-summary {
                 width: 100%;
                 font-size: 24px;
