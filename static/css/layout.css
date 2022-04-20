@@ -23,7 +23,7 @@ body {
   padding: 0;
   display: flex;
 }
-.icon{
+.icon.flex{
   border: 0;
   padding: 0;
   display: flex;
