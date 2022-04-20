@@ -6,48 +6,83 @@ header {
   left: 0;
   right: 0;
   box-sizing: border-box;
-}
-.header-container {
-  display: grid;
-  grid-template-columns: 40% auto;
-  .sub-title {
-    font-weight: bold;
-    font-size: 2rem;
-  }
-  a {
-    color: var(--dark-blue-color);
-    text-decoration: none;
-  }
-  nav {
-    display: flex;
-    justify-content: space-between;
 
-    ul {
-      list-style-type: none;
-      margin: 0;
+  
+  .header-container {
+    display: grid;
+    grid-template-columns: 40% auto;
+    
+    .sub-title {
+      font-weight: bold;
+      font-size: 2rem;
+    }
+    a {
+      color: var(--dark-blue-color);
+      text-decoration: none;
+    }
+    nav {
       display: flex;
-      li {
-        margin: 0 10px;
-      }
-    }
-
-    button {
-      cursor: pointer;
-      padding: 10px;
-
-      &.sign-in {
-        background: none;
-        border: none;
+      justify-content: space-between;
+  
+      ul {
+        list-style-type: none;
         margin: 0;
-        color: var(--dark-blue-color);
+        display: flex;
+        align-items: center;
+        li {
+          margin: 0 10px;
+        }
       }
-      &.sign-up {
-        background: var(--blue-color);
-        border: none;
-        border-radius: 5px;
-        color: white;
-
+      
+      button {
+        cursor: pointer;
+        padding: 10px;
+  
+        &.sign-in {
+          background: none;
+          border: none;
+          margin: 0;
+          color: var(--dark-blue-color);
+        }
+        &.sign-up {
+          background: var(--blue-color);
+          border: none;
+          border-radius: 5px;
+          color: white;
+        }
       }
     }
   }
+  &.dark {
+    background: var(--dark-blue-color);
+
+    a {
+      color: white;
+      text-decoration: none;
+    }
+
+    nav { 
+      .search_icon {
+        width: 22px;
+        height: 22px;
+        background-repeat: no-repeat;
+        background-image: url("/static/resources/search_icon.svg");
+        margin-right: 4px;
+        cursor: pointer;
+      }
+
+      button {
+        &.sign-in {
+          color: white;
+        }
+
+        &.sign-up {
+          color: white;
+  
+        }
+    }
+    }
+  }
+  
 }
+

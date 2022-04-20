@@ -17,9 +17,6 @@ class PackageShow {
             setTimeout(function() { 
                 $('.copy-tooltip').hide()
             }, 400);
-            
         })
-
-        
     }
 }
