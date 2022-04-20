@@ -73,3 +73,26 @@ pub async fn show_package_versions(
         ctx
     });
 }
+
+#[derive(serde::Serialize, serde::Deserialize)]
+struct PackageSearchParams {
+    sort_type: Option<String>,
+    query: Option<String>,
+}
+
+pub async fn show_search_results(
+    request: HttpRequest,
+) -> Result<HttpResponse> {
+    let params = Query::<PackageSearchParams>::from_query(request.query_string()).unwrap();
+    let default_sort = String::from("latest");
+    let sort_type_text = params.sort_type.as_ref().unwrap_or(&default_sort);
+    let default_query = String::from("untitled");
+    let query_text = params.query.as_ref().unwrap_or(&default_query);
+
+    request.render(200, "search/search_results.html", {
+        let mut ctx = Context::new();
+        ctx.insert("query", &query_text);
+        ctx.insert("sort_type", &sort_type_text);
+        ctx
+    })
+}
