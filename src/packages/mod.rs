@@ -3,7 +3,7 @@ use jelly::actix_web::web::{get, resource, scope, ServiceConfig};
 pub mod models;
 pub mod views;
 
-pub use models::{Package, PackageVersion, PackageVersionSort, NewPackage, NewPackageVersion};
+pub use models::{Package, PackageSort, PackageVersion, PackageVersionSort, NewPackage, NewPackageVersion};
 
 pub fn configure(config: &mut ServiceConfig) {
     config.service(

@@ -2,7 +2,7 @@ use diesel::prelude::*;
 use diesel::sql_types::Text;
 use diesel::{sql_query, AsChangeset, Identifiable, Insertable, Queryable};
 
-use jelly::chrono::{DateTime, Utc};
+use jelly::chrono::{DateTime, Utc, TimeZone};
 use jelly::error::Error;
 use jelly::serde::{Deserialize, Serialize};
 use jelly::DieselPgPool;
@@ -42,6 +42,16 @@ pub struct NewPackage {
     pub name: String,
     pub description: String,
     pub repository_url: String,
+}
+
+
+#[derive(Serialize, Deserialize)]
+pub enum PackageSort {
+    Name,
+    // Description,
+    // Summary,
+    MostDownloads,
+    NewlyAdded
 }
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset, Clone)]
@@ -143,6 +153,25 @@ impl Package {
         return Ok(packages.filter(name.like(percent)).select(packages::name).load::<String>(&connection)?);
     }
 
+    pub async fn search_by_name(query: &String, sort_type: &PackageSort, pool: &DieselPgPool) -> Result<Vec<Package>, Error> {
+        let connection = pool.get()?;
+        let package_list = packages.filter(name.ilike(format!("%{}%", query)));
+        let records = match sort_type {
+            PackageSort::Name => {
+                package_list.order_by(packages::dsl::name.asc()).load::<Package>(&connection)?
+            }
+            // PackageSort::Description => {
+            //     package_list.order_by(packages::dsl::description.asc()).load::<Package>(&connection)?
+            // }
+            PackageSort::MostDownloads => {
+                package_list.order_by(packages::dsl::total_downloads_count.desc()).load::<Package>(&connection)?
+            }
+            PackageSort::NewlyAdded => {
+                package_list.order_by(packages::dsl::id.desc()).load::<Package>(&connection)?
+            }
+        };
+
+        Ok(records)
     pub async fn search(search_query: &str, pool: &DieselPgPool) -> Result<Vec<String>, Error> {
         let connection = pool.get()?;
         let search_query = &search_query.split(" ").collect::<Vec<&str>>().join(" & ");

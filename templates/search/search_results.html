@@ -3,7 +3,7 @@
 {% block content %}
 <div class="content-wrapper">
     <div class="setting-bar">
-        <p>95 results <a>for '{{query}}'</a></p>
+        <p>{{ package_count }} results <a>for '{{ query }}'</a></p>
         <div class="package-search-sort">
             <label for="packages-sort">Sort by</label>
             <select name="packages-sort" 
@@ -22,66 +22,34 @@
     </div>
 
     <div class="package-list">
-        <div class="package-list-item">
-            <div class="left-wrapper">
-                <div class="package-list-item-title">
-                    <h1>Stripe &nbsp;<span class="version-number">5.45.1</span></h1>
-                    <div class="title-tag">
-                        1st tag
+        {% for package in packages %}
+            <div class="package-list-item">
+                <div class="left-wrapper">
+                    <div class="package-list-item-title">
+                        <h1>{{ package.name }} &nbsp;<span class="version-number">5.45.1</span></h1>
+                        <div class="title-tag">
+                            First tag
+                        </div>
+                    </div>
+                    <div class="sub-tag-list">
+                        <div class="sub-tag">Normal Tag</div>
+                        <div class="sub-tag">Normal Tag</div>
+                    </div>
+                    <div class="package-summary">
+                        {{ package.description }}
                     </div>
                 </div>
-                <div class="sub-tag-list">
-                    <div class="sub-tag">First Tag</div>
-                    <div class="sub-tag">First Tag</div>
-                </div>
-                <div class="package-summary">
-                    aaaaaaaaaaaaaaaaa
-                </div>
-            </div>
-            <div class="right-wrapper">
-                <p><img src="/static/resources/reload_icon.svg"> Updated 3 months ago</p>
-            </div>
-        </div>
-        <div class="package-list-item">
-            <div class="left-wrapper">
-                <div class="package-list-item-title">
-                    <h1>Stripe &nbsp;<span class="version-number">5.45.1</span></h1>
-                    <div class="title-tag">
-                        1st tag
-                    </div>
-                </div>
-                <div class="sub-tag-list">
-                    <div class="sub-tag">First Tag</div>
-                    <div class="sub-tag">First Tag</div>
-                </div>
-                <div class="package-summary">
-                    aaaaaaaaaaaaaaaaa
+                <div class="right-wrapper">
+                    <p data-last-update="{{ package.updated_at }}">
+                        <img  
+                            onload="displayUpdateTime(this.parentElement)" 
+                            src="/static/resources/reload_icon.svg"
+                        >
+                        <span></span>
+                    </p>
                 </div>
             </div>
-            <div class="right-wrapper">
-                <p><img src="/static/resources/reload_icon.svg"> Updated 3 months ago</p>
-            </div>
-        </div>
-        <div class="package-list-item">
-            <div class="left-wrapper">
-                <div class="package-list-item-title">
-                    <h1>Stripe &nbsp;<span class="version-number">5.45.1</span></h1>
-                    <div class="title-tag">
-                        1st tag
-                    </div>
-                </div>
-                <div class="sub-tag-list">
-                    <div class="sub-tag">First Tag</div>
-                    <div class="sub-tag">First Tag</div>
-                </div>
-                <div class="package-summary">
-                    aaaaaaaaaaaaaaaaa
-                </div>
-            </div>
-            <div class="right-wrapper">
-                <p><img src="/static/resources/reload_icon.svg"> Updated 3 months ago</p>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 </div>
 <script>

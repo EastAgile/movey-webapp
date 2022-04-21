@@ -3,7 +3,7 @@ use jelly::prelude::*;
 use jelly::request::DatabasePool;
 use jelly::Result;
 
-use crate::packages::{Package, PackageVersion, PackageVersionSort};
+use crate::packages::{Package, PackageSort, PackageVersion, PackageVersionSort};
 
 #[derive(serde::Serialize, serde::Deserialize)]
 struct PackageShowParams {
@@ -83,16 +83,30 @@ struct PackageSearchParams {
 pub async fn show_search_results(
     request: HttpRequest,
 ) -> Result<HttpResponse> {
+    let db = request.db_pool()?;
     let params = Query::<PackageSearchParams>::from_query(request.query_string()).unwrap();
     let default_sort = String::from("name");
-    let sort_type_text = params.sort_type.as_ref().unwrap_or(&default_sort);
+    let mut sort_type_text = params.sort_type.as_ref().unwrap_or(&default_sort);
+    let sort_type = match sort_type_text.as_str() {
+        // "description" => PackageSort::Description,
+        // "summary" => PackageSort::Summary,
+        "most_downloads" => PackageSort::MostDownloads,
+        "newly_added" => PackageSort::NewlyAdded,
+        _ => {
+            sort_type_text = &default_sort;
+            PackageSort::Name
+        }
+    };
     let default_query = String::from("untitled");
     let query_text = params.query.as_ref().unwrap_or(&default_query);
-
+    let package_list = Package::search_by_name(query_text, &sort_type, &db).await.unwrap();
+    
     request.render(200, "search/search_results.html", {
         let mut ctx = Context::new();
         ctx.insert("query", &query_text);
         ctx.insert("sort_type", &sort_type_text);
+        ctx.insert("packages", &package_list);
+        ctx.insert("package_count", &package_list.len());
         ctx
     })
 }
