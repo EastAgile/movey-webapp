@@ -15,14 +15,14 @@
   width: 100%;
   margin-top: 50px;
 }
-.home-container .search-container button {
+.home-container .search-container .button {
   float: left;
   padding: 16px;
   border: none;
   cursor: pointer;
   background: white;
 }
-.home-container .search-container button:hover {
+.home-container .search-container .button:hover {
   background: #ccc;
 }
 .home-container .search-container .search-text {

@@ -3,17 +3,19 @@
 {% block title %}{% endblock %}
 {% block css %}
   <link href="/static/css/home.css" rel="stylesheet"/>
-{% endblock css %}
+  <link href="/static/css/autocomplete/autocomplete.css" rel="stylesheet" />
+{% endblock %}
 {% block content %}
   <div class="home-container">
     <div class="subtitle">Reproducible builds and deployments.</div>
     <div class="search-container">
       <form action="/action_page.php">
-        <button type="submit"><i class="fa fa-search"></i></button>
+        <button class="button" type="submit"><i class="fa fa-search"></i></button>
         <div class="search-text">
           <input type="text" placeholder="Search packages..." name="search">
         </div>
       </form>
+      <div id="input-main"></div>
     </div>
     <div class="home-component stat-container">
       <div class="stat-package">
@@ -54,4 +56,23 @@
   <script>
     $('header').removeClass("dark");
   </script>
+{% endblock %}
+{% block script %}
+<script src="/static/js/autocomplete/autocomplete.js"></script>
+<script>
+  const getSuggestionsA = (keyword = "") =>
+          keyword.length < 3 ? ["Test 1", "Test 2", "Test 3"] : [];
+  const selectSuggestion = (suggestion) =>
+          alert(JSON.stringify(suggestion));
+  window.addEventListener('DOMContentLoaded', () => {
+    // Now safely manipulate DOM
+    new AutoComplete(
+            "input-main",
+            (keyword) => getSuggestionsA(keyword),
+            selectSuggestion,
+            true,
+            "Search packages..."
+    );
+  });
+</script>
 {% endblock %}
