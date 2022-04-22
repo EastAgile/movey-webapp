@@ -2,23 +2,48 @@ use jelly::actix_web::{web, HttpRequest};
 use jelly::prelude::*;
 use jelly::Result;
 use mockall_double::double;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::packages::Package;
 
-#[double] use crate::github_service::GithubService;
+#[double]
+use crate::github_service::GithubService;
 
 #[derive(Serialize, Deserialize)]
 pub struct PackageRequest {
     github_repo_url: String,
     description: String,
-    rev: String
+    rev: String,
 }
 
-pub async fn post_package(request: HttpRequest, res: web::Json<PackageRequest>) -> Result<HttpResponse> {
+#[derive(Serialize, Deserialize)]
+pub struct PackageSearch {
+    search_query: String,
+}
+
+pub async fn post_package(
+    request: HttpRequest,
+    res: web::Json<PackageRequest>,
+) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     let service = GithubService::new();
-    Package::create(&res.github_repo_url, &res.description, &res.rev, &service, &db).await?;
+    Package::create(
+        &res.github_repo_url,
+        &res.description,
+        &res.rev,
+        &service,
+        &db,
+    )
+    .await?;
 
     Ok(HttpResponse::Ok().body(""))
+}
+
+pub async fn search_package(
+    request: HttpRequest,
+    res: web::Json<PackageSearch>,
+) -> Result<HttpResponse> {
+    let db = request.db_pool()?;
+    let packages = Package::search(&res.search_query, &db).await?;
+    Ok(HttpResponse::Ok().json(packages))
 }
