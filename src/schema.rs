@@ -24,6 +24,8 @@ table! {
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
         rev -> Nullable<Text>,
+        total_files -> Nullable<Int4>,
+        total_size -> Nullable<Int4>,
     }
 }
 
