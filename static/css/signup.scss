@@ -1,20 +1,20 @@
-.signup_background {
+.signup-container {
   font-family: 'Mulish';
   width: 100vw;
   height: 100vh;
-  min-height: 900px;
+  min-height: 800px;
   background: url(/static/img/Map.png);
   background-color: var(--cool-gray);
   background-position-y: -15rem;
 
-  .movey_logo {
+  .movey-logo {
     content: url(/static/resources/movey_logo.svg);
     top: 0;
     position: sticky;
-    padding: 2rem 3rem;
+    padding: 30px;
   }
 
-  .signup_wrapper {
+  .signup-card-container {
 
     &::before {
       content: url(/static/resources/large_curve.svg);
@@ -30,7 +30,7 @@
       bottom: 11vh;
     }
 
-    .signup {
+    .signup-card {
       position: relative;
       z-index: 99;
       background-color: white;
@@ -40,7 +40,7 @@
       padding: 1.5rem 3rem;
       margin: 3rem auto;
 
-      h1 {
+      .signup-card-title {
         font-family: var(--sub-title-font);
         font-weight: 700;
         font-size: 24px;
@@ -48,7 +48,7 @@
         margin-bottom: 2rem;
       }
 
-      .thirdparty {
+      .signup-thirdparty {
         display: grid;
         grid-template-columns: 1fr 1fr;
         column-gap: 15px;
@@ -73,7 +73,7 @@
           }
         }
 
-        a {
+        .github-btn-wrapper {
           text-decoration: none;
           color: black;
 
@@ -106,15 +106,15 @@
         }
       }
 
-      .separator {
+      .signup-separator {
         color: var(--gray-color);
         margin-bottom: 1rem;        
 
-        div {
+        .signup-separator-line {
           border-top: 2px solid var(--gray-color);
         }
 
-        p {
+        .signup-separator-text {
           width: fit-content;
           font-size: 16px;
           line-height: 1.5rem;
@@ -124,11 +124,11 @@
         }
       }
 
-      form {
+      .signup-form {
 
-        div {
+        .signup-input {
       
-          .usr_input_label {
+          .signup-input-label {
             display: inline-block;
             font-size: 16px;
             font-weight: 500;
@@ -136,7 +136,7 @@
             margin-top: 1rem;
           }
   
-          .usr_input {          
+          .signup-input-field {          
             display: block;
             box-sizing: border-box;
             width: 100%;
@@ -195,7 +195,7 @@
         }
       }
       
-      .i_agree {
+      .signup-agree {
         margin-bottom: 1rem;
         font-size: 14px;
 
@@ -205,7 +205,7 @@
         }
       }
       
-      .signin_invitation {
+      .signin-invitation {
         color: var(--dark-blue-color);
         font-size: 14px;
 
