@@ -70,7 +70,7 @@ pub enum PackageVersionSort {
 }
 
 impl Package {
-    pub async fn create(repo_url: &String, package_description: &String, version_rev: &String, version_file: i32, version_size: i32, service: &GithubService, pool: &DieselPgPool) -> Result<i32, Error> {
+    pub async fn create(repo_url: &String, package_description: &String, version_rev: &String, version_files: i32, version_size: i32, service: &GithubService, pool: &DieselPgPool) -> Result<i32, Error> {
         let connection = pool.get()?;
 
         let github_data = service.fetch_repo_data(&repo_url).unwrap();
@@ -95,7 +95,7 @@ impl Package {
         };
 
         if let Err(_) = record.get_version(&github_data.version, &pool).await {
-            PackageVersion::create(record.id, github_data.version, github_data.readme_content, version_rev.to_string(), version_file, version_size, pool).await.unwrap();
+            PackageVersion::create(record.id, github_data.version, github_data.readme_content, version_rev.to_string(), version_files, version_size, pool).await.unwrap();
         }
 
         Ok(record.id)
@@ -130,7 +130,7 @@ impl Package {
 }
 
 impl PackageVersion {
-    pub async fn create(version_package_id: i32, version_name: String, version_readme_content: String, version_rev: String, version_file: i32, version_size: i32, pool: &DieselPgPool) -> Result<PackageVersion, Error> {
+    pub async fn create(version_package_id: i32, version_name: String, version_readme_content: String, version_rev: String, version_files: i32, version_size: i32, pool: &DieselPgPool) -> Result<PackageVersion, Error> {
         let connection = pool.get()?;
 
         let new_package_version = NewPackageVersion {
@@ -138,7 +138,7 @@ impl PackageVersion {
             version: version_name,
             readme_content: version_readme_content,
             rev: version_rev,
-            total_files: version_file,
+            total_files: version_files,
             total_size: version_size
         };
 
