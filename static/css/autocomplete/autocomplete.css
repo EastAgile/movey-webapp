@@ -38,7 +38,6 @@
 
 .autocomplete-main-wrapper {
   position: relative;
-  width: 604px;
   height: 56px;
   outline: 3px solid rgba(68, 161, 231, 0.5);
   z-index: 99 !important;
@@ -51,6 +50,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
 }
 
 .autocomplete-shadow {

@@ -140,13 +140,16 @@ class AutoComplete {
 
   bindListeners() {
     const input = this.container.querySelector("input");
-    input.addEventListener("input", (e) => {
+    input.addEventListener("input", async (e) => {
       if (!input.value) {
         this.suggestions = [];
       } else {
-        const suggestions = this.getSuggestions(e.target.value);
-        this.suggestions =
-          suggestions.length > 0 ? suggestions : [NO_MATCHES_FOUND];
+        try {
+          let suggestions = await this.getSuggestions(e.target.value);
+          suggestions.length > 0 ? this.suggestions = this.suggestions = suggestions : this.suggestions = [NO_MATCHES_FOUND];
+        } catch (error) {
+          this.suggestions = [NO_MATCHES_FOUND];
+        }
       }
       this.currentChoiceIndex = -1;
       this.inputValue = input.value;

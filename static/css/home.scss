@@ -2,7 +2,6 @@
   background: var(--dark-blue-color);
   padding: 120px 20% 0 20%;
   text-align: center;
-  //height: calc(100vh - 330px);
   overflow: scroll;
   box-sizing: border-box;
   .subtitle {
@@ -22,16 +21,6 @@
       background: white;
       &:hover {
         background: #ccc;
-      }
-    }
-    .search-text {
-      overflow: hidden;
-      input[type=text] {
-        padding: 12px;
-        height: auto;
-        border: none;
-        width: 100%;
-        color: var(--dark-blue-color);
       }
     }
   }

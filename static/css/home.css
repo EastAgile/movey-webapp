@@ -25,16 +25,6 @@
 .home-container .search-container .button:hover {
   background: #ccc;
 }
-.home-container .search-container .search-text {
-  overflow: hidden;
-}
-.home-container .search-container .search-text input[type=text] {
-  padding: 12px;
-  height: auto;
-  border: none;
-  width: 100%;
-  color: var(--dark-blue-color);
-}
 .home-container .stat-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
