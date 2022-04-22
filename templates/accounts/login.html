@@ -18,15 +18,12 @@
 {% block content %}
 
 <div class="login-container">
-
-    <div class="movey-logo"><a href="/"></a></div>
-
+    <a href="/">
+        <span class="movey-logo"></span>
+    </a>
     <div class="login-card-container">
-
         <div class="login-card">
-    
             <h1 class="login-card-title">Login</h1>
-    
             <div class="login-thirdparty">
                 <div class="g-signin2" data-onsuccess="onSignIn"
                     data-width="220"
@@ -40,7 +37,6 @@
                     </div>
                 </a>
             </div>
-    
             <div class="login-separator">
                 <div class="login-separator-line">
                     <p class="login-separator-text">
@@ -48,15 +44,12 @@
                     </p>
                 </div>
             </div>
-    
             <form action="/accounts/login/" method="POST" class="login-form">
-                
                 <div class="login-input">
                     <label for="email" class="login-input-label">Email Address</label>
                     <input name="email" type="email" class="login-input-field" 
                         value="{{ form.email.value }}">
                 </div>
-                        
                 <div class="login-input">
                     <label for="password" class="login-input-label">Password</label>
                     <input name="password" type="password" class="login-input-field" 
@@ -72,7 +65,6 @@
                         </div>
                     {% endif %}
                 </div>
-    
                 <div class="login-remember">
                     <span>
                         <input type="checkbox" name="remember_me">
@@ -80,14 +72,10 @@
                             Keep me logged in
                         </label>
                     </span>
-        
                     <a href="/accounts/reset/">Forgot Password?</a>
                 </div>
-
                 <button type="submit" class="login-btn">Login</button>
-
             </form>
-    
             <p class="login-invitation">Not a member? <a href="/accounts/register/">Sign up</a></p>
         </div>
     </div>
