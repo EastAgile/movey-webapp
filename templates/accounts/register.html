@@ -11,7 +11,6 @@
     <script src="/static/js/signup/helper.js"></script>
 {% endblock %}
 
-
 {% block content %}
 
 {% if error %}
@@ -20,42 +19,42 @@
 </ul>
 {% endif %}
 
-<div class="signup_background">
+<div class="signup-container">
+    <a href="/">
+        <span class="movey-logo"></span>
+    </a>
+    <div class="signup-card-container">
+        <div class="signup-card">
+            <h1 class="signup-card-title">Sign Up</h1>
 
-    <div class="movey_logo"></div>
-
-    <div class="signup_wrapper">
-
-        <div class="signup">
-    
-            <h1>Sign Up</h1>
-    
-            <div class="thirdparty">
+            <div class="signup-thirdparty">
                 <div class="g-signin2" data-onsuccess="onSignIn"
                     data-height="40"
                     data-longtitle="true"
                 ></div>
-                <a href="/accounts/oauth">
+                <a href="/accounts/oauth" class="github-btn-wrapper">
                     <div class="github-btn">
                         <i class="fa fa-github" aria-hidden="true"></i>
                         <p class="btn-text">Sign in with Github</p>
                     </div>
                 </a>
             </div>
-    
-            <div class="separator">
-                <div>
-                    <p>
+
+            <div class="signup-separator">
+                <div class="signup-separator-line">
+                    <p class="signup-separator-text">
                         or use your email
                     </p>
                 </div>
             </div>
     
-            <form action="/accounts/register/" method="POST">
+            <form action="/accounts/register/" method="POST" class="signup-form">
                 
-                <div>
-                    <label for="email" class="usr_input_label">Email Address</label>
-                    <input id="email" name="email" type="email" class="usr_input" value="{{ form.email.value }}">
+                <div class="signup-input">
+                    <label for="email" class="signup-input-label">Email Address</label>
+                    <input id="email" name="email" type="email" 
+                        class="signup-input-field" 
+                        value="{{ form.email.value }}">
                     {% if form.email.errors | length > 0 %}
                         {% for err in form.email.errors %}
                             <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
@@ -63,9 +62,11 @@
                     {% endif %}
                 </div>
     
-                <div>
-                    <label for="password" class="usr_input_label">Password</label>
-                    <input id="password" name="password" type="password" class="usr_input" placeholder="8+ characters">
+                <div class="signup-input">
+                    <label for="password" class="signup-input-label">Password</label>
+                    <input id="password" name="password" type="password" 
+                        class="signup-input-field" 
+                        placeholder="8+ characters">
                     {% if form.password.errors | length > 0 %}
                         {% for err in form.password.errors %}
                             <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
@@ -78,12 +79,12 @@
                 </button>
             </form>
 
-            <input id="i_agree" type="checkbox" name="i_agree" class="i_agree">
-            <label for="i_agree" class="i_agree">
+            <input id="i_agree" type="checkbox" name="i_agree" class="signup-agree">
+            <label for="i_agree" class="signup-agree">
                 I agree to <a href="#">Term of Service</a> and <a href="#">Privacy Policy</a>
             </label>
     
-            <p class="signin_invitation">Already a member? <a href="/accounts/login/">Sign in</a></p>
+            <p class="signin-invitation">Already a member? <a href="/accounts/login/">Sign in</a></p>
         </div>
     </div>
 </div>
