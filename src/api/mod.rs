@@ -10,5 +10,9 @@ pub fn configure(config: &mut ServiceConfig) {
             .service(
                 resource("/post_package/").route(post().to(services::package::index::post_package)),
             )
+            .service(
+                resource("/search_package/")
+                    .route(post().to(services::package::index::search_package)),
+            )
     );
 }
