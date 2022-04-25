@@ -47,7 +47,7 @@ pub struct PackageVersion {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub rev: Option<String>,
-    pub total_files: Option<i32>, 
+    pub total_files: Option<i32>,
     pub total_size: Option<i32>
 }
 
@@ -58,7 +58,7 @@ pub struct NewPackageVersion {
     pub version: String,
     pub readme_content: String,
     pub rev: String,
-    pub total_files: i32, 
+    pub total_files: i32,
     pub total_size: i32
 }
 
@@ -221,9 +221,9 @@ mod tests {
                 readme_content: "first_readme_content".to_string(),
             }));
 
-        let uid = Package::create(&"repo_url".to_string(), &"package_description".to_string(), &"1".to_string(),2,100,&mock_github_service, &DB_POOL).await.unwrap();
+        let uid = Package::create(&"repo_url".to_string(), &"package_description".to_string(), &"1".to_string(), 2, 100,&mock_github_service, &DB_POOL).await.unwrap();
 
-        PackageVersion::create(uid, "second_version".to_string(), "second_readme_content".to_string(), "1".to_string(),2,100, &DB_POOL).await.unwrap();
+        PackageVersion::create(uid, "second_version".to_string(), "second_readme_content".to_string(), "1".to_string(), 2, 100, &DB_POOL).await.unwrap();
 
         let versions = PackageVersion::from_package_id(uid, &PackageVersionSort::Latest, &DB_POOL).await.unwrap();
 
@@ -267,7 +267,7 @@ mod tests {
                 readme_content: "first_readme_content".to_string(),
             }));
 
-        let uid = Package::create(&"repo_url".to_string(), &"package_description".to_string(), &"1".to_string(), 2,     3, &mock_github_service, &DB_POOL).await.unwrap();
+        let uid = Package::create(&"repo_url".to_string(), &"package_description".to_string(), &"1".to_string(), 2, 3, &mock_github_service, &DB_POOL).await.unwrap();
 
         let mut version_2 = PackageVersion::create(uid, "second_version".to_string(), "second_readme_content".to_string(), "5".to_string(), 2, 3, &DB_POOL).await.unwrap();
         version_2.downloads_count = 5;
@@ -297,7 +297,7 @@ impl Package {
             .values(new_package)
             .get_result::<Package>(&connection)?;
 
-        PackageVersion::create(record.id, package_version.to_string(), package_readme_content.to_string(), version_rev.to_string(), version_files, version_size ,pool).await.unwrap();
+        PackageVersion::create(record.id, package_version.to_string(), package_readme_content.to_string(), version_rev.to_string(), version_files, version_size, pool).await.unwrap();
 
         Ok(record.id)
     }
