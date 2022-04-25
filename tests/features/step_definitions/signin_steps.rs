@@ -54,7 +54,7 @@ async fn signed_in_with_remember_me(world: &mut TestWorld) {
         .await.unwrap();
     remember_me.click().await.unwrap();
     let create_account_button = world.driver
-        .find_element(By::ClassName("login_btn"))
+        .find_element(By::ClassName("login-btn"))
         .await.unwrap();
     create_account_button.click().await.unwrap();
 }
@@ -77,7 +77,7 @@ async fn fill_in_sign_in_form(world: &mut TestWorld) {
         .await.unwrap();
     password_field.send_keys("So$trongpas0word!").await.unwrap();
     let create_account_button = world.driver
-        .find_element(By::ClassName("login_btn"))
+        .find_element(By::ClassName("login-btn"))
         .await.unwrap();
     create_account_button.click().await.unwrap();
 }
@@ -92,7 +92,7 @@ async fn fill_in_wrong_email(world: &mut TestWorld) {
         .await.unwrap();
     password_field.send_keys("So$trongpas0word!").await.unwrap();
     let create_account_button = world.driver
-        .find_element(By::ClassName("login_btn"))
+        .find_element(By::ClassName("login-btn"))
         .await.unwrap();
     create_account_button.click().await.unwrap();
 }
@@ -107,7 +107,7 @@ async fn fill_in_blank_email(world: &mut TestWorld) {
         .await.unwrap();
     password_field.send_keys("So$trongpas0word!").await.unwrap();
     let create_account_button = world.driver
-        .find_element(By::ClassName("login_btn"))
+        .find_element(By::ClassName("login-btn"))
         .await.unwrap();
     create_account_button.click().await.unwrap();
 }
@@ -122,7 +122,7 @@ async fn fill_in_wrong_password(world: &mut TestWorld) {
         .await.unwrap();
     password_field.send_keys("wrongpassword").await.unwrap();
     let create_account_button = world.driver
-        .find_element(By::ClassName("login_btn"))
+        .find_element(By::ClassName("login-btn"))
         .await.unwrap();
     create_account_button.click().await.unwrap();
 }
@@ -137,7 +137,7 @@ async fn fill_in_blank_password(world: &mut TestWorld) {
         .await.unwrap();
     password_field.send_keys("").await.unwrap();
     let create_account_button = world.driver
-        .find_element(By::ClassName("login_btn"))
+        .find_element(By::ClassName("login-btn"))
         .await.unwrap();
     create_account_button.click().await.unwrap();
 }
@@ -185,7 +185,7 @@ async fn see_sign_up_page(world: &mut TestWorld) {
     assert_eq!(heading_text, "Login");
 
     world.driver
-        .find_element(By::Id("loginform"))
+        .find_element(By::ClassName("login-form"))
         .await.unwrap();
 }
 
