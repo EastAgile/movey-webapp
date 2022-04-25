@@ -34,25 +34,25 @@ impl Authentication for HttpRequest {
             Ok(true)
         }
         else {
-            let my_cookie = match self.cookie("remember_me_token") {
-                Some(val) => val.value().to_owned(),
+            let remember_me_token = match self.cookie("remember_me_token") {
+                Some(cookie) => cookie.value().to_owned(),
                 None => return Ok(false)
             };
-            let index = match my_cookie.find("=") {
-                Some(i) => i,
+            let index = match remember_me_token.find("=") {
+                Some(index) => index,
                 None => return Ok(false)
             };
-            if my_cookie.len() < index + 2 {
+            if remember_me_token.len() < index + 2 {
                 return Ok(false);
             }
-            let user_id = &my_cookie[index + 1..];
+            let user_id = &remember_me_token[index + 1..];
 
             let key = std::env::var("SECRET_KEY").expect("SECRET_KEY not set!");
             let mut jar = CookieJar::new();
             jar.signed(&Key::derive_from(key.as_bytes()))
                 .add(Cookie::new("re_signed", user_id.to_owned()));
 
-            let is_my_cookie = my_cookie.contains(jar.get("re_signed").unwrap().value());
+            let is_my_cookie = remember_me_token.contains(jar.get("re_signed").unwrap().value());
             
             Ok(is_my_cookie)
         }
