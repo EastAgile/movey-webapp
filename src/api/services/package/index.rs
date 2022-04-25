@@ -14,6 +14,8 @@ pub struct PackageRequest {
     github_repo_url: String,
     description: String,
     rev: String,
+    total_files: i32,
+    total_size: i32,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -31,6 +33,8 @@ pub async fn post_package(
         &res.github_repo_url,
         &res.description,
         &res.rev,
+        res.total_files,
+        res.total_size,
         &service,
         &db,
     )

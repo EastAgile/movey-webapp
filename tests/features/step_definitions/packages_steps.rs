@@ -7,8 +7,8 @@ use super::super::world::TestWorld;
 
 #[given("there is a package in the system")]
 async fn package_in_system(_world: &mut TestWorld) {
-    let uid = Package::create_test_package(&"test-package".to_string(), &"https://github.com/Elements-Studio/starswap-core".to_string(), &"package_description".to_string(), &"first_version".to_string(), &"first_readme_content".to_string(), &"rev".to_string(), &DB_POOL).await.unwrap();
-    PackageVersion::create(uid, "second_version".to_string(), "second_readme_content".to_string(), "rev_2".to_string(), &DB_POOL).await.unwrap();
+    let uid = Package::create_test_package(&"test-package".to_string(), &"https://github.com/Elements-Studio/starswap-core".to_string(), &"package_description".to_string(), &"first_version".to_string(), &"first_readme_content".to_string(), &"rev".to_string(), 2, 100, &DB_POOL).await.unwrap();
+    PackageVersion::create(uid, "second_version".to_string(), "second_readme_content".to_string(), "rev_2".to_string(), 2, 100, &DB_POOL).await.unwrap();
 }
 
 #[when("I access the package details page")]

@@ -2,6 +2,7 @@
     .package-info-container {
         max-width: 1574px;
         margin: 0 auto;
+        padding: 0 30px;
 
         .package-name-version {
             display: flex;
@@ -51,16 +52,21 @@
     .package-content-container {
         max-width: 1574px;
         margin: 0 auto;
+        padding: 0 30px;
 
         .package-content-tabs {
             display: flex;
 
             .content-tab {
-                padding: 20px 120px;
+                padding: 20px 40px;
                 font-size: 24px;
                 line-height: 36px;
                 border-bottom-width: 4px;
                 border-bottom-style: solid;
+                flex-basis: 0;
+                flex-grow: 1;
+                display: flex;
+                justify-content: center;
                 cursor: pointer;
 
                 > a {
@@ -198,7 +204,6 @@
 
                     .package-install {
                         .package-install-instruction {
-                            width: 483px;
                             padding: 13px 19px;
                             font-size: 18px;
                             line-height: 24px;
@@ -208,6 +213,7 @@
                             align-items: center;
                             margin-bottom: 32px;
                             position: relative;
+                            word-break: break-word;
                             cursor: pointer;
 
                             .copy-icon {
@@ -227,7 +233,7 @@
                                     display: block;
                                 }
                             }
-                            
+
                             .copy-tooltip {
                                 color: darkblue;
                                 font-size: 16px;

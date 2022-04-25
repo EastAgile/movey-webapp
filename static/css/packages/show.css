@@ -1,6 +1,7 @@
 .package-show-container .package-info-container {
   max-width: 1574px;
   margin: 0 auto;
+  padding: 0 30px;
 }
 .package-show-container .package-info-container .package-name-version {
   display: flex;
@@ -42,16 +43,21 @@
 .package-show-container .package-content-container {
   max-width: 1574px;
   margin: 0 auto;
+  padding: 0 30px;
 }
 .package-show-container .package-content-container .package-content-tabs {
   display: flex;
 }
 .package-show-container .package-content-container .package-content-tabs .content-tab {
-  padding: 20px 120px;
+  padding: 20px 40px;
   font-size: 24px;
   line-height: 36px;
   border-bottom-width: 4px;
   border-bottom-style: solid;
+  flex-basis: 0;
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
   cursor: pointer;
 }
 .package-show-container .package-content-container .package-content-tabs .content-tab > a {
@@ -161,7 +167,6 @@
   margin: 30px -22px;
 }
 .package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-install .package-install-instruction {
-  width: 483px;
   padding: 13px 19px;
   font-size: 18px;
   line-height: 24px;
@@ -171,6 +176,7 @@
   align-items: center;
   margin-bottom: 32px;
   position: relative;
+  word-break: break-word;
   cursor: pointer;
 }
 .package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-install .package-install-instruction .copy-icon {
