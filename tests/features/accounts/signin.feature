@@ -12,6 +12,8 @@ Feature: Sign in
     Scenario: it works
       When I fill in my email and password and submit the form on the sign in page
       Then I should see that Im logged in
+      When I access the Sign in page
+      Then I should be on the Dashboard page
 
     Scenario: Wrong email
       When I fill in wrong email and submit the form on the sign in page
@@ -29,18 +31,12 @@ Feature: Sign in
       When I fill in blank password and submit the form on the sign in page
       Then I should see the error 'Invalid email or password'
 
-  Rule: Default signed-in user
-      
-    Background:
-      Given I am a user on Movey
-      And I am signed in
-
-    Scenario: Already signed-in user
-      When I access the Sign in page
-      Then I should see that Im logged in
+  Rule: Signed-in user without remember me option
 
     Scenario: Default session expired
-      When I close and reopen my browser
+      Given I am a user on Movey
+      And I am signed in
+      When I close all browser tabs and reopen my browser
       And I access the Dashboard page
       Then I should see the sign in page
   
@@ -48,12 +44,12 @@ Feature: Sign in
 
     Background:
       Given I am a user on Movey
-      And I am signed in with option to keep me signed in
+      And I am signed in with remember me option
 
     Scenario: Permanent session works
-      When I close and reopen my browser
+      When I close all browser tabs and reopen my browser
       And I access the Dashboard page
-      Then I should see that Im logged in
+      Then I should be on the Dashboard page
     
     Scenario: Permanent session expired
       When my permanent session is expired

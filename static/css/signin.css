@@ -1,5 +1,4 @@
-.login_background {
-  font-family: "Mulish";
+.login-container {
   width: 100vw;
   height: 100vh;
   min-height: 800px;
@@ -7,25 +6,25 @@
   background-color: var(--cool-gray);
   background-position-y: -15rem;
 }
-.login_background .movey_logo {
+.login-container .movey-logo {
   content: url(/static/resources/movey_logo.svg);
   top: 0;
   position: sticky;
-  padding: 2rem 3rem;
+  padding: 30px;
 }
-.login_background .login_wrapper::before {
+.login-container .login-card-container::before {
   content: url(/static/resources/large_curve.svg);
   position: fixed;
   left: 57vw;
   top: 3vh;
 }
-.login_background .login_wrapper::after {
+.login-container .login-card-container::after {
   content: url(/static/resources/small_curve.svg);
   position: fixed;
   left: 25vw;
   bottom: 11vh;
 }
-.login_background .login_wrapper .login {
+.login-container .login-card-container .login-card {
   position: relative;
   z-index: 99;
   background-color: white;
@@ -35,36 +34,36 @@
   padding: 1.5rem 3rem;
   margin: 3rem auto;
 }
-.login_background .login_wrapper .login h1 {
+.login-container .login-card-container .login-card .login-card-title {
   font-family: var(--sub-title-font);
   font-weight: 700;
   font-size: 24px;
   color: var(--blue-color);
   margin-bottom: 2rem;
 }
-.login_background .login_wrapper .login .thirdparty {
+.login-container .login-card-container .login-card .login-thirdparty {
   display: grid;
   grid-template-columns: 1fr 1fr;
   column-gap: 15px;
   place-items: center/stretch;
   margin-bottom: 2.5rem;
 }
-.login_background .login_wrapper .login .thirdparty .g-signin2 .abcRioButton, .login_background .login_wrapper .login .thirdparty .g-signin2 .abcRioButtonLightBlue {
+.login-container .login-card-container .login-card .login-thirdparty .g-signin2 .abcRioButton, .login-container .login-card-container .login-card .login-thirdparty .g-signin2 .abcRioButtonLightBlue {
   width: 100% !important;
   border-radius: 4px;
   border: 1px solid var(--cool-gray);
 }
-.login_background .login_wrapper .login .thirdparty .g-signin2 .abcRioButton .abcRioButtonContentWrapper .abcRioButtonContents span, .login_background .login_wrapper .login .thirdparty .g-signin2 .abcRioButtonLightBlue .abcRioButtonContentWrapper .abcRioButtonContents span {
+.login-container .login-card-container .login-card .login-thirdparty .g-signin2 .abcRioButton .abcRioButtonContentWrapper .abcRioButtonContents span, .login-container .login-card-container .login-card .login-thirdparty .g-signin2 .abcRioButtonLightBlue .abcRioButtonContentWrapper .abcRioButtonContents span {
   font-family: "Mulish";
   font-size: 14px;
   font-weight: 500;
   color: black;
 }
-.login_background .login_wrapper .login .thirdparty a {
+.login-container .login-card-container .login-card .login-thirdparty .github-btn-wrapper {
   text-decoration: none;
   color: black;
 }
-.login_background .login_wrapper .login .thirdparty a .github-btn {
+.login-container .login-card-container .login-card .login-thirdparty .github-btn-wrapper .github-btn {
   display: flex;
   align-items: center;
   height: 40px;
@@ -72,31 +71,31 @@
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
   transition: border-color 0.218s ease-in-out, box-shadow 0.218s ease-in-out;
 }
-.login_background .login_wrapper .login .thirdparty a .github-btn i {
+.login-container .login-card-container .login-card .login-thirdparty .github-btn-wrapper .github-btn i {
   font-size: x-large;
   color: var(--blue-color);
   margin: auto 0.75rem;
 }
-.login_background .login_wrapper .login .thirdparty a .github-btn .btn-text {
+.login-container .login-card-container .login-card .login-thirdparty .github-btn-wrapper .github-btn .btn-text {
   font-size: 14px;
   margin: auto;
   justify-content: center;
   overflow-x: hidden;
 }
-.login_background .login_wrapper .login .thirdparty a .github-btn:hover {
+.login-container .login-card-container .login-card .login-thirdparty .github-btn-wrapper .github-btn:hover {
   box-shadow: 0 0 6px var(--blue-color);
 }
-.login_background .login_wrapper .login .thirdparty a .github-btn:active {
+.login-container .login-card-container .login-card .login-thirdparty .github-btn-wrapper .github-btn:active {
   background: var(--cool-gray);
 }
-.login_background .login_wrapper .login .separator {
+.login-container .login-card-container .login-card .login-separator {
   color: var(--gray-color);
   margin-bottom: 1rem;
 }
-.login_background .login_wrapper .login .separator div {
+.login-container .login-card-container .login-card .login-separator .login-separator-line {
   border-top: 2px solid var(--gray-color);
 }
-.login_background .login_wrapper .login .separator p {
+.login-container .login-card-container .login-card .login-separator .login-separator-text {
   width: fit-content;
   font-size: 16px;
   line-height: 1.5rem;
@@ -104,14 +103,14 @@
   background: white;
   padding: 0 1rem;
 }
-.login_background .login_wrapper .login form div .usr_input_label {
+.login-container .login-card-container .login-card .login-form .login-input .login-input-label {
   display: inline-block;
   font-size: 16px;
   font-weight: 500;
   color: var(--dark-blue-color);
   margin-top: 1rem;
 }
-.login_background .login_wrapper .login form div .usr_input {
+.login-container .login-card-container .login-card .login-form .login-input .login-input-field {
   display: block;
   box-sizing: border-box;
   width: 100%;
@@ -131,13 +130,13 @@
   border-radius: 4px;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
-.login_background .login_wrapper .login form div .usr_input:focus {
+.login-container .login-card-container .login-card .login-form .login-input .login-input-field:focus {
   color: var(--dark-blue-color);
   border-color: #86b7fe;
   outline: 0;
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
-.login_background .login_wrapper .login form div .error-container {
+.login-container .login-card-container .login-card .login-form .login-input .error-container {
   display: flex;
   align-items: center;
   background-color: var(--rose-color);
@@ -145,27 +144,27 @@
   color: var(--dark-rose-color);
   margin-top: 1.5rem;
 }
-.login_background .login_wrapper .login form div .error-container .error-icon {
+.login-container .login-card-container .login-card .login-form .login-input .error-container .error-icon {
   font-size: 24px;
   margin-left: 1.25rem;
 }
-.login_background .login_wrapper .login form div .error-container .error {
+.login-container .login-card-container .login-card .login-form .login-input .error-container .error {
   padding: 0.75rem 0 0.75rem 1.25rem;
   font-size: 14px;
   font-weight: 600;
   margin: 0;
 }
-.login_background .login_wrapper .login form .login_remember {
+.login-container .login-card-container .login-card .login-form .login-remember {
   display: flex;
   justify-content: space-between;
   margin: 1.5rem 0 0.5rem;
   font-size: 14px;
 }
-.login_background .login_wrapper .login form .login_remember a {
+.login-container .login-card-container .login-card .login-form .login-remember a {
   text-decoration: none;
   color: var(--blue-color);
 }
-.login_background .login_wrapper .login form .login_btn {
+.login-container .login-card-container .login-card .login-form .login-btn {
   font-size: 14px;
   width: 100%;
   padding: 0.75rem;
@@ -177,15 +176,15 @@
   color: white;
   cursor: pointer;
 }
-.login_background .login_wrapper .login form .login_btn:disabled {
+.login-container .login-card-container .login-card .login-form .login-btn:disabled {
   color: #808FB0;
   background-color: #D9DDE7;
 }
-.login_background .login_wrapper .login .login_invitation {
+.login-container .login-card-container .login-card .login-invitation {
   color: var(--dark-blue-color);
   font-size: 14px;
 }
-.login_background .login_wrapper .login .login_invitation a {
+.login-container .login-card-container .login-card .login-invitation a {
   text-decoration: none;
   color: var(--blue-color);
 }

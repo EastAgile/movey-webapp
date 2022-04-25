@@ -1,5 +1,4 @@
-.login_background {
-  font-family: 'Mulish';
+.login-container {
   width: 100vw;
   height: 100vh;
   min-height: 800px;
@@ -7,14 +6,14 @@
   background-color: var(--cool-gray);
   background-position-y: -15rem;
 
-  .movey_logo {
+  .movey-logo {
     content: url(/static/resources/movey_logo.svg);
     top: 0;
     position: sticky;
-    padding: 2rem 3rem;
+    padding: 30px;
   }
 
-  .login_wrapper {
+  .login-card-container {
 
     &::before {
       content: url(/static/resources/large_curve.svg);
@@ -30,7 +29,7 @@
       bottom: 11vh;
     }
 
-    .login {
+    .login-card {
       position: relative;
       z-index: 99;
       background-color: white;
@@ -40,7 +39,7 @@
       padding: 1.5rem 3rem;
       margin: 3rem auto;
 
-      h1 {
+      .login-card-title {
         font-family: var(--sub-title-font);
         font-weight: 700;
         font-size: 24px;
@@ -48,7 +47,7 @@
         margin-bottom: 2rem;
       }
 
-      .thirdparty {
+      .login-thirdparty {
         display: grid;
         grid-template-columns: 1fr 1fr;
         column-gap: 15px;
@@ -73,7 +72,7 @@
           }
         }
 
-        a {
+        .github-btn-wrapper {
           text-decoration: none;
           color: black;
 
@@ -106,15 +105,15 @@
         }
       }
 
-      .separator {
+      .login-separator {
         color: var(--gray-color);
         margin-bottom: 1rem;        
 
-        div {
+        .login-separator-line {
           border-top: 2px solid var(--gray-color);
         }
 
-        p {
+        .login-separator-text {
           width: fit-content;
           font-size: 16px;
           line-height: 1.5rem;
@@ -124,11 +123,11 @@
         }
       }
 
-      form {
+      .login-form {
 
-        div {
+        .login-input {
       
-          .usr_input_label {
+          .login-input-label {
             display: inline-block;
             font-size: 16px;
             font-weight: 500;
@@ -136,7 +135,7 @@
             margin-top: 1rem;
           }
   
-          .usr_input {          
+          .login-input-field {          
             display: block;
             box-sizing: border-box;
             width: 100%;
@@ -186,7 +185,7 @@
           }
         }
         
-        .login_remember {
+        .login-remember {
           display: flex;
           justify-content: space-between;
           margin: 1.5rem 0 .5rem;
@@ -198,7 +197,7 @@
           }
         }
 
-        .login_btn {
+        .login-btn {
           font-size: 14px;
           width: 100%;
           padding: .75rem;
@@ -217,7 +216,7 @@
         }
       }
       
-      .login_invitation {
+      .login-invitation {
         color: var(--dark-blue-color);
         font-size: 14px;
 
