@@ -7,11 +7,11 @@
   background-color: var(--cool-gray);
   background-position-y: -15rem;
 
-  .movey_logo {
+  .movey-logo {
     content: url(/static/resources/movey_logo.svg);
     top: 0;
     position: sticky;
-    padding: 2rem 3rem;
+    padding: 30px;
   }
 
   .signup_wrapper {

@@ -3,6 +3,8 @@
 
 use diesel::prelude::*;
 use diesel::{AsChangeset, Identifiable, Insertable, Queryable};
+#[allow(unused_imports)]
+use diesel::result::{Error as DBError};
 
 use jelly::accounts::{OneTimeUseTokenGenerator, User};
 use jelly::chrono::{offset, DateTime, Utc};
@@ -239,7 +241,7 @@ mod tests {
             redirect: "".to_string(),
         };
         match Account::authenticate(&login_form, &DB_POOL).await {
-            Err(Error::Database(_not_found)) => (),
+            Err(Error::Database(DBError::NotFound)) => (),
             _ => panic!(),
         }
     }
