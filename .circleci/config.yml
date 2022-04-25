@@ -6,17 +6,17 @@ orbs:
 jobs:
   build:
     docker:
-      - image: cimg/rust:1.59.0
+      - image: cimg/rust:1.60.0
       - image: cimg/postgres:14.0
         environment:
           POSTGRES_USER: circleci
           POSTGRES_HOST_AUTH_METHOD: trust
     steps:
       - checkout
-      - run: rustup toolchain install nightly
-      - run: rustup +nightly component add llvm-tools-preview
+      - run: rustup component add llvm-tools-preview
       - run: cargo install cargo-llvm-cov
       - run: cargo install diesel_cli --no-default-features --features "postgres"
+      - run: cargo install coveralls
       # - run:
       #     name: Run Unit Tests
       #     command: "RUSTFLAGS='-C instrument-coverage -lgcov' LLVM_PROFILE_FILE='json5format-%m.profraw' cargo +nightly test_unit"
