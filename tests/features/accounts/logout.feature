@@ -7,10 +7,10 @@ Feature: Log out
     Given I am signed in
     When I access the Dashboard page
     And I click on the Log out button
-    Then I should see the home page
+    Then I should see the register page
 
   Scenario: Sign-in with remember me then logout
     Given I am signed in with remember me option
     When I access the Dashboard page
     And I click on the Log out button
-    Then I should see the home page
+    Then I should see the register page

@@ -18,3 +18,11 @@ async fn see_home_page(world: &mut TestWorld) {
         "http://localhost:17002/"
     );
 }
+
+#[then("I should see the register page")]
+async fn see_register_page(world: &mut TestWorld) {
+    assert_eq!(
+        world.driver.current_url().await.unwrap(),
+        "http://localhost:17002/accounts/register/"
+    );
+}

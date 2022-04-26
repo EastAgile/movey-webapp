@@ -1,7 +1,7 @@
 class Helper {
     constructor() {
         this.create_account_btn = $('.create_account_btn');
-        this.checkbox = $('input.i_agree');
+        this.checkbox = $('input#i_agree');
         this.init();
     }
 

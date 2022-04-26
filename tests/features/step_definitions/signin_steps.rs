@@ -10,10 +10,6 @@ use super::super::world::TestWorld;
 #[given("I am a user on Movey")]
 async fn an_user(_world: &mut TestWorld) {
     let form = NewAccountForm {
-        name: TextField {
-            value: "Test signin".to_string(),
-            errors: vec![],
-        },
         email: EmailField {
             value: "email@host.com".to_string(),
             errors: vec![],
@@ -200,7 +196,7 @@ async fn signed_in(world: &mut TestWorld) {
         .find_element(By::XPath("/html/body/div/p"))
         .await.unwrap();
     let welcome_text = welcome.text().await.unwrap();
-    assert_eq!(welcome_text, "Welcome back, Test signin.");
+    assert_eq!(welcome_text, "Welcome back");
 
     world.driver
         .find_element(By::XPath("/html/body/form"))
@@ -213,14 +209,4 @@ async fn see_dashboard_page(world: &mut TestWorld) {
         world.driver.current_url().await.unwrap(),
         "http://localhost:17002/dashboard/"
     );
-}
-
-#[then(regex = r"^I should see the error '([\w\s?]+)'$")]
-async fn see_error_message(world: &mut TestWorld, message: String) {
-    let errors_element = world.driver
-        .find_element(By::ClassName("error"))
-        .await.unwrap();
-    let errors_message = errors_element.text().await.unwrap();
-    assert!(errors_message.contains(&message));
-    world.close_browser().await;
 }
