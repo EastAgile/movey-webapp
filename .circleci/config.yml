@@ -18,9 +18,7 @@ jobs:
       - run: cargo install diesel_cli --no-default-features --features "postgres"
       - run: cargo install coveralls
       - run: cargo install grcov
-      # - run:
-      #     name: Run Unit Tests
-      #     command: "RUSTFLAGS='-C instrument-coverage -lgcov' LLVM_PROFILE_FILE='json5format-%m.profraw' cargo +nightly test_unit"
+
       - run:
           name: Setup test server for integration tests
           command: "DATABASE_URL=$DATABASE_URL_TEST diesel setup && PORT=17002 cargo run --features test"
@@ -31,9 +29,6 @@ jobs:
           name: Start chromedriver
           command: chromedriver --port=4444
           background: true
-      # - run:
-      #     name: Run Integration Tests
-      #     command: "RUSTFLAGS='-C instrument-coverage' LLVM_PROFILE_FILE='json5format-%m.profraw' cargo +nightly test_integration"
 
       # Run tests and merge coverage
       - run: cargo llvm-cov clean --workspace
@@ -41,9 +36,3 @@ jobs:
       - run: RUSTFLAGS="-C instrument-coverage" LLVM_PROFILE_FILE="movey-%m.profraw" cargo test --features test --test integration_tests -- --concurrency 1
       - run: grcov . --binary-path ./target/debug/ -t coveralls --keep-only "src/*" --keep-only "tests/*" -s . --token $COVERALLS_REPO_TOKEN > coveralls.json
       - run: coveralls --input coveralls.json circleci
-
-      # Merging coverage
-      # - run: ~/.rustup/toolchains/nightly-x86_64-apple-darwin/lib/rustlib/x86_64-apple-darwin/bin/llvm-profdata merge -sparse json5format-*.profraw -o json5format.profdata
-      # - run: ~/.rustup/toolchains/nightly-x86_64-apple-darwin/lib/rustlib/x86_64-apple-darwin/bin/llvm-cov export --use-color --ignore-filename-regex='/.cargo/registry' --instr-profile=json5format.profdata --object target/debug/deps/mainlib-3896b79477c52536 --object target/debug/deps/integration_tests-a2c4b268602466c6 > coverage.json
-      # - run: cargo install coveralls
-      # - run: coveralls --input coverage.json circleci
