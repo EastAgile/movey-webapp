@@ -1,6 +1,6 @@
 //! URL dispatcher for user account related API endpoints.
 
-use jelly::actix_web::web::{post, resource, scope, ServiceConfig};
+use jelly::actix_web::web::{get, post, resource, scope, ServiceConfig};
 
 pub mod services;
 
@@ -13,6 +13,8 @@ pub fn configure(config: &mut ServiceConfig) {
             .service(
                 resource("/search_package/")
                     .route(post().to(services::package::index::search_package)),
-            )
+            ).service(
+				resource("/download")
+					.route(get().to(services::package::index::increment_download)))
     );
 }

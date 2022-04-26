@@ -43,6 +43,29 @@ pub async fn post_package(
     Ok(HttpResponse::Ok().body(""))
 }
 
+#[derive(Deserialize)]
+pub struct DownloadInfo {
+    url: String,
+    rev: String,
+    subdir: String,
+}
+
+pub async fn increment_download(request: HttpRequest, query: web::Query<DownloadInfo>) -> Result<HttpResponse> {
+    let db = request.db_pool()?;
+    let service = GithubService::new();
+    let query = query.into_inner();
+    let url = query.url;
+    let rev_ = query.rev;
+    let _subdir = query.subdir;
+
+    if let Ok(res) = Package::increment_download(&url, &rev_, &service, &db).await {
+        Ok(HttpResponse::Ok().body(res.to_string()))
+    }
+    else {
+        Ok(HttpResponse::NotFound().body("Cannot find url or rev"))
+    }
+}
+
 pub async fn search_package(
     request: HttpRequest,
     res: web::Json<PackageSearch>,
@@ -51,3 +74,4 @@ pub async fn search_package(
     let packages = Package::auto_complete_search(&res.search_query, &db).await?;
     Ok(HttpResponse::Ok().json(packages))
 }
+
