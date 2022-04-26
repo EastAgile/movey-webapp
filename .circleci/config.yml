@@ -39,7 +39,7 @@ jobs:
       - run: cargo llvm-cov clean --workspace
       - run: RUSTFLAGS="-C instrument-coverage" LLVM_PROFILE_FILE="movey-%m.profraw" cargo test --lib --features test -- --test-threads=1
       - run: RUSTFLAGS="-C instrument-coverage" LLVM_PROFILE_FILE="movey-%m.profraw" cargo test --features test --test integration_tests -- --concurrency 1
-      - run: grcov . --binary-path ./target/debug/ -t coveralls -s . --token $COVERALLS_REPO_TOKEN > coveralls.json
+      - run: grcov . --binary-path ./target/debug/ -t coveralls --keep-only "src/*" --keep-only "tests/*" -s . --token $COVERALLS_REPO_TOKEN > coveralls.json
       - run: coveralls --input coveralls.json circleci
 
       # Merging coverage
