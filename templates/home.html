@@ -1,10 +1,57 @@
 {% extends "layout.html" %}
 
 {% block title %}{% endblock %}
-
+{% block css %}
+  <link href="/static/css/home.css" rel="stylesheet"/>
+{% endblock css %}
 {% block content %}
-    <ul>
-        <li><a href="/accounts/register/">Register</a></li>
-        <li><a href="/accounts/login/">Login</a></li>
-    </ul>
+  <div class="home-container">
+    <div class="subtitle">Reproducible builds and deployments.</div>
+    <div class="search-container">
+      <form action="/action_page.php">
+        <button type="submit"><i class="fa fa-search"></i></button>
+        <div class="search-text">
+          <input type="text" placeholder="Search packages..." name="search">
+        </div>
+      </form>
+    </div>
+    <div class="home-component stat-container">
+      <div class="stat-package">
+        <div class="stat-no">8376</div>
+        <div class="stat-name">PACKAGES</div>
+      </div>
+      <div>
+        <div class="stat-no">122459</div>
+        <div class="stat-name">RELEASES</div>
+      </div>
+    </div>
+    <div class="social-container">
+      <div class="social-subtitle">MOVEY was developed by East Agile.</div>
+      <ul class="social-icons">
+        <li>
+          <a class="icon flex" href="#" target="_blank">
+            <img class="icon flex" src="/static/resources/github.svg"/>
+          </a>
+        </li>
+        <li>
+          <a class="icon flex" href="#" target="_blank">
+            <img class="icon flex" src="/static/resources/slack.svg"/>
+          </a>
+        </li>
+        <li>
+          <a class="icon flex" href="#" target="_blank">
+            <img class="icon flex" src="/static/resources/twitter.svg"/>
+          </a>
+        </li>
+        <li>
+          <a class="icon flex" href="#" target="_blank">
+            <img class="icon flex" src="/static/resources/reddit.svg"/>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <script>
+    $('header').removeClass("dark");
+  </script>
 {% endblock %}

@@ -38,6 +38,4 @@ async fn see_my_account_created(world: &mut TestWorld) {
     let heading = world.driver.find_element(By::Tag("h1")).await.unwrap();
     let heading_text = heading.text().await.unwrap();
     assert_eq!(heading_text, "Verify Account");
-
-    world.close_browser().await;
 }

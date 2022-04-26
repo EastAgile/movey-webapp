@@ -12,3 +12,39 @@ table! {
         updated -> Timestamptz,
     }
 }
+
+table! {
+    package_versions (id) {
+        id -> Int4,
+        package_id -> Int4,
+        version -> Text,
+        readme_content -> Nullable<Text>,
+        license -> Nullable<Text>,
+        downloads_count -> Int4,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+        rev -> Nullable<Text>,
+        total_files -> Nullable<Int4>,
+        total_size -> Nullable<Int4>,
+    }
+}
+
+table! {
+    packages (id) {
+        id -> Int4,
+        name -> Text,
+        description -> Text,
+        repository_url -> Text,
+        total_downloads_count -> Int4,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+    }
+}
+
+joinable!(package_versions -> packages (package_id));
+
+allow_tables_to_appear_in_same_query!(
+    accounts,
+    package_versions,
+    packages,
+);

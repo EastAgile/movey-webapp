@@ -1,0 +1,20 @@
+:root {
+  --blue-color: #44A1E7;
+  --gray-color: #808FB0;
+  --dark-blue-color: #001F60;
+  --geyser-color: #D9DDE7;
+  --gray-background-color: #F2F4F7;
+  --cool-gray: #f8f9fb;
+  --sub-title-font: 'Syncopate', sans-serif;
+  font-family: 'Mulish', sans-serif;
+}
+body {
+  margin: 0;
+  font-family: 'Mulish', sans-serif;
+  position: relative;
+}
+.icon.flex{
+  border: 0;
+  padding: 0;
+  display: flex;
+}

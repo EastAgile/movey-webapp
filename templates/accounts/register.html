@@ -1,9 +1,17 @@
-{% extends "layout.html" %}
+{% extends "accounts/layout.html" %}
 
 {% block title %}Sign Up{% endblock %}
 
+{% block meta %}
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="{{client_id}}.apps.googleusercontent.com">
+{% endblock %}
+{% block script %}
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="/static/js/signup/helper.js"></script>
+{% endblock %}
+
 {% block content %}
-<h1>Sign Up</h1>
 
 {% if error %}
 <ul>
@@ -11,31 +19,78 @@
 </ul>
 {% endif %}
 
-<form action="/accounts/register/" method="POST">
-    <p>
-        <label for="name">Your Name:</label>
-        <input type="text" name="name" value="{{ form.name.value }}">
-        {% if form.name.errors | length > 0 %}
-            {{ form.name.errors }}
-        {% endif %}
-    </p>
+<div class="signup-container">
+    <a href="/">
+        <span class="movey-logo"></span>
+    </a>
+    <div class="signup-card-container">
+        <div class="signup-card">
+            <h1 class="signup-card-title">Sign Up</h1>
 
-    <p>
-        <label for="email">Email:</label>
-        <input name="email" type="email" value="{{ form.email.value }}">
-        {% if form.email.errors | length > 0 %}
-            {{ form.email.errors }}
-        {% endif %}
-    </p>
+            <div class="signup-thirdparty">
+                <div class="g-signin2" data-onsuccess="onSignIn"
+                    data-height="40"
+                    data-longtitle="true"
+                ></div>
+                <a href="/accounts/oauth" class="github-btn-wrapper">
+                    <div class="github-btn">
+                        <i class="fa fa-github" aria-hidden="true"></i>
+                        <p class="btn-text">Sign in with Github</p>
+                    </div>
+                </a>
+            </div>
 
-    <p>
-        <label for="password">Password:</label>
-        <input name="password" type="password">
-        {% if form.password.errors | length > 0 %}
-            {{ form.password.errors }}
-        {% endif %}
-    </p>
+            <div class="signup-separator">
+                <div class="signup-separator-line">
+                    <p class="signup-separator-text">
+                        or use your email
+                    </p>
+                </div>
+            </div>
+    
+            <form action="/accounts/register/" method="POST" class="signup-form">
+                
+                <div class="signup-input">
+                    <label for="email" class="signup-input-label">Email Address</label>
+                    <input id="email" name="email" type="email" 
+                        class="signup-input-field" 
+                        value="{{ form.email.value }}">
+                    {% if form.email.errors | length > 0 %}
+                        {% for err in form.email.errors %}
+                            <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+    
+                <div class="signup-input">
+                    <label for="password" class="signup-input-label">Password</label>
+                    <input id="password" name="password" type="password" 
+                        class="signup-input-field" 
+                        placeholder="8+ characters">
+                    {% if form.password.errors | length > 0 %}
+                        {% for err in form.password.errors %}
+                            <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+    
+                <button type="submit" class="create_account_btn" disabled>
+                    Create an Account
+                </button>
+            </form>
 
-    <button type="submit" class="create_account_btn">Create Account</button>
-</form>
+            <input id="i_agree" type="checkbox" name="i_agree" class="signup-agree">
+            <label for="i_agree" class="signup-agree">
+                I agree to <a href="#">Term of Service</a> and <a href="#">Privacy Policy</a>
+            </label>
+    
+            <p class="signin-invitation">Already a member? <a href="/accounts/login/">Sign in</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    new Helper();
+</script>
+
 {% endblock %}
