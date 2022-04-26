@@ -1,0 +1,35 @@
+{% extends "packages/layout.html" %}
+
+{% block package_content %}
+<div class="package-versions-container">
+    <div class="package-version-header">
+        <div class="package-version-summary">All <b>{{versions|length}} versions</b> of async-stripe since <b>{{package_version.created_at | date(format="%B %d, %Y")}}</b></div>
+        <div class="package-version-sort">
+            <label for="versions-sort">Sort by</label>
+            <select name="versions-sort" class="versions-sort" data-url="/packages/{{package.name}}/versions" data-sort="{{sort_type}}">
+                <option value="latest">Latest</option>
+                <option value="oldest">Oldest</option>
+                <option value="most_downloads">Most Downloads</option>
+            </select>
+            <div class="versions-sort-chevron"></div>
+        </div>
+    </div>
+
+    <div class="package-version-list">
+        {% for version in versions %}
+        <a href="/packages/{{package.name}}?version={{version.version}}">
+            <div class="package-version-item">
+                <div class="package-version-number">{{version.version}}</div>
+                <div class="package-version-timeline">
+                    <div class="package-version-icon"></div>
+                    <time class="package-version-time" datetime="{{version.created_at}}">{{version.created_at}}</time>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+<script>
+    new PackageVersions();
+</script>
+{% endblock %}
