@@ -711,8 +711,8 @@ mod tests {
 
         let url = &"https://github.com/eadungn/taohe".to_string();
         let rev_ = &"30d4792b29330cf701af04b493a38a82102ed4fd".to_string();
-        let pkid = Package::create_test_package(
-            &"Test pack".to_string(),
+        let package_id_ = Package::create_test_package(
+            &"Test package".to_string(),
             url,
             &"".to_string(),
             &"".to_string(),
@@ -722,6 +722,12 @@ mod tests {
             100,
             &DB_POOL
         ).await.unwrap();
+        let packages_before = PackageVersion
+        ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
+            .await.unwrap();
+        let package_before = packages_before.first().unwrap();
+        // let updated_package = updated_package.first().unwrap();
+        assert_eq!(package_before.downloads_count, 0);
 
         let mut mock_github_service = GithubService::new();
 
@@ -732,24 +738,24 @@ mod tests {
                 readme_content: "first_readme_content".to_string(),
             }));
 
-        let _ = Package::increment_download(url, rev_, &mock_github_service, &DB_POOL).await;
-        let _ = Package::increment_download(url, rev_, &mock_github_service, &DB_POOL).await;
-        let updated_package = PackageVersion
-            ::from_package_id(pkid, &PackageVersionSort::Latest, &DB_POOL)
+        Package::increment_download(url, rev_, &mock_github_service, &DB_POOL).await.unwrap();
+        Package::increment_download(url, rev_, &mock_github_service, &DB_POOL).await.unwrap();
+        let packages_after = PackageVersion
+            ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
             .await.unwrap();
-        let updated_package = updated_package.first().unwrap();
-        assert_eq!(updated_package.downloads_count, 2);
+        let package_after = packages_after.first().unwrap();
+        assert_eq!(package_after.downloads_count, 2);
 
         let _ = Package::increment_download(
             &"git@github.com:eadungn/taohe.git".to_string(), 
             rev_,
             &mock_github_service,
             &DB_POOL).await;
-        let updated_package = PackageVersion
-            ::from_package_id(pkid, &PackageVersionSort::Latest, &DB_POOL)
+        let packages_after = PackageVersion
+            ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
             .await.unwrap();
-        let updated_package = updated_package.first().unwrap();
-        assert_eq!(updated_package.downloads_count, 3);
+        let package_after = packages_after.first().unwrap();
+        assert_eq!(package_after.downloads_count, 3);
     }
 
     #[actix_rt::test]
@@ -768,33 +774,44 @@ mod tests {
                 readme_content: "first_readme_content".to_string(),
             }));
 
-        let before = packages
+        let rev_not_existed = package_versions
+            .filter(rev.eq(rev_))
+            .count()
+            .get_result::<i64>(&DB_POOL.get().unwrap())
+            .unwrap();
+        assert_eq!(rev_not_existed, 0);
+
+        let package_before = packages
             .select(diesel::dsl::count(packages::id))
             .first::<i64>(&DB_POOL.get().unwrap())
             .unwrap();
-        assert_eq!(before, 0);
+        let package_version_before = package_versions
+            .select(diesel::dsl::count(package_versions::id))
+            .first::<i64>(&DB_POOL.get().unwrap())
+            .unwrap();
+        assert_eq!(package_before, 0);
+        assert_eq!(package_version_before, 0);
 
-        let _ = Package::increment_download(url, rev_, &mock_github_service, &DB_POOL).await;
-        let _ = Package::increment_download(url, rev_, &mock_github_service, &DB_POOL).await;
+        Package::increment_download(url, rev_, &mock_github_service, &DB_POOL).await.unwrap();
+        Package::increment_download(url, rev_, &mock_github_service, &DB_POOL).await.unwrap();
 
-        let after = packages
+        let package_after = packages
             .select(diesel::dsl::count(packages::id))
             .first::<i64>(&DB_POOL.get().unwrap())
             .unwrap();
-        assert_eq!(after, 1);
+        let package_version_after = package_versions
+            .select(diesel::dsl::count(package_versions::id))
+            .first::<i64>(&DB_POOL.get().unwrap())
+            .unwrap();
+        assert_eq!(package_after, 1);
+        assert_eq!(package_version_after, 1);
 
-        let rev_exists = package_versions
+        let rev_existed = package_versions
             .filter(rev.eq(rev_))
             .count()
             .execute(&DB_POOL.get().unwrap())
             .unwrap();
-        assert_eq!(rev_exists, 1);
-    
-        let updated_package = PackageVersion
-            ::from_package_id(1, &PackageVersionSort::Latest, &DB_POOL)
-            .await.unwrap();
-        let updated_package = updated_package.first().unwrap();
-        assert_eq!(updated_package.downloads_count, 2);
+        assert_eq!(rev_existed, 1);
     }
 }
 
