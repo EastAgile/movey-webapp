@@ -120,7 +120,8 @@ class AutoComplete {
       this.currentChoiceIndex =
         pChoiceIndex + 1 < noSuggestions ? pChoiceIndex + 1 : -1;
     } else if (key === "Enter") {
-      pChoiceIndex !== -1 && pChoice.click();
+      //pChoiceIndex !== -1 && pChoice.click();
+      window.location.href = '/search_results?query='+input.value;
       return;
     }
 
@@ -146,7 +147,7 @@ class AutoComplete {
       } else {
         try {
           let suggestions = await this.getSuggestions(e.target.value);
-          suggestions.length > 0 ? this.suggestions = this.suggestions = suggestions : this.suggestions = [NO_MATCHES_FOUND];
+          suggestions.length > 0 ? this.suggestions = suggestions : this.suggestions = [NO_MATCHES_FOUND];
         } catch (error) {
           this.suggestions = [NO_MATCHES_FOUND];
         }
@@ -171,6 +172,7 @@ class AutoComplete {
         <input
           class="gray"
           type="text"
+          id="search-bar"
           placeholder="${this.placeholder}"
         />
         
@@ -184,9 +186,7 @@ class AutoComplete {
     const input = this.container.querySelector("input");
     const button = this.container.querySelector("button");
     button.addEventListener("click", () => {
-      input.value = "";
-      this.suggestions = [];
-      this.reDisplay();
+      window.location.href = '/search_results?query='+input.value;
     });
   }
 }

@@ -3,7 +3,7 @@ use jelly::actix_web::web::{get, resource, scope, ServiceConfig};
 pub mod models;
 pub mod views;
 
-pub use models::{Package, PackageSort, PackageVersion, PackageVersionSort, NewPackage, NewPackageVersion};
+pub use models::{Package, PackageVersion, PackageVersionSort, NewPackage, NewPackageVersion};
 
 pub fn configure(config: &mut ServiceConfig) {
     config.service(
@@ -13,12 +13,12 @@ pub fn configure(config: &mut ServiceConfig) {
                     .route(get().to(views::controller::show_package_versions)),
             )
             .service(
-                resource("/{package_name}")
-                    .route(get().to(views::controller::show_package)),
+                resource("/search")
+                    .route(get().to(views::controller::show_search_results)),
             )
             .service(
-                resource("/search/")
-                    .route(get().to(views::controller::show_search_results)),
+                resource("/{package_name}")
+                    .route(get().to(views::controller::show_package)),
             )
     );
 }

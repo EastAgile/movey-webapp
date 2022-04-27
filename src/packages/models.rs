@@ -1,8 +1,8 @@
 use diesel::prelude::*;
-use diesel::sql_types::Text;
+use diesel::sql_types::{Text, Integer, Timestamptz};
 use diesel::{sql_query, AsChangeset, Identifiable, Insertable, Queryable};
 
-use jelly::chrono::{DateTime, Utc, TimeZone};
+use jelly::chrono::{DateTime, NaiveDateTime, Utc};
 use jelly::error::Error;
 use jelly::serde::{Deserialize, Serialize};
 use jelly::DieselPgPool;
@@ -30,10 +30,21 @@ pub struct Package {
 }
 
 #[derive(Debug, Serialize, Deserialize, QueryableByName)]
-#[table_name = "packages"]
 pub struct PackageSearchResult {
+    #[sql_type = "Integer"]
+    pub id: i32,
+    #[sql_type = "Text"]
     pub name: String,
+    #[sql_type = "Text"]
     pub description: String,
+    #[sql_type = "Integer"]
+    pub total_downloads_count: i32,
+    #[sql_type = "Timestamptz"]
+    pub created_at: NaiveDateTime,
+    #[sql_type = "Timestamptz"]
+    pub updated_at: NaiveDateTime,
+    #[sql_type = "Text"]
+    pub version: String,
 }
 
 #[derive(Insertable)]
@@ -44,14 +55,18 @@ pub struct NewPackage {
     pub repository_url: String,
 }
 
+#[derive(Serialize, Deserialize)]
+pub enum PackageSortField {
+    name,
+    description,
+    most_downloads,
+    newly_added
+}
 
 #[derive(Serialize, Deserialize)]
-pub enum PackageSort {
-    Name,
-    // Description,
-    // Summary,
-    MostDownloads,
-    NewlyAdded
+pub enum PackageSortOrder {
+    asc,
+    desc
 }
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset, Clone)]
@@ -147,47 +162,41 @@ impl Package {
     }
     pub async fn auto_complete_search(search_query: &str, pool: &DieselPgPool) -> Result<Vec<String>, Error> {
         let connection = pool.get()?;
-        let mut percent = String::from("%");
-        percent.push_str(&search_query);
-        percent.push_str("%");
-        return Ok(packages.filter(name.like(percent)).select(packages::name).load::<String>(&connection)?);
+        return Ok(packages
+            .filter(name.ilike(format!("{}{}{}", "%", search_query, "%")))
+            .select(packages::name)
+            .load::<String>(&connection)?);
     }
 
-    pub async fn search_by_name(query: &String, sort_type: &PackageSort, pool: &DieselPgPool) -> Result<Vec<Package>, Error> {
+    pub async fn search(search_query: &str, sort_field: &PackageSortField, sort_order: &PackageSortOrder, pool: &DieselPgPool) -> Result<Vec<PackageSearchResult>, Error> {
         let connection = pool.get()?;
-        let package_list = packages.filter(name.ilike(format!("%{}%", query)));
-        let records = match sort_type {
-            PackageSort::Name => {
-                package_list.order_by(packages::dsl::name.asc()).load::<Package>(&connection)?
-            }
-            // PackageSort::Description => {
-            //     package_list.order_by(packages::dsl::description.asc()).load::<Package>(&connection)?
-            // }
-            PackageSort::MostDownloads => {
-                package_list.order_by(packages::dsl::total_downloads_count.desc()).load::<Package>(&connection)?
-            }
-            PackageSort::NewlyAdded => {
-                package_list.order_by(packages::dsl::id.desc()).load::<Package>(&connection)?
-            }
+        let field = match sort_field {
+            PackageSortField::name => "name",
+            PackageSortField::description => "description",
+            PackageSortField::most_downloads => "total_downloads_count",
+            PackageSortField::newly_added => "updated_at"
         };
+        let order = match sort_order {
+            PackageSortOrder::asc => "ASC",
+            PackageSortOrder::desc => "DESC",
+        };
+        let order_query = format!("ORDER BY {} {}", field, order);
+        let search_query: &str = &search_query.split(" ").collect::<Vec<&str>>().join(" & ");
 
-        Ok(records)
-    pub async fn search(search_query: &str, pool: &DieselPgPool) -> Result<Vec<String>, Error> {
-        let connection = pool.get()?;
-        let search_query = &search_query.split(" ").collect::<Vec<&str>>().join(" & ");
         let matched_packages: Vec<PackageSearchResult> = sql_query(
-            "SELECT name, description \
-                           FROM packages \
-                           WHERE tsv @@ to_tsquery($1)\
-                           ORDER BY ts_rank(tsv, to_tsquery($1), 2) DESC",
+            format!("SELECT packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, max(version) version
+                           FROM packages
+                           INNER JOIN package_versions
+                           ON packages.id = package_versions.package_id
+                           WHERE tsv @@ to_tsquery($1)
+                           GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at
+                           {}", order_query
+            ),
         )
         .bind::<Text, _>(search_query)
         .load(&connection)
         .unwrap();
-        return Ok(matched_packages
-            .into_iter()
-            .map(|package| package.name)
-            .collect());
+        return Ok(matched_packages);
     }
 }
 
@@ -243,32 +252,18 @@ mod tests {
     async fn setup() -> Result<(), Error> {
         let pool = &DB_POOL;
         let connection = pool.get()?;
-        let new_package = NewPackage {
-            name: "The first package 1".to_string(),
-            description: "description 1".to_string(),
-            repository_url: "".to_string(),
-        };
-        diesel::insert_into(packages::table)
-            .values(new_package)
-            .get_result::<Package>(&connection)?;
-
-        let new_package = NewPackage {
-            name: "The first Diva".to_string(),
-            description: "randomly picked, and changes some".to_string(),
-            repository_url: "".to_string(),
-        };
-        diesel::insert_into(packages::table)
-            .values(new_package)
-            .get_result::<Package>(&connection)?;
-
-        let new_package = NewPackage {
-            name: "Charles Diya".to_string(),
-            description: "randomly picked, and changes some".to_string(),
-            repository_url: "".to_string(),
-        };
-        diesel::insert_into(packages::table)
-            .values(new_package)
-            .get_result::<Package>(&connection)?;
+        Package::create_test_package(&"The first package".to_string(), &"".to_string(),
+                                     &"description 1".to_string(), &"1.0.0".to_string(),
+                                     &"".to_string(), &"".to_string(),
+                                     0, 0, &pool).await;
+        Package::create_test_package(&"The first Diva".to_string(), &"".to_string(),
+                                     &"randomly picked, and changes some".to_string(), &"1.0.0".to_string(),
+                                     &"".to_string(), &"".to_string(),
+                                     0, 0, &pool).await;
+        Package::create_test_package(&"Charles Diya".to_string(), &"".to_string(),
+                                     &"randomly picked, and changes some".to_string(), &"1.0.0".to_string(),
+                                     &"".to_string(), &"".to_string(),
+                                     0, 0, &pool).await;
         Ok(())
     }
 
@@ -279,15 +274,18 @@ mod tests {
         setup().await;
         let pool = &DB_POOL;
         let search_query = "package";
-        let search_result = Package::search(search_query, pool).await.unwrap();
+        let search_result = Package::search(
+            search_query, &PackageSortField::name,
+            &PackageSortOrder::desc, pool
+        ).await.unwrap();
         assert_eq!(search_result.len(), 1);
         let result = search_result.iter();
         let mut is_found = false;
-        for package_name in result {
-            if package_name == "The first package 1" {
+        for package in result {
+            if package.name == "The first package" {
                 is_found = true;
             }
-            if package_name == "Charles Diya" {
+            if package.name == "Charles Diya" {
                 panic!()
             }
         }
@@ -301,15 +299,18 @@ mod tests {
         setup().await;
         let pool = &DB_POOL;
         let search_query = "the package";
-        let search_result = Package::search(search_query, pool).await.unwrap();
+        let search_result = Package::search(
+            search_query, &PackageSortField::name,
+            &PackageSortOrder::desc, pool
+        ).await.unwrap();
         assert_eq!(search_result.len(), 1);
         let result = search_result.iter();
         let mut is_found = false;
-        for package_name in result {
-            if package_name == "The first package 1" {
+        for package in result {
+            if package.name == "The first package" {
                 is_found = true;
             }
-            if package_name == "Charles Diya" {
+            if package.name == "Charles Diya" {
                 panic!()
             }
         }
@@ -323,14 +324,16 @@ mod tests {
         setup().await;
         let pool = &DB_POOL;
         let search_query = "first";
-        let search_result = Package::search(search_query, pool).await.unwrap();
+        let search_result = Package::search(
+            search_query, &PackageSortField::name,
+            &PackageSortOrder::desc,pool).await.unwrap();
         assert_eq!(search_result.len(), 2);
         let result = search_result.iter();
-        for package_name in result {
-            if package_name != "The first package 1" && package_name != "The first Diva" {
+        for package in result {
+            if package.name != "The first package" && package.name != "The first Diva" {
                 panic!()
             }
-            if package_name == "Charles Diya" {
+            if package.name == "Charles Diya" {
                 panic!()
             }
         }

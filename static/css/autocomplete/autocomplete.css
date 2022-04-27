@@ -4,7 +4,7 @@
   font-weight: bold !important;
   left: 1px;
   float: left;
-  padding: 14px;
+  padding: 17px;
   line-height: 0;
   border: none;
   cursor: pointer;
@@ -50,7 +50,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
 }
 
 .autocomplete-shadow {

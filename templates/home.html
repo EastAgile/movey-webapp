@@ -58,7 +58,7 @@
           keyword.length >= 3 ? $.ajax({
             type: 'POST',
             dataType:"json",
-            url: '/api/v1/search_package/',
+            url: '/api/v1/autocomplete',
             contentType: "application/json",
             processData: false,
             headers:{},
@@ -67,11 +67,11 @@
               return data
             },
             error: function(xhr, status, errorThrown){
-              console.log('error: ', errorThrown);
+              return errorThrown
             },
           }) : {};
   const selectSuggestion = (suggestion) =>
-          alert(JSON.stringify(suggestion));
+          window.location.href = '/packages/'+suggestion;
   window.addEventListener('DOMContentLoaded', () => {
     // Now safely manipulate DOM
     new AutoComplete(

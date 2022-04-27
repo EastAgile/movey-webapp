@@ -29,7 +29,16 @@ pub async fn post_package(
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     let service = GithubService::new();
-    Package::create(&res.github_repo_url, &res.description, &res.rev, res.total_files, res.total_size, &service, &db).await?;
+    Package::create(
+        &res.github_repo_url,
+        &res.description,
+        &res.rev,
+        res.total_files,
+        res.total_size,
+        &service,
+        &db,
+    )
+    .await?;
 
     Ok(HttpResponse::Ok().body(""))
 }
@@ -39,6 +48,6 @@ pub async fn search_package(
     res: web::Json<PackageSearch>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    let packages = Package::search(&res.search_query, &db).await?;
+    let packages = Package::auto_complete_search(&res.search_query, &db).await?;
     Ok(HttpResponse::Ok().json(packages))
 }
