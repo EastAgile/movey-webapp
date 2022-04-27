@@ -33,6 +33,7 @@ pub struct Package {
 #[table_name = "packages"]
 pub struct PackageSearchResult {
     pub name: String,
+    pub description: String,
 }
 
 #[derive(Insertable)]
@@ -134,12 +135,19 @@ impl Package {
 
         Ok(result)
     }
+    pub async fn auto_complete_search(search_query: &str, pool: &DieselPgPool) -> Result<Vec<String>, Error> {
+        let connection = pool.get()?;
+        let mut percent = String::from("%");
+        percent.push_str(&search_query);
+        percent.push_str("%");
+        return Ok(packages.filter(name.like(percent)).select(packages::name).load::<String>(&connection)?);
+    }
 
     pub async fn search(search_query: &str, pool: &DieselPgPool) -> Result<Vec<String>, Error> {
         let connection = pool.get()?;
         let search_query = &search_query.split(" ").collect::<Vec<&str>>().join(" & ");
         let matched_packages: Vec<PackageSearchResult> = sql_query(
-            "SELECT name \
+            "SELECT name, description \
                            FROM packages \
                            WHERE tsv @@ to_tsquery($1)\
                            ORDER BY ts_rank(tsv, to_tsquery($1), 2) DESC",
