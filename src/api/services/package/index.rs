@@ -58,7 +58,7 @@ pub async fn increment_download(request: HttpRequest, query: web::Query<Download
     let rev_ = query.rev;
     let _subdir = query.subdir;
 
-    if let Ok(res) = Package::increment_download(&url, &rev_, &service, &db).await {
+    if let Ok(res) = Package::increase_download_count(&url, &rev_, &service, &db).await {
         Ok(HttpResponse::Ok().body(res.to_string()))
     }
     else {

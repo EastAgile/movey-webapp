@@ -205,7 +205,7 @@ impl Package {
         Ok(result)
     }
 
-    pub async fn increment_download(
+    pub async fn increase_download_count(
         url: &String, 
         rev_: &String,
         service: &GithubService,
@@ -709,7 +709,7 @@ mod tests {
     }
 
     #[actix_rt::test]
-    async fn increment_download_works() {
+    async fn increase_download_count_works() {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
 
@@ -726,12 +726,12 @@ mod tests {
             100,
             &DB_POOL
         ).await.unwrap();
-        let packages_before = PackageVersion
+
+        let package_versions_before = PackageVersion
         ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
             .await.unwrap();
-        let package_before = packages_before.first().unwrap();
-        // let updated_package = updated_package.first().unwrap();
-        assert_eq!(package_before.downloads_count, 0);
+        let package_version_before = package_versions_before.first().unwrap();
+        assert_eq!(package_version_before.downloads_count, 0);
 
         let mut mock_github_service = GithubService::new();
 
@@ -742,28 +742,28 @@ mod tests {
                 readme_content: "first_readme_content".to_string(),
             }));
 
-        Package::increment_download(url, rev_, &mock_github_service, &DB_POOL).await.unwrap();
-        Package::increment_download(url, rev_, &mock_github_service, &DB_POOL).await.unwrap();
-        let packages_after = PackageVersion
+        Package::increase_download_count(url, rev_, &mock_github_service, &DB_POOL).await.unwrap();
+        Package::increase_download_count(url, rev_, &mock_github_service, &DB_POOL).await.unwrap();
+        let package_versions_after = PackageVersion
             ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
             .await.unwrap();
-        let package_after = packages_after.first().unwrap();
-        assert_eq!(package_after.downloads_count, 2);
+        let package_version_after = package_versions_after.first().unwrap();
+        assert_eq!(package_version_after.downloads_count, 2);
 
-        let _ = Package::increment_download(
+        let _ = Package::increase_download_count(
             &"git@github.com:eadungn/taohe.git".to_string(), 
             rev_,
             &mock_github_service,
             &DB_POOL).await;
-        let packages_after = PackageVersion
+        let package_versions_after = PackageVersion
             ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
             .await.unwrap();
-        let package_after = packages_after.first().unwrap();
-        assert_eq!(package_after.downloads_count, 3);
+        let package_version_after = package_versions_after.first().unwrap();
+        assert_eq!(package_version_after.downloads_count, 3);
     }
 
     #[actix_rt::test]
-    async fn increment_download_for_nonexistent_package() {
+    async fn increase_download_count_for_nonexistent_package() {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
 
@@ -796,8 +796,8 @@ mod tests {
         assert_eq!(package_before, 0);
         assert_eq!(package_version_before, 0);
 
-        Package::increment_download(url, rev_, &mock_github_service, &DB_POOL).await.unwrap();
-        Package::increment_download(url, rev_, &mock_github_service, &DB_POOL).await.unwrap();
+        Package::increase_download_count(url, rev_, &mock_github_service, &DB_POOL).await.unwrap();
+        Package::increase_download_count(url, rev_, &mock_github_service, &DB_POOL).await.unwrap();
 
         let package_after = packages
             .select(diesel::dsl::count(packages::id))
@@ -836,7 +836,7 @@ mod tests {
             &DB_POOL
         ).await.unwrap();
         PackageVersion::create(
-            1, String::from(""), String::from(""),
+            package_id_, String::from(""), String::from(""),
             rev2.clone(), 40, 200, &DB_POOL
         ).await.unwrap();
 
@@ -849,29 +849,35 @@ mod tests {
                 readme_content: "first_readme_content".to_string(),
             }));
 
-        Package::increment_download(&url, &rev1, &mock_github_service, &DB_POOL).await.unwrap();
-        Package::increment_download(&url, &rev2, &mock_github_service, &DB_POOL).await.unwrap();
-        let packages_after = PackageVersion
+        let package_versions_before = PackageVersion
+        ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
+            .await.unwrap();
+        for package_version_before in package_versions_before {
+            assert_eq!(package_version_before.downloads_count, 0);
+        }
+        Package::increase_download_count(&url, &rev1, &mock_github_service, &DB_POOL).await.unwrap();
+        Package::increase_download_count(&url, &rev2, &mock_github_service, &DB_POOL).await.unwrap();
+        let package_versions_after = PackageVersion
             ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
             .await.unwrap();
-        for package_after in packages_after {
-            assert_eq!(package_after.downloads_count, 1);
+        for package_version_after in package_versions_after {
+            assert_eq!(package_version_after.downloads_count, 1);
         }
-        let package_total_downloads = Package::get(1, &DB_POOL).await.unwrap().total_downloads_count;
+        let package_total_downloads = Package::get(package_id_, &DB_POOL).await.unwrap().total_downloads_count;
         assert_eq!(package_total_downloads, 2);
 
-        Package::increment_download(
+        Package::increase_download_count(
             &"git@github.com:eadungn/taohe.git".to_string(), 
             &rev2,
             &mock_github_service,
             &DB_POOL).await.unwrap();
-        let packages_after = PackageVersion
+        let package_versions_after = PackageVersion
             ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
             .await.unwrap();
-        let package_after = packages_after.first().unwrap();
-        assert_eq!(package_after.downloads_count, 2);
-        let package_after = packages_after.last().unwrap();
-        assert_eq!(package_after.downloads_count, 1);
+        let first_package_version_after = package_versions_after.first().unwrap();
+        assert_eq!(first_package_version_after.downloads_count, 2);
+        let second_package_version_after = package_versions_after.last().unwrap();
+        assert_eq!(second_package_version_after.downloads_count, 1);
         let package_total_downloads = Package::get(1, &DB_POOL).await.unwrap().total_downloads_count;
         assert_eq!(package_total_downloads, 3);
     }
