@@ -233,12 +233,11 @@ impl Package {
                     .filter(package_id.eq(package_id_).and(rev.eq(rev_)))
                     .select(package_versions::id)
                     .first::<i32>(&connection);
-    
-                let github_data = service.fetch_repo_data(&https_url)?;
 
                 match package_version_id {
                     Ok(_) => (),
                     Err(NotFound) => {
+                        let github_data = service.fetch_repo_data(&https_url)?;
                         PackageVersion::create(
                             package_id_, 
                             github_data.name,
@@ -266,9 +265,14 @@ impl Package {
             Err(e) => { return Err(Error::Database(e)); }
         };
 
-        let changed_rows = diesel::update(package_versions)
+        let mut changed_rows = diesel::update(package_versions)
             .filter(package_id.eq(package_id_).and(rev.eq(rev_)))
             .set(downloads_count.eq(downloads_count + 1))
+            .execute(&connection)?;
+
+        changed_rows += diesel::update(packages)
+            .filter(packages::id.eq(package_id_))
+            .set(total_downloads_count.eq(total_downloads_count + 1))
             .execute(&connection)?;
 
         Ok(changed_rows)
@@ -812,6 +816,64 @@ mod tests {
             .execute(&DB_POOL.get().unwrap())
             .unwrap();
         assert_eq!(rev_existed, 1);
+    }
+
+    #[actix_rt::test]
+    async fn increment_download_for_multiple_versions() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+
+        let url = "https://github.com/eadungn/taohe".to_string();
+        let rev1 = "30d4792b29330cf701af04b493a38a82102ed4fd".to_string();
+        let rev2 = "fe66d6c60a3765c322edbcfa9b63650593971a28".to_string();
+        let package_id_ = Package::create_test_package(
+            &"Test package".to_string(), &url,
+            &"".to_string(),
+            &"".to_string(),
+            &"".to_string(),
+            &rev1,
+            20, 100,
+            &DB_POOL
+        ).await.unwrap();
+        PackageVersion::create(
+            1, String::from(""), String::from(""),
+            rev2.clone(), 40, 200, &DB_POOL
+        ).await.unwrap();
+
+        let mut mock_github_service = GithubService::new();
+
+        mock_github_service.expect_fetch_repo_data()
+            .returning(|_| Ok(GithubRepoData {
+                name: "name".to_string(),
+                version: "first_version".to_string(),
+                readme_content: "first_readme_content".to_string(),
+            }));
+
+        Package::increment_download(&url, &rev1, &mock_github_service, &DB_POOL).await.unwrap();
+        Package::increment_download(&url, &rev2, &mock_github_service, &DB_POOL).await.unwrap();
+        let packages_after = PackageVersion
+            ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
+            .await.unwrap();
+        for package_after in packages_after {
+            assert_eq!(package_after.downloads_count, 1);
+        }
+        let package_total_downloads = Package::get(1, &DB_POOL).await.unwrap().total_downloads_count;
+        assert_eq!(package_total_downloads, 2);
+
+        Package::increment_download(
+            &"git@github.com:eadungn/taohe.git".to_string(), 
+            &rev2,
+            &mock_github_service,
+            &DB_POOL).await.unwrap();
+        let packages_after = PackageVersion
+            ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
+            .await.unwrap();
+        let package_after = packages_after.first().unwrap();
+        assert_eq!(package_after.downloads_count, 2);
+        let package_after = packages_after.last().unwrap();
+        assert_eq!(package_after.downloads_count, 1);
+        let package_total_downloads = Package::get(1, &DB_POOL).await.unwrap().total_downloads_count;
+        assert_eq!(package_total_downloads, 3);
     }
 }
 
