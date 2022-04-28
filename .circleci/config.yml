@@ -6,18 +6,19 @@ orbs:
 jobs:
   build:
     docker:
-      - image: cimg/rust:1.59.0
+      - image: cimg/rust:1.60.0
       - image: cimg/postgres:14.0
         environment:
           POSTGRES_USER: circleci
           POSTGRES_HOST_AUTH_METHOD: trust
     steps:
       - checkout
-      - run: cargo --version
+      - run: rustup component add llvm-tools-preview
+      - run: cargo install cargo-llvm-cov
       - run: cargo install diesel_cli --no-default-features --features "postgres"
-      - run:
-          name: Run Unit Tests
-          command: "cargo test --lib --features test -- --test-threads=1"
+      - run: cargo install coveralls
+      - run: cargo install grcov
+
       - run:
           name: Setup test server for integration tests
           command: "DATABASE_URL=$DATABASE_URL_TEST diesel setup && PORT=17002 cargo run --features test"
@@ -28,6 +29,10 @@ jobs:
           name: Start chromedriver
           command: chromedriver --port=4444
           background: true
-      - run:
-          name: Run Integration Tests
-          command: "cargo test --features test --test integration_tests -- --concurrency 1"
+
+      # Run tests and merge coverage
+      - run: cargo llvm-cov clean --workspace
+      - run: RUSTFLAGS="-C instrument-coverage" LLVM_PROFILE_FILE="movey-%m.profraw" cargo test --lib --features test -- --test-threads=1
+      - run: RUSTFLAGS="-C instrument-coverage" LLVM_PROFILE_FILE="movey-%m.profraw" cargo test --features test --test integration_tests -- --concurrency 1
+      - run: grcov . --binary-path ./target/debug/ -t coveralls --keep-only "src/*" --keep-only "tests/*" -s . --token $COVERALLS_REPO_TOKEN > coveralls.json
+      - run: coveralls --input coveralls.json circleci
