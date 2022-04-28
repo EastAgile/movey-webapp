@@ -1,5 +1,5 @@
 use cucumber::{given, then, when};
-use jelly::forms::{EmailField, PasswordField, TextField};
+use jelly::forms::{EmailField, PasswordField};
 use mainlib::accounts::forms::NewAccountForm;
 use mainlib::accounts::Account;
 use mainlib::test::DB_POOL;
@@ -196,7 +196,7 @@ async fn signed_in(world: &mut TestWorld) {
         .find_element(By::XPath("/html/body/div/p"))
         .await.unwrap();
     let welcome_text = welcome.text().await.unwrap();
-    assert_eq!(welcome_text, "Welcome back");
+    assert!(welcome_text.contains("Welcome back"));
 
     world.driver
         .find_element(By::XPath("/html/body/form"))

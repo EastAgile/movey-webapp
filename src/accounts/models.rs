@@ -180,9 +180,72 @@ impl NewAccount {
 mod tests {
     use super::*;
     use crate::test::{DatabaseTestContext, DB_POOL};
+    use jelly::forms::{EmailField, PasswordField};
     use diesel::result::DatabaseErrorKind;
     use diesel::result::Error::DatabaseError;
-    use jelly::forms::{EmailField, PasswordField};
+
+    async fn setup_user() -> i32 {
+        let form = NewAccountForm {
+            email: EmailField {
+                value: "email@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        };
+        Account::register(&form, &DB_POOL).await.unwrap()
+    }
+
+    #[actix_rt::test]
+    async fn authenticate_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        let uid = setup_user().await;
+
+        let login_form = LoginForm {
+            email: EmailField {
+                value: "email@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+            remember_me: "off".to_string(),
+            redirect: "".to_string(),
+        };
+        let user = Account::authenticate(&login_form, &DB_POOL).await.unwrap();
+        assert_eq!(user.id, uid);
+    }
+
+    #[actix_rt::test]
+    async fn authenticate_with_wrong_password_return_err() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        let _uid = setup_user().await;
+
+        let login_form = LoginForm {
+            email: EmailField {
+                value: "email@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "wrongpassword".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+            remember_me: "off".to_string(),
+            redirect: "".to_string(),
+        };
+        match Account::authenticate(&login_form, &DB_POOL).await {
+            Err(Error::InvalidPassword) => (),
+            _ => panic!(),
+        }
+    }
 
     #[actix_rt::test]
     async fn register_works() {
@@ -227,6 +290,7 @@ mod tests {
             _ => panic!(),
         }
     }
+
     #[actix_rt::test]
     async fn register_with_empty_email_throws_exception() {
         crate::test::init();
@@ -246,45 +310,9 @@ mod tests {
         assert!(result.is_err());
         match result {
             Err(Error::Database(DatabaseError(DatabaseErrorKind::__Unknown, _))) => (),
+
             _ => panic!(),
         }
-    }
-    async fn setup_user() -> i32 {
-        let form = NewAccountForm {
-            email: EmailField {
-                value: "email@host.com".to_string(),
-                errors: vec![],
-            },
-            password: PasswordField {
-                value: "So$trongpas0word!".to_string(),
-                errors: vec![],
-                hints: vec![],
-            },
-        };
-        Account::register(&form, &DB_POOL).await.unwrap()
-    }
-
-    #[actix_rt::test]
-    async fn authenticate_works() {
-        crate::test::init();
-        let _ctx = DatabaseTestContext::new();
-        let uid = setup_user().await;
-
-        let login_form = LoginForm {
-            email: EmailField {
-                value: "email@host.com".to_string(),
-                errors: vec![],
-            },
-            password: PasswordField {
-                value: "So$trongpas0word!".to_string(),
-                errors: vec![],
-                hints: vec![],
-            },
-            remember_me: "off".to_string(),
-            redirect: "".to_string(),
-        };
-        let user = Account::authenticate(&login_form, &DB_POOL).await.unwrap();
-        assert_eq!(user.id, uid);
     }
 
     #[actix_rt::test]
@@ -311,51 +339,4 @@ mod tests {
             _ => panic!(),
         }
     }
-    #[actix_rt::test]
-    async fn authenticate_with_wrong_password_return_err() {
-        crate::test::init();
-        let _ctx = DatabaseTestContext::new();
-        let _uid = setup_user().await;
-
-        let login_form = LoginForm {
-            email: EmailField {
-                value: "email@host.com".to_string(),
-                errors: vec![],
-            },
-            password: PasswordField {
-                value: "wrongpassword".to_string(),
-                errors: vec![],
-                hints: vec![],
-            },
-            remember_me: "off".to_string(),
-            redirect: "".to_string(),
-        };
-        match Account::authenticate(&login_form, &DB_POOL).await {
-            Err(Error::InvalidPassword) => (),
-            _ => panic!(),
-        }
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
