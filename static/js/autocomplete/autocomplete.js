@@ -121,7 +121,7 @@ class AutoComplete {
         pChoiceIndex + 1 < noSuggestions ? pChoiceIndex + 1 : -1;
     } else if (key === "Enter") {
       //pChoiceIndex !== -1 && pChoice.click();
-      window.location.href = '/search_results?query='+input.value;
+      window.location.href = '/packages/search?query='+input.value;
       return;
     }
 
@@ -186,7 +186,7 @@ class AutoComplete {
     const input = this.container.querySelector("input");
     const button = this.container.querySelector("button");
     button.addEventListener("click", () => {
-      window.location.href = '/search_results?query='+input.value;
+      window.location.href = '/packages/search?query='+input.value;
     });
   }
 }

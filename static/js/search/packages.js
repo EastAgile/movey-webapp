@@ -13,7 +13,7 @@ class Packages {
 
         this.sortElement.on('change', function(e) {
             const $elem = $(e.currentTarget);
-            window.location = $elem.data('url') + '&sort_type=' + $elem.val();
+            window.location = $elem.data('url') + '&field=' + $elem.val();
         });
         $('.right-wrapper time').timeago();
         $('.right-wrapper time').prepend("Updated ");
