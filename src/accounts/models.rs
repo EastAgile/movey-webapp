@@ -186,7 +186,6 @@ mod tests {
 
     async fn setup_user() -> i32 {
         let form = NewAccountForm {
-            name: Default::default(),
             email: EmailField {
                 value: "email@host.com".to_string(),
                 errors: vec![],

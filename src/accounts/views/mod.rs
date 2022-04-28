@@ -19,14 +19,13 @@ pub async fn logout(request: HttpRequest) -> Result<HttpResponse> {
     if let Some(_) = request.cookie("remember_me_token") {
         return Ok(HttpResponse::Found()
             .header(header::SET_COOKIE, "remember_me_token=\"\"; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT")
-			.header(header::SET_COOKIE, "sign_out=true; Path=/; Max-Age=10")
-            .header(header::LOCATION, "/")
+            .header(header::LOCATION, "/accounts/login/")
             .finish()
         );
     }
     Ok(HttpResponse::Found()
         .header(header::SET_COOKIE, "sign_out=true; Path=/; Max-Age=10")
-        .header(header::LOCATION, "/accounts/register/")
+        .header(header::LOCATION, "/accounts/login/")
         .finish()
     )
 }

@@ -5,7 +5,6 @@ use jelly::request::{Authentication, DatabasePool};
 use jelly::Result;
 use oauth2::{
     basic::BasicClient,
-    http::header,
     CsrfToken, Scope,
 };
 

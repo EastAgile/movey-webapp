@@ -4,7 +4,7 @@ use thirtyfour::prelude::*;
 use super::super::world::TestWorld;
 
 #[given("I am a guest / unregistered user")]
-async fn a_guest_user(world: &mut TestWorld) {
+async fn a_guest_user(_world: &mut TestWorld) {
 }
 
 #[when("I access the Movey website")]

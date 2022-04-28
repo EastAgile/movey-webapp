@@ -13,6 +13,7 @@
 
 {% block script %}
     <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="/static/js/signin/helper.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -47,12 +48,12 @@
             <form action="/accounts/login/" method="POST" class="login-form">
                 <div class="login-input">
                     <label for="email" class="login-input-label">Email Address</label>
-                    <input name="email" type="email" class="login-input-field" 
+                    <input id="email" name="email" type="email" class="login-input-field"
                         value="{{ form.email.value }}">
                 </div>
                 <div class="login-input">
                     <label for="password" class="login-input-label">Password</label>
-                    <input name="password" type="password" class="login-input-field" 
+                    <input id="password" name="password" type="password" class="login-input-field"
                         placeholder="8+ characters" autocomplete="current-password">
                     {% if error %}
                         <div class="error-container">
