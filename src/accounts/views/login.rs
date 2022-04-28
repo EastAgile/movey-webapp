@@ -28,7 +28,7 @@ pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
     request.render(200, "accounts/login.html", {
         let mut ctx = Context::new();
         let google_client_id =
-            std::env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID not set!");
+            std::env::var("GOOGLE_CLIENT_ID").unwrap();
         ctx.insert("form", &LoginForm::default());
         ctx.insert("client_id", &google_client_id);
         ctx
@@ -46,7 +46,7 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
         return request.render(400, "accounts/login.html", {
             let mut context = Context::new();
             let google_client_id =
-                std::env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID not set!");
+                std::env::var("GOOGLE_CLIENT_ID").unwrap();
             context.insert("error", "Invalid email or password.");
             context.insert("form", &form);
             context.insert("client_id", &google_client_id);
@@ -64,10 +64,10 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
         } else {
             let key = std::env::var("SECRET_KEY").expect("SECRET_KEY not set!");
             let value = user.id;
-            let max_age_days = std::env::var("MAX_AGE_DAYS")
-                .expect("MAX_AGE_DAYS not set!")
+            let max_age_days = std::env::var("MAX_REMEMBER_ME_DAYS")
+                .expect("MAX_REMEMBER_ME_DAYS not set!")
                 .parse::<i64>()
-                .expect("MAX_AGE_DAYS must be an integer");
+                .expect("MAX_REMEMBER_ME_DAYS must be an integer");
 
             let mut jar = CookieJar::new();
             jar.signed(&Key::derive_from(key.as_bytes())).add(
@@ -91,7 +91,7 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
     request.render(400, "accounts/login.html", {
         let mut context = Context::new();
         let google_client_id =
-            std::env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID not set!");
+            std::env::var("GOOGLE_CLIENT_ID").unwrap();
         context.insert("error", "Invalid email or password.");
         context.insert("form", &form);
         context.insert("client_id", &google_client_id);
