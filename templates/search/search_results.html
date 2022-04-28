@@ -1,5 +1,6 @@
 {% extends "search/layout.html" %}
 
+{% block title %}Search results for {{ query }}{% endblock %}
 {% block content %}
 <div class="content-wrapper">
     <div class="setting-bar">
@@ -14,7 +15,7 @@
                 <option value="name">Name</option>
                 <option value="description">Description</option>
                 <option value="most_downloads">Most Downloads</option>
-                <option value="newly_added">Newly added</option>
+                <option value="newly_added">Newly Added</option>
             </select>
             <div class="packages-sort-chevron"></div>
         </div>
@@ -25,7 +26,10 @@
             <div class="package-list-item">
                 <div class="left-wrapper">
                     <div class="package-list-item-title">
-                        <h1>{{ package.name }} &nbsp;<span class="version-number">5.45.1</span></h1>
+                        <h1>
+                            <span>{{ package.name }}</span>&nbsp;
+                            <span class="version-number">{{ package.version }}</span>
+                        </h1>
                         <div class="title-tag">
                             First tag
                         </div>

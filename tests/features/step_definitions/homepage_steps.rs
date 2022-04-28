@@ -107,7 +107,7 @@ async fn to_search_result_page(world: &mut TestWorld) {
     let current_url = world.driver.current_url().await.unwrap();
     assert_eq!(
         current_url,
-        "http://localhost:17002/search_results?query=ran"
+        "http://localhost:17002/packages/search?query=ran"
     );
 }
 #[then("I should be redirected to the search results page")]
