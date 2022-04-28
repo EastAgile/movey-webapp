@@ -40,12 +40,9 @@
                     </div>
                 </div>
                 <div class="right-wrapper">
-                    <p data-last-update="{{ package.updated_at }}">
-                        <img
-                            onload="displayUpdateTime(this.parentElement)"
-                            src="/static/resources/reload_icon.svg"
-                        >
-                        <span></span>
+                    <p>
+                        <img src="/static/resources/reload_icon.svg">
+                        <time datetime="{{ package.updated_at }}">{{ package.updated_at }}</time>
                     </p>
                 </div>
             </div>
