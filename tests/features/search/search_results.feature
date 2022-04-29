@@ -1,7 +1,9 @@
 Feature: View search results
 
-    Scenario: User search for package from Homepage
+    Background:
         Given There are packages in the database
+        
+    Scenario: User search for package from Homepage
         When I access the Homepage
         And I input a string on search bar
         And I submit the search form

@@ -1,5 +1,6 @@
 use cucumber::{given, then, when};
 use mainlib::packages::{Package, PackageVersion};
+use diesel::SaveChangesDsl;
 use mainlib::test::DB_POOL;
 use thirtyfour::prelude::*;
 
@@ -7,21 +8,8 @@ use super::super::world::TestWorld;
 
 #[given("There are packages in the database")]
 async fn package_in_db(_world: &mut TestWorld) {
-    Package::create_test_package(
-        &"Starswap Core".to_string(),
-        &"https://github.com/Elements-Studio/starswap-core".to_string(),
-        &"package_description".to_string(),
-        &"first_version".to_string(),
-        &"first_readme_content".to_string(),
-        &"rev".to_string(),
-        2,
-        100,
-        &DB_POOL,
-    )
-    .await
-    .unwrap();
-
-    Package::create_test_package(
+    let mut uid: i32;
+    uid = Package::create_test_package(
         &"rand".to_string(),
         &"https://github.com/Elements-Studio/rand".to_string(),
         &"Random number generators and other randomness functionality.".to_string(),
@@ -34,10 +22,12 @@ async fn package_in_db(_world: &mut TestWorld) {
     )
     .await
     .unwrap();
-    Package::create_test_package(
+    set_downloads_count(uid, 1000);
+    uid = Package::create_test_package(
         &"random_derive".to_string(),
         &"https://github.com/Elements-Studio/random_derive".to_string(),
-        &"Procedurally defined macro for automatically deriving rand::Rand for structs and enums".to_string(),
+        &"Procedurally defined macro for automatically deriving rand::Rand for structs and enums"
+            .to_string(),
         &"0.5.0".to_string(),
         &"first_readme_content".to_string(),
         &"rev".to_string(),
@@ -47,6 +37,7 @@ async fn package_in_db(_world: &mut TestWorld) {
     )
     .await
     .unwrap();
+    set_downloads_count(uid, 550);
     Package::create_test_package(
         &"faker_rand".to_string(),
         &"https://github.com/Elements-Studio/random_derive".to_string(),
@@ -60,6 +51,7 @@ async fn package_in_db(_world: &mut TestWorld) {
     )
     .await
     .unwrap();
+    set_downloads_count(uid, 250);
     Package::create_test_package(
         &"rand_derive2".to_string(),
         &"https://github.com/Elements-Studio/random_derive".to_string(),
@@ -73,6 +65,25 @@ async fn package_in_db(_world: &mut TestWorld) {
     )
     .await
     .unwrap();
+    set_downloads_count(uid, 300);
+}
+
+async fn set_downloads_count(uid: i32, downloads_count: i32) {
+    let mut record = PackageVersion::create(
+        uid,
+        String::from("0.0.1"),
+        String::from("readme"),
+        String::from("rev"),
+        2,
+        100,
+        &DB_POOL,
+    )
+    .await
+    .unwrap();
+    record.downloads_count = downloads_count;
+    _ = &record
+        .save_changes::<PackageVersion>(&*(DB_POOL.get().unwrap()))
+        .unwrap();
 }
 
 #[when("I access the Homepage")]
@@ -175,20 +186,23 @@ async fn select_sort_option(world: &mut TestWorld, option: String) {
     panic!("Sort field not available!");
 }
 
-
 #[then(expr = "I should see the results sorted by {word}")]
 async fn see_sorted_items(world: &mut TestWorld, field: String) {
-    let package_items = world.driver.find_elements(By::Css(".package-list-item-title h1 span:first-child")).await.unwrap();
+    let package_items = world
+        .driver
+        .find_elements(By::Css(".package-list-item-title h1 span:first-child"))
+        .await
+        .unwrap();
     let expected_names = match field.as_str() {
-        "name" => vec!["random_derive","rand_derive2","rand","faker_rand"],
-        "description" => vec!["rand","random_derive","rand_derive2","faker_rand"],
-        "most_downloads" => vec!["rand","faker_rand","random_derive","rand_derive2"],
-        "newly_added" => vec!["rand","random_derive","faker_rand","rand_derive2"],
-        _ => vec![]
+        "name" => vec!["random_derive", "rand_derive2", "rand", "faker_rand"],
+        "description" => vec!["rand", "random_derive", "rand_derive2", "faker_rand"],
+        "most_downloads" => vec!["rand", "random_derive", "faker_rand", "rand_derive2"],
+        "newly_added" => vec!["rand_derive2", "faker_rand", "random_derive", "rand"],
+        _ => vec![],
     };
     let mut real: String;
     for i in 0..package_items.len() {
         real = package_items[i].text().await.unwrap();
-        assert_eq!(real,expected_names[i]);
+        assert_eq!(real, expected_names[i]);
     }
 }
