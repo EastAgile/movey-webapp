@@ -611,6 +611,16 @@ mod tests {
 
 // Helpers for integration tests only. Wondering why cfg(test) below doesn't work... (commented out for now)
 #[cfg(any(test, feature = "test"))]
+#[derive(Insertable)]
+#[table_name = "packages"]
+pub struct NewTestPackage {
+    pub name: String,
+    pub description: String,
+    pub repository_url: String,
+    pub total_downloads_count: i32,
+}
+
+#[cfg(any(test, feature = "test"))]
 impl Package {
     pub async fn create_test_package(
         package_name: &String,
@@ -646,6 +656,41 @@ impl Package {
         )
         .await
         .unwrap();
+        Ok(record.id)
+    }
+
+    pub async fn create_test_package_with_downloads(
+        package_name: &String,
+        repo_url: &String,
+        package_description: &String,
+        package_downloads_count: i32,
+        pool: &DieselPgPool,
+    ) -> Result<i32, Error> {
+        let connection = pool.get()?;
+
+        let new_package = NewTestPackage {
+            name: package_name.to_string(),
+            description: package_description.to_string(),
+            repository_url: repo_url.to_string(),
+            total_downloads_count: package_downloads_count,
+        };
+
+        let record = diesel::insert_into(packages::table)
+            .values(new_package)
+            .get_result::<Package>(&connection)?;
+
+        PackageVersion::create(
+            record.id,
+            String::from("0.0.1"),
+            String::from("readme"),
+            String::from("rev"),
+            5,
+            500,
+            pool,
+        )
+        .await
+        .unwrap();
+
         Ok(record.id)
     }
 }
