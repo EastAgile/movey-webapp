@@ -22,6 +22,9 @@
     padding: 38px calc(50vw - 118px) 46px calc(50vw - 118px);
   }
 }
+.signup-container .signup-card-container {
+  margin-top: min(13vh, 50vh - 272px);
+}
 @media screen and (min-width: 844px) and (max-width: 1280px) {
   .signup-container .signup-card-container {
     margin-top: min(19vh, 50vh - 272px);
@@ -70,59 +73,30 @@
   position: relative;
   z-index: 99;
   background-color: white;
-  width: 25%;
-  min-width: fit-content;
-  height: fit-content;
-  padding: 1.5rem 3rem;
-  margin: 3rem auto;
-}
-@media screen and (min-width: 844px) and (max-width: 1280px) {
-  .signup-container .signup-card-container .signup-card {
-    padding: 32px;
-    width: 360px;
-    height: 544px;
-  }
+  width: 424px;
+  padding: 32px;
+  margin: auto;
 }
 @media screen and (max-width: 843px) {
   .signup-container .signup-card-container .signup-card {
     padding: 16px;
     width: 373px;
-    height: 568px;
-    margin-top: 0;
-    min-width: unset;
   }
 }
 .signup-container .signup-card-container .signup-card .signup-card-title {
   font-family: var(--sub-title-font);
   font-weight: 700;
   font-size: 24px;
+  line-height: 32px;
   color: var(--blue-color);
-  margin-bottom: 2rem;
-}
-@media screen and (min-width: 844px) and (max-width: 1280px) {
-  .signup-container .signup-card-container .signup-card .signup-card-title {
-    line-height: 32px;
-    margin-bottom: 24px;
-  }
-}
-@media screen and (max-width: 843px) {
-  .signup-container .signup-card-container .signup-card .signup-card-title {
-    line-height: 32px;
-    margin-bottom: 24px;
-  }
+  margin-bottom: 24px;
 }
 .signup-container .signup-card-container .signup-card .signup-thirdparty {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  column-gap: 15px;
+  column-gap: 8px;
   place-items: center/stretch;
-  margin-bottom: 2.5rem;
-}
-@media screen and (min-width: 844px) and (max-width: 1280px) {
-  .signup-container .signup-card-container .signup-card .signup-thirdparty {
-    column-gap: 4px;
-    margin-bottom: 24px;
-  }
+  margin-bottom: 24px;
 }
 @media screen and (max-width: 843px) {
   .signup-container .signup-card-container .signup-card .signup-thirdparty {
@@ -166,21 +140,15 @@
 .signup-container .signup-card-container .signup-card .signup-thirdparty .github-btn-wrapper .github-btn {
   display: flex;
   align-items: center;
-  height: 40px;
+  height: 36px;
   border-radius: 4px;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
   transition: border-color 0.218s ease-in-out, box-shadow 0.218s ease-in-out;
-}
-@media screen and (min-width: 844px) and (max-width: 1280px) {
-  .signup-container .signup-card-container .signup-card .signup-thirdparty .github-btn-wrapper .github-btn {
-    height: 36px;
-  }
 }
 @media screen and (max-width: 843px) {
   .signup-container .signup-card-container .signup-card .signup-thirdparty .github-btn-wrapper .github-btn {
     justify-content: center;
     margin-top: 20px;
-    height: 36px;
   }
 }
 .signup-container .signup-card-container .signup-card .signup-thirdparty .github-btn-wrapper .github-btn i {
@@ -207,84 +175,55 @@
 }
 .signup-container .signup-card-container .signup-card .signup-separator {
   color: var(--gray-color);
-  margin-bottom: 1rem;
-}
-@media screen and (min-width: 844px) and (max-width: 1280px) {
-  .signup-container .signup-card-container .signup-card .signup-separator {
-    margin-bottom: 24px;
-  }
-}
-@media screen and (max-width: 843px) {
-  .signup-container .signup-card-container .signup-card .signup-separator {
-    margin-bottom: 24px;
-  }
+  margin-top: 36px;
+  margin-bottom: 24px;
 }
 .signup-container .signup-card-container .signup-card .signup-separator .signup-separator-line {
   border-top: 2px solid var(--gray-color);
 }
 .signup-container .signup-card-container .signup-card .signup-separator .signup-separator-text {
+  background-color: white;
   width: fit-content;
   font-size: 16px;
-  line-height: 1.5rem;
+  line-height: 20px;
   margin: -0.75rem auto 0;
-  background: white;
-  padding: 0 1rem;
+  padding: 0 16px;
 }
-@media screen and (min-width: 844px) and (max-width: 1280px) {
-  .signup-container .signup-card-container .signup-card .signup-separator .signup-separator-text {
-    line-height: 20px;
-    padding: 0 16px;
-  }
+.signup-container .signup-card-container .signup-card .signup-form .signup-input {
+  margin-bottom: 16px;
 }
-@media screen and (max-width: 843px) {
-  .signup-container .signup-card-container .signup-card .signup-form {
-    height: 232px;
-  }
+.signup-container .signup-card-container .signup-card .signup-form .signup-input:focus-within .signup-input-label {
+  color: var(--blue-color);
 }
 .signup-container .signup-card-container .signup-card .signup-form .signup-input .signup-input-label {
   display: inline-block;
   font-size: 16px;
   font-weight: 500;
+  line-height: 20px;
   color: var(--dark-blue-color);
-  margin-top: 1rem;
-}
-@media screen and (min-width: 844px) and (max-width: 1280px) {
-  .signup-container .signup-card-container .signup-card .signup-form .signup-input .signup-input-label {
-    margin-top: 0;
-    line-height: 20px;
-  }
-}
-@media screen and (max-width: 843px) {
-  .signup-container .signup-card-container .signup-card .signup-form .signup-input .signup-input-label {
-    margin-top: 0;
-    line-height: 20px;
-  }
+  margin-top: 0;
+  margin-bottom: 8px;
 }
 .signup-container .signup-card-container .signup-card .signup-form .signup-input .signup-input-field {
   display: block;
   box-sizing: border-box;
   width: 100%;
-  margin: 0.5rem 0;
-  padding: 0.375rem 0.75rem;
+  height: 36px;
+  margin-bottom: 8px;
+  padding: 8px;
   font-family: inherit;
   font-size: 16px;
   font-weight: 400;
-  line-height: 1.5;
+  line-height: 20px;
   color: var(--dark-blue-color);
   background-clip: padding-box;
   border: 1px solid var(--cool-gray);
+  border-radius: 4px;
   box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.25);
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  border-radius: 4px;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-@media screen and (min-width: 844px) and (max-width: 1280px) {
-  .signup-container .signup-card-container .signup-card .signup-form .signup-input .signup-input-field {
-    margin: 8px 0;
-    height: 36px;
-  }
 }
 .signup-container .signup-card-container .signup-card .signup-form .signup-input .signup-input-field:focus {
   color: var(--dark-blue-color);
@@ -299,49 +238,33 @@
 }
 .signup-container .signup-card-container .signup-card .signup-form .signup-input .error i {
   font-size: 16px;
-  margin-right: 0.5rem;
+  margin-right: 8px;
 }
 .signup-container .signup-card-container .signup-card .signup-form .create_account_btn {
   font-size: 14px;
   width: 100%;
+  height: 36px;
   padding: 0.75rem;
-  margin-top: 1rem;
-  margin-bottom: 1.5rem;
+  margin-top: 16px;
+  margin-bottom: 24px;
   border-radius: 4px;
   border: none;
   background-color: var(--blue-color);
   color: white;
   cursor: pointer;
 }
-@media screen and (min-width: 844px) and (max-width: 1280px) {
-  .signup-container .signup-card-container .signup-card .signup-form .create_account_btn {
-    margin-top: 24px;
-    width: 360px;
-  }
-}
-@media screen and (max-width: 843px) {
-  .signup-container .signup-card-container .signup-card .signup-form .create_account_btn {
-    width: 100%;
-  }
-}
 .signup-container .signup-card-container .signup-card .signup-form .create_account_btn:disabled {
   color: #808FB0;
   background-color: #D9DDE7;
 }
 .signup-container .signup-card-container .signup-card .signup-agree {
-  margin-bottom: 1rem;
+  margin-bottom: 24px;
   font-size: 14px;
   vertical-align: middle;
 }
 @media screen and (min-width: 844px) and (max-width: 1280px) {
   .signup-container .signup-card-container .signup-card .signup-agree {
-    margin-bottom: 24px;
     margin-left: 4px;
-  }
-}
-@media screen and (max-width: 843px) {
-  .signup-container .signup-card-container .signup-card .signup-agree {
-    margin: 24px 0;
   }
 }
 .signup-container .signup-card-container .signup-card .signup-agree a {
@@ -351,6 +274,7 @@
 .signup-container .signup-card-container .signup-card .signin-invitation {
   color: var(--dark-blue-color);
   font-size: 14px;
+  margin-bottom: unset;
 }
 .signup-container .signup-card-container .signup-card .signin-invitation a {
   text-decoration: none;
