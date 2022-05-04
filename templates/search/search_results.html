@@ -21,41 +21,15 @@
         </div>
     </div>
 
-    <div class="package-list">
-        {% for package in packages %}
-            <div class="package-list-item">
-                <div class="left-wrapper">
-                    <div class="package-list-item-title">
-                        <h1>
-                            <span>{{ package.name }}</span>&nbsp;
-                            <span class="version-number">{{ package.version }}</span>
-                        </h1>
-                        <div class="title-tag">
-                            First tag
-                        </div>
-                    </div>
-                    <div class="sub-tag-list">
-                        <div class="sub-tag">Normal Tag</div>
-                        <div class="sub-tag">Normal Tag</div>
-                    </div>
-                    <div class="package-summary">
-                        {{ package.description }}
-                    </div>
-                </div>
-                <div class="right-wrapper">
-                    <p>
-                        <img src="/static/resources/reload_icon.svg">
-                        <time datetime="{{ package.updated_at }}">{{ package.updated_at }}</time>
-                    </p>
-                </div>
-            </div>
-        {% endfor %}
+    <div id="package-list-container">
+        <div class="package-list"></div>
     </div>
 </div>
+
 <script>
     $(document).ready(function() {
         new SearchBar();
-        new Packages();
+        new Packages('{{ packages }}');
     })
 </script>
 {% endblock %}

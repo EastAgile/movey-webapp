@@ -99,12 +99,14 @@ pub async fn show_search_results(
         &search.field.as_ref().unwrap(),
         &search.order.as_ref().unwrap(),
         &db).await.unwrap();
+    
+    let package_list_json = serde_json::to_string(&package_list).unwrap_or_else(|_| String::from("[]"));
 
     request.render(200, "search/search_results.html", {
         let mut ctx = Context::new();
         ctx.insert("query", &search.query.value);
         ctx.insert("sort_type", &search.field);
-        ctx.insert("packages", &package_list);
+        ctx.insert("packages", &package_list_json);
         ctx.insert("package_count", &package_list.len());
         ctx
     })
