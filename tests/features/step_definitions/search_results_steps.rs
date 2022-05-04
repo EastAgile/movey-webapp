@@ -1,6 +1,5 @@
 use cucumber::{given, then, when};
-use mainlib::packages::{Package, PackageVersion};
-use diesel::SaveChangesDsl;
+use mainlib::packages::Package;
 use mainlib::test::DB_POOL;
 use thirtyfour::prelude::*;
 
@@ -8,82 +7,43 @@ use super::super::world::TestWorld;
 
 #[given("There are packages in the database")]
 async fn package_in_db(_world: &mut TestWorld) {
-    let mut uid: i32;
-    uid = Package::create_test_package(
+    Package::create_test_package_with_downloads(
         &"rand".to_string(),
-        &"https://github.com/Elements-Studio/rand".to_string(),
+        &"repo_url".to_string(),
         &"Random number generators and other randomness functionality.".to_string(),
-        &"1.2.3".to_string(),
-        &"first_readme_content".to_string(),
-        &"rev".to_string(),
-        2,
-        500,
+        1000,
         &DB_POOL,
     )
     .await
     .unwrap();
-    set_downloads_count(uid, 1000);
-    uid = Package::create_test_package(
+    Package::create_test_package_with_downloads(
         &"random_derive".to_string(),
-        &"https://github.com/Elements-Studio/random_derive".to_string(),
+        &"repo_url".to_string(),
         &"Procedurally defined macro for automatically deriving rand::Rand for structs and enums"
             .to_string(),
-        &"0.5.0".to_string(),
-        &"first_readme_content".to_string(),
-        &"rev".to_string(),
-        2,
-        100,
+        5000,
         &DB_POOL,
     )
     .await
     .unwrap();
-    set_downloads_count(uid, 550);
-    Package::create_test_package(
+    Package::create_test_package_with_downloads(
         &"faker_rand".to_string(),
-        &"https://github.com/Elements-Studio/random_derive".to_string(),
+        &"repo_url".to_string(),
         &"Fake data generators for lorem ipsum, names, emails, and more".to_string(),
-        &"0.2.3".to_string(),
-        &"first_readme_content".to_string(),
-        &"rev".to_string(),
-        2,
-        100,
+        2500,
         &DB_POOL,
     )
     .await
     .unwrap();
-    set_downloads_count(uid, 250);
-    Package::create_test_package(
+    Package::create_test_package_with_downloads(
         &"rand_derive2".to_string(),
-        &"https://github.com/Elements-Studio/random_derive".to_string(),
+        &"repo_url".to_string(),
         &"Generate customizable random types with the rand crate".to_string(),
-        &"0.6.5".to_string(),
-        &"first_readme_content".to_string(),
-        &"rev".to_string(),
-        2,
-        100,
+        300,
         &DB_POOL,
     )
     .await
     .unwrap();
-    set_downloads_count(uid, 300);
-}
-
-async fn set_downloads_count(uid: i32, downloads_count: i32) {
-    let mut record = PackageVersion::create(
-        uid,
-        String::from("0.0.1"),
-        String::from("readme"),
-        String::from("rev"),
-        2,
-        100,
-        &DB_POOL,
-    )
-    .await
-    .unwrap();
-    record.downloads_count = downloads_count;
-    _ = &record
-        .save_changes::<PackageVersion>(&*(DB_POOL.get().unwrap()))
-        .unwrap();
 }
 
 #[when("I access the Homepage")]
@@ -196,7 +156,7 @@ async fn see_sorted_items(world: &mut TestWorld, field: String) {
     let expected_names = match field.as_str() {
         "name" => vec!["random_derive", "rand_derive2", "rand", "faker_rand"],
         "description" => vec!["rand", "random_derive", "rand_derive2", "faker_rand"],
-        "most_downloads" => vec!["rand", "random_derive", "faker_rand", "rand_derive2"],
+        "most_downloads" => vec!["random_derive", "faker_rand", "rand", "rand_derive2"],
         "newly_added" => vec!["rand_derive2", "faker_rand", "random_derive", "rand"],
         _ => vec![],
     };
