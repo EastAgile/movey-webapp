@@ -1,3 +1,5 @@
+@import "./queries.scss"; 
+
 .package-show-container {
     .package-info-container {
         max-width: 1574px;
@@ -54,9 +56,17 @@
         margin: 0 auto;
         padding: 0 30px;
 
+        @include medium-screen {
+            max-width: 100%;
+        }
+
+        @include small-screen {
+            max-width: 100%;
+        }
+
         .package-content-tabs {
             display: flex;
-
+            
             .content-tab {
                 padding: 20px 40px;
                 font-size: 24px;
@@ -73,12 +83,21 @@
                     display: flex;
                 }
 
+                @include medium-screen {
+                    padding: 22px;
+                }
+
+                @include small-screen {
+                    padding: 8px;
+                    font-size: 16px;
+                }
+
                 .tab-icon {
                     width: 32px;
                     height: 32px;
                     background-repeat: no-repeat;
                     margin-right: 8px;
-
+                    
                     &.tab-icon-readme {
                         background-image: url("/static/resources/packages/package_tab_readme_icon.svg")
                     }
@@ -98,14 +117,45 @@
 
                 &.tab-readme {
                     border-bottom-color: #A34C00;
-
+                    
                     a {
                         color: #A34C00;
+
+                        .tab-name {
+                            
+                            @include medium-screen {
+                                display: none;
+                            }
+
+                            @include small-screen {
+                                display: none;
+                            }
+                        }
                     }
 
                     &.active {
                         background-color: #FBF1D2;
+
+                        .tab-name {
+                            
+                            @include medium-screen {
+                                display: block;
+                            }
+
+                            @include small-screen {
+                                display: block;
+                            }
+                        }
+
+                        @include medium-screen {
+                            flex-basis: 50%;
+                        }
+
+                        @include small-screen {
+                            flex-basis: 40%;
+                        }
                     }
+                    
                 }
 
                 &.tab-dependency {
@@ -113,6 +163,40 @@
 
                     a {
                         color: #5D5FEF;
+
+                        .tab-name {
+                            
+                            @include medium-screen {
+                                display: none;
+                            }
+
+                            @include small-screen {
+                                display: none;
+                            }
+                        }
+                    }
+
+                    &.active {
+                        background-color: #E3F1FB;
+
+                        .tab-name {
+                            
+                            @include medium-screen {
+                                display: block;
+                            }
+
+                            @include small-screen {
+                                display: block;
+                            }
+                        }
+
+                        @include medium-screen {
+                            flex-basis: 50%;
+                        }
+
+                        @include small-screen {
+                            flex-basis: 40%;
+                        }
                     }
                 }
 
@@ -121,6 +205,40 @@
 
                     a {
                         color: #EF5DA8;
+
+                        .tab-name {
+                            
+                            @include medium-screen {
+                                display: none;
+                            }
+
+                            @include small-screen {
+                                display: none;
+                            }
+                        }
+                    }
+
+                    &.active {
+                        background-color: #FCDDEC;
+
+                        .tab-name {
+                            
+                            @include medium-screen {
+                                display: block;
+                            }
+
+                            @include small-screen {
+                                display: block;
+                            }
+                        }
+
+                        @include medium-screen {
+                            flex-basis: 50%;
+                        }
+
+                        @include small-screen {
+                            flex-basis: 40%;
+                        }
                     }
                 }
 
@@ -129,10 +247,40 @@
 
                     a {
                         color: #44A1E7;
+
+                        .tab-name {
+                            
+                            @include medium-screen {
+                                display: none;
+                            }
+
+                            @include small-screen {
+                                display: none;
+                            }
+                        }
                     }
 
                     &.active {
                         background-color: #E3F1FB;
+
+                        .tab-name {
+                            
+                            @include medium-screen {
+                                display: block;
+                            }
+
+                            @include small-screen {
+                                display: block;
+                            }
+                        }
+                        
+                        @include medium-screen {
+                            flex-basis: 50%;
+                        }
+
+                        @include small-screen {
+                            flex-basis: 40%;
+                        }
                     }
                 }
             }
@@ -143,7 +291,7 @@
             justify-content: space-between;
             margin-top: 32px;
 
-            .package-readme-content{
+            .package-readme-content {
                 width: 56%;
                 color: var(--dark-blue-color);
                 font-size: 20px;
@@ -322,6 +470,28 @@
                     }
                 }
             }
+
+            @include medium-screen {
+                flex-flow: column wrap;
+
+                .package-readme-content {
+                    width: 100%;
+                }
+                .package-sidebar {
+                    width: 100%;
+                }
+            }
+
+            @include small-screen {
+                flex-flow: column wrap;
+
+                .package-readme-content {
+                    width: 100%;
+                }
+                .package-sidebar {
+                    width: 100%;
+                }
+            }
         }
 
         .package-versions-container {
@@ -334,7 +504,31 @@
                 font-size: 24px;
                 color: var(--dark-blue-color);
                 line-height: 30px;
+                
+                @include medium-screen {
+                    flex-flow: row wrap;
+                    justify-content: flex-start;
 
+                    .package-version-summary {
+                        margin-bottom: 42px;
+                    }
+                    .package-version-sort {
+                        margin-bottom: 50px;
+                    }
+                }
+
+                @include small-screen {
+                    flex-flow: row wrap;
+                    justify-content: flex-start;
+
+                    .package-version-summary {
+                        margin-bottom: 24px;
+                    }
+                    .package-version-sort {
+                        margin-bottom: 32px;
+                        max-width: 96%;
+                    }
+                }
                 .package-version-sort {
                     display: flex;
                     align-items: center;

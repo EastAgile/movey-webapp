@@ -1,0 +1,25 @@
+@mixin medium-screen {
+  @media screen and (min-width: 844px) and (max-width: 1280px) {
+    @content;
+  }
+}
+
+@mixin small-screen {
+  @media screen and (min-width: 390px) and (max-width: 843px) {
+    @content;
+  }
+}
+
+
+// @include medium-screen {
+//   .container {
+//     width: 600px;
+//   }
+// }
+
+
+// @media screen and (min-width: 800px;) {
+//   .container {
+//      width: 600px;
+//    }
+// }
