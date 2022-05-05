@@ -24,6 +24,7 @@ impl World for TestWorld {
                 let mut caps = DesiredCapabilities::chrome();
                 caps.add_chrome_arg("--no-sandbox").unwrap();
                 caps.add_chrome_arg("--headless").unwrap();
+                caps.add_chrome_arg("--window-size=1920,1080").unwrap();
                 WebDriver::new("http://localhost:4444", &caps).await.unwrap()
             },
             root_url: "http://localhost:17002/".to_string()

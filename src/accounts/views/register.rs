@@ -1,20 +1,24 @@
 use jelly::actix_web::{web::Form, HttpRequest};
 use jelly::prelude::*;
-use jelly::request::{Authentication, DatabasePool};
+use jelly::request::{DatabasePool};
 use jelly::Result;
 
 use crate::accounts::forms::NewAccountForm;
 use crate::accounts::jobs::{SendAccountOddRegisterAttemptEmail, SendVerifyAccountEmail};
 use crate::accounts::Account;
+use crate::request;
 
 pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
-    if request.is_authenticated()? {
+    if request::is_authenticated(&request).await? {
         return request.redirect("/dashboard/");
     }
 
     request.render(200, "accounts/register.html", {
         let mut ctx = Context::new();
+        let google_client_id =
+            std::env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID not set!");
         ctx.insert("form", &NewAccountForm::default());
+        ctx.insert("client_id", &google_client_id);
         ctx
     })
 }
@@ -23,7 +27,7 @@ pub async fn create_account(
     request: HttpRequest,
     form: Form<NewAccountForm>,
 ) -> Result<HttpResponse> {
-    if request.is_authenticated()? {
+    if request::is_authenticated(&request).await? {
         return request.redirect("/dashboard/");
     }
 
@@ -31,7 +35,10 @@ pub async fn create_account(
     if !form.is_valid() {
         return request.render(400, "accounts/register.html", {
             let mut ctx = Context::new();
+            let google_client_id =
+                std::env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID not set!");
             ctx.insert("form", &form);
+            ctx.insert("client_id", &google_client_id);
             ctx
         });
     }
