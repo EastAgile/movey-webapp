@@ -150,4 +150,10 @@ INSERT INTO package_versions(package_id, version, readme_content, license, rev, 
 INSERT INTO package_versions(package_id, version, readme_content, license, rev, total_files,total_size)
     VALUES (24, '1.0.0', 'Read me plz!', 'MIT', '01c84198819310620f2417413c3c800df8292ae5', 2, 100);
 
+INSERT INTO package_versions(package_id, version, readme_content, license, rev, total_files,total_size)
+    VALUES (25, '1.0.0', 'Read me plz!', 'MIT', '01c84198819310620f2417413c3c800df8292ae5', 2, 100);
+
+INSERT INTO package_versions(package_id, version, readme_content, license, rev, total_files,total_size)
+    VALUES (26, '1.0.0', 'Read me plz!', 'MIT', '01c84198819310620f2417413c3c800df8292ae5', 2, 100);
+
     

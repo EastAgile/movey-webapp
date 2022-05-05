@@ -31,8 +31,7 @@ class Packages {
                 // template method of yourself
                 var html = Packages.template(data);
                 $('.package-list').html(html);
-                $('.right-wrapper time').timeago();
-                $('.right-wrapper time').prepend("Updated ");     
+                $('.right-wrapper time').timeago();    
             }
         });
     }
