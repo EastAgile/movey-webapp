@@ -1,9 +1,11 @@
+@import "./queries.scss";
+
 .login-container {
+  font-family: 'Mulish', serif;
   width: 100vw;
   height: 100vh;
   min-height: 800px;
-  background: url(/static/img/Map.png);
-  background-color: var(--cool-gray);
+  background: var(--cool-gray) url(/static/img/Map.png);
   background-position-y: -15rem;
 
   .movey-logo {
@@ -11,15 +13,41 @@
     top: 0;
     position: sticky;
     padding: 30px;
+
+    @include medium-screen {
+      padding: 4vh 0 0 7vw;
+    }
+
+    @include small-screen {
+      padding: 38px calc(50vw - 118px) 46px calc(50vw - 118px);
+    }
   }
 
   .login-card-container {
+    margin-top: min(13vh, calc(50vh - 272px));
+
+    @include medium-screen {
+      margin-top: min(19vh, calc(50vh - 272px));
+    }
+
+    @include small-screen {
+      margin-top: 0;
+    }
 
     &::before {
       content: url(/static/resources/large_curve.svg);
       position: fixed;
       left: 57vw;
       top: 3vh;
+      
+      @include medium-screen {
+        top: 17vh;
+        left: 65vw;
+      }
+
+      @include small-screen {
+        display: none;
+      }
     }
   
     &::after {
@@ -27,32 +55,50 @@
       position: fixed;
       left: 25vw;
       bottom: 11vh;
+
+      @include medium-screen {
+        left: -98px;
+        bottom: 12vh;
+      }
+
+      @include small-screen {
+        display: none;
+      }
     }
 
     .login-card {
       position: relative;
       z-index: 99;
       background-color: white;
-      width: 25%;
-      min-width: fit-content;
-      height: fit-content;
-      padding: 1.5rem 3rem;
-      margin: 3rem auto;
+      width: 424px;
+      padding: 32px;
+      margin: auto;
+
+      @include small-screen {
+        padding: 16px;
+        width: 373px;
+      }
 
       .login-card-title {
         font-family: var(--sub-title-font);
         font-weight: 700;
         font-size: 24px;
+        line-height: 32px;
         color: var(--blue-color);
-        margin-bottom: 2rem;
+        margin-bottom: 24px;
       }
 
       .login-thirdparty {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        column-gap: 15px;
+        column-gap: 8px;
         place-items: center / stretch;
-        margin-bottom: 2.5rem;
+        margin-bottom: 24px;
+
+        @include small-screen {
+          display: block;
+          margin-bottom: 24px;
+        }
         
         .g-signin2 {
   
@@ -60,10 +106,27 @@
             width: 100% !important;
             border-radius: 4px;
             border: 1px solid var(--cool-gray);
-            
+
+            @include medium-screen {
+              width: 176px !important;
+            }
+
+            @include small-screen {
+              width: 100% !important;
+            }
+
+            .abcRioButtonContentWrapper{
+              @include small-screen {
+                display: flex;
+                justify-content: center;
+                padding-left: 18px;
+                height: 36px;
+              }
+            }
+
             .abcRioButtonContentWrapper .abcRioButtonContents {
               span {
-                font-family: 'Mulish';
+                font-family: 'Mulish', serif;
                 font-size: 14px;
                 font-weight: 500;
                 color: black;
@@ -79,10 +142,15 @@
           .github-btn {
             display: flex;
             align-items: center;
-            height: 40px;
+            height: 36px;
             border-radius: 4px;
             box-shadow: 0 2px 4px 0 rgba(0,0,0,.25);
             transition: border-color 0.218s ease-in-out, box-shadow 0.218s ease-in-out;
+
+            @include small-screen {
+              justify-content: center;
+              margin-top: 20px;
+            }
 
             i {
               font-size: x-large;
@@ -94,10 +162,16 @@
               margin: auto;
               justify-content: center;
               overflow-x: hidden;
+
+              @include small-screen {
+                margin: unset;
+              }
             }
+
             &:hover {
               box-shadow: 0 0 6px var(--blue-color);
             }
+
             &:active {
               background: var(--cool-gray);
             }
@@ -107,54 +181,65 @@
 
       .login-separator {
         color: var(--gray-color);
-        margin-bottom: 1rem;        
+        margin-top: 36px;
+        margin-bottom: 24px;   
 
         .login-separator-line {
           border-top: 2px solid var(--gray-color);
         }
 
         .login-separator-text {
+          background-color: white;
           width: fit-content;
           font-size: 16px;
-          line-height: 1.5rem;
+          line-height: 20px;
           margin: -0.75rem auto 0;
-          background: white;
-          padding: 0 1rem;
+          padding: 0 16px;
         }
       }
 
       .login-form {
 
         .login-input {
-      
+          margin-bottom: 16px;
+
+          &:focus-within {
+            .login-input-label {
+              color: var(--blue-color);
+            }
+          }
+
           .login-input-label {
             display: inline-block;
             font-size: 16px;
             font-weight: 500;
+            line-height: 20px;
             color: var(--dark-blue-color);
-            margin-top: 1rem;
+            margin-top: 0;
+            margin-bottom: 8px;
           }
   
           .login-input-field {          
             display: block;
             box-sizing: border-box;
             width: 100%;
-            margin: .5rem 0;
-            padding: 0.375rem 0.75rem;
+            height: 36px;
+            margin-bottom: 8px;
+            padding: 8px;
             font-family: inherit;
             font-size: 16px;
             font-weight: 400;
-            line-height: 1.5;
+            line-height: 20px;
             color: var(--dark-blue-color);
             background-clip: padding-box;
             border: 1px solid var(--cool-gray);
+            border-radius: 4px;
             box-shadow: 0 1px 5px 0 rgba(0,0,0,.25);
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
-            border-radius: 4px;
             transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-  
+
             &:focus {
               color: var(--dark-blue-color);
               border-color: #86b7fe;
@@ -169,7 +254,8 @@
             background-color: var(--rose-color);
             border-radius: 4px;
             color: var(--dark-rose-color);
-            margin-top: 1.5rem;
+            margin-top: 16px;
+            margin-bottom: 16px;
 
             .error-icon {
               font-size: 24px;
@@ -188,9 +274,10 @@
         .login-remember {
           display: flex;
           justify-content: space-between;
-          margin: 1.5rem 0 .5rem;
+          margin-bottom: 24px;
           font-size: 14px;
-
+          height: 20px;
+          
           a {
             text-decoration: none;
             color: var(--blue-color);
@@ -200,9 +287,9 @@
         .login-btn {
           font-size: 14px;
           width: 100%;
+          height: 36px;
           padding: .75rem;
-          margin-top: 1rem;
-          margin-bottom: 1rem;
+          margin-bottom: 24px;
           border-radius: 4px;
           border: none;
           background-color: var(--blue-color);
@@ -219,6 +306,7 @@
       .login-invitation {
         color: var(--dark-blue-color);
         font-size: 14px;
+        margin: 0;
 
         a {
           text-decoration: none;
