@@ -17,8 +17,8 @@ Feature: Sign up
       Then I should see the error <message>
 
     Examples:
-      | invalid_password           | message                          |
-      | mail@xample.com            | 'Password not strong enough'     |
-      | mailexample                | 'Password not strong enough'     |
+      | invalid_password           | message                                            |
+      | mail@xample.com            | 'Password not strong enough'                       |
+      | mailexample                | 'Password not strong enough'                       |
       | 12345                      | 'Password must contain at least 8 characters.'     |
 

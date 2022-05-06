@@ -1,7 +1,7 @@
 class Helper {
     constructor() {
         this.create_account_btn = $('.create_account_btn');
-        this.checkbox = $('input.i_agree');
+        this.checkbox = $('input#i_agree');
         this.init();
     }
 
@@ -13,7 +13,6 @@ class Helper {
 }
 
 function onSignIn(googleUser) {
-    // Useful data for your client-side scripts:
-    // let profile = googleUser.getBasicProfile();
-    // window.location.href = `/accounts/google/callback?name=${profile.getName()}`;
+    let profile = googleUser.getBasicProfile()
+    window.location.href = `/accounts/google/callback?name=${profile.getName()}`
 }

@@ -1,9 +1,7 @@
 .home-container {
   background: var(--dark-blue-color);
   padding: 120px 20% 0 20%;
-  margin-top: 100px;
   text-align: center;
-  height: calc(100vh - 330px);
   overflow: scroll;
   box-sizing: border-box;
 }
@@ -17,24 +15,15 @@
   width: 100%;
   margin-top: 50px;
 }
-.home-container .search-container button {
+.home-container .search-container .button {
   float: left;
-  padding: 12px 10px;
+  padding: 16px;
   border: none;
   cursor: pointer;
   background: white;
 }
-.home-container .search-container button:hover {
+.home-container .search-container .button:hover {
   background: #ccc;
-}
-.home-container .search-container .search-text {
-  overflow: hidden;
-}
-.home-container .search-container .search-text input[type=text] {
-  padding: 12px;
-  border: none;
-  width: 100%;
-  color: var(--dark-blue-color);
 }
 .home-container .stat-container {
   display: grid;
@@ -57,24 +46,28 @@
 }
 .home-container .social-container {
   color: var(--gray-color);
+  display: flex;
+  flex-direction: column;
 }
 .home-container .social-container .social-icons {
   list-style-type: none;
   display: flex;
   justify-content: space-between;
-  width: 40%;
   margin: 20px auto;
 }
 .home-container .social-container .social-icons li {
   border: 1px solid var(--blue-color);
   border-radius: 5px;
-  padding: 7px 20px;
 }
 .home-container .social-container .social-icons li a {
   color: var(--gray-color);
 }
 .home-container .social-container .social-icons li a:link {
+  padding: 0px 20px;
   text-decoration: none;
+}
+.home-container .social-container .social-icons li:not(:last-child) {
+  margin-right: 20px;
 }
 
 /*# sourceMappingURL=home.css.map */

@@ -9,7 +9,7 @@ use thirtyfour::prelude::*;
 pub struct TestWorld {
     pub driver: WebDriver,
     pub root_url: String,
-    pub reset_token: String
+    pub suggestion: String,
 }
 
 // `World` needs to be implemented, so Cucumber knows how to construct it
@@ -25,10 +25,11 @@ impl World for TestWorld {
                 let mut caps = DesiredCapabilities::chrome();
                 caps.add_chrome_arg("--no-sandbox").unwrap();
                 caps.add_chrome_arg("--headless").unwrap();
+                caps.add_chrome_arg("--window-size=1920,1080").unwrap();
                 WebDriver::new("http://localhost:4444", &caps).await.unwrap()
             },
             root_url: "http://localhost:17002/".to_string(),
-            reset_token: String::new()
+            suggestion: String::from(""),
         })
     }
 }
@@ -39,6 +40,10 @@ impl TestWorld {
     }
 
     pub async fn close_browser(&self) {
-        self.driver.handle.cmd(thirtyfour::common::command::Command::DeleteSession).await.unwrap();
+        self.driver
+            .handle
+            .cmd(thirtyfour::common::command::Command::DeleteSession)
+            .await
+            .unwrap();
     }
 }

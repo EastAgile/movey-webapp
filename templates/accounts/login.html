@@ -1,28 +1,85 @@
-{% extends "layout.html" %}
+{% extends "accounts/layout.html" %}
 
 {% block title %}Login{% endblock %}
 
+{% block meta %}
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="{{client_id}}.apps.googleusercontent.com">
+{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="/static/css/signin.css">
+{% endblock %}
+
+{% block script %}
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="/static/js/signin/helper.js"></script>
+{% endblock %}
+
 {% block content %}
-<h1>Login</h1>
 
-<form action="/accounts/login/" method="POST" id="loginform">
-    {% if error %}
-    <ul>
-        <li>&#9432;&nbsp; {{ error }}</li>
-    </ul>
-    {% endif %}
-
-    <p>
-        <label for="email">Email:</label>
-        <input name="email" type="email" value="{{ form.email.value }}">
-    </p>
+<div class="login-container">
+    <a href="/">
+        <span class="movey-logo"></span>
+    </a>
+    <div class="login-card-container">
+        <div class="login-card">
+            <h1 class="login-card-title">Login</h1>
+            <div class="login-thirdparty">
+                <div class="g-signin2" data-onsuccess="onSignIn"
+                    data-width="220"
+                    data-height="40"
+                    data-longtitle="true"
+                ></div>
+                <a href="/accounts/oauth" class="github-btn-wrapper">                    
+                    <div class="github-btn">
+                        <i class="fa fa-github" aria-hidden="true"></i>
+                        <p class="btn-text">Sign in with Github</p>
+                    </div>
+                </a>
+            </div>
+            <div class="login-separator">
+                <div class="login-separator-line">
+                    <p class="login-separator-text">
+                        or use your email
+                    </p>
+                </div>
+            </div>
+            <form action="/accounts/login/" method="POST" class="login-form">
+                <div class="login-input">
+                    <label for="email" class="login-input-label">Email Address</label>
+                    <input id="email" name="email" type="email" class="login-input-field"
+                        value="{{ form.email.value }}">
+                </div>
+                <div class="login-input">
+                    <label for="password" class="login-input-label">Password</label>
+                    <input id="password" name="password" type="password" class="login-input-field"
+                        placeholder="8+ characters" autocomplete="current-password">
+                    {% if error %}
+                        <div class="error-container">
+                            <span class="error-icon">
+                                &#x26A0;
+                            </span>
+                            <p class="error">
+                                {{ error }} Try again.
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="login-remember">
+                    <span>
+                        <input type="checkbox" name="remember_me">
+                        <label for="remember_me">
+                            Keep me logged in
+                        </label>
+                    </span>
+                    <a href="/accounts/reset/">Forgot Password?</a>
+                </div>
+                <button type="submit" class="login-btn">Login</button>
+            </form>
+            <p class="login-invitation">Not a member? <a href="/accounts/register/">Sign up</a></p>
+        </div>
+    </div>
+</div>
     
-    <p>
-        <label for="password">Password:</label>
-        <input name="password" type="password">
-        <a href="/accounts/reset/" title="Reset Your Password">Forgot Password?</a>
-    </p>
-
-    <button type="submit">Login</button>
-</form>
 {% endblock %}

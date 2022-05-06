@@ -2,17 +2,31 @@
   --blue-color: #44A1E7;
   --gray-color: #808FB0;
   --dark-blue-color: #001F60;
+  --rose-color: #ffe4e6;
+  --dark-rose-color: #e11d48;
   --geyser-color: #D9DDE7;
   --gray-background-color: #F2F4F7;
   --cool-gray: #f8f9fb;
+  --white: #FFFFFF;
   --sub-title-font: 'Syncopate', sans-serif;
   font-family: 'Mulish', sans-serif;
 }
 body {
   margin: 0;
   font-family: 'Mulish', sans-serif;
+  position: relative;
+}
+.icon.flex{
+  border: 0;
+  padding: 0;
+  display: flex;
 }
 .icon{
+  border: 0;
+  padding: 0;
+  display: flex;
+}
+.icon.flex{
   border: 0;
   padding: 0;
   display: flex;

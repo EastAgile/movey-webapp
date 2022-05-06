@@ -73,7 +73,7 @@ async fn see_my_account_created(world: &mut TestWorld) {
     assert_eq!(heading_text, "Verify Account");
 }
 
-#[then(regex = r"^I should see the error '(.*)'$")]
+#[then(regex = r"^I should see the error '(.+)'$")]
 async fn see_error_message(world: &mut TestWorld, message: String) {
     let errors_element = world.driver
         .find_element(By::ClassName("error"))
