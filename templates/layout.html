@@ -27,14 +27,13 @@
     <script src="/static/js/header.js"></script>
 
     {% block meta %}{% endblock %}
-	  {% block css %}{% endblock %}
+    {% block css %}{% endblock %}
     {% block javascript %}{% endblock %}
     {% block script %}{% endblock %}
 
     <!--[if lte IE 8]>
     (function(i,e){for(;i<10;i++)document.createElement(e[i]);})(0,['section','article','aside','header','footer','nav','figure','figcaption','time','mark']);
     <![endif]-->
-    {% block script %}{% endblock %}
 </head>
 <body>
     {% include "header.html" %}
