@@ -1,10 +1,10 @@
-@import "./queries.scss"; 
+@import "./queries.scss";
 
 .package-show-container {
     .package-info-container {
         max-width: 1574px;
         margin: 0 auto;
-        padding: 0 30px;
+        padding: 20px 30px 0;
 
         .package-name-version {
             display: flex;
@@ -44,6 +44,40 @@
                 margin-right: 10px;
             }
         }
+
+        @include medium-screen {
+            max-width: 100%;
+            padding: 20px 20px 0;
+
+            .package-name-version .package-name {
+                font-size: 24px;
+            }
+
+            .package-name-version .package-version {
+                font-size: 14px;
+            }
+
+            .package-description {
+                font-size: 16px;
+            }
+        }
+
+        @include small-screen {
+            max-width: 100%;
+            padding: 20px 20px 0;
+
+            .package-name-version .package-name {
+                font-size: 24px;
+            }
+
+            .package-name-version .package-version {
+                font-size: 14px;
+            }
+
+            .package-description {
+                font-size: 16px;
+            }
+        }
     }
 
     .horizontal-line {
@@ -58,15 +92,17 @@
 
         @include medium-screen {
             max-width: 100%;
+            padding: 0 20px;
         }
 
         @include small-screen {
             max-width: 100%;
+            padding: 0 20px;
         }
 
         .package-content-tabs {
             display: flex;
-            
+
             .content-tab {
                 padding: 20px 40px;
                 font-size: 24px;
@@ -97,7 +133,7 @@
                     height: 32px;
                     background-repeat: no-repeat;
                     margin-right: 8px;
-                    
+
                     &.tab-icon-readme {
                         background-image: url("/static/resources/packages/package_tab_readme_icon.svg")
                     }
@@ -117,12 +153,12 @@
 
                 &.tab-readme {
                     border-bottom-color: #A34C00;
-                    
+
                     a {
                         color: #A34C00;
 
                         .tab-name {
-                            
+
                             @include medium-screen {
                                 display: none;
                             }
@@ -137,7 +173,7 @@
                         background-color: #FBF1D2;
 
                         .tab-name {
-                            
+
                             @include medium-screen {
                                 display: block;
                             }
@@ -155,7 +191,7 @@
                             flex-basis: 40%;
                         }
                     }
-                    
+
                 }
 
                 &.tab-dependency {
@@ -165,7 +201,7 @@
                         color: #5D5FEF;
 
                         .tab-name {
-                            
+
                             @include medium-screen {
                                 display: none;
                             }
@@ -180,7 +216,7 @@
                         background-color: #E3F1FB;
 
                         .tab-name {
-                            
+
                             @include medium-screen {
                                 display: block;
                             }
@@ -207,7 +243,7 @@
                         color: #EF5DA8;
 
                         .tab-name {
-                            
+
                             @include medium-screen {
                                 display: none;
                             }
@@ -222,7 +258,7 @@
                         background-color: #FCDDEC;
 
                         .tab-name {
-                            
+
                             @include medium-screen {
                                 display: block;
                             }
@@ -249,7 +285,7 @@
                         color: #44A1E7;
 
                         .tab-name {
-                            
+
                             @include medium-screen {
                                 display: none;
                             }
@@ -264,7 +300,7 @@
                         background-color: #E3F1FB;
 
                         .tab-name {
-                            
+
                             @include medium-screen {
                                 display: block;
                             }
@@ -273,7 +309,7 @@
                                 display: block;
                             }
                         }
-                        
+
                         @include medium-screen {
                             flex-basis: 50%;
                         }
@@ -450,7 +486,7 @@
                 }
 
                 .package-report {
-                    margin-top: 32px;
+                    margin: 32px 0;
                     padding: 12px 180px;
                     border: 2px solid #EB5757;
                     border-radius: 4px;
@@ -504,31 +540,7 @@
                 font-size: 24px;
                 color: var(--dark-blue-color);
                 line-height: 30px;
-                
-                @include medium-screen {
-                    flex-flow: row wrap;
-                    justify-content: flex-start;
 
-                    .package-version-summary {
-                        margin-bottom: 42px;
-                    }
-                    .package-version-sort {
-                        margin-bottom: 50px;
-                    }
-                }
-
-                @include small-screen {
-                    flex-flow: row wrap;
-                    justify-content: flex-start;
-
-                    .package-version-summary {
-                        margin-bottom: 24px;
-                    }
-                    .package-version-sort {
-                        margin-bottom: 32px;
-                        max-width: 96%;
-                    }
-                }
                 .package-version-sort {
                     display: flex;
                     align-items: center;
@@ -537,7 +549,7 @@
 
                     label {
                         flex-shrink: 0;
-                        width: 100px;
+                        margin-right: 20px;
                         color: #808FB0;
                         font-size: 24px;
                         line-height: 30px;
@@ -584,6 +596,68 @@
                         top: 24px;
                     }
                 }
+
+                @include medium-screen {
+                    flex-flow: row wrap;
+                    justify-content: space-between;
+                    font-size: 16px;
+
+                    .package-version-sort {
+                        label {
+                            font-size: 16px;
+                        }
+
+                        .select2-container {
+                            .select2-selection {
+                                height: 40px;
+
+                                .select2-selection__rendered {
+                                    height: 40px;
+                                    padding-left: 15px;
+                                }
+                            }
+                        }
+
+                        .versions-sort-chevron {
+                            right: 16px;
+                            top: 19px;
+                        }
+                    }
+                }
+
+                @include small-screen {
+                    display: block;
+                    font-size: 16px;
+
+                    .package-version-summary {
+                        margin-bottom: 20px;
+                    }
+
+                    .package-version-sort {
+                        justify-content: flex-start;
+                        width: fit-content;
+
+                        label {
+                            font-size: 16px;
+                        }
+
+                        .select2-container {
+                            .select2-selection {
+                                height: 40px;
+
+                                .select2-selection__rendered {
+                                    height: 40px;
+                                    padding-left: 15px;
+                                }
+                            }
+                        }
+
+                        .versions-sort-chevron {
+                            right: 16px;
+                            top: 19px;
+                        }
+                    }
+                }
             }
 
             .package-version-list {
@@ -595,11 +669,11 @@
                     align-items: center;
                     height: 110px;
                     border-bottom: 1px solid #808FB0;
+                    font-size: 24px;
 
                     .package-version-number {
                         color: var(--dark-blue-color);
                         font-weight: 700;
-                        font-size: 24px;
                         line-height: 30px;
                     }
 
@@ -617,9 +691,22 @@
 
                         .package-version-time {
                             color: #808FB0;
-                            font-size: 24px;
                             line-height: 30px;
                         }
+                    }
+                }
+
+                @include medium-screen {
+                    .package-version-item {
+                        font-size: 16px;
+                        height: 90px;
+                    }
+                }
+
+                @include small-screen {
+                    .package-version-item {
+                        font-size: 16px;
+                        height: 90px;
                     }
                 }
             }
