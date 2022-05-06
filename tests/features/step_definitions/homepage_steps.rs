@@ -15,7 +15,8 @@ async fn type_into_search_bar(world: &mut TestWorld) {
 }
 
 #[given("I am a guest / unregistered user")]
-async fn a_guest_user(_world: &mut TestWorld) {}
+async fn a_guest_user(_world: &mut TestWorld) {
+}
 
 #[when("I access the Movey website")]
 async fn visit_home_page(world: &mut TestWorld) {

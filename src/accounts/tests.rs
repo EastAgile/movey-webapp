@@ -3,7 +3,7 @@ mod tests {
     use crate::accounts::{Account};
     use crate::accounts::forms::NewAccountForm;
     use crate::test::{DB_POOL, DatabaseTestContext};
-    use jelly::forms::{EmailField, PasswordField, TextField};
+    use jelly::forms::{EmailField, PasswordField};
 
     // Sample unit test
     #[actix_rt::test]
@@ -11,7 +11,6 @@ mod tests {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
         let form = NewAccountForm {
-            name: TextField { value: "Test name".to_string(), errors: vec![] },
             email: EmailField { value: "email@host.com".to_string(), errors: vec![] },
             password: PasswordField { value: "xxyyzz".to_string(), errors: vec![], hints: vec![] },
         };

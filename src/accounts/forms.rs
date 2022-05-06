@@ -1,14 +1,20 @@
-use jelly::forms::{EmailField, PasswordField, TextField, Validation};
+use jelly::forms::{EmailField, PasswordField, Validation};
 use serde::{Deserialize, Serialize};
 
 fn default_redirect_path() -> String {
     "/".into()
 }
 
+fn default_remember_me() -> String {
+    "off".into()
+}
+
 #[derive(Default, Debug, Deserialize, Serialize)]
 pub struct LoginForm {
     pub email: EmailField,
     pub password: PasswordField,
+    #[serde(default = "default_remember_me")]
+    pub remember_me: String,
 
     #[serde(default = "default_redirect_path")]
     pub redirect: String,
@@ -22,16 +28,15 @@ impl Validation for LoginForm {
 
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct NewAccountForm {
-    pub name: TextField,
     pub email: EmailField,
     pub password: PasswordField,
 }
 
 impl Validation for NewAccountForm {
     fn is_valid(&mut self) -> bool {
-        self.name.is_valid()
-            && self.email.is_valid()
-            && self.password.validate_with(&[&self.name, &self.email])
+        self.email.is_valid()
+            && self.password.is_valid()
+            && self.password.validate_with(&[&self.email])
     }
 }
 
@@ -72,5 +77,43 @@ impl Validation for ChangePasswordForm {
 
         self.password
             .validate_with(&[&self.name.as_ref().unwrap(), &self.email.as_ref().unwrap()])
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn is_valid_works() {
+        let mut new_account_form = NewAccountForm {
+            email: EmailField {
+                value: "valid@example.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "Strongpassword1@".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        };
+        assert!(new_account_form.is_valid())
+    }
+
+    #[test]
+    fn is_valid_with_short_password_return_false() {
+        let mut new_account_form = NewAccountForm {
+            email: EmailField {
+                value: "valid@example.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "12345".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        };
+        new_account_form.is_valid();
+        assert!(!new_account_form.is_valid())
     }
 }
