@@ -74,7 +74,7 @@ class Packages {
                     <div class='right-wrapper'>
                         <div class='download-count'>
                             <img src='/static/resources/download_icon.svg'>
-                            <b>123456</b>
+                            <b>${ p.total_downloads_count }</b>
                         </div>
                         <div class='update-timestamp'>
                             <img src='/static/resources/reload_icon.svg'>

@@ -192,7 +192,7 @@ footer {
                         margin: 0 20px 0 0;
                         max-width: 60%;
                         white-space: nowrap;
-                        overflow-x: scroll;
+                        overflow-x: clip;
 
                         @include large-screen {
                             font-size: 32px;
