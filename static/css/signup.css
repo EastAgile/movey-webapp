@@ -19,12 +19,14 @@
   left: 57vw;
   top: 3vh;
 }
+
 .signup-container .signup-card-container::after {
   content: url(/static/resources/small_curve.svg);
   position: fixed;
   left: 25vw;
   bottom: 11vh;
 }
+
 .signup-container .signup-card-container .signup-card {
   position: relative;
   z-index: 99;
@@ -104,6 +106,7 @@
   background: white;
   padding: 0 1rem;
 }
+
 .signup-container .signup-card-container .signup-card .signup-form .signup-input .signup-input-label {
   display: inline-block;
   font-size: 16px;
@@ -111,6 +114,7 @@
   color: var(--dark-blue-color);
   margin-top: 1rem;
 }
+
 .signup-container .signup-card-container .signup-card .signup-form .signup-input .signup-input-field {
   display: block;
   box-sizing: border-box;
@@ -131,12 +135,14 @@
   border-radius: 4px;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
+
 .signup-container .signup-card-container .signup-card .signup-form .signup-input .signup-input-field:focus {
   color: var(--dark-blue-color);
   border-color: #86b7fe;
   outline: 0;
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
+
 .signup-container .signup-card-container .signup-card .signup-form .signup-input .error {
   font-size: 14px;
   color: var(--blue-color);

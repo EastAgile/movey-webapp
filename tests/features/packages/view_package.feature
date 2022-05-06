@@ -2,7 +2,7 @@ Feature: View Package
 
     Scenario: User views package page
         Given I am a guest / unregistered user
-        Given there is a package in the system
+        Given There are packages in the system
         When I access the package details page
         Then I should see latest information of that package
         When I click on versions of that package
