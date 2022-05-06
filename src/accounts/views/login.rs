@@ -46,7 +46,7 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
             let mut context = Context::new();
             let google_client_id =
                 std::env::var("GOOGLE_CLIENT_ID").unwrap();
-            context.insert("error", "Invalid email or password.");
+            context.insert("error", "Invalid email or password! Try again.");
             context.insert("form", &form);
             context.insert("client_id", &google_client_id);
             context
@@ -54,36 +54,45 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
     }
 
     let db = request.db_pool()?;
-    if let Ok(user) = Account::authenticate(&form, db).await {
-        Account::update_last_login(user.id, db).await?;
+    let error_message;
+    match Account::authenticate(&form, db).await {
+        Ok(user) => {
+            Account::update_last_login(user.id, db).await?;
 
-        if form.remember_me == "off" {
-            request.set_user(user)?;
-            return request.redirect("/dashboard/");
-        } else {
-            let key = std::env::var("SECRET_KEY").expect("SECRET_KEY not set!");
-            let value = user.id;
-            let max_age_days = std::env::var("MAX_REMEMBER_ME_DAYS")
-                .expect("MAX_REMEMBER_ME_DAYS not set!")
-                .parse::<i64>()
-                .expect("MAX_REMEMBER_ME_DAYS must be an integer");
+            return if form.remember_me == "off" {
+                request.set_user(user)?;
+                request.redirect("/dashboard/")
+            } else {
+                let key = std::env::var("SECRET_KEY").expect("SECRET_KEY not set!");
+                let value = user.id;
+                let max_age_days = std::env::var("MAX_REMEMBER_ME_DAYS")
+                    .expect("MAX_REMEMBER_ME_DAYS not set!")
+                    .parse::<i64>()
+                    .expect("MAX_REMEMBER_ME_DAYS must be an integer");
 
-            let mut jar = CookieJar::new();
-            jar.signed(&Key::derive_from(key.as_bytes())).add(
-                Cookie::build("remember_me_token", value.to_string())
-                    .path("/")
-                    .max_age(Duration::days(max_age_days))
-                    .http_only(true)
-                    .finish(),
-            );
+                let mut jar = CookieJar::new();
+                jar.signed(&Key::derive_from(key.as_bytes())).add(
+                    Cookie::build("remember_me_token", value.to_string())
+                        .path("/")
+                        .max_age(Duration::days(max_age_days))
+                        .http_only(true)
+                        .finish(),
+                );
 
-            return Ok(HttpResponse::Found()
-                .header(
-                    header::SET_COOKIE,
-                    jar.get("remember_me_token").unwrap().encoded().to_string(),
-                )
-                .header(header::LOCATION, "/dashboard/")
-                .finish());
+                Ok(HttpResponse::Found()
+                    .header(
+                        header::SET_COOKIE,
+                        jar.get("remember_me_token").unwrap().encoded().to_string(),
+                    )
+                    .header(header::LOCATION, "/dashboard/")
+                    .finish())
+            };
+        },
+        Err(Error::Generic(e)) => {
+            error_message = e
+        },
+        Err(_) => {
+            error_message = String::from("Invalid email or password! Try again.")
         }
     }
 
@@ -91,7 +100,7 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
         let mut context = Context::new();
         let google_client_id =
             std::env::var("GOOGLE_CLIENT_ID").unwrap();
-        context.insert("error", "Invalid email or password.");
+        context.insert("error", error_message.as_str());
         context.insert("form", &form);
         context.insert("client_id", &google_client_id);
         context

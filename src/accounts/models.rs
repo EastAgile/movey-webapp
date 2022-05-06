@@ -12,6 +12,7 @@ use jelly::djangohashers::{check_password, make_password};
 use jelly::error::Error;
 use jelly::serde::{Deserialize, Serialize};
 use jelly::DieselPgPool;
+use jelly::error::Error::Generic;
 
 use super::forms::{LoginForm, NewAccountForm};
 use crate::schema::accounts;
@@ -54,7 +55,9 @@ impl Account {
         let user = accounts
             .filter(email.eq(&form.email.value))
             .first::<Account>(&connection)?;
-
+        if !user.has_verified_email {
+            return Err(Generic(String::from("Your account has not been activated.")));
+        }
         if !check_password(&form.password, &user.password)? {
             return Err(Error::InvalidPassword);
         }
@@ -184,6 +187,21 @@ mod tests {
 	use diesel::result::DatabaseErrorKind;
     use diesel::result::Error::DatabaseError;
 
+  fn login_form() -> LoginForm {
+    LoginForm {
+        email: EmailField {
+            value: "email@host.com".to_string(),
+            errors: vec![],
+        },
+        password: PasswordField {
+            value: "So$trongpas0word!".to_string(),
+            errors: vec![],
+            hints: vec![],
+        },
+        remember_me: "off".to_string(),
+        redirect: "".to_string(),
+    }
+  }
     async fn setup_user() -> i32 {
         let form = NewAccountForm {
             email: EmailField {
@@ -204,21 +222,9 @@ mod tests {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
         let uid = setup_user().await;
+        Account::mark_verified(uid, &DB_POOL).await.unwrap();
 
-        let login_form = LoginForm {
-            email: EmailField {
-                value: "email@host.com".to_string(),
-                errors: vec![],
-            },
-            password: PasswordField {
-                value: "So$trongpas0word!".to_string(),
-                errors: vec![],
-                hints: vec![],
-            },
-            remember_me: "off".to_string(),
-            redirect: "".to_string(),
-        };
-        let user = Account::authenticate(&login_form, &DB_POOL).await.unwrap();
+        let user = Account::authenticate(&login_form(), &DB_POOL).await.unwrap();
         assert_eq!(user.id, uid);
     }
 
@@ -226,9 +232,10 @@ mod tests {
     async fn authenticate_with_wrong_email_return_err() {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
-        let _uid = setup_user().await;
+        let uid = setup_user().await;
+        Account::mark_verified(uid, &DB_POOL).await.unwrap();
 
-        let login_form = LoginForm {
+        let invalid_login_form = LoginForm {
             email: EmailField {
                 value: "wrong@host.com".to_string(),
                 errors: vec![],
@@ -241,7 +248,7 @@ mod tests {
             remember_me: "off".to_string(),
             redirect: "".to_string(),
         };
-        match Account::authenticate(&login_form, &DB_POOL).await {
+        match Account::authenticate(&invalid_login_form, &DB_POOL).await {
             Err(Error::Database(DBError::NotFound)) => (),
             _ => panic!(),
         }
@@ -250,9 +257,10 @@ mod tests {
     async fn authenticate_with_wrong_password_return_err() {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
-        let _uid = setup_user().await;
+        let uid = setup_user().await;
+        Account::mark_verified(uid, &DB_POOL).await.unwrap();
 
-        let login_form = LoginForm {
+        let invalid_login_form = LoginForm {
             email: EmailField {
                 value: "email@host.com".to_string(),
                 errors: vec![],
@@ -265,27 +273,33 @@ mod tests {
             remember_me: "off".to_string(),
             redirect: "".to_string(),
         };
-        match Account::authenticate(&login_form, &DB_POOL).await {
+        match Account::authenticate(&invalid_login_form, &DB_POOL).await {
             Err(Error::InvalidPassword) => (),
             _ => panic!(),
         }
     }
+
+    #[actix_rt::test]
+    async fn authenticate_with_unverified_account_return_err() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        setup_user().await;
+
+        match Account::authenticate(&login_form(), &DB_POOL).await {
+            Err(Error::Generic(e)) => {
+                if e != String::from("Your account has not been activated.") {
+                    panic!()
+                }
+            },
+            _ => panic!(),
+        }
+    }
+
 	#[actix_rt::test]
     async fn register_works() {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
-        let form = NewAccountForm {
-			email: EmailField {
-                value: "email@host.com".to_string(),
-                errors: vec![],
-            },
-            password: PasswordField {
-                value: "xxyyzz".to_string(),
-                errors: vec![],
-                hints: vec![],
-            },
-        };
-        let uid = Account::register(&form, &DB_POOL).await.unwrap();
+        let uid = setup_user().await;
         let account = Account::get(uid, &DB_POOL).await.unwrap();
         assert_eq!(account.email, "email@host.com");
     }
@@ -299,7 +313,7 @@ mod tests {
                 errors: vec![],
             },
             password: PasswordField {
-                value: "xxyyzz".to_string(),
+                value: "xxyyzz123".to_string(),
                 errors: vec![],
                 hints: vec![],
             },
