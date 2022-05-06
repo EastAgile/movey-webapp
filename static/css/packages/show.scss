@@ -424,12 +424,10 @@
                                 position: absolute;
                                 right: -30px;
                                 top: -10px;
-                                //transform: translate(0, -20%);
                                 background-color: #D9DDE7;
                                 border-radius: 8px;
                                 padding: 4px;
                                 display: none;
-                                // transform: translate(0, -30%);
                             }
                         }
 
@@ -457,6 +455,51 @@
                     .package-metadata {
                         display: flex;
                         flex-flow: row wrap;
+
+                        .package-total-download {
+                            width: 100%;
+                            display: flex;
+                            align-items: flex-start;
+                            margin-bottom: 12px;
+
+                            .package-download-icon {
+                                width: 24px;
+                                height: 24px;
+                                background-repeat: no-repeat;
+                                background-image: url("/static/resources/packages/package_total_download_gray.svg");
+                                margin-right: 10px;
+                            }
+
+                            .package-download-count {
+                                color: #808FB0;
+                                font-weight: 700;
+                                font-size: 24px;
+                                line-height: 20px;
+                                margin-bottom: 16px;
+                            }
+                        }
+
+                        .package-download-info {
+                            width: 100%;
+                            margin-bottom: 32px;
+                            display: flex;
+                            align-items: flex-end;
+                            justify-content: space-between;
+
+                            .package-download-number {
+                                color: var(--dark-blue-color);
+                                font-weight: 700;
+                                font-size: 24px;
+                                line-height: 20px;
+                            }
+
+                            .package-download-figure {
+                                width: 321px;
+                                height: 56px;
+                                background-repeat: no-repeat;
+                                background-image: url("/static/resources/packages/package_download_figure.svg");
+                            }
+                        }
 
                         .package-metadata-content {
                             width: 45%;
@@ -675,6 +718,34 @@
                         color: var(--dark-blue-color);
                         font-weight: 700;
                         line-height: 30px;
+                        flex-basis: 70%;
+
+                        @include medium-screen {
+                            flex-basis: 58%;
+                        }
+
+                        @include small-screen {
+                            flex-basis: 40%;
+                        }
+                    }
+
+                    .package-download {
+                        display: flex;
+                        align-items: center;
+
+                        .package-download-icon {
+                            width: 24px;
+                            height: 24px;
+                            background-repeat: no-repeat;
+                            background-image: url("/static/resources/packages/package_total_download.svg");
+                            margin-right: 10px;
+
+                        }
+
+                        .package-download-count {
+                            color: #808FB0;
+                            line-height: 30px;
+                        }
                     }
 
                     .package-version-timeline {
