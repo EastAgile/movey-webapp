@@ -1,12 +1,40 @@
-{% extends "layout.html" %}
+{% extends "accounts/layout.html" %}
 
-{% block title %}Reset Your Password{% endblock %}
-
+{% block title %}Forgot Password{% endblock %}
+{% block css %}
+<link href="/static/css/reset_password.css" rel="stylesheet"/>
+{% endblock %}
+{% block script %}
+    <script>
+        window.onload = () => {
+            document.getElementById("email").addEventListener("input", event => {
+                let submit_btn = document.getElementById("submit-btn");
+                submit_btn.disabled = event.target.validity.typeMismatch || event.target.value === '';
+            });
+        };
+    </script>
+{% endblock %}
 {% block content %}
-<h1>Reset Your Password</h1>
-<form method="POST" action="/accounts/reset/">
-    <label for="email">Email Address:</label>
-    <input type="text" placeholder="Email Address" name="email">
-    <button class="submit">Reset</button>
-</form>
+<div class="logo"></div>
+<div class="form-wrapper">
+    <div class="email-form">
+        <h1>Forgot Password</h1>
+        <div id="description">
+            <p class="light">
+                Enter your email address below to request a Movey account password reset.
+            </p>
+        </div>
+        <form action="/accounts/reset/" method="POST">
+            <label for="email" class="usr-input-label">Email Address</label>
+            <input name="email" id="email" type="email" class="usr-input" value="{{ form.email.value }}">
+            {% for err in form.email.errors %}
+                <p class="error"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ err }}</p>
+            {% endfor %}
+            <button id="submit-btn" type="submit" class="submit-btn" disabled>
+                Submit
+            </button>
+        </form>
+        <a id="signin-invitation" href="/accounts/login/">Back to sign in</a>
+    </div>
+</div>
 {% endblock %}

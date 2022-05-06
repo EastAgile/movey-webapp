@@ -13,3 +13,4 @@ jelly/Cargo.lock
 
 .env
 .DS_Store
+.rustfmt.toml
