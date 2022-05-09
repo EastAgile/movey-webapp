@@ -636,7 +636,7 @@
 }
 @media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-versions-container .package-version-list .package-version-item .package-version-number {
-    flex-basis: 40%;
+    flex-basis: 25%;
   }
 }
 .package-show-container .package-content-container .package-versions-container .package-version-list .package-version-item .package-download {
@@ -654,6 +654,11 @@
   color: #808FB0;
   line-height: 30px;
 }
+@media screen and (max-width: 843px) {
+  .package-show-container .package-content-container .package-versions-container .package-version-list .package-version-item .package-download .package-download-count {
+    font-size: 12px;
+  }
+}
 .package-show-container .package-content-container .package-versions-container .package-version-list .package-version-item .package-version-timeline {
   display: flex;
   align-items: center;
@@ -668,6 +673,11 @@
 .package-show-container .package-content-container .package-versions-container .package-version-list .package-version-item .package-version-timeline .package-version-time {
   color: #808FB0;
   line-height: 30px;
+}
+@media screen and (max-width: 843px) {
+  .package-show-container .package-content-container .package-versions-container .package-version-list .package-version-item .package-version-timeline .package-version-time {
+    font-size: 12px;
+  }
 }
 @media screen and (min-width: 844px) and (max-width: 1280px) {
   .package-show-container .package-content-container .package-versions-container .package-version-list .package-version-item {
