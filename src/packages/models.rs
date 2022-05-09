@@ -237,9 +237,10 @@ impl Package {
                 match package_version_id {
                     Ok(_) => (),
                     Err(NotFound) => {
+                        // Package is found but version is not, creating shadow version
                         let github_data = service.fetch_repo_data(&https_url)?;
                         PackageVersion::create(
-                            package_id_, 
+                            package_id_,
                             github_data.name,
                             github_data.readme_content, 
                             rev_.clone(), 
@@ -253,7 +254,8 @@ impl Package {
 
                 package_id_
             },
-            Err(NotFound) => {                
+            Err(NotFound) => {
+                // Package is not found, creating shadow package and package version
                 Package::create(
                     &https_url, &String::from(""), &rev_, 
                     -1, 
