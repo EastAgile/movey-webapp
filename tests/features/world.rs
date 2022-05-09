@@ -33,6 +33,7 @@ impl World for TestWorld {
             },
             root_url: "http://localhost:17002/".to_string(),
             suggestion: String::from(""),
+            reset_token: String::from(""),
         })
     }
 }
