@@ -725,7 +725,7 @@
                         }
 
                         @include small-screen {
-                            flex-basis: 40%;
+                            flex-basis: 25%;
                         }
                     }
 
@@ -745,6 +745,10 @@
                         .package-download-count {
                             color: #808FB0;
                             line-height: 30px;
+
+                            @include small-screen {
+                                font-size: 12px;
+                            }
                         }
                     }
 
@@ -763,6 +767,10 @@
                         .package-version-time {
                             color: #808FB0;
                             line-height: 30px;
+
+                            @include small-screen {
+                                font-size: 12px;
+                            }
                         }
                     }
                 }
