@@ -13,6 +13,6 @@ pub fn configure(config: &mut ServiceConfig) {
             .service(
                 resource("/search_package/")
                     .route(post().to(services::package::index::search_package)),
-            ),
+            )
     );
 }

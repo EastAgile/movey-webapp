@@ -14,8 +14,8 @@ pub struct PackageRequest {
     github_repo_url: String,
     description: String,
     rev: String,
-    total_files: String,
-    total_size: String,
+    total_files: i32,
+    total_size: i32,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -33,8 +33,8 @@ pub async fn post_package(
         &res.github_repo_url,
         &res.description,
         &res.rev,
-        res.total_files.parse::<i32>().unwrap(),
-        res.total_size.parse::<i32>().unwrap(),
+        res.total_files,
+        res.total_size,
         &service,
         &db,
     )
@@ -48,6 +48,6 @@ pub async fn search_package(
     res: web::Json<PackageSearch>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    let packages = Package::search(&res.search_query, &db).await?;
+    let packages = Package::auto_complete_search(&res.search_query, &db).await?;
     Ok(HttpResponse::Ok().json(packages))
 }

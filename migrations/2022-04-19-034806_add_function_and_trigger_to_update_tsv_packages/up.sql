@@ -2,7 +2,7 @@ DROP FUNCTION if EXISTS update_tsv();
 
 CREATE FUNCTION update_tsv() RETURNS trigger AS $emp_stamp$
   BEGIN
-	new.tsv := to_tsvector('english', new.name);
+	new.tsv := setweight(to_tsvector(coalesce(new.name, '')), 'A') || setweight(to_tsvector(coalesce(new.description, '')), 'B');
     RETURN NEW;
   END;
 $emp_stamp$ LANGUAGE plpgsql;

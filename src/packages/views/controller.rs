@@ -1,9 +1,11 @@
 use jelly::actix_web::{web::Path, web::Query, HttpRequest};
+use jelly::forms::TextField;
 use jelly::prelude::*;
 use jelly::request::DatabasePool;
 use jelly::Result;
 
 use crate::packages::{Package, PackageVersion, PackageVersionSort};
+use crate::packages::models::{PackageSortField, PackageSortOrder};
 
 #[derive(serde::Serialize, serde::Deserialize)]
 struct PackageShowParams {
@@ -72,4 +74,40 @@ pub async fn show_package_versions(
         ctx.insert("sort_type", &sort_type_text);
         ctx
     });
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct PackageSearchParams {
+    pub query: TextField,
+    pub field: Option<PackageSortField>,
+    pub order: Option<PackageSortOrder>,
+}
+
+pub async fn show_search_results(
+    request: HttpRequest,
+    mut search: Query<PackageSearchParams>
+) -> Result<HttpResponse> {
+    let db = request.db_pool()?;
+    if let None = search.field {
+        search.field = Some(PackageSortField::name);
+    }
+    if let None = search.order {
+        search.order = Some(PackageSortOrder::desc);
+    }
+    let package_list = Package::search(
+        &search.query.value,
+        &search.field.as_ref().unwrap(),
+        &search.order.as_ref().unwrap(),
+        &db).await.unwrap();
+    
+    let package_list_json = serde_json::to_string(&package_list).unwrap_or_else(|_| String::from("[]"));
+
+    request.render(200, "search/search_results.html", {
+        let mut ctx = Context::new();
+        ctx.insert("query", &search.query.value);
+        ctx.insert("sort_type", &search.field);
+        ctx.insert("packages", &package_list_json);
+        ctx.insert("package_count", &package_list.len());
+        ctx
+    })
 }

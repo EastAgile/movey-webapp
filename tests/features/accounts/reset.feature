@@ -2,11 +2,11 @@ Feature: Reset password
 
   Background:
     Given I have successfully requested a password reset link
-    And I have received the email that contains password reset link
-    When I access the reset password link
-    Then I should see the Reset Password page
+      And I have received the email that contains password reset link
+      When I access the reset password link
+      Then I should see the Reset Password page
 
-    Scenario: Valid password 
+    Scenario: Valid password
       When I fill in a valid password and repeat the password correctly
       And I submit the form on Reset Password page
       Then I should see the Password Changed page

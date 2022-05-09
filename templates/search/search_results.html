@@ -1,0 +1,35 @@
+{% extends "search/layout.html" %}
+
+{% block title %}Search results for {{ query }}{% endblock %}
+{% block content %}
+<div class="content-wrapper">
+    <div class="setting-bar">
+        <p>{{ package_count }} results <a>for '{{ query }}'</a></p>
+        <div class="package-search-sort">
+            <label for="packages-sort">Sort by</label>
+            <select name="packages-sort" 
+                    class="packages-sort"
+                    data-sort="{{ sort_type }}"
+                    data-url="/packages/search?query={{ query }}"
+            >
+                <option value="name">Name</option>
+                <option value="description">Description</option>
+                <option value="most_downloads">Most Downloads</option>
+                <option value="newly_added">Newly Added</option>
+            </select>
+            <div class="packages-sort-chevron"></div>
+        </div>
+    </div>
+
+    <div id="package-list-container">
+        <div class="package-list"></div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        new SearchBar();
+        new Packages('{{ packages }}');
+    })
+</script>
+{% endblock %}

@@ -17,7 +17,7 @@ header {
       background-repeat: no-repeat;
       height: 30px;
     }
-    
+
     .sub-title {
       font-weight: bold;
       font-size: 2rem;
@@ -29,7 +29,7 @@ header {
     nav {
       display: flex;
       justify-content: space-between;
-  
+
       ul {
         list-style-type: none;
         margin: 0;
@@ -39,11 +39,11 @@ header {
           margin: 0 10px;
         }
       }
-      
+
       button {
         cursor: pointer;
         padding: 10px;
-  
+
         &.sign-in {
           background: none;
           border: none;
@@ -76,7 +76,7 @@ header {
       text-decoration: none;
     }
 
-    nav { 
+    nav {
       .search_icon {
         width: 22px;
         height: 22px;

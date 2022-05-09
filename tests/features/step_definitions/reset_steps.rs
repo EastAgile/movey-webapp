@@ -2,13 +2,29 @@ use cucumber::{given, then, when};
 use regex::Regex;
 use std::fs;
 use std::{thread, time};
+use jelly::forms::{EmailField, PasswordField, TextField};
 use thirtyfour::prelude::*;
-
+use mainlib::accounts::Account;
+use mainlib::accounts::forms::NewAccountForm;
+use mainlib::test::DB_POOL;
 use super::super::world::TestWorld;
 
 #[given("I have successfully requested a password reset link")]
 async fn request_reset_link(world: &mut TestWorld) {
     fs::remove_dir_all("./emails").unwrap_or_else(|_| ());
+    let form = NewAccountForm {
+        email: EmailField {
+            value: "test@email.com".to_string(),
+            errors: vec![],
+        },
+        password: PasswordField {
+            value: "So$trongpas0word!".to_string(),
+            errors: vec![],
+            hints: vec![],
+        },
+    };
+    Account::register(&form, &DB_POOL).await.unwrap();
+
     world
         .driver
         .execute_script(
@@ -17,7 +33,7 @@ async fn request_reset_link(world: &mut TestWorld) {
         let xhr = new XMLHttpRequest();
         xhr.open('POST', '{}accounts/reset/');
         xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-        xhr.send('email=test%40email.com');
+        xhr.send('email=test@email.com');
     ",
                 world.root_url
             )
@@ -94,6 +110,7 @@ async fn see_password_changed(world: &mut TestWorld) {
 
 #[then("I should receive an email that confirms password has changed")]
 async fn receive_confirm_email(_world: &mut TestWorld) {
+    thread::sleep(time::Duration::from_millis(5000));
     let email_dir = fs::read_dir("./emails").unwrap().next();
     let email = fs::read_to_string(email_dir.unwrap().unwrap().path()).unwrap();
     assert!(email.contains("test@email.com"));
