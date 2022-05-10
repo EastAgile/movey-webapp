@@ -1,3 +1,5 @@
+@import "queries.scss";
+
 footer {
   background: #02143A;
   height: 250px;
@@ -6,12 +8,29 @@ footer {
   bottom: 0;
   left: 0;
   right: 0;
+
+  @include medium-screen {
+    position: relative;
+    height: fit-content;
+    padding: 37px 18px 100px;
+  }
 }
 .footer-container {
   display: grid;
   grid-template-columns: 1fr 4fr 1fr;
   margin: 40px auto;
+
+  @include medium-screen {
+    display: block;
+    margin-top: 83px;
+  }
+
   .footer-about {
+
+    @include medium-screen {
+      text-align: center;
+    }
+
     .title {
       color: var(--blue-color);
       text-align: center;
@@ -19,19 +38,42 @@ footer {
     .about-us {
       color: var(--gray-color);
       margin-top: 20px;
+
+      @include medium-screen {
+        margin-top: 28px;
+      }
+
     }
   }
   .footer-center {
+
     .link-container {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-around;
       color: white;
-      padding: 0px 50px;
+      padding: 0 50px;
+
+      @include medium-screen {
+        position: absolute;
+        padding: 0;
+        top: 37px;
+        left: 18px;
+        right: 18px;
+        display: flex;
+        justify-content: space-between;
+      }
+
       a {
         color: white;
         &:link {
           text-decoration: underline;
+        }
+      }
+
+      span {
+        @include medium-screen {
+          display: none;
         }
       }
     }
@@ -41,6 +83,16 @@ footer {
       justify-content: space-between;
       width: 40%;
       margin: 30px auto;
+
+      @include medium-screen {
+        position: absolute;
+        top: 370px;
+        width: 260px;
+        height: 50px;
+        margin-left: calc(50vw - 148px);
+        margin-top: 0;
+      }
+
       li {
         border: 1px solid var(--blue-color);
         border-radius: 50%;
@@ -62,8 +114,17 @@ footer {
   }
   .footer-copyright {
     color: var(--gray-color);
+
+    @include medium-screen {
+      margin-top: 43px;
+      text-align: center;
+    }
     .copyright{
       padding-bottom: 30px;
+
+      @include medium-screen {
+        padding-bottom: 18px;
+      }
     }
   }
 }

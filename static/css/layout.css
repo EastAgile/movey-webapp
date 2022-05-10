@@ -16,11 +16,7 @@ body {
   font-family: 'Mulish', sans-serif;
   position: relative;
 }
-.icon.flex{
-  border: 0;
-  padding: 0;
-  display: flex;
-}
+
 .icon{
   border: 0;
   padding: 0;
@@ -30,4 +26,6 @@ body {
   border: 0;
   padding: 0;
   display: flex;
+  width: 120px;
+  height: 40px;
 }
