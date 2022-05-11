@@ -210,7 +210,7 @@ impl Package {
         let search_query: &str = &search_query.split(" ").collect::<Vec<&str>>().join(" & ");
 
         let matched_packages: Vec<PackageSearchResult> = sql_query(
-            format!("SELECT packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, max(version) version
+            format!("SELECT packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, max(version) as version
                            FROM packages
                            INNER JOIN package_versions
                            ON packages.id = package_versions.package_id
