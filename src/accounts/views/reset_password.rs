@@ -36,11 +36,18 @@ pub async fn request_reset(request: HttpRequest, form: Form<EmailForm>) -> Resul
     }
 
     request.queue(SendResetPasswordEmail {
-        to: form.email.value,
+        to: form.email.value.clone(),
     })?;
+
+    let email = form.email.value;
+    let mut censored_email = String::new();
+    censored_email.push_str(&email[0..1]);
+    censored_email.push_str("***");
+    censored_email.push_str(&email[email.find('@').unwrap()..]);
 
     request.render(200, "accounts/reset_password/requested.html", {
         let mut context = Context::new();
+        context.insert("censored_email", &censored_email);
         context.insert("sent", &true);
         context
     })
@@ -67,7 +74,7 @@ pub async fn with_token(
         });
     }
 
-    return request.render(200, "accounts/invalid_token.html", Context::new());
+    request.render(200, "accounts/invalid_token.html", Context::new())
 }
 
 /// Verifies the password is fine, and if so, signs the user in and redirects
@@ -90,6 +97,9 @@ pub async fn reset(
             return request.render(200, "accounts/reset_password/change_password.html", {
                 let mut context = Context::new();
                 context.insert("form", &form);
+                context.insert("uidb64", &uidb64);
+                context.insert("ts", &ts);
+                context.insert("token", &token);
                 context
             });
         }
@@ -108,13 +118,8 @@ pub async fn reset(
             is_anonymous: false,
         })?;
 
-        request.flash("Password Reset", "Your password was successfully reset.")?;
-        return request.redirect("/dashboard/");
+        return request.render(200, "accounts/reset_password/success.html", Context::new());
     }
 
-    request.render(200, "accounts/reset_password/change_password.html", {
-        let mut context = Context::new();
-        context.insert("form", &form);
-        context
-    })
+    request.render(200, "accounts/invalid_token.html", Context::new())
 }
