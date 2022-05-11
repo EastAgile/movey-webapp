@@ -12,6 +12,12 @@ footer {
   @include medium-screen {
     position: relative;
     height: fit-content;
+    padding: 27px 18px 100px;
+  }
+
+  @include small-screen {
+    position: relative;
+    height: fit-content;
     padding: 37px 18px 100px;
   }
 }
@@ -25,10 +31,28 @@ footer {
     margin-top: 83px;
   }
 
+  @include small-screen {
+    display: block;
+    margin-top: 90px;
+  }
+
   .footer-about {
 
     @include medium-screen {
       text-align: center;
+    }
+
+    @include small-screen {
+      text-align: center;
+    }
+
+    img {
+
+      @include small-screen {
+        content: url("/static/resources/logo_small.svg");
+        width: 120px;
+        height: 16px;
+      }
     }
 
     .title {
@@ -41,6 +65,12 @@ footer {
 
       @include medium-screen {
         margin-top: 28px;
+      }
+
+      @include small-screen {
+        margin-top: 20px;
+        font-size: 14px;
+        line-height: 24px;
       }
 
     }
@@ -62,6 +92,23 @@ footer {
         right: 18px;
         display: flex;
         justify-content: space-between;
+        font-weight: 700;
+      }
+
+      @include small-screen {
+        position: absolute;
+        padding: 0;
+        top: 27px;
+        left: 18px;
+        right: 18px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-row-gap: 24px;
+        width: 270px;
+        margin: 0 auto;
+        font-size: 12px;
+        text-align: center;
+        font-weight: 700;
       }
 
       a {
@@ -75,6 +122,10 @@ footer {
         @include medium-screen {
           display: none;
         }
+
+        @include small-screen {
+          display: none;
+        }
       }
     }
     .social-icons {
@@ -85,6 +136,15 @@ footer {
       margin: 30px auto;
 
       @include medium-screen {
+        position: absolute;
+        top: 370px;
+        width: 260px;
+        height: 50px;
+        margin-left: calc(50vw - 148px);
+        margin-top: 0;
+      }
+
+      @include small-screen {
         position: absolute;
         top: 370px;
         width: 260px;
@@ -119,11 +179,23 @@ footer {
       margin-top: 43px;
       text-align: center;
     }
+
+    @include small-screen {
+      margin-top: 54px;
+      text-align: center;
+    }
+
     .copyright{
       padding-bottom: 30px;
 
       @include medium-screen {
         padding-bottom: 18px;
+      }
+
+      @include small-screen {
+        padding-bottom: 8px;
+        font-size: 14px;
+        line-height: 22px;
       }
     }
   }

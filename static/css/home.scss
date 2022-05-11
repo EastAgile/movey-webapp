@@ -8,8 +8,13 @@
   box-sizing: border-box;
 
   @include medium-screen {
-    padding: 70px 16px max(74px, calc(100vh - 1070px));
+    padding: 70px 16px max(74px, calc(100vh - 1210px));
   }
+
+  @include small-screen {
+    padding: 32px 16px max(62px, calc(100vh - 1100px));
+  }
+
   .subtitle {
     font-family: var(--sub-title-font);
     color: white;
@@ -21,6 +26,11 @@
       font-size: 32px;
       line-height: 48px;
     }
+
+    @include small-screen {
+      font-size: 24px;
+      line-height: 48px;
+    }
   }
   .search-container {
     width: 100%;
@@ -29,6 +39,19 @@
     @include medium-screen {
       margin-top: 32px;
     }
+
+    @include small-screen {
+      margin-top: 22px;
+    }
+
+    #search-bar::placeholder {
+
+      @include small-screen {
+        text-align: start;
+        color: var(--dark-blue-color);
+      }
+    }
+
     .button {
       float: left;
       padding: 16px;
@@ -52,6 +75,12 @@
       margin-top: 75px;
       margin-bottom: 35px;
     }
+
+    @include small-screen {
+      margin: 40px auto 24px;
+      width: 100%;
+    }
+
     .stat-package {
       border-right: 2px solid var(--blue-color);
     }
@@ -61,6 +90,11 @@
       margin-bottom: 5px;
       font-size: 32px;
       line-height: 36px;
+
+      @include small-screen {
+        font-size: 24px;
+        line-height: 24px;
+      }
     }
     .stat-name {
       color: var(--blue-color);
@@ -76,12 +110,24 @@
     .social-subtitle {
       font-size: 18px;
       line-height: 54px;
+
+      @include small-screen {
+        font-size: 14px;
+        margin-bottom: 20px;
+      }
     }
     .social-icons {
       list-style-type: none;
       display: flex;
       justify-content: space-between;
       margin: 0 auto;
+
+      @include small-screen {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-column-gap: 24px;
+        grid-row-gap: 24px;
+      }
       li {
         border: 1px solid var(--blue-color);
         border-radius: 5px;
@@ -96,6 +142,10 @@
       }
       li:not(:last-child) {
         margin-right: 20px;
+
+        @include small-screen {
+          margin-right: 0;
+        }
       }
     }
   }
