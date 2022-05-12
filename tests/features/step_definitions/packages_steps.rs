@@ -90,6 +90,23 @@ async fn visit_package_page(world: &mut TestWorld) {
         .unwrap();
 }
 
+#[when("I upload a new package to Movey")]
+async fn upload_a_package(_world: &mut TestWorld) {
+    Package::create_test_package(
+        &"test_move_package".to_string(),
+        &"https://github.com/ea-dungn/test_move_package".to_string(),
+        &"package_description".to_string(),
+        &"first_version".to_string(),
+        &"first_readme_content".to_string(),
+        &"rev".to_string(),
+        2,
+        100,
+        &DB_POOL,
+    )
+    .await
+    .unwrap();
+}
+
 #[then("I should see latest information of that package")]
 async fn see_package_latest_info(world: &mut TestWorld) {
     let package_name_element = world
@@ -216,4 +233,30 @@ async fn see_older_version(world: &mut TestWorld) {
         .unwrap();
     let package_version = package_version_element.text().await.unwrap();
     assert_eq!(package_version, "first_version");
+}
+
+#[then("I should see the correct number of packages and package versions")]
+async fn see_stats(world: &mut TestWorld) {
+    let stats = world
+        .driver
+        .find_elements(By::ClassName("stat-no"))
+        .await
+        .unwrap();
+
+    assert_eq!(stats.len(), 2);
+    assert_eq!(stats[0].text().await.unwrap(), "3");
+    assert_eq!(stats[1].text().await.unwrap(), "6");
+}
+
+#[then("I should see the number of packages and package versions increase by 1")]
+async fn stats_after_upload_package(world: &mut TestWorld) {
+    let stats = world
+        .driver
+        .find_elements(By::ClassName("stat-no"))
+        .await
+        .unwrap();
+
+    assert_eq!(stats.len(), 2);
+    assert_eq!(stats[0].text().await.unwrap(), "4");
+    assert_eq!(stats[1].text().await.unwrap(), "7");
 }
