@@ -15,8 +15,7 @@ async fn type_into_search_bar(world: &mut TestWorld) {
 }
 
 #[given("I am a guest / unregistered user")]
-async fn a_guest_user(_world: &mut TestWorld) {
-}
+async fn a_guest_user(_world: &mut TestWorld) {}
 
 #[when("I access the Movey website")]
 async fn visit_home_page(world: &mut TestWorld) {
@@ -112,4 +111,4 @@ async fn to_search_result_page(world: &mut TestWorld) {
     );
 }
 #[then("I should be redirected to the search results page")]
-async fn show_search_results_page(world: &mut TestWorld) {}
+async fn show_search_results_page(_world: &mut TestWorld) {}
