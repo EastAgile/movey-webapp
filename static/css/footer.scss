@@ -38,14 +38,9 @@ footer {
 
   .footer-about {
 
-    @include medium-screen {
+    @include medium-small-screen {
       text-align: center;
     }
-
-    @include small-screen {
-      text-align: center;
-    }
-
     img {
 
       @include small-screen {
@@ -119,11 +114,7 @@ footer {
       }
 
       span {
-        @include medium-screen {
-          display: none;
-        }
-
-        @include small-screen {
+        @include medium-small-screen {
           display: none;
         }
       }
@@ -135,7 +126,7 @@ footer {
       width: 40%;
       margin: 30px auto;
 
-      @include medium-screen {
+      @include medium-small-screen {
         position: absolute;
         top: 370px;
         width: 260px;
@@ -143,16 +134,6 @@ footer {
         margin-left: calc(50vw - 148px);
         margin-top: 0;
       }
-
-      @include small-screen {
-        position: absolute;
-        top: 370px;
-        width: 260px;
-        height: 50px;
-        margin-left: calc(50vw - 148px);
-        margin-top: 0;
-      }
-
       li {
         border: 1px solid var(--blue-color);
         border-radius: 50%;

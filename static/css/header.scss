@@ -21,20 +21,12 @@ header {
     display: grid;
     grid-template-columns: 40% auto;
 
-    @include medium-screen {
+    @include medium-small-screen {
       display: flex;
       height: 100%;
       align-items: center;
       position: relative;
     }
-
-    @include small-screen {
-      display: flex;
-      height: 100%;
-      align-items: center;
-      position: relative;
-    }
-
 
     .menu-nav {
       display: none;
@@ -49,8 +41,8 @@ header {
 
       @include medium-screen {
         display: block;
-        margin: 0 30px;
         flex-shrink: 0;
+        margin: 0 30px;
       }
 
       @include small-screen {
@@ -91,12 +83,7 @@ header {
       display: flex;
       justify-content: space-between;
 
-      @include medium-screen {
-        justify-content: end;
-        width: 100%;
-      }
-
-      @include small-screen {
+      @include medium-small-screen {
         justify-content: end;
         width: 100%;
       }
@@ -109,17 +96,7 @@ header {
 
         &:first-child {
 
-          @include medium-screen {
-            position: absolute;
-            display: block;
-            left: -300px;
-            top: 100px;
-            height: 110px;
-            background: white;
-            z-index: 100;
-          }
-
-          @include small-screen {
+          @include medium-small-screen {
             position: absolute;
             display: block;
             left: -300px;
@@ -150,11 +127,7 @@ header {
         li {
           margin: 0 10px;
 
-          @include medium-screen {
-            margin: 0;
-          }
-
-          @include small-screen {
+          @include medium-small-screen {
             margin: 0;
           }
         }
@@ -181,7 +154,7 @@ header {
 
           @include small-screen {
             position: absolute;
-            left: 0px;
+            left: 0;
             top: 170px;
             z-index: 100;
             display: none;

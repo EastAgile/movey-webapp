@@ -21,15 +21,7 @@ header .header-container {
   display: grid;
   grid-template-columns: 40% auto;
 }
-@media screen and (min-width: 844px) and (max-width: 1280px) {
-  header .header-container {
-    display: flex;
-    height: 100%;
-    align-items: center;
-    position: relative;
-  }
-}
-@media screen and (max-width: 843px) {
+@media screen and (max-width: 1280px) {
   header .header-container {
     display: flex;
     height: 100%;
@@ -50,8 +42,8 @@ header .header-container .menu-nav:hover {
 @media screen and (min-width: 844px) and (max-width: 1280px) {
   header .header-container .menu-nav {
     display: block;
-    margin: 0 30px;
     flex-shrink: 0;
+    margin: 0 30px;
   }
 }
 @media screen and (max-width: 843px) {
@@ -91,13 +83,7 @@ header .header-container nav {
   display: flex;
   justify-content: space-between;
 }
-@media screen and (min-width: 844px) and (max-width: 1280px) {
-  header .header-container nav {
-    justify-content: end;
-    width: 100%;
-  }
-}
-@media screen and (max-width: 843px) {
+@media screen and (max-width: 1280px) {
   header .header-container nav {
     justify-content: end;
     width: 100%;
@@ -109,18 +95,7 @@ header .header-container nav ul {
   display: flex;
   align-items: center;
 }
-@media screen and (min-width: 844px) and (max-width: 1280px) {
-  header .header-container nav ul:first-child {
-    position: absolute;
-    display: block;
-    left: -300px;
-    top: 100px;
-    height: 110px;
-    background: white;
-    z-index: 100;
-  }
-}
-@media screen and (max-width: 843px) {
+@media screen and (max-width: 1280px) {
   header .header-container nav ul:first-child {
     position: absolute;
     display: block;
@@ -151,12 +126,7 @@ header .header-container nav ul {
 header .header-container nav ul li {
   margin: 0 10px;
 }
-@media screen and (min-width: 844px) and (max-width: 1280px) {
-  header .header-container nav ul li {
-    margin: 0;
-  }
-}
-@media screen and (max-width: 843px) {
+@media screen and (max-width: 1280px) {
   header .header-container nav ul li {
     margin: 0;
   }
@@ -184,7 +154,7 @@ header .header-container nav a.sign-in {
 @media screen and (max-width: 843px) {
   header .header-container nav a.sign-in {
     position: absolute;
-    left: 0px;
+    left: 0;
     top: 170px;
     z-index: 100;
     display: none;
