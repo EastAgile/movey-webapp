@@ -26,6 +26,6 @@ body {
   border: 0;
   padding: 0;
   display: flex;
-  width: 120px;
+  width: min(120px, 50vw - 24px);
   height: 40px;
 }

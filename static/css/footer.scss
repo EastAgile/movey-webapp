@@ -66,6 +66,8 @@ footer {
         margin-top: 20px;
         font-size: 14px;
         line-height: 24px;
+        height: 48px;
+        overflow: hidden;
       }
 
     }
@@ -94,12 +96,11 @@ footer {
         position: absolute;
         padding: 0;
         top: 27px;
-        left: 18px;
-        right: 18px;
+        left: 0;
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-row-gap: 24px;
-        width: 270px;
+        width: 100%;
         margin: 0 auto;
         font-size: 12px;
         text-align: center;
@@ -129,9 +130,9 @@ footer {
       @include medium-small-screen {
         position: absolute;
         top: 370px;
-        width: 260px;
+        width: min(260px, 100vw);
         height: 50px;
-        margin-left: calc(50vw - 148px);
+        margin-left: max(calc(50vw - 148px), -18px);
         margin-top: 0;
       }
       li {

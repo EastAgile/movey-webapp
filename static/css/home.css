@@ -7,12 +7,12 @@
 }
 @media screen and (min-width: 844px) and (max-width: 1280px) {
   .home-container {
-    padding: 70px 16px max(74px, 100vh - 1210px);
+    padding: 70px 16px max(74px, 100vh - 1061px);
   }
 }
 @media screen and (max-width: 843px) {
   .home-container {
-    padding: 32px 16px max(62px, 100vh - 1100px);
+    padding: 32px 16px max(62px, 100vh - 1028px);
   }
 }
 .home-container .subtitle {
