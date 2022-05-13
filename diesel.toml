@@ -3,3 +3,6 @@
 
 [print_schema]
 file = "src/schema.rs"
+
+# # Add types from `diesel_full_text_search` like `tsvector`
+import_types = ["diesel::sql_types::*", "diesel_full_text_search::*"]

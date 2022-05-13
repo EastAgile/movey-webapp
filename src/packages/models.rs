@@ -2,6 +2,8 @@ use diesel::prelude::*;
 use diesel::sql_types::{Integer, Text, Timestamptz};
 use diesel::{sql_query, AsChangeset, Identifiable, Insertable, Queryable};
 
+use diesel_full_text_search::{plainto_tsquery, TsVectorExtensions, TsVector};
+
 use jelly::chrono::{DateTime, NaiveDateTime, Utc};
 use jelly::error::Error;
 use jelly::serde::{Deserialize, Serialize};
@@ -12,6 +14,7 @@ use mockall_double::double;
 // use super::forms::{LoginForm, NewAccountForm};
 #[double]
 use crate::github_service::GithubService;
+// use crate::utils::paginate::{Paginate, LoadPaginated};
 use crate::schema::package_versions;
 use crate::schema::package_versions::dsl::*;
 use crate::schema::packages;
@@ -28,6 +31,26 @@ pub struct Package {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
+
+type PackageColumns = (
+    packages::id,
+    packages::name,
+    packages::description,
+    packages::repository_url,
+    packages::total_downloads_count,
+    packages::created_at,
+    packages::updated_at
+);
+
+const PACKAGE_COLUMNS: PackageColumns = (
+    packages::id,
+    packages::name,
+    packages::description,
+    packages::repository_url,
+    packages::total_downloads_count,
+    packages::created_at,
+    packages::updated_at
+);
 
 #[derive(Debug, Serialize, Deserialize, QueryableByName)]
 pub struct PackageSearchResult {
@@ -127,6 +150,7 @@ impl Package {
 
                 let record = diesel::insert_into(packages::table)
                     .values(new_package)
+                    .returning(PACKAGE_COLUMNS)
                     .get_result::<Package>(&connection)?;
 
                 record
@@ -152,7 +176,7 @@ impl Package {
 
     pub async fn get(uid: i32, pool: &DieselPgPool) -> Result<Self, Error> {
         let connection = pool.get()?;
-        let result = packages.find(uid).first::<Package>(&connection)?;
+        let result = packages.find(uid).select(PACKAGE_COLUMNS).first::<Package>(&connection)?;
 
         Ok(result)
     }
@@ -161,6 +185,7 @@ impl Package {
         let connection = pool.get()?;
         let result = packages
             .filter(name.eq(package_name))
+            .select(PACKAGE_COLUMNS)
             .first::<Package>(&connection)?;
 
         Ok(result)
@@ -210,7 +235,7 @@ impl Package {
         let search_query: &str = &search_query.split(" ").collect::<Vec<&str>>().join(" & ");
 
         let matched_packages: Vec<PackageSearchResult> = sql_query(
-            format!("SELECT packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, max(version) version
+            format!("SELECT packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, max(version) as version
                            FROM packages
                            INNER JOIN package_versions
                            ON packages.id = package_versions.package_id
@@ -643,6 +668,7 @@ impl Package {
 
         let record = diesel::insert_into(packages::table)
             .values(new_package)
+            .returning(PACKAGE_COLUMNS)
             .get_result::<Package>(&connection)?;
 
         PackageVersion::create(
@@ -677,6 +703,7 @@ impl Package {
 
         let record = diesel::insert_into(packages::table)
             .values(new_package)
+            .returning(PACKAGE_COLUMNS)
             .get_result::<Package>(&connection)?;
 
         PackageVersion::create(
