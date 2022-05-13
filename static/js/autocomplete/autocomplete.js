@@ -23,23 +23,22 @@ class AutoComplete {
     this.goBackCallback = goBackCallback;
 
     if (isMain) this.displayMain();
-    else this.displayInline();
   }
 
   reDisplay(hiddenSuggestions = false) {
     const input = this.container.querySelector("input");
-    const button = this.container.querySelector("button");
+    const button = this.container.querySelector("#button-main");
+    const x_button = this.container.querySelector("#button-x");
     const wrapper = this.container.querySelector("div");
     const suggestionsContainer = this.container.querySelector("#suggestions");
 
-    if (button) {
-      if (input.value) {
-        if(hiddenSuggestions)
-          button.classList.remove("hidden");
-        else
-          button.classList.add("hidden");
-      }
-      else button.classList.remove("hidden");
+    if (x_button) {
+      if(!hiddenSuggestions)
+        if (input.value) {
+          x_button.classList.remove("hidden");
+        }
+      else
+        x_button.classList.add("hidden");
     }
 
     if (
@@ -147,7 +146,8 @@ class AutoComplete {
       } else {
         try {
           let suggestions = await this.getSuggestions(e.target.value);
-          suggestions.length > 0 ? this.suggestions = suggestions : this.suggestions = [NO_MATCHES_FOUND];
+          suggestions.length > 0 ? this.suggestions = suggestions :
+          input.value.length >= 3 ? this.suggestions = [NO_MATCHES_FOUND] : this.suggestions = [] ;
         } catch (error) {
           this.suggestions = [NO_MATCHES_FOUND];
         }
@@ -176,7 +176,8 @@ class AutoComplete {
           placeholder="${this.placeholder}"
         />
         
-        <button class="icon-default-main"><i class="fa fa-search"></i></button> 
+        <button class="icon-default-main" id="button-main"><i class="fa fa-search"></i></button> 
+        <button class="icon-right-main hidden" id="button-x"><img class="icon flex" src="/static/resources/x-button.svg"/></i></button> 
         <div id="suggestions" class="autocomplete-items autocomplete-shadow hidden"></div>
       </div>
     </div>`;
@@ -184,9 +185,14 @@ class AutoComplete {
     this.bindListeners();
 
     const input = this.container.querySelector("input");
-    const button = this.container.querySelector("button");
+    const button = this.container.querySelector("#button-main");
     button.addEventListener("click", () => {
       window.location.href = '/packages/search?query='+input.value;
+    });
+    const x_button = this.container.querySelector("#button-x");
+    x_button.addEventListener("click", () => {
+      input.value = "";
+      x_button.classList.add("hidden");
     });
   }
 }
