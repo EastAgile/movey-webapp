@@ -60,7 +60,7 @@ class Packages {
                                 <span class='version-number'>${ p.version }</span>
                             </h1>
                             <div class='title-tag'>
-                                First tag
+                                1st tag
                             </div>
                         </div>
                         <div class='sub-tag-list'>
@@ -72,10 +72,14 @@ class Packages {
                         </div>
                     </div>
                     <div class='right-wrapper'>
-                        <p>
+                        <div class='download-count'>
+                            <img src='/static/resources/download_icon.svg'>
+                            <b>${ p.total_downloads_count }</b>
+                        </div>
+                        <div class='update-timestamp'>
                             <img src='/static/resources/reload_icon.svg'>
                             <time datetime='${ p.updated_at }'>${ p.updated_at }</time>
-                        </p>
+                        </div>
                     </div>
                 </div>
                 `

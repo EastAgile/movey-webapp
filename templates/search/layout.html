@@ -32,9 +32,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.5/pagination.min.js"></script>
     
     <script src="/static/js/search/packages.js"></script>
-    <script src="/static/js/search/search_bar.js"></script>
-    <script src="/static/js/search/show.js"></script>
-    <script src="/static/js/search/versions.js"></script>
+    <script src="/static/js/header.js"></script>
 
     {% block meta %}{% endblock %}
     {% block css %}{% endblock %}
@@ -45,7 +43,7 @@
     <![endif]-->
 </head>
 <body>
-    {% include "search/header.html" %}
+    {% include "header.html" %}
     {% block content %}{% endblock %}
     {% include "footer.html" %}
 </body>
