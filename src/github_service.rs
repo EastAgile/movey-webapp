@@ -30,7 +30,7 @@ static APP_USER_AGENT: &str = concat!(
 );
 
 #[cfg(test)]
-use mockall::{automock, mock, predicate::*};
+use mockall::{automock, predicate::*};
 
 pub struct GithubService {}
 
