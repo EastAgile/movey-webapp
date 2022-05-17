@@ -1,4 +1,7 @@
 table! {
+    use diesel::sql_types::*;
+    use diesel_full_text_search::*;
+
     accounts (id) {
         id -> Int4,
         name -> Text,
@@ -14,6 +17,9 @@ table! {
 }
 
 table! {
+    use diesel::sql_types::*;
+    use diesel_full_text_search::*;
+
     package_versions (id) {
         id -> Int4,
         package_id -> Int4,
@@ -30,6 +36,9 @@ table! {
 }
 
 table! {
+    use diesel::sql_types::*;
+    use diesel_full_text_search::*;
+
     packages (id) {
         id -> Int4,
         name -> Text,

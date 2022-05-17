@@ -1,11 +1,10 @@
 .signup-container {
-  font-family: "Mulish";
+  font-family: "Mulish", serif;
   width: 100vw;
   height: 100vh;
   min-height: 800px;
-  background: url(/static/img/Map.png);
-  background-color: var(--cool-gray);
-  background-position-y: -15rem;
+  background: var(--cool-gray) url(/static/img/Map.png);
+  background-position-y: -200px;
 }
 .signup-container .movey-logo {
   content: url(/static/resources/movey_logo.svg);
@@ -13,11 +12,45 @@
   position: sticky;
   padding: 30px;
 }
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .signup-container .movey-logo {
+    padding: 4vh 0 0 7vw;
+  }
+}
+@media screen and (max-width: 843px) {
+  .signup-container .movey-logo {
+    padding: 38px calc(50vw - 118px) 46px calc(50vw - 118px);
+  }
+}
+.signup-container .signup-card-container {
+  margin-top: min(13vh, 50vh - 272px);
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .signup-container .signup-card-container {
+    margin-top: min(19vh, 50vh - 272px);
+  }
+}
+@media screen and (max-width: 843px) {
+  .signup-container .signup-card-container {
+    margin-top: 0;
+  }
+}
 .signup-container .signup-card-container::before {
   content: url(/static/resources/large_curve.svg);
   position: fixed;
   left: 57vw;
   top: 3vh;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .signup-container .signup-card-container::before {
+    top: 17vh;
+    left: 65vw;
+  }
+}
+@media screen and (max-width: 843px) {
+  .signup-container .signup-card-container::before {
+    display: none;
+  }
 }
 .signup-container .signup-card-container::after {
   content: url(/static/resources/small_curve.svg);
@@ -25,37 +58,77 @@
   left: 25vw;
   bottom: 11vh;
 }
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .signup-container .signup-card-container::after {
+    left: -98px;
+    bottom: 12vh;
+  }
+}
+@media screen and (max-width: 843px) {
+  .signup-container .signup-card-container::after {
+    display: none;
+  }
+}
 .signup-container .signup-card-container .signup-card {
   position: relative;
   z-index: 99;
   background-color: white;
-  width: 25%;
-  min-width: fit-content;
-  height: fit-content;
-  padding: 1.5rem 3rem;
-  margin: 3rem auto;
+  width: 424px;
+  padding: 32px;
+  margin: auto;
+}
+@media screen and (max-width: 843px) {
+  .signup-container .signup-card-container .signup-card {
+    padding: 16px;
+    width: 373px;
+  }
 }
 .signup-container .signup-card-container .signup-card .signup-card-title {
   font-family: var(--sub-title-font);
   font-weight: 700;
   font-size: 24px;
+  line-height: 32px;
   color: var(--blue-color);
-  margin-bottom: 2rem;
+  margin-bottom: 24px;
 }
 .signup-container .signup-card-container .signup-card .signup-thirdparty {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  column-gap: 15px;
+  column-gap: 8px;
   place-items: center/stretch;
-  margin-bottom: 2.5rem;
+  margin-bottom: 24px;
+}
+@media screen and (max-width: 843px) {
+  .signup-container .signup-card-container .signup-card .signup-thirdparty {
+    display: block;
+    margin-bottom: 24px;
+  }
 }
 .signup-container .signup-card-container .signup-card .signup-thirdparty .g-signin2 .abcRioButton, .signup-container .signup-card-container .signup-card .signup-thirdparty .g-signin2 .abcRioButtonLightBlue {
   width: 100% !important;
   border-radius: 4px;
   border: 1px solid var(--cool-gray);
 }
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .signup-container .signup-card-container .signup-card .signup-thirdparty .g-signin2 .abcRioButton, .signup-container .signup-card-container .signup-card .signup-thirdparty .g-signin2 .abcRioButtonLightBlue {
+    width: 176px !important;
+  }
+}
+@media screen and (max-width: 843px) {
+  .signup-container .signup-card-container .signup-card .signup-thirdparty .g-signin2 .abcRioButton, .signup-container .signup-card-container .signup-card .signup-thirdparty .g-signin2 .abcRioButtonLightBlue {
+    width: 100% !important;
+  }
+}
+@media screen and (max-width: 843px) {
+  .signup-container .signup-card-container .signup-card .signup-thirdparty .g-signin2 .abcRioButton .abcRioButtonContentWrapper, .signup-container .signup-card-container .signup-card .signup-thirdparty .g-signin2 .abcRioButtonLightBlue .abcRioButtonContentWrapper {
+    display: flex;
+    justify-content: center;
+    padding-left: 18px;
+    height: 36px;
+  }
+}
 .signup-container .signup-card-container .signup-card .signup-thirdparty .g-signin2 .abcRioButton .abcRioButtonContentWrapper .abcRioButtonContents span, .signup-container .signup-card-container .signup-card .signup-thirdparty .g-signin2 .abcRioButtonLightBlue .abcRioButtonContentWrapper .abcRioButtonContents span {
-  font-family: "Mulish";
+  font-family: "Mulish", serif;
   font-size: 14px;
   font-weight: 500;
   color: black;
@@ -67,10 +140,16 @@
 .signup-container .signup-card-container .signup-card .signup-thirdparty .github-btn-wrapper .github-btn {
   display: flex;
   align-items: center;
-  height: 40px;
+  height: 36px;
   border-radius: 4px;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
   transition: border-color 0.218s ease-in-out, box-shadow 0.218s ease-in-out;
+}
+@media screen and (max-width: 843px) {
+  .signup-container .signup-card-container .signup-card .signup-thirdparty .github-btn-wrapper .github-btn {
+    justify-content: center;
+    margin-top: 20px;
+  }
 }
 .signup-container .signup-card-container .signup-card .signup-thirdparty .github-btn-wrapper .github-btn i {
   font-size: x-large;
@@ -83,6 +162,11 @@
   justify-content: center;
   overflow-x: hidden;
 }
+@media screen and (max-width: 843px) {
+  .signup-container .signup-card-container .signup-card .signup-thirdparty .github-btn-wrapper .github-btn .btn-text {
+    margin: unset;
+  }
+}
 .signup-container .signup-card-container .signup-card .signup-thirdparty .github-btn-wrapper .github-btn:hover {
   box-shadow: 0 0 6px var(--blue-color);
 }
@@ -91,44 +175,54 @@
 }
 .signup-container .signup-card-container .signup-card .signup-separator {
   color: var(--gray-color);
-  margin-bottom: 1rem;
+  margin-top: 36px;
+  margin-bottom: 24px;
 }
 .signup-container .signup-card-container .signup-card .signup-separator .signup-separator-line {
   border-top: 2px solid var(--gray-color);
 }
 .signup-container .signup-card-container .signup-card .signup-separator .signup-separator-text {
+  background-color: white;
   width: fit-content;
   font-size: 16px;
-  line-height: 1.5rem;
+  line-height: 20px;
   margin: -0.75rem auto 0;
-  background: white;
-  padding: 0 1rem;
+  padding: 0 16px;
+}
+.signup-container .signup-card-container .signup-card .signup-form .signup-input {
+  margin-bottom: 16px;
+}
+.signup-container .signup-card-container .signup-card .signup-form .signup-input:focus-within .signup-input-label {
+  color: var(--blue-color);
 }
 .signup-container .signup-card-container .signup-card .signup-form .signup-input .signup-input-label {
   display: inline-block;
   font-size: 16px;
   font-weight: 500;
+  line-height: 20px;
   color: var(--dark-blue-color);
-  margin-top: 1rem;
+  margin-top: 0;
+  margin-bottom: 8px;
 }
 .signup-container .signup-card-container .signup-card .signup-form .signup-input .signup-input-field {
   display: block;
   box-sizing: border-box;
   width: 100%;
-  margin: 0.5rem 0;
-  padding: 0.375rem 0.75rem;
+  height: 36px;
+  margin-bottom: 8px;
+  padding: 8px;
   font-family: inherit;
   font-size: 16px;
   font-weight: 400;
-  line-height: 1.5;
+  line-height: 20px;
   color: var(--dark-blue-color);
   background-clip: padding-box;
   border: 1px solid var(--cool-gray);
+  border-radius: 4px;
   box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.25);
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  border-radius: 4px;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 .signup-container .signup-card-container .signup-card .signup-form .signup-input .signup-input-field:focus {
@@ -144,14 +238,15 @@
 }
 .signup-container .signup-card-container .signup-card .signup-form .signup-input .error i {
   font-size: 16px;
-  margin-right: 0.5rem;
+  margin-right: 8px;
 }
 .signup-container .signup-card-container .signup-card .signup-form .create_account_btn {
   font-size: 14px;
   width: 100%;
+  height: 36px;
   padding: 0.75rem;
-  margin-top: 1rem;
-  margin-bottom: 1.5rem;
+  margin-top: 16px;
+  margin-bottom: 24px;
   border-radius: 4px;
   border: none;
   background-color: var(--blue-color);
@@ -163,8 +258,14 @@
   background-color: #D9DDE7;
 }
 .signup-container .signup-card-container .signup-card .signup-agree {
-  margin-bottom: 1rem;
+  margin-bottom: 24px;
   font-size: 14px;
+  vertical-align: middle;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .signup-container .signup-card-container .signup-card .signup-agree {
+    margin-left: 4px;
+  }
 }
 .signup-container .signup-card-container .signup-card .signup-agree a {
   color: var(--dark-blue-color);
@@ -173,6 +274,7 @@
 .signup-container .signup-card-container .signup-card .signin-invitation {
   color: var(--dark-blue-color);
   font-size: 14px;
+  margin-bottom: unset;
 }
 .signup-container .signup-card-container .signup-card .signin-invitation a {
   text-decoration: none;

@@ -17,6 +17,7 @@ path = "src/main.rs"
 actix-rt = "*"
 base64-url = "1.4.8"
 diesel = { version = "1.4.8", features = ["postgres", "r2d2", "chrono"] }
+diesel_full_text_search = "1.0.1"
 diesel_migrations = "1.4.0"
 dotenv = "0.15.0"
 jelly = { path = "jelly", features = ["email-local"] }

@@ -5,6 +5,8 @@ use std::io;
 #[macro_use]
 extern crate diesel;
 
+extern crate diesel_full_text_search;
+
 #[macro_use]
 extern crate log;
 
