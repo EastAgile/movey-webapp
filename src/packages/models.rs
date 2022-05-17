@@ -15,7 +15,7 @@ use mockall_double::double;
 // use super::forms::{LoginForm, NewAccountForm};
 #[double]
 use crate::github_service::GithubService;
-// use crate::utils::paginate::{Paginate, LoadPaginated};
+use crate::utils::paginate::{LoadPaginated, Paginate};
 use crate::schema::package_versions;
 use crate::schema::package_versions::dsl::*;
 use crate::schema::packages;
@@ -53,7 +53,7 @@ const PACKAGE_COLUMNS: PackageColumns = (
     packages::updated_at
 );
 
-#[derive(Debug, Serialize, Deserialize, QueryableByName)]
+#[derive(Debug, Serialize, Deserialize, QueryableByName, Queryable)]
 pub struct PackageSearchResult {
     #[sql_type = "Integer"]
     pub id: i32,
@@ -184,6 +184,7 @@ impl Package {
 
     pub async fn get_by_name(package_name: &String, pool: &DieselPgPool) -> Result<Self, Error> {
         let connection = pool.get()?;
+
         let result = packages
             .filter(name.eq(package_name))
             .select(PACKAGE_COLUMNS)
@@ -206,7 +207,7 @@ impl Package {
     }
 
     pub async fn increase_download_count(
-        url: &String, 
+        url: &String,
         rev_: &String,
         service: &GithubService,
         pool: &DieselPgPool
@@ -221,7 +222,7 @@ impl Package {
                 .replace(".git", "")
                 .to_owned();
         }
-        
+
         let package_id_ = packages
             .filter(repository_url.eq(&https_url))
             .select(packages::id)
@@ -242,8 +243,8 @@ impl Package {
                         PackageVersion::create(
                             package_id_,
                             github_data.name,
-                            github_data.readme_content, 
-                            rev_.clone(), 
+                            github_data.readme_content,
+                            rev_.clone(),
                             -1,
                             -1,
                             pool
@@ -257,8 +258,8 @@ impl Package {
             Err(NotFound) => {
                 // Package is not found, creating shadow package and package version
                 Package::create(
-                    &https_url, &String::from(""), &rev_, 
-                    -1, 
+                    &https_url, &String::from(""), &rev_,
+                    -1,
                     -1,
                     service,
                     &pool)
@@ -311,21 +312,20 @@ impl Package {
         let order_query = format!("ORDER BY {} {}", field, order);
         let search_query: &str = &search_query.split(" ").collect::<Vec<&str>>().join(" & ");
 
-        let matched_packages: Vec<PackageSearchResult> = sql_query(
-            format!("SELECT packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, max(version) as version
-                           FROM packages
-                           INNER JOIN package_versions
-                           ON packages.id = package_versions.package_id
-                           WHERE tsv @@ to_tsquery($1)
-                           GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at
-                           {}", order_query
-            ),
-        )
-        .bind::<Text, _>(search_query)
-        .load(&connection)
-        .unwrap();
-        return Ok(matched_packages);
-	}
+        // TODO: load these from query params and constants
+        let page = Some(1);
+        let per_page = Some(10);
+
+        let matched_packages: (Vec<PackageSearchResult>, i64) = packages::table
+            .inner_join(package_versions::table)
+            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
+            .filter(tsv.matches(plainto_tsquery(search_query)))
+            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
+            .load_with_pagination(&connection, page, per_page)
+            .unwrap();
+
+        return Ok(matched_packages.0);
+    }
 }
 
 impl PackageVersion {
@@ -753,7 +753,7 @@ mod tests {
         assert_eq!(package_version_after.downloads_count, 2);
 
         let _ = Package::increase_download_count(
-            &"git@github.com:eadungn/taohe.git".to_string(), 
+            &"git@github.com:eadungn/taohe.git".to_string(),
             rev_,
             &mock_github_service,
             &DB_POOL).await;
@@ -869,7 +869,7 @@ mod tests {
         assert_eq!(package_total_downloads, 2);
 
         Package::increase_download_count(
-            &"git@github.com:eadungn/taohe.git".to_string(), 
+            &"git@github.com:eadungn/taohe.git".to_string(),
             &rev2,
             &mock_github_service,
             &DB_POOL).await.unwrap();

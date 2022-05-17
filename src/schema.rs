@@ -47,7 +47,7 @@ table! {
         total_downloads_count -> Int4,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
-        tsv -> Nullable<TsVector>,
+        tsv -> TsVector,
     }
 }
 
