@@ -1,3 +1,5 @@
+@import "queries.scss";
+
 header {
   height: 100px;
   padding: 30px;
@@ -7,40 +9,131 @@ header {
   right: 0;
   box-sizing: border-box;
 
-  
+  @include medium-screen {
+    padding: 0 30px 0 0;
+  }
+
+  @include small-screen {
+    padding: 0 15px 0 0;
+  }
+
   .header-container {
     display: grid;
     grid-template-columns: 40% auto;
 
+    @include medium-small-screen {
+      display: flex;
+      height: 100%;
+      align-items: center;
+      position: relative;
+    }
+
+    .menu-nav {
+      display: none;
+      background-image: url('/static/resources/icon-dashboard.svg');
+      background-repeat: no-repeat;
+      width: 40px;
+      height: 26px;
+
+      &:hover {
+        cursor: pointer;
+      }
+
+      @include medium-screen {
+        display: block;
+        flex-shrink: 0;
+        margin: 0 30px;
+      }
+
+      @include small-screen {
+        display: block;
+        flex-shrink: 0;
+        margin: 0 15px;
+      }
+    }
+
     .header-logo {
       background-image: url('/static/resources/logo.svg');
       background-repeat: no-repeat;
-      height: 30px;
+      height: 31px;
+      width: 236px;
+
+      @include small-screen {
+        height: 18px;
+        width: 50px;
+        background-image: url('/static/resources/logo_extra_small.svg');
+      }
     }
+
 
     .sub-title {
       font-weight: bold;
       font-size: 2rem;
     }
+
     a {
       color: var(--dark-blue-color);
       text-decoration: none;
+
+      @include medium-screen {
+        height: fit-content;
+      }
     }
     nav {
       display: flex;
       justify-content: space-between;
+
+      @include medium-small-screen {
+        justify-content: end;
+        width: 100%;
+      }
 
       ul {
         list-style-type: none;
         margin: 0;
         display: flex;
         align-items: center;
+
+        &:first-child {
+
+          @include medium-small-screen {
+            position: absolute;
+            display: block;
+            left: -300px;
+            top: 100px;
+            height: 110px;
+            background: white;
+            z-index: 100;
+          }
+
+          li {
+
+            @include medium-screen {
+              margin: 0 30px;
+            }
+
+            @include small-screen {
+              margin: 0 5px;
+            }
+            a {
+              @include medium-screen {
+                width: 100%;
+                display: inline-block;
+                padding: 0;
+              }
+            }
+          }
+        }
         li {
           margin: 0 10px;
+
+          @include medium-small-screen {
+            margin: 0;
+          }
         }
       }
 
-      button {
+      a {
         cursor: pointer;
         padding: 10px;
 
@@ -49,12 +142,38 @@ header {
           border: none;
           margin: 0;
           color: var(--dark-blue-color);
+
+          @include medium-screen {
+            position: absolute;
+            left: 0;
+            top: 170px;
+            z-index: 100;
+            display: none;
+            padding-left: 30px;
+          }
+
+          @include small-screen {
+            position: absolute;
+            left: 0;
+            top: 170px;
+            z-index: 100;
+            display: none;
+            padding-left: 15px;
+          }
         }
         &.sign-up {
           background: var(--blue-color);
           border: none;
           border-radius: 5px;
           color: white;
+          width: 147px;
+          height: 48px;
+          display: inline-block;
+          text-align: center;
+
+          @include small-screen {
+            font-weight: 700;
+          }
         }
       }
     }
