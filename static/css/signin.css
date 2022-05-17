@@ -4,7 +4,7 @@
   height: 100vh;
   min-height: 800px;
   background: var(--cool-gray) url(/static/img/Map.png);
-  background-position-y: -15rem;
+  background-position-y: -200px;
 }
 .login-container .movey-logo {
   content: url(/static/resources/movey_logo.svg);
