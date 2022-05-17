@@ -145,19 +145,17 @@ header {
 
           @include medium-screen {
             position: absolute;
-            left: 0;
+            left: -300px;
             top: 170px;
             z-index: 100;
-            display: none;
             padding-left: 30px;
           }
 
           @include small-screen {
             position: absolute;
-            left: 0;
+            left: -300px;
             top: 170px;
             z-index: 100;
-            display: none;
             padding-left: 15px;
           }
         }

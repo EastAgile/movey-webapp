@@ -2,17 +2,19 @@
 
 .home-container {
   background: var(--dark-blue-color);
-  padding: 120px 20% 0 20%;
+  padding: 90px 20% 0 20%;
   text-align: center;
-  overflow: scroll;
   box-sizing: border-box;
+  height: max(814px, calc(100vh - 350px));
 
   @include medium-screen {
-    padding: 70px 16px max(74px, calc(100vh - 1061px));
+    padding: 70px 16px 0;
+    height: max(624px, calc(100vh - 557px));
   }
 
   @include small-screen {
-    padding: 32px 16px max(62px, calc(100vh - 1028px));
+    padding: 32px 16px 0;
+    height: max(577px, calc(100vh - 583px));
   }
 
   .subtitle {
@@ -43,13 +45,8 @@
     @include small-screen {
       margin-top: 22px;
     }
-
-    #search-bar::placeholder {
-
-      @include small-screen {
-        text-align: start;
-        color: var(--dark-blue-color);
-      }
+    #search-bar {
+      text-align: start;
     }
 
     .button {

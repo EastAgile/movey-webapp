@@ -23,10 +23,10 @@ class Header {
         this.menu.click(() => {
             if (this.navLinks.css('left') === '0px') {
                 this.navLinks.css('left', '-300px');
-                this.signInButton.css('display', 'none')
+                this.signInButton.css('left', '-300px')
             } else {
                 this.navLinks.css('left', '0px');
-                this.signInButton.css('display', 'block')
+                this.signInButton.css('left', '0px')
             }
         })
 
@@ -34,7 +34,7 @@ class Header {
             let clicked = e.target.className;
             if(clicked !== 'nav-links' && clicked !== 'menu-nav') {
                 this.navLinks.css('left', '-300px');
-                this.signInButton.css('display', 'none')
+                this.signInButton.css('left', '-300px')
             }
         });
     }
