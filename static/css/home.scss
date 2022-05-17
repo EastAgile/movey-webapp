@@ -45,13 +45,8 @@
     @include small-screen {
       margin-top: 22px;
     }
-
-    #search-bar::placeholder {
-
-      @include small-screen {
-        text-align: start;
-        color: var(--dark-blue-color);
-      }
+    #search-bar {
+      text-align: start;
     }
 
     .button {

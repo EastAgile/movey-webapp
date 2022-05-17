@@ -50,11 +50,8 @@
     margin-top: 22px;
   }
 }
-@media screen and (max-width: 843px) {
-  .home-container .search-container #search-bar::placeholder {
-    text-align: start;
-    color: var(--dark-blue-color);
-  }
+.home-container .search-container #search-bar {
+  text-align: start;
 }
 .home-container .search-container .button {
   float: left;
