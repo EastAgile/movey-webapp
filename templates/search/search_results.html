@@ -4,10 +4,10 @@
 {% block content %}
 <div class="content-wrapper">
     <div class="setting-bar">
-        <p>{{ package_count }} results <a>for '{{ query }}'</a></p>
+        <p>{{ total_count }} results <a>for '{{ query }}'</a></p>
         <div class="package-search-sort">
             <label for="packages-sort">Sort by</label>
-            <select name="packages-sort" 
+            <select name="packages-sort"
                     class="packages-sort"
                     data-sort="{{ sort_type }}"
                     data-url="/packages/search?query={{ query }}"
@@ -22,14 +22,63 @@
     </div>
 
     <div id="package-list-container">
-        <div class="package-list"></div>
+        <div class="package-list">
+            {% for package in packages %}
+            <div class="package-list-item">
+                <div class="left-wrapper">
+                    <div class="package-list-item-title">
+                        <h1>
+                            <a href="/packages/{{ package.name }}"><span>{{ package.name }}</span></a>&nbsp;
+                            <span class="version-number">{{ package.version }}</span>
+                        </h1>
+                        <div class="title-tag">
+                            First tag
+                        </div>
+                    </div>
+                    <div class="sub-tag-list">
+                        <div class="sub-tag">Normal Tag</div>
+                        <div class="sub-tag">Normal Tag</div>
+                    </div>
+                    <div class="package-summary">{{ package.description }}</div>
+                </div>
+                <div class="right-wrapper">
+                    <p>
+                        <img src="/static/resources/reload_icon.svg">
+                        <time datetime='{{ package.updated_at }}'>{{ package.updated_at }}</time>
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="paginationjs">
+            <div class="paginationjs-pages">
+                <ul>
+                    {% if current_page != 1 %}
+                    <li class="paginationjs-prev J-paginationjs-prev">
+                        <i class='fa fa-chevron-left'></i>
+                    </li>
+                    {% endif %}
+
+                    {% for i in range(end=total_pages) %}
+                    <li class="paginationjs-page J-paginationjs-page {% if i + 1 == current_page %}active{% endif %}" data-url="/packages/search?query={{ query }}&field={{ sort_type }}" data-page="{{ i + 1 }}">
+                        <a>{{ i + 1 }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if current_page != total_pages %}
+                        <li class="paginationjs-next J-paginationjs-next">
+                            <i class='fa fa-chevron-right'></i>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
     $(document).ready(function() {
-        new SearchBar();
-        new Packages('{{ packages }}');
+        new SearchPage();
     })
 </script>
 {% endblock %}
