@@ -10,6 +10,7 @@ pub struct TestWorld {
     pub driver: WebDriver,
     pub root_url: String,
     pub suggestion: String,
+    pub reset_token: String,
 }
 
 // `World` needs to be implemented, so Cucumber knows how to construct it
@@ -26,10 +27,13 @@ impl World for TestWorld {
                 caps.add_chrome_arg("--no-sandbox").unwrap();
                 caps.add_chrome_arg("--headless").unwrap();
                 caps.add_chrome_arg("--window-size=1920,1080").unwrap();
-                WebDriver::new("http://localhost:4444", &caps).await.unwrap()
+                WebDriver::new("http://localhost:4444", &caps)
+                    .await
+                    .unwrap()
             },
             root_url: "http://localhost:17002/".to_string(),
             suggestion: String::from(""),
+            reset_token: String::from(""),
         })
     }
 }

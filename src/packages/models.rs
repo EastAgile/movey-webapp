@@ -1,3 +1,4 @@
+use diesel::dsl::count;
 use diesel::prelude::*;
 use diesel::sql_types::{Integer, Text, Timestamptz};
 use diesel::{sql_query, AsChangeset, Identifiable, Insertable, Queryable};
@@ -129,6 +130,13 @@ pub enum PackageVersionSort {
 }
 
 impl Package {
+    pub async fn count(pool: &DieselPgPool) -> i64 {
+        let connection = pool.get().unwrap();
+        packages
+            .select(count(packages::id))
+            .first::<i64>(&connection)
+            .unwrap()
+    }
     pub async fn create(
         repo_url: &String,
         package_description: &String,
@@ -333,6 +341,13 @@ impl Package {
 }
 
 impl PackageVersion {
+    pub async fn count(pool: &DieselPgPool) -> i64 {
+        let connection = pool.get().unwrap();
+        package_versions
+            .select(count(package_versions::id))
+            .first::<i64>(&connection)
+            .unwrap()
+    }
     pub async fn create(
         version_package_id: i32,
         version_name: String,
@@ -397,7 +412,6 @@ mod tests {
 
     async fn setup() -> Result<(), Error> {
         let pool = &DB_POOL;
-        let connection = pool.get()?;
         Package::create_test_package(
             &"The first package".to_string(),
             &"".to_string(),
@@ -409,7 +423,7 @@ mod tests {
             0,
             &pool,
         )
-        .await;
+        .await?;
         Package::create_test_package(
             &"The first Diva".to_string(),
             &"".to_string(),
@@ -421,7 +435,7 @@ mod tests {
             0,
             &pool,
         )
-        .await;
+        .await?;
         Package::create_test_package(
             &"Charles Diya".to_string(),
             &"".to_string(),
@@ -433,7 +447,7 @@ mod tests {
             0,
             &pool,
         )
-        .await;
+        .await?;
         Ok(())
     }
 
@@ -441,7 +455,7 @@ mod tests {
     async fn search_by_single_word_works() {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
-        setup().await;
+        setup().await.unwrap();
         let pool = &DB_POOL;
         let search_query = "package";
         let (search_result, total_count, total_pages) = Package::search(
@@ -463,7 +477,7 @@ mod tests {
     async fn search_by_multiple_words_works() {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
-        setup().await;
+        setup().await.unwrap();
         let pool = &DB_POOL;
         let search_query = "the package";
         let (search_result, total_count, total_pages) = Package::search(
@@ -485,7 +499,7 @@ mod tests {
     async fn search_return_multiple_result() {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
-        setup().await;
+        setup().await.unwrap();
         let pool = &DB_POOL;
         let search_query = "first";
         let (search_result, total_count, total_pages) = Package::search(
@@ -711,6 +725,31 @@ mod tests {
     }
 
     #[actix_rt::test]
+    async fn count_package_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+
+        assert_eq!(Package::count(&DB_POOL).await, 0);
+        assert_eq!(PackageVersion::count(&DB_POOL).await, 0);
+        setup().await.unwrap();
+
+        assert_eq!(Package::count(&DB_POOL).await, 3);
+        assert_eq!(PackageVersion::count(&DB_POOL).await, 3);
+
+        PackageVersion::create(
+            1,
+            "second_version".to_string(),
+            "second_readme_content".to_string(),
+            "rev_2".to_string(),
+            2,
+            100,
+            &DB_POOL,
+        )
+        .await
+        .unwrap();
+        assert_eq!(PackageVersion::count(&DB_POOL).await, 4);
+    }
+    
     async fn increase_download_count_works() {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
@@ -883,6 +922,7 @@ mod tests {
         let package_total_downloads = Package::get(1, &DB_POOL).await.unwrap().total_downloads_count;
         assert_eq!(package_total_downloads, 3);
     }
+    
 }
 
 // Helpers for integration tests only. Wondering why cfg(test) below doesn't work... (commented out for now)

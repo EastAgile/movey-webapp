@@ -1,3 +1,5 @@
+@import "./queries.scss";
+
 body {
     position: relative;
 }
@@ -12,13 +14,36 @@ footer {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        height: 100px;
-        padding: 0 50px 0 175px;
-        border-bottom: 1px solid #808FB0;
+        min-height: 100px;
+        border-bottom: 1px solid rgba(128, 143, 176, .5);
+
+        @include large-screen {
+            padding: 0 50px 0 175px;
+        }
+
+        @include medium-small-screen {
+            padding: 0 15px 0 15px;
+            box-shadow: 0px 4px 8px rgba(2, 20, 58, 0.1);
+        }
+
+        @include small-screen {
+            flex-direction: column;
+            align-items: flex-start;
+        }
 
         p {
             font-size: 24px;
             color: var(--dark-blue-color);
+            white-space: nowrap;
+
+            @include medium-small-screen {
+                font-size: 16px;
+            }
+
+            @include small-screen {
+                margin: 33px 0 13px 0;
+            }
+
             a {
                 color: var(--blue-color);
                 font-style: italic;
@@ -29,39 +54,118 @@ footer {
 
     #package-list-container {
         width: 100%;
-        padding: 70px 175px 265px 175px;
+
+        @include large-screen {
+            padding: 70px 175px 265px 175px;
+        }
+
+        @include medium-small-screen {
+            padding: 30px 0 70px 0;
+        }
 
         .package-list {
             width: 100%;
             display: flex;
             flex-direction: column;
-            margin-bottom: 50px;
+
+            @include large-screen {
+                margin-bottom: 50px;
+            }
+
+            @include medium-small-screen {
+                margin-bottom: 10px;
+            }
 
             .package-list-item {
                 width: 100%;
-                height: 165px;
                 display: flex;
                 justify-content: space-between;
-                padding-bottom: 20px;
                 margin-bottom: 20px;
-                border-bottom: 1px solid #808FB0;
+                border-bottom: 1px solid rgba(128, 143, 176, .5);
+
+                @include large-screen {
+                    height: 165px;
+                    padding-bottom: 20px;
+                }
+
+                @include medium-small-screen {
+                    height: 242px;
+                    padding: 0 33px 20px 16px;
+                    flex-direction: column;
+                }
+
+                @include small-screen {
+                    padding-right: 0;
+                }
 
                 .left-wrapper {
-                    width: 80%;
-                    height: 100%;
                     display: flex;
                     flex-direction: column;
                     justify-content: space-between;
+
+                    @include large-screen {
+                        width: 70%;
+                        height: 100%;
+                    }
+
+                    @include medium-small-screen {
+                        width: 100%;
+                        height: 172px;
+                    }
                 }
 
                 .right-wrapper {
-                    width: 20%;
                     display: flex;
-                    justify-content: flex-end;
                     align-items: center;
-                    p {
-                        font-size: 24px;
+
+                    @include large-screen {
+                        width: 30%;
+                        justify-content: flex-end;
+                    }
+
+                    @include medium-small-screen {
+                        width: 100%;
+                        flex-direction: column;
+                        justify-content: space-around;
+                    }
+
+                    .update-timestamp {
                         color: var(--gray-color);
+                    }
+
+                    .download-count {
+                        color: var(--dark-blue-color);
+
+                        @include large-screen {
+                            display: none;
+                        }
+
+                        @include medium-small-screen {
+                            display: block;
+                        }
+                    }
+
+                    img {
+                        @include large-screen {
+                            width: 20px;
+                            height: 20px;
+                        }
+
+                        @include medium-small-screen {
+                            width: 16px;
+                            height: 16px;
+                        }
+                    }
+
+                    div {
+                        @include large-screen {
+                            font-size: 24px;
+                        }
+
+                        @include medium-small-screen {
+                            width: 100%;
+                            font-size: 16px;
+                        }
                     }
                 }
             }
@@ -69,33 +173,70 @@ footer {
             .left-wrapper {
                 .package-list-item-title {
                     width: 100%;
-                    height: 55px;
                     display: flex;
                     justify-content: flex-start;
                     align-items: flex-end;
                     margin: 0;
 
+                    @include large-screen {
+                        height: 55px;
+                    }
+
+                    @include medium-small-screen {
+                        height: 36px;
+                    }
+
                     h1, h1 a {
-                        font-size: 32px;
                         font-weight: bold;
                         color: var(--dark-blue-color);
                         margin: 0 20px 0 0;
+                        max-width: 60%;
+                        white-space: nowrap;
+                        overflow-x: clip;
+
+                        @include large-screen {
+                            font-size: 32px;
+                        }
+
+                        @include medium-small-screen {
+                            font-size: 24px;
+                        }
                     }
 
                     .version-number {
-                        font-size: 24px;
                         font-weight: normal;
                         color: var(--gray-color);
+
+                        @include large-screen {
+                            font-size: 24px;
+                        }
+
+                        @include medium-small-screen {
+                            font-size: 16px;
+                        }
                     }
 
                     .title-tag {
                         background-color: #FCDDEC;
                         text-align: center;
                         border-radius: 8px;
-                        padding: 5px 10px;
-                        font-size: 16px;
+                        font-weight: 600;
                         color: var(--dark-blue-color);
                         margin-bottom: auto;
+                        max-width: 30%;
+                        overflow-x: clip;
+                        text-overflow: ellipsis;
+
+                        @include large-screen {
+                            font-size: 16px;
+                            padding: 5px 10px;
+                        }
+
+                        @include medium-small-screen {
+                            height: 28px;
+                            font-size: 14px;
+                            padding: 4px 8px;
+                        }
                     }
                 }
 
@@ -110,10 +251,20 @@ footer {
                         background-color: var(--geyser-color);
                         text-align: center;
                         border-radius: 8px;
-                        padding: 3px 10px;
                         font-size: 16px;
+                        font-weight: 600;
+                        height: 35px;
                         color: var(--dark-blue-color);
-                        margin: 0 10px;
+
+                        @include large-screen {
+                            padding: 3px 10px;
+                            margin: 0 10px;
+                        }
+
+                        @include medium-small-screen {
+                            padding: 5px 10px;
+                            margin: 0 5px;
+                        }
                     }
 
                     .sub-tag:first-child {
@@ -123,11 +274,20 @@ footer {
 
                 .package-summary {
                     width: 100%;
-                    font-size: 24px;
                     text-align: left;
                     color: var(--gray-color);
                     margin: 0;
-                    overflow: hidden;
+                    overflow: clip;
+                    text-overflow: ellipsis;
+
+                    @include large-screen {
+                        font-size: 24px;
+                        white-space: nowrap;
+                    }
+
+                    @include medium-small-screen {
+                        font-size: 16px;
+                    }
                 }
             }
         }
@@ -135,9 +295,24 @@ footer {
         .paginationjs {
             position: relative;
 
+            @include medium-small-screen {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
             .paginationjs-pages {
-                position: absolute;
-                right: 0;
+                @include large-screen {
+                    max-width: 50%;
+                    position: absolute;
+                    right: 0;
+                }
+
+                @include medium-small-screen {
+                    max-width: 80%;
+                    position: static;
+                    order: 2;
+                }
 
                 .paginationjs-next,
                 .paginationjs-prev,
@@ -185,12 +360,23 @@ footer {
             }
 
             .paginationjs-nav {
-                position: absolute;
-                left: 0;
-                margin: 0;
-                font-size: 24px;
                 font-style: italic;
                 color: var(--dark-blue-color);
+
+                @include large-screen {
+                    max-width: 45%;
+                    position: absolute;
+                    left: 0;
+                    font-size: 24px;
+                    margin: 0;
+                }
+
+                @include medium-small-screen {
+                    max-width: 80%;
+                    position: static;
+                    font-size: 16px;
+                    margin-bottom: 20px;
+                }
             }
         }
     }
@@ -203,21 +389,41 @@ footer {
     margin-left: auto;
     position: relative;
 
+    @include small-screen {
+        margin: 0 0 25px 0;
+    }
+
     label {
         flex-shrink: 0;
-        width: 100px;
         color: #808FB0;
-        font-size: 24px;
         line-height: 30px;
+
+        @include large-screen {
+            width: 100px;
+            font-size: 24px;
+        }
+
+        @include medium-small-screen {
+            width: 65px;
+            font-size: 16px;
+        }
     }
 
     select {
-        font-size: 24px;
         line-height: 30px;
         flex-shrink: 0;
-        max-width: 315px;
         margin-bottom: 0;
         color: #001F60;
+
+        @include large-screen {
+            font-size: 24px;
+            width: 315px;
+        }
+
+        @include medium-small-screen {
+            font-size: 16px;
+            width: 225px;
+        }
     }
 
     .select2-container {
@@ -233,8 +439,15 @@ footer {
                 display: flex;
                 align-items: center;
                 padding-left: 20px;
-                font-size: 24px;
                 color: var(--dark-blue-color);
+
+                @include large-screen {
+                    font-size: 24px;
+                }
+
+                @include medium-small-screen {
+                    font-size: 16px;
+                }
             }
 
             .select2-selection__arrow {
@@ -263,9 +476,16 @@ footer {
     .select2-results {
         .select2-results__option {
             padding-left: 20px;
-            font-size: 24px;
             line-height: 50px;
             color: var(--dark-blue-color);
+
+            @include large-screen {
+                font-size: 24px;
+            }
+
+            @include medium-small-screen {
+                font-size: 16px;
+            }
         }
 
         .select2-results__option[aria-selected=true] {

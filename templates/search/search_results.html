@@ -20,7 +20,6 @@
             <div class="packages-sort-chevron"></div>
         </div>
     </div>
-
     <div id="package-list-container">
         <div class="package-list">
             {% for package in packages %}
@@ -42,10 +41,14 @@
                     <div class="package-summary">{{ package.description }}</div>
                 </div>
                 <div class="right-wrapper">
-                    <p>
-                        <img src="/static/resources/reload_icon.svg">
+                    <div class='download-count'>
+                        <img src='/static/resources/download_icon.svg'>
+                        <b>{{ package.total_downloads_count }}</b>
+                    </div>
+                    <div class='update-timestamp'>
+                        <img src='/static/resources/reload_icon.svg'>
                         <time datetime='{{ package.updated_at }}'>{{ package.updated_at }}</time>
-                    </p>
+                    </div>
                 </div>
             </div>
             {% endfor %}

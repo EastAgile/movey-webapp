@@ -7,14 +7,64 @@ header {
   right: 0;
   box-sizing: border-box;
 }
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  header {
+    padding: 0 30px 0 0;
+  }
+}
+@media screen and (max-width: 843px) {
+  header {
+    padding: 0 15px 0 0;
+  }
+}
 header .header-container {
   display: grid;
   grid-template-columns: 40% auto;
 }
+@media screen and (max-width: 1280px) {
+  header .header-container {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    position: relative;
+  }
+}
+header .header-container .menu-nav {
+  display: none;
+  background-image: url("/static/resources/icon-dashboard.svg");
+  background-repeat: no-repeat;
+  width: 40px;
+  height: 26px;
+}
+header .header-container .menu-nav:hover {
+  cursor: pointer;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  header .header-container .menu-nav {
+    display: block;
+    flex-shrink: 0;
+    margin: 0 30px;
+  }
+}
+@media screen and (max-width: 843px) {
+  header .header-container .menu-nav {
+    display: block;
+    flex-shrink: 0;
+    margin: 0 15px;
+  }
+}
 header .header-container .header-logo {
   background-image: url("/static/resources/logo.svg");
   background-repeat: no-repeat;
-  height: 30px;
+  height: 31px;
+  width: 236px;
+}
+@media screen and (max-width: 843px) {
+  header .header-container .header-logo {
+    height: 18px;
+    width: 50px;
+    background-image: url("/static/resources/logo_extra_small.svg");
+  }
 }
 header .header-container .sub-title {
   font-weight: bold;
@@ -24,9 +74,20 @@ header .header-container a {
   color: var(--dark-blue-color);
   text-decoration: none;
 }
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  header .header-container a {
+    height: fit-content;
+  }
+}
 header .header-container nav {
   display: flex;
   justify-content: space-between;
+}
+@media screen and (max-width: 1280px) {
+  header .header-container nav {
+    justify-content: end;
+    width: 100%;
+  }
 }
 header .header-container nav ul {
   list-style-type: none;
@@ -34,24 +95,84 @@ header .header-container nav ul {
   display: flex;
   align-items: center;
 }
+@media screen and (max-width: 1280px) {
+  header .header-container nav ul:first-child {
+    position: absolute;
+    display: block;
+    left: -300px;
+    top: 100px;
+    height: 110px;
+    background: white;
+    z-index: 100;
+  }
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  header .header-container nav ul:first-child li {
+    margin: 0 30px;
+  }
+}
+@media screen and (max-width: 843px) {
+  header .header-container nav ul:first-child li {
+    margin: 0 5px;
+  }
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  header .header-container nav ul:first-child li a {
+    width: 100%;
+    display: inline-block;
+    padding: 0;
+  }
+}
 header .header-container nav ul li {
   margin: 0 10px;
 }
-header .header-container nav button {
+@media screen and (max-width: 1280px) {
+  header .header-container nav ul li {
+    margin: 0;
+  }
+}
+header .header-container nav a {
   cursor: pointer;
   padding: 10px;
 }
-header .header-container nav button.sign-in {
+header .header-container nav a.sign-in {
   background: none;
   border: none;
   margin: 0;
   color: var(--dark-blue-color);
 }
-header .header-container nav button.sign-up {
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  header .header-container nav a.sign-in {
+    position: absolute;
+    left: -300px;
+    top: 170px;
+    z-index: 100;
+    padding-left: 30px;
+  }
+}
+@media screen and (max-width: 843px) {
+  header .header-container nav a.sign-in {
+    position: absolute;
+    left: -300px;
+    top: 170px;
+    z-index: 100;
+    padding-left: 15px;
+  }
+}
+header .header-container nav a.sign-up {
   background: var(--blue-color);
   border: none;
   border-radius: 5px;
   color: white;
+  width: 147px;
+  height: 48px;
+  display: inline-block;
+  text-align: center;
+}
+@media screen and (max-width: 843px) {
+  header .header-container nav a.sign-up {
+    font-weight: 700;
+  }
 }
 header .header-search-overlay {
   display: none;

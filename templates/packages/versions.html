@@ -20,6 +20,16 @@
         <a href="/packages/{{package.name}}?version={{version.version}}">
             <div class="package-version-item">
                 <div class="package-version-number">{{version.version}}</div>
+                <div class="package-download">
+                    <div class="package-download-icon"></div>
+                    <div class="package-download-count">
+                        {% if version.downloads_count == 0 %}
+                            No download
+                        {% else %}
+                            {{version.downloads_count}}
+                        {% endif %}
+                    </div>
+                </div>
                 <div class="package-version-timeline">
                     <div class="package-version-icon"></div>
                     <time class="package-version-time" datetime="{{version.created_at}}">{{version.created_at}}</time>

@@ -1,3 +1,5 @@
+@import "../queries.scss";
+
 .icon-default-main {
   position: absolute;
   font-size: 20px;
@@ -15,7 +17,7 @@
 
 .icon-right-main {
   position: absolute;
-  right: 16px;
+  right: 17px;
   border: 0;
   font-weight: bold !important;
   cursor: pointer;
@@ -40,6 +42,10 @@
   height: 56px;
   outline: 3px solid rgba(68, 161, 231, 0.5);
   z-index: 99 !important;
+
+  @include medium-screen {
+    height: 71px;
+  }
 }
 
 .autocomplete-main {

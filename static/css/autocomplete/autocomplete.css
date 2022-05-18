@@ -15,7 +15,7 @@
 
 .icon-right-main {
   position: absolute;
-  right: 16px;
+  right: 17px;
   border: 0;
   font-weight: bold !important;
   cursor: pointer;
@@ -41,6 +41,11 @@
   height: 56px;
   outline: 3px solid rgba(68, 161, 231, 0.5);
   z-index: 99 !important;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .autocomplete-main-wrapper {
+    height: 71px;
+  }
 }
 
 .autocomplete-main {

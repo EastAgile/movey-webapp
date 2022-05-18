@@ -4,7 +4,7 @@ Feature: Homepage
     Given I am a guest / unregistered user
     When I access the Movey website
     Then I should see the Movey home page
-  @qqq
+
   Scenario: Guest user search for packages
     Given I am a guest / unregistered user
     Given There are packages in the system
@@ -15,3 +15,11 @@ Feature: Homepage
     Then I should be redirected to that package detail page
     When I press enter on the search bar or click on search icon
     Then I should be redirected to the search results page
+
+  Scenario: User see stats
+    Given There are packages in the system
+    When I access the Movey website
+    Then I should see the correct number of packages and package versions
+    When I upload a new package to Movey
+    And I access the Movey website
+    Then I should see the number of packages and package versions increase by 1
