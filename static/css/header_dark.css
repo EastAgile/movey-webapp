@@ -18,9 +18,6 @@ header .header-container nav button.sign-in {
   color: white;
   margin: 0 15px;
 }
-header .header-container nav button.sign-up {
-  padding: 15px 40px;
-}
 header .header-container #right-wrapper {
   height: 100%;
   margin-right: 10px;
