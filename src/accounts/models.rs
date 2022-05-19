@@ -286,11 +286,8 @@ mod tests {
         setup_user().await;
 
         match Account::authenticate(&login_form(), &DB_POOL).await {
-            Err(Error::Generic(e)) => {
-                if e != String::from("Your account has not been activated.") {
-                    panic!()
-                }
-            },
+            Err(Error::Generic(e)) =>
+                assert_eq!(e, String::from("Your account has not been activated.")),
             _ => panic!(),
         }
     }

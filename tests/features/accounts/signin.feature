@@ -14,8 +14,7 @@ Feature: Sign in
       Then I should see that Im logged in
       When I access the Sign in page
       Then I should be on the Dashboard page
-
-    @wip
+      
     Scenario: Wrong email
       When I fill in wrong email and submit the form on the sign in page
       Then I should see the error 'Invalid email or password! Try again.'
