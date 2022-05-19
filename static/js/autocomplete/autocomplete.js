@@ -188,7 +188,7 @@ class AutoComplete {
         />
 
         <button class="icon-default-main" id="button-main"><i class="fa fa-search"></i></button>
-        <button class="icon-right-main hidden" id="button-x"><img class="icon flex" src="/static/resources/x-button.svg"/></i></button>
+        <button class="icon-right-main hidden" id="button-x"><img class="icon" src="/static/resources/x-button.svg"/></i></button>
         <div id="suggestions" class="autocomplete-items autocomplete-shadow hidden"></div>
       </div>
     </div>`;
@@ -203,6 +203,7 @@ class AutoComplete {
     const xButton = this.container.querySelector("#button-x");
     xButton.addEventListener("click", () => {
       input.value = "";
+      this.suggestions = [];
       xButton.classList.add("hidden");
     });
   }

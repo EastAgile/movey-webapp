@@ -70,8 +70,9 @@
               return errorThrown
             },
           }) : {};
-  const selectSuggestion = (suggestion) =>
+  const selectSuggestion = (suggestion) => {
           window.location.href = '/packages/'+suggestion;
+  }
   window.addEventListener('DOMContentLoaded', () => {
     // Now safely manipulate DOM
     new AutoComplete(

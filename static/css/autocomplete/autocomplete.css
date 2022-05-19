@@ -12,6 +12,11 @@
 .icon-default-main:hover {
   background: #ccc;
 }
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .icon-default-main {
+    padding: 25px;
+  }
+}
 
 .icon-right-main {
   position: absolute;
@@ -83,7 +88,12 @@
   display: none !important;
 }*/
 .autocomplete-main input {
-  padding: 0 50px;
+  padding: 0 55px;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .autocomplete-main input {
+    padding: 0 70px;
+  }
 }
 
 .input-no-pad,
