@@ -1,50 +1,16 @@
-<!DOCTYPE html>
-<!--[if IE 8]><html class="lt-ie9"><![endif]-->
-<!--[if gt IE 8]><!--><html><!--<![endif]-->
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <title>{% block title %}{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}{% endblock %}">
-    <meta property="og:title" content="{% block og_title %}{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}{% endblock %}">
-    <meta property="og:site_name" content="{% block og_sitename %}{% endblock %}">
-    <meta property="og:image" content="{% block og_image %}{% endblock %}">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% extends "layout_dark.html" %}
 
-    <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
-    <link href="http://fonts.cdnfonts.com/css/inter" rel="stylesheet"/>
-
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.7.4/css/foundation.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.5/pagination.css" rel="stylesheet"/>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.7.4/js/foundation.min.js"></script>
-
-    <link href="/static/css/layout.css" rel="stylesheet"/>
-    <link href="/static/css/header.css" rel="stylesheet"/>
-    <link href="/static/css/footer.css" rel="stylesheet"/>
+{% block title %}Search results for {{query}}{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"/>
     <link href="/static/css/search/search_results.css" rel="stylesheet"/>
+{% endblock %}
 
+{% block javascript %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.0.3/showdown.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.6.7/jquery.timeago.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.5/pagination.min.js"></script>
-    
-    <script src="/static/js/search/packages.js"></script>
-    <script src="/static/js/header.js"></script>
+    <script src="/static/js/search/search_page.js"></script>
+{% endblock %}
 
-    {% block meta %}{% endblock %}
-    {% block css %}{% endblock %}
-    {% block script %}{% endblock %}
-    {% block javascript %}{% endblock %}
-    <!--[if lte IE 8]>
-    (function(i,e){for(;i<10;i++)document.createElement(e[i]);})(0,['section','article','aside','header','footer','nav','figure','figcaption','time','mark']);
-    <![endif]-->
-</head>
-<body>
-    {% include "header.html" %}
-    {% block content %}{% endblock %}
-    {% include "footer.html" %}
-</body>
-</html>
+{% block content %}{% endblock %}

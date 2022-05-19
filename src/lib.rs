@@ -19,6 +19,7 @@ pub mod dashboard;
 pub mod pages;
 pub mod github_service;
 pub mod packages;
+mod utils;
 
 pub mod schema;
 

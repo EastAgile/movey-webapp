@@ -1,8 +1,5 @@
 class Header {
     constructor() {
-        this.searchIconElement = $('header.dark .search_icon');
-        this.searchOverlay = $('header.dark .header-search-overlay');
-        this.closeSearchOverlay = this.searchOverlay.find('.header-search-overlay-close');
         this.menu = $('.menu-nav');
         this.navLinks = $('.nav-links');
         this.signInButton = $('.sign-in');
@@ -11,15 +8,6 @@ class Header {
     }
 
     init() {
-        this.searchIconElement.on('click', (e) => {
-            this.searchOverlay.toggle();
-            this.searchOverlay.find('#header-search-input').focus();
-        });
-
-        this.closeSearchOverlay.on('click', (e) => {
-            this.searchOverlay.hide();
-        });
-
         this.menu.click(() => {
             if (this.navLinks.css('left') === '0px') {
                 this.navLinks.css('left', '-300px');
@@ -37,5 +25,7 @@ class Header {
                 this.signInButton.css('left', '-300px')
             }
         });
+
+        new SearchBar();
     }
 }

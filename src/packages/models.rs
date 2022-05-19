@@ -16,11 +16,13 @@ use mockall_double::double;
 // use super::forms::{LoginForm, NewAccountForm};
 #[double]
 use crate::github_service::GithubService;
-// use crate::utils::paginate::{Paginate, LoadPaginated};
+use crate::utils::paginate::{LoadPaginated, Paginate};
 use crate::schema::package_versions;
 use crate::schema::package_versions::dsl::*;
 use crate::schema::packages;
 use crate::schema::packages::dsl::*;
+
+const PACKAGES_PER_PAGE: i64 = 10;
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset, QueryableByName)]
 #[table_name = "packages"]
@@ -54,7 +56,7 @@ const PACKAGE_COLUMNS: PackageColumns = (
     packages::updated_at
 );
 
-#[derive(Debug, Serialize, Deserialize, QueryableByName)]
+#[derive(Debug, Serialize, Deserialize, QueryableByName, Queryable)]
 pub struct PackageSearchResult {
     #[sql_type = "Integer"]
     pub id: i32,
@@ -192,6 +194,7 @@ impl Package {
 
     pub async fn get_by_name(package_name: &String, pool: &DieselPgPool) -> Result<Self, Error> {
         let connection = pool.get()?;
+
         let result = packages
             .filter(name.eq(package_name))
             .select(PACKAGE_COLUMNS)
@@ -214,7 +217,7 @@ impl Package {
     }
 
     pub async fn increase_download_count(
-        url: &String, 
+        url: &String,
         rev_: &String,
         service: &GithubService,
         pool: &DieselPgPool
@@ -229,7 +232,7 @@ impl Package {
                 .replace(".git", "")
                 .to_owned();
         }
-        
+
         let package_id_ = packages
             .filter(repository_url.eq(&https_url))
             .select(packages::id)
@@ -250,8 +253,8 @@ impl Package {
                         PackageVersion::create(
                             package_id_,
                             github_data.name,
-                            github_data.readme_content, 
-                            rev_.clone(), 
+                            github_data.readme_content,
+                            rev_.clone(),
                             -1,
                             -1,
                             pool
@@ -265,8 +268,8 @@ impl Package {
             Err(NotFound) => {
                 // Package is not found, creating shadow package and package version
                 Package::create(
-                    &https_url, &String::from(""), &rev_, 
-                    -1, 
+                    &https_url, &String::from(""), &rev_,
+                    -1,
                     -1,
                     service,
                     &pool)
@@ -303,8 +306,10 @@ impl Package {
         search_query: &str,
         sort_field: &PackageSortField,
         sort_order: &PackageSortOrder,
+        page: Option<i64>,
+        per_page: Option<i64>,
         pool: &DieselPgPool,
-    ) -> Result<Vec<PackageSearchResult>, Error> {
+    ) -> Result<(Vec<PackageSearchResult>, i64, i64), Error> {
         let connection = pool.get()?;
         let field = match sort_field {
             PackageSortField::name => "name",
@@ -316,24 +321,23 @@ impl Package {
             PackageSortOrder::asc => "ASC",
             PackageSortOrder::desc => "DESC",
         };
-        let order_query = format!("ORDER BY {} {}", field, order);
+        let order_query = format!("{} {}", field, order);
         let search_query: &str = &search_query.split(" ").collect::<Vec<&str>>().join(" & ");
 
-        let matched_packages: Vec<PackageSearchResult> = sql_query(
-            format!("SELECT packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, max(version) as version
-                           FROM packages
-                           INNER JOIN package_versions
-                           ON packages.id = package_versions.package_id
-                           WHERE tsv @@ to_tsquery($1)
-                           GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at
-                           {}", order_query
-            ),
-        )
-        .bind::<Text, _>(search_query)
-        .load(&connection)
-        .unwrap();
-        return Ok(matched_packages);
-	}
+        let page = page.unwrap_or_else(|| 1);
+        let per_page = per_page.unwrap_or_else(|| PACKAGES_PER_PAGE);
+
+        let result: (Vec<PackageSearchResult>, i64, i64) = packages::table
+            .inner_join(package_versions::table)
+            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
+            .filter(tsv.matches(plainto_tsquery(search_query)))
+            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
+            .order(diesel::dsl::sql::<diesel::sql_types::Text>(&order_query))
+            .load_with_pagination(&connection, Some(page), Some(per_page))
+            .unwrap();
+
+        return Ok(result);
+    }
 }
 
 impl PackageVersion {
@@ -454,26 +458,19 @@ mod tests {
         setup().await.unwrap();
         let pool = &DB_POOL;
         let search_query = "package";
-        let search_result = Package::search(
+        let (search_result, total_count, total_pages) = Package::search(
             search_query,
             &PackageSortField::name,
             &PackageSortOrder::desc,
+            Some(1),
+            None,
             pool,
         )
         .await
         .unwrap();
-        assert_eq!(search_result.len(), 1);
-        let result = search_result.iter();
-        let mut is_found = false;
-        for package in result {
-            if package.name == "The first package" {
-                is_found = true;
-            }
-            if package.name == "Charles Diya" {
-                panic!()
-            }
-        }
-        assert!(is_found)
+        assert_eq!(total_count, 1);
+        assert_eq!(total_pages, 1);
+        assert_eq!(search_result[0].name, "The first package");
     }
 
     #[actix_rt::test]
@@ -483,26 +480,19 @@ mod tests {
         setup().await.unwrap();
         let pool = &DB_POOL;
         let search_query = "the package";
-        let search_result = Package::search(
+        let (search_result, total_count, total_pages) = Package::search(
             search_query,
             &PackageSortField::name,
             &PackageSortOrder::desc,
+            Some(1),
+            None,
             pool,
         )
         .await
         .unwrap();
-        assert_eq!(search_result.len(), 1);
-        let result = search_result.iter();
-        let mut is_found = false;
-        for package in result {
-            if package.name == "The first package" {
-                is_found = true;
-            }
-            if package.name == "Charles Diya" {
-                panic!()
-            }
-        }
-        assert!(is_found)
+        assert_eq!(total_count, 1);
+        assert_eq!(total_pages, 1);
+        assert_eq!(search_result[0].name, "The first package");
     }
 
     #[actix_rt::test]
@@ -512,24 +502,34 @@ mod tests {
         setup().await.unwrap();
         let pool = &DB_POOL;
         let search_query = "first";
-        let search_result = Package::search(
+        let (search_result, total_count, total_pages) = Package::search(
             search_query,
             &PackageSortField::name,
             &PackageSortOrder::desc,
+            Some(1),
+            Some(1),
             pool,
         )
         .await
         .unwrap();
-        assert_eq!(search_result.len(), 2);
-        let result = search_result.iter();
-        for package in result {
-            if package.name != "The first package" && package.name != "The first Diva" {
-                panic!()
-            }
-            if package.name == "Charles Diya" {
-                panic!()
-            }
-        }
+        assert_eq!(total_count, 2);
+        assert_eq!(total_pages, 2);
+
+        assert_eq!(search_result.len(), 1);
+        assert_eq!(search_result[0].name, "The first package");
+
+        let (search_result, _total_count, _total_pages) = Package::search(
+            search_query,
+            &PackageSortField::name,
+            &PackageSortOrder::desc,
+            Some(2),
+            Some(1),
+            pool,
+        )
+        .await
+        .unwrap();
+        assert_eq!(search_result.len(), 1);
+        assert_eq!(search_result[0].name, "The first Diva");
     }
 
     #[actix_rt::test]
@@ -792,7 +792,7 @@ mod tests {
         assert_eq!(package_version_after.downloads_count, 2);
 
         let _ = Package::increase_download_count(
-            &"git@github.com:eadungn/taohe.git".to_string(), 
+            &"git@github.com:eadungn/taohe.git".to_string(),
             rev_,
             &mock_github_service,
             &DB_POOL).await;
@@ -908,7 +908,7 @@ mod tests {
         assert_eq!(package_total_downloads, 2);
 
         Package::increase_download_count(
-            &"git@github.com:eadungn/taohe.git".to_string(), 
+            &"git@github.com:eadungn/taohe.git".to_string(),
             &rev2,
             &mock_github_service,
             &DB_POOL).await.unwrap();

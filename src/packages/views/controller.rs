@@ -81,6 +81,7 @@ pub struct PackageSearchParams {
     pub query: TextField,
     pub field: Option<PackageSortField>,
     pub order: Option<PackageSortOrder>,
+    pub page: Option<i64>,
 }
 
 pub async fn show_search_results(
@@ -94,20 +95,24 @@ pub async fn show_search_results(
     if let None = search.order {
         search.order = Some(PackageSortOrder::desc);
     }
-    let package_list = Package::search(
+    let (packages, total_count, total_pages) = Package::search(
         &search.query.value,
         &search.field.as_ref().unwrap(),
         &search.order.as_ref().unwrap(),
+        search.page,
+        None,
         &db).await.unwrap();
-    
-    let package_list_json = serde_json::to_string(&package_list).unwrap_or_else(|_| String::from("[]"));
+
+    let current_page = search.page.unwrap_or_else(|| 1);
 
     request.render(200, "search/search_results.html", {
         let mut ctx = Context::new();
         ctx.insert("query", &search.query.value);
         ctx.insert("sort_type", &search.field);
-        ctx.insert("packages", &package_list_json);
-        ctx.insert("package_count", &package_list.len());
+        ctx.insert("current_page", &current_page);
+        ctx.insert("packages", &packages);
+        ctx.insert("total_count", &total_count);
+        ctx.insert("total_pages", &total_pages);
         ctx
     })
 }

@@ -1,4 +1,4 @@
-@import "./queries.scss"; 
+@import "./queries.scss";
 
 body {
     position: relative;
@@ -30,7 +30,7 @@ footer {
             flex-direction: column;
             align-items: flex-start;
         }
-        
+
         p {
             font-size: 24px;
             color: var(--dark-blue-color);
@@ -58,7 +58,7 @@ footer {
         @include large-screen {
             padding: 70px 175px 265px 175px;
         }
-        
+
         @include medium-small-screen {
             padding: 30px 0 70px 0;
         }
@@ -75,14 +75,14 @@ footer {
             @include medium-small-screen {
                 margin-bottom: 10px;
             }
-    
+
             .package-list-item {
                 width: 100%;
                 display: flex;
                 justify-content: space-between;
                 margin-bottom: 20px;
                 border-bottom: 1px solid rgba(128, 143, 176, .5);
-                
+
                 @include large-screen {
                     height: 165px;
                     padding-bottom: 20px;
@@ -102,7 +102,7 @@ footer {
                     display: flex;
                     flex-direction: column;
                     justify-content: space-between;
-                    
+
                     @include large-screen {
                         width: 70%;
                         height: 100%;
@@ -113,7 +113,7 @@ footer {
                         height: 172px;
                     }
                 }
-    
+
                 .right-wrapper {
                     display: flex;
                     align-items: center;
@@ -126,7 +126,7 @@ footer {
                     @include medium-small-screen {
                         width: 100%;
                         flex-direction: column;
-                        justify-content: space-around;                        
+                        justify-content: space-around;
                     }
 
                     .update-timestamp {
@@ -169,7 +169,7 @@ footer {
                     }
                 }
             }
-    
+
             .left-wrapper {
                 .package-list-item-title {
                     width: 100%;
@@ -185,8 +185,8 @@ footer {
                     @include medium-small-screen {
                         height: 36px;
                     }
-    
-                    h1 {
+
+                    h1, h1 a {
                         font-weight: bold;
                         color: var(--dark-blue-color);
                         margin: 0 20px 0 0;
@@ -202,7 +202,7 @@ footer {
                             font-size: 24px;
                         }
                     }
-    
+
                     .version-number {
                         font-weight: normal;
                         color: var(--gray-color);
@@ -215,7 +215,7 @@ footer {
                             font-size: 16px;
                         }
                     }
-    
+
                     .title-tag {
                         background-color: #FCDDEC;
                         text-align: center;
@@ -239,14 +239,14 @@ footer {
                         }
                     }
                 }
-    
+
                 .sub-tag-list {
                     width: 100%;
                     display: flex;
                     justify-content: flex-start;
                     margin: 0;
                     overflow: hidden;
-    
+
                     .sub-tag {
                         background-color: var(--geyser-color);
                         text-align: center;
@@ -266,12 +266,12 @@ footer {
                             margin: 0 5px;
                         }
                     }
-    
+
                     .sub-tag:first-child {
                         margin-left: 0;
                     }
                 }
-    
+
                 .package-summary {
                     width: 100%;
                     text-align: left;
@@ -323,9 +323,10 @@ footer {
                     margin: 0 5px 0 5px;
                     border-radius: 5px;
                     border: none;
-                    display: flex;
+                    display: inline-flex;
                     justify-content: center;
                     align-items: center;
+                    cursor: pointer;
 
                     a {
                         background: none;
@@ -378,7 +379,7 @@ footer {
                 }
             }
         }
-    }    
+    }
 }
 
 .package-search-sort {
@@ -439,7 +440,7 @@ footer {
                 align-items: center;
                 padding-left: 20px;
                 color: var(--dark-blue-color);
-                
+
                 @include large-screen {
                     font-size: 24px;
                 }
