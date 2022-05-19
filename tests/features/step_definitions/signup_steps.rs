@@ -3,7 +3,7 @@ use thirtyfour::prelude::*;
 
 use super::super::world::TestWorld;
 #[when("I click on the Sign up button on the home page")]
-async fn click_on_sign_up_button(world: &mut TestWorld) {
+pub async fn click_on_sign_up_button(world: &mut TestWorld) {
     let signup_button = world.driver
         .find_element(By::ClassName("sign-up"))
         .await.unwrap();
@@ -11,18 +11,18 @@ async fn click_on_sign_up_button(world: &mut TestWorld) {
 }
 
 #[when("I fill in my email and password and submit the form on the sign up page")]
-async fn fill_in_sign_up_form(world: &mut TestWorld) {
+pub async fn fill_in_sign_up_form(world: &mut TestWorld) {
     std::fs::remove_dir_all("./emails").unwrap_or_default();
 
     let email_field = world.driver
         .find_element(By::Name("email"))
         .await.unwrap();
-    email_field.send_keys("test@email.com").await.unwrap();
+    email_field.send_keys("email@host.com").await.unwrap();
 
     let password_field = world.driver
         .find_element(By::Name("password"))
         .await.unwrap();
-    password_field.send_keys("x,W-4,jfn").await.unwrap();
+    password_field.send_keys("So$trongpas0word!").await.unwrap();
 
     let i_agree = world.driver
         .find_element(By::Name("i_agree"))
@@ -86,6 +86,6 @@ async fn see_error_message(world: &mut TestWorld, message: String) {
 async fn receive_verification_email(_world: &mut TestWorld) {
     let path = std::fs::read_dir("./emails").unwrap().next();
     let contents = std::fs::read_to_string(path.unwrap().unwrap().path()).unwrap();
-    assert!(contents.contains("test@email.com"));
+    assert!(contents.contains("email@host.com"));
     assert!(contents.contains("Verify your new account"));
 }

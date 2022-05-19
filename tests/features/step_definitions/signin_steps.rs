@@ -6,6 +6,7 @@ use mainlib::test::DB_POOL;
 use thirtyfour::prelude::*;
 
 use super::super::world::TestWorld;
+use super::signup_steps::*;
 
 #[given("I am a user on Movey")]
 async fn an_user(_world: &mut TestWorld) {
@@ -20,7 +21,8 @@ async fn an_user(_world: &mut TestWorld) {
             hints: vec![],
         },
     };
-    Account::register(&form, &DB_POOL).await.unwrap();
+    let uid = Account::register(&form, &DB_POOL).await.unwrap();
+    Account::mark_verified(uid, &DB_POOL).await.unwrap();
 }
 
 #[given("I am not signed in")]
@@ -54,13 +56,18 @@ async fn signed_in_with_remember_me(world: &mut TestWorld) {
         .await.unwrap();
     create_account_button.click().await.unwrap();
 }
-
+#[given("I registered an account and have not activated it")]
+async fn register_an_account(world: &mut TestWorld) {
+    world.go_to_root_url().await;
+    click_on_sign_up_button(world).await;
+    fill_in_sign_up_form(world).await;
+}
 #[when("I click on the Sign in button on the home page")]
-async fn click_on_sign_up_button(world: &mut TestWorld) {
-    let signin_button = world.driver
+async fn click_on_sign_in_button(world: &mut TestWorld) {
+    let sign_in_button = world.driver
         .find_element(By::ClassName("sign-in"))
         .await.unwrap();
-    signin_button.click().await.unwrap();
+    sign_in_button.click().await.unwrap();
 }
 
 #[when("I fill in my email and password and submit the form on the sign in page")]
@@ -167,6 +174,13 @@ async fn clear_permanent_session(world: &mut TestWorld) {
     world.driver
         .delete_cookie("remember_me_token")
         .await.unwrap()
+}
+
+#[when("I sign in into my account")]
+async fn sign_in(world: &mut TestWorld) {
+    world.go_to_root_url().await;
+    click_on_sign_in_button(world).await;
+    fill_in_sign_in_form(world).await;
 }
 
 #[then("I should see the sign in page")]

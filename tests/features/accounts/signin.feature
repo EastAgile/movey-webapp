@@ -14,22 +14,22 @@ Feature: Sign in
       Then I should see that Im logged in
       When I access the Sign in page
       Then I should be on the Dashboard page
-
+      
     Scenario: Wrong email
       When I fill in wrong email and submit the form on the sign in page
-      Then I should see the error 'Invalid email or password'
+      Then I should see the error 'Invalid email or password! Try again.'
 
     Scenario: Blank email
       When I fill in blank email and submit the form on the sign in page
-      Then I should see the error 'Invalid email or password'
+      Then I should see the error 'Invalid email or password! Try again.'
 
     Scenario: Wrong password
       When I fill in wrong password and submit the form on the sign in page
-      Then I should see the error 'Invalid email or password'
+      Then I should see the error 'Invalid email or password! Try again.'
 
     Scenario: Blank password
       When I fill in blank password and submit the form on the sign in page
-      Then I should see the error 'Invalid email or password'
+      Then I should see the error 'Invalid email or password! Try again.'
 
   Rule: Signed-in user without remember me option
 
@@ -55,3 +55,10 @@ Feature: Sign in
       When my permanent session is expired
       And I access the Dashboard page
       Then I should see the sign in page
+
+  Rule: Unverified user
+
+    Scenario: Unverified user
+      Given I registered an account and have not activated it
+      When I sign in into my account
+      Then I should see the error 'Your account has not been activated.'
