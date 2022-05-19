@@ -25,7 +25,5 @@ class Header {
                 this.signInButton.css('left', '-300px')
             }
         });
-
-        new SearchBar();
     }
 }
