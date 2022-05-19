@@ -105,9 +105,13 @@ class AutoComplete {
 
     const keyDownSpecial = ["ArrowUp", "ArrowDown", "Enter"];
     const emptySuggestion = this.suggestions[0] === NO_MATCHES_FOUND;
-    if (!keyDownSpecial.includes(key) || emptySuggestion) return;
-
     const input = this.container.querySelector("input");
+    if (key === "Enter" && !emptySuggestion) {
+      // Not having any suggestion, goes to search page
+      window.location.href = '/packages/search?query='+input.value;
+    }
+    if (!keyDownSpecial.includes(key)) return;
+
     const noSuggestions = this.suggestions.length;
     const pChoiceIndex = this.currentChoiceIndex;
     const pChoice = this.getSuggestionNode(pChoiceIndex);
