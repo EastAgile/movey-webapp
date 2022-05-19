@@ -1,30 +1,183 @@
 header {
+  height: 100px;
+  padding: 30px;
   background: var(--dark-blue-color);
-  position: static;
+  top: 0;
+  left: 0;
+  right: 0;
+  box-sizing: border-box;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  header {
+    padding: 0 30px 0 0;
+  }
+}
+@media screen and (max-width: 843px) {
+  header {
+    padding: 0 15px 0 0;
+  }
+}
+header .header-container {
+  display: grid;
+  grid-template-columns: 40% auto;
+}
+@media screen and (max-width: 1280px) {
+  header .header-container {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    position: relative;
+  }
+}
+header .header-container .menu-nav {
+  display: none;
+  background-image: url("/static/resources/icon-dashboard.svg");
+  background-repeat: no-repeat;
+  width: 40px;
+  height: 26px;
+}
+header .header-container .menu-nav:hover {
+  cursor: pointer;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  header .header-container .menu-nav {
+    display: block;
+    flex-shrink: 0;
+    margin: 0 30px;
+  }
+}
+@media screen and (max-width: 843px) {
+  header .header-container .menu-nav {
+    display: block;
+    flex-shrink: 0;
+    margin: 0 15px;
+  }
+}
+header .header-container .header-logo {
+  background-image: url("/static/resources/logo_white.svg");
+  background-repeat: no-repeat;
+  height: 31px;
+  width: 236px;
+}
+@media screen and (max-width: 843px) {
+  header .header-container .header-logo {
+    height: 18px;
+    width: 50px;
+    background-image: url("/static/resources/logo_white_extra_small.svg");
+  }
 }
 header .header-container a {
   color: white;
-  font-size: 18px;
+  text-decoration: none;
 }
-header .header-container nav ul li {
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  header .header-container a {
+    height: fit-content;
+  }
+}
+header .header-container nav {
+  display: flex;
+  justify-content: space-between;
+}
+@media screen and (max-width: 1280px) {
+  header .header-container nav {
+    justify-content: end;
+    width: 100%;
+  }
+}
+header .header-container nav ul {
+  list-style-type: none;
+  margin: 0;
   display: flex;
   align-items: center;
 }
-header .header-container nav button {
-  font-size: 14px;
-  font-weight: bold;
+@media screen and (max-width: 1280px) {
+  header .header-container nav ul:first-child {
+    position: absolute;
+    display: block;
+    left: -300px;
+    top: 100px;
+    height: 110px;
+    background: white;
+    z-index: 100;
+  }
 }
-header .header-container nav button.sign-in {
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  header .header-container nav ul:first-child li {
+    margin: 0 30px;
+  }
+}
+@media screen and (max-width: 843px) {
+  header .header-container nav ul:first-child li {
+    margin: 0 5px;
+  }
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  header .header-container nav ul:first-child li a {
+    color: black;
+    width: 100%;
+    display: inline-block;
+    padding: 0;
+  }
+}
+@media screen and (max-width: 843px) {
+  header .header-container nav ul:first-child li a {
+    color: black;
+  }
+}
+header .header-container nav ul li {
+  margin: 0 10px;
+}
+@media screen and (max-width: 1280px) {
+  header .header-container nav ul li {
+    margin: 0;
+  }
+}
+header .header-container nav a {
+  cursor: pointer;
+  padding: 10px;
+}
+header .header-container nav a.sign-in {
+  background: none;
+  border: none;
+  margin: 0;
+  color: black;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  header .header-container nav a.sign-in {
+    position: absolute;
+    left: 0px;
+    top: 170px;
+    z-index: 100;
+    padding-left: 30px;
+  }
+}
+@media screen and (max-width: 843px) {
+  header .header-container nav a.sign-in {
+    position: absolute;
+    left: 0px;
+    top: 170px;
+    z-index: 100;
+    padding-left: 15px;
+  }
+}
+header .header-container nav a.sign-up {
+  background: var(--blue-color);
+  border: none;
+  border-radius: 5px;
   color: white;
-  margin: 0 15px;
+  width: 147px;
+  height: 48px;
+  display: inline-block;
+  text-align: center;
+}
+@media screen and (max-width: 843px) {
+  header .header-container nav a.sign-up {
+    font-weight: 700;
+  }
 }
 header .header-container #right-wrapper {
   height: 100%;
-  margin-right: 10px;
-  position: relative;
-}
-header .header-container #right-wrapper li {
-  margin: 0;
 }
 header .header-container #right-wrapper li .search-btn {
   color: white;
@@ -32,6 +185,7 @@ header .header-container #right-wrapper li .search-btn {
   padding: 0 10px;
   margin: 0 15px;
   background: none;
+  cursor: pointer;
 }
 header .header-container #right-wrapper li .search-btn-active {
   color: var(--gray-color);
@@ -42,6 +196,16 @@ header .header-container #right-wrapper li .search-btn-active {
   width: 100px;
   height: 100px;
   background-color: white;
+  cursor: pointer;
+}
+@media screen and (max-width: 1280px) {
+  header .header-container #right-wrapper li .search-btn-active {
+    color: white;
+    font-size: 22px;
+    padding: 0 10px;
+    margin: 0 15px;
+    background: none;
+  }
 }
 
 #search-bar {
@@ -52,7 +216,7 @@ header .header-container #right-wrapper li .search-btn-active {
   right: 0;
   bottom: 0;
   margin-top: 100px;
-  z-index: 2;
+  z-index: 99;
   background: none;
 }
 #search-bar form {
@@ -64,15 +228,31 @@ header .header-container #right-wrapper li .search-btn-active {
   align-items: center;
   background: white;
 }
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  #search-bar form {
+    height: 100px;
+    padding: 12px 27px;
+    justify-content: space-between;
+  }
+}
+@media screen and (max-width: 843px) {
+  #search-bar form {
+    height: 80px;
+    padding: 15px 22px;
+    justify-content: space-between;
+  }
+}
 #search-bar form button {
   margin-right: 30px;
   font-size: 22px;
   color: var(--dark-blue-color);
+  cursor: pointer;
 }
 #search-bar form .fa-times-circle {
   margin-left: auto;
   font-size: 32px;
   color: var(--gray-color);
+  cursor: pointer;
 }
 #search-bar #search-field {
   margin: 0;
