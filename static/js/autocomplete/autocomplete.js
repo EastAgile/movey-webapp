@@ -123,7 +123,7 @@ class AutoComplete {
       this.currentChoiceIndex =
         pChoiceIndex + 1 < noSuggestions ? pChoiceIndex + 1 : -1;
     } else if (key === "Enter") {
-      if (pChoiceIndex == -1) {
+      if (pChoiceIndex === -1) {
         // Not choosing any suggestion, goes to search page
         window.location.href = '/packages/search?query='+input.value;
       } else {
