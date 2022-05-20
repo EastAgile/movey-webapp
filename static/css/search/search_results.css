@@ -2,6 +2,9 @@ body {
   position: relative;
 }
 
+.content-wrapper {
+  min-height: calc(100vh - 350px);
+}
 .content-wrapper .setting-bar {
   width: 100%;
   display: flex;
