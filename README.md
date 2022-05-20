@@ -1,3 +1,7 @@
+# Movey
+[![CircleCI](https://circleci.com/gh/EastAgile/ea-movey.svg?style=svg&circle-token=8834c48b8b7b9a7c69b4d5ffd8c953fa9b8865ac)](https://app.circleci.com/pipelines/github/EastAgile/ea-movey)
+[![Coverage Status](https://coveralls.io/repos/github/EastAgile/ea-movey/badge.svg?branch=master&t=wtVyiP)](https://coveralls.io/github/EastAgile/ea-movey?branch=master)
+
 # Jelly
 A.K.A, the actix-web starter you probably wish you had. This is provided as-is, and 
 anyone is free to extend it or rework it as they desire - just give some credit if
