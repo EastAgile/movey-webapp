@@ -1,4 +1,4 @@
-@import "../queries.scss";
+@import "static/css/queries.scss";
 
 .icon-default-main {
   position: absolute;
@@ -13,6 +13,9 @@
   &:hover {
      background: #ccc;
    }
+  @include medium-screen {
+    padding: 25px;
+  }
 }
 
 .icon-right-main {
@@ -84,7 +87,10 @@
 }*/
 
 .autocomplete-main input {
-  padding: 0 50px;
+  padding: 0 55px;
+  @include medium-screen {
+    padding: 0 70px;
+  }
 }
 
 .input-has-item {

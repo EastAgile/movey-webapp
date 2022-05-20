@@ -105,9 +105,13 @@ class AutoComplete {
 
     const keyDownSpecial = ["ArrowUp", "ArrowDown", "Enter"];
     const emptySuggestion = this.suggestions[0] === NO_MATCHES_FOUND;
-    if (!keyDownSpecial.includes(key) || emptySuggestion) return;
-
     const input = this.container.querySelector("input");
+    if (key === "Enter" && !emptySuggestion) {
+      // Not having any suggestion, goes to search page
+      window.location.href = '/packages/search?query='+input.value;
+    }
+    if (!keyDownSpecial.includes(key)) return;
+
     const noSuggestions = this.suggestions.length;
     const pChoiceIndex = this.currentChoiceIndex;
     const pChoice = this.getSuggestionNode(pChoiceIndex);
@@ -119,8 +123,13 @@ class AutoComplete {
       this.currentChoiceIndex =
         pChoiceIndex + 1 < noSuggestions ? pChoiceIndex + 1 : -1;
     } else if (key === "Enter") {
-      //pChoiceIndex !== -1 && pChoice.click();
-      window.location.href = '/packages/search?query='+input.value;
+      if (pChoiceIndex === -1) {
+        // Not choosing any suggestion, goes to search page
+        window.location.href = '/packages/search?query='+input.value;
+      } else {
+        // Goes to highlighted package
+        pChoice.click();
+      }
       return;
     }
 
@@ -160,9 +169,11 @@ class AutoComplete {
     input.addEventListener("keydown", (e) => this.checkKeyDown(e));
 
     input.addEventListener("focusin", () => this.reDisplay(false));
-    input.addEventListener("focusout", () =>
-      window.setTimeout(() => this.reDisplay(true), 50)
-    );
+    input.addEventListener("focusout", () => {
+      if(!$(this.container.querySelector("#suggestions")).is(":hover")) {
+        window.setTimeout(() => this.reDisplay(true), 50)
+      }
+    });
   }
 
   displayMain() {
@@ -175,9 +186,9 @@ class AutoComplete {
           id="search-bar"
           placeholder="${this.placeholder}"
         />
-        
-        <button class="icon-default-main" id="button-main"><i class="fa fa-search"></i></button> 
-        <button class="icon-right-main hidden" id="button-x"><img class="icon flex" src="/static/resources/x-button.svg"/></i></button> 
+
+        <button class="icon-default-main" id="button-main"><i class="fa fa-search"></i></button>
+        <button class="icon-right-main hidden" id="button-x"><img class="icon" src="/static/resources/x-button.svg"/></i></button>
         <div id="suggestions" class="autocomplete-items autocomplete-shadow hidden"></div>
       </div>
     </div>`;
@@ -192,6 +203,7 @@ class AutoComplete {
     const xButton = this.container.querySelector("#button-x");
     xButton.addEventListener("click", () => {
       input.value = "";
+      this.suggestions = [];
       xButton.classList.add("hidden");
     });
   }
