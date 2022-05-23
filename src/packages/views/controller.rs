@@ -90,10 +90,10 @@ pub async fn show_search_results(
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let None = search.field {
-        search.field = Some(PackageSortField::name);
+        search.field = Some(PackageSortField::Name);
     }
     if let None = search.order {
-        search.order = Some(PackageSortOrder::desc);
+        search.order = Some(PackageSortOrder::Desc);
     }
     let (packages, total_count, total_pages) = Package::search(
         &search.query.value,
