@@ -84,15 +84,21 @@ pub struct NewPackage {
 
 #[derive(Serialize, Deserialize)]
 pub enum PackageSortField {
+    #[serde(alias = "name")]
     Name,
+    #[serde(alias = "description")]
     Description,
+    #[serde(alias = "most_downloads")]
     MostDownloads,
+    #[serde(alias = "newly_added")]
     NewlyAdded,
 }
 
 #[derive(Serialize, Deserialize)]
 pub enum PackageSortOrder {
+    #[serde(alias = "asc")]
     Asc,
+    #[serde(alias = "desc")]
     Desc,
 }
 
