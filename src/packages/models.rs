@@ -1,9 +1,9 @@
 use diesel::dsl::count;
 use diesel::prelude::*;
 use diesel::sql_types::{Integer, Text, Timestamptz};
-use diesel::{sql_query, AsChangeset, Identifiable, Insertable, Queryable};
+use diesel::{AsChangeset, Identifiable, Insertable, Queryable};
 
-use diesel_full_text_search::{plainto_tsquery, TsVectorExtensions, TsVector};
+use diesel_full_text_search::{plainto_tsquery, TsVectorExtensions};
 
 use jelly::chrono::{DateTime, NaiveDateTime, Utc};
 use jelly::error::Error;
@@ -16,7 +16,7 @@ use mockall_double::double;
 // use super::forms::{LoginForm, NewAccountForm};
 #[double]
 use crate::github_service::GithubService;
-use crate::utils::paginate::{LoadPaginated, Paginate};
+use crate::utils::paginate::{LoadPaginated};
 use crate::schema::package_versions;
 use crate::schema::package_versions::dsl::*;
 use crate::schema::packages;
@@ -84,16 +84,16 @@ pub struct NewPackage {
 
 #[derive(Serialize, Deserialize)]
 pub enum PackageSortField {
-    name,
-    description,
-    most_downloads,
-    newly_added,
+    Name,
+    Description,
+    MostDownloads,
+    NewlyAdded,
 }
 
 #[derive(Serialize, Deserialize)]
 pub enum PackageSortOrder {
-    asc,
-    desc,
+    Asc,
+    Desc,
 }
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset, Clone)]
@@ -312,14 +312,14 @@ impl Package {
     ) -> Result<(Vec<PackageSearchResult>, i64, i64), Error> {
         let connection = pool.get()?;
         let field = match sort_field {
-            PackageSortField::name => "name",
-            PackageSortField::description => "description",
-            PackageSortField::most_downloads => "total_downloads_count",
-            PackageSortField::newly_added => "updated_at",
+            PackageSortField::Name => "name",
+            PackageSortField::Description => "description",
+            PackageSortField::MostDownloads => "total_downloads_count",
+            PackageSortField::NewlyAdded => "updated_at",
         };
         let order = match sort_order {
-            PackageSortOrder::asc => "ASC",
-            PackageSortOrder::desc => "DESC",
+            PackageSortOrder::Asc => "ASC",
+            PackageSortOrder::Desc => "DESC",
         };
         let order_query = format!("{} {}", field, order);
         let search_query: &str = &search_query.split(" ").collect::<Vec<&str>>().join(" & ");
@@ -394,7 +394,6 @@ impl PackageVersion {
                 versions
                     .order_by(package_versions::dsl::downloads_count.desc())
                     .load::<PackageVersion>(&connection)?
-                //versions.load::<PackageVersion>(&connection)?
             }
         };
 
@@ -460,8 +459,8 @@ mod tests {
         let search_query = "package";
         let (search_result, total_count, total_pages) = Package::search(
             search_query,
-            &PackageSortField::name,
-            &PackageSortOrder::desc,
+            &PackageSortField::Name,
+            &PackageSortOrder::Desc,
             Some(1),
             None,
             pool,
@@ -482,8 +481,8 @@ mod tests {
         let search_query = "the package";
         let (search_result, total_count, total_pages) = Package::search(
             search_query,
-            &PackageSortField::name,
-            &PackageSortOrder::desc,
+            &PackageSortField::Name,
+            &PackageSortOrder::Desc,
             Some(1),
             None,
             pool,
@@ -504,8 +503,8 @@ mod tests {
         let search_query = "first";
         let (search_result, total_count, total_pages) = Package::search(
             search_query,
-            &PackageSortField::name,
-            &PackageSortOrder::desc,
+            &PackageSortField::Name,
+            &PackageSortOrder::Desc,
             Some(1),
             Some(1),
             pool,
@@ -520,8 +519,8 @@ mod tests {
 
         let (search_result, _total_count, _total_pages) = Package::search(
             search_query,
-            &PackageSortField::name,
-            &PackageSortOrder::desc,
+            &PackageSortField::Name,
+            &PackageSortOrder::Desc,
             Some(2),
             Some(1),
             pool,
@@ -749,7 +748,7 @@ mod tests {
         .unwrap();
         assert_eq!(PackageVersion::count(&DB_POOL).await, 4);
     }
-    
+
     async fn increase_download_count_works() {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
@@ -922,7 +921,7 @@ mod tests {
         let package_total_downloads = Package::get(1, &DB_POOL).await.unwrap().total_downloads_count;
         assert_eq!(package_total_downloads, 3);
     }
-    
+
 }
 
 // Helpers for integration tests only. Wondering why cfg(test) below doesn't work... (commented out for now)
