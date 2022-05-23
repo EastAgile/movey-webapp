@@ -153,6 +153,7 @@ async fn see_sorted_items(world: &mut TestWorld, field: String) {
         .find_elements(By::Css(".package-list-item-title h1 span:first-child"))
         .await
         .unwrap();
+    assert_ne!(package_items.len(), 0);
     let expected_names = match field.as_str() {
         "name" => vec!["random_derive", "rand_derive2", "rand", "faker_rand"],
         "description" => vec!["rand", "random_derive", "rand_derive2", "faker_rand"],
