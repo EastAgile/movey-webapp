@@ -16,6 +16,7 @@ path = "src/main.rs"
 [dependencies]
 actix-rt = "*"
 base64-url = "1.4.8"
+convert_case = "0.5.0"
 diesel = { version = "1.4.8", features = ["postgres", "r2d2", "chrono"] }
 diesel_full_text_search = "1.0.1"
 diesel_migrations = "1.4.0"
