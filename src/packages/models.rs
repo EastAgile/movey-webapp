@@ -94,6 +94,18 @@ pub enum PackageSortField {
     NewlyAdded,
 }
 
+impl std::fmt::Display for PackageSortField {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let enum_name = match self {
+            PackageSortField::Name => "name",
+            PackageSortField::Description => "description",
+            PackageSortField::MostDownloads => "most_downloads",
+            PackageSortField::NewlyAdded => "newly_added",
+        };
+        write!(f, "{}", enum_name)
+    }
+}
+
 #[derive(Serialize, Deserialize)]
 pub enum PackageSortOrder {
     #[serde(alias = "asc")]

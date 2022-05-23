@@ -29,3 +29,6 @@ body {
   width: min(120px, 50vw - 24px);
   height: 40px;
 }
+.select2-container--default .select2-results>.select2-results__options {
+  max-height: unset !important;
+}

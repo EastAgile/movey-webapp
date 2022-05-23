@@ -1,3 +1,4 @@
+use convert_case::{Case, Casing};
 use jelly::actix_web::{web::Path, web::Query, HttpRequest};
 use jelly::forms::TextField;
 use jelly::prelude::*;
@@ -104,11 +105,15 @@ pub async fn show_search_results(
         &db).await.unwrap();
 
     let current_page = search.page.unwrap_or_else(|| 1);
+    let field_name = match &search.field {
+        Some(f) => f.to_string().to_case(Case::Snake),
+        None => "".to_string()
+    };
 
     request.render(200, "search/search_results.html", {
         let mut ctx = Context::new();
         ctx.insert("query", &search.query.value);
-        ctx.insert("sort_type", &search.field);
+        ctx.insert("sort_type", &field_name);
         ctx.insert("current_page", &current_page);
         ctx.insert("packages", &packages);
         ctx.insert("total_count", &total_count);
