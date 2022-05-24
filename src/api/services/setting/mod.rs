@@ -1,1 +1,2 @@
-pub mod token_controller;
+pub mod controllers;
+mod views;

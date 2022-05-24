@@ -2,7 +2,6 @@ use jelly::actix_web::web::{get, resource, scope, ServiceConfig};
 
 pub mod models;
 pub mod views;
-mod package_version;
 
 pub use models::{Package, PackageVersion, PackageVersionSort, NewPackage, NewPackageVersion};
 

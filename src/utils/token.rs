@@ -4,14 +4,14 @@ use sha2::{Digest, Sha256};
 const TOKEN_LENGTH: usize = 32;
 
 pub struct SecureToken {
-    sha256: Vec<u8>,
+    pub sha256: String,
 }
 
 impl SecureToken {
     pub fn generate() -> NewSecureToken {
         let plaintext = generate_secure_alphanumeric_string(TOKEN_LENGTH);
-        let sha256 = Sha256::digest(plaintext.as_bytes()).as_slice().to_vec();
-
+        let sha256 = Sha256::digest(plaintext.as_bytes());
+        let sha256 = String::from_utf8_lossy(sha256.as_slice()).into_owned();
         NewSecureToken {
             plaintext,
             inner: Self { sha256 },
@@ -19,10 +19,9 @@ impl SecureToken {
     }
 }
 
-
 pub struct NewSecureToken {
-    plaintext: String,
-    inner: SecureToken,
+    pub plaintext: String,
+    pub inner: SecureToken,
 }
 
 fn generate_secure_alphanumeric_string(len: usize) -> String {
@@ -48,14 +47,13 @@ mod tests {
     #[actix_rt::test]
     async fn generate_secure_alphanumeric_string_works_with_zero_len() {
         let plain_token = generate_secure_alphanumeric_string(0);
-        assert_eq!(plain_token.len(), TOKEN_LENGTH);
+        assert_eq!(plain_token.len(), 0);
         assert_eq!(plain_token, String::from(""));
     }
 
     #[actix_rt::test]
     async fn secure_token_generate_works() {
         let token = SecureToken::generate();
-        assert_eq!(token.inner.sha256.len(), 32);
+        assert_eq!(token.plaintext.len(), TOKEN_LENGTH);
     }
-
 }

@@ -19,7 +19,7 @@ pub fn configure(config: &mut ServiceConfig) {
             )
             .service(
                 resource("/tokens")
-                    .route(put().to(services::setting::token_controller::create_token))
+                    .route(put().to(services::setting::controllers::token::create_token))
             )
     );
 }
