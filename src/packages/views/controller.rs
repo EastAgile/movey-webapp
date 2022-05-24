@@ -137,7 +137,14 @@ pub async fn packages_index(
         params.field = Some(PackageSortField::Name);
     }
     if let None = params.order {
-        params.order = Some(PackageSortOrder::Desc);
+        params.order = if let Some(field) = &params.field {
+            match field {
+                PackageSortField::Name => Some(PackageSortOrder::Asc),
+                _ => Some(PackageSortOrder::Desc)
+            }
+        } else {
+            Some(PackageSortOrder::Desc)
+        }
     }
     let (packages, total_count, total_pages) = Package::all_packages(
         &params.field.as_ref().unwrap(),
