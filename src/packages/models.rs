@@ -356,6 +356,40 @@ impl Package {
 
         return Ok(result);
     }
+
+    pub async fn all_packages(
+        sort_field: &PackageSortField,
+        sort_order: &PackageSortOrder,
+        page: Option<i64>,
+        per_page: Option<i64>,
+        pool: &DieselPgPool,
+    ) -> Result<(Vec<PackageSearchResult>, i64, i64), Error> {
+        let connection = pool.get()?;
+        let field = match sort_field {
+            PackageSortField::Name => "name",
+            PackageSortField::Description => "description",
+            PackageSortField::MostDownloads => "total_downloads_count",
+            PackageSortField::NewlyAdded => "updated_at",
+        };
+        let order = match sort_order {
+            PackageSortOrder::Asc => "ASC",
+            PackageSortOrder::Desc => "DESC",
+        };
+        let order_query = format!("{} {}", field, order);
+
+        let page = page.unwrap_or_else(|| 1);
+        let per_page = per_page.unwrap_or_else(|| PACKAGES_PER_PAGE);
+
+        let result: (Vec<PackageSearchResult>, i64, i64) = packages::table
+            .inner_join(package_versions::table)
+            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
+            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
+            .order(diesel::dsl::sql::<diesel::sql_types::Text>(&order_query))
+            .load_with_pagination(&connection, Some(page), Some(per_page))
+            .unwrap();
+
+        return Ok(result);
+    }
 }
 
 impl PackageVersion {
@@ -547,6 +581,42 @@ mod tests {
         .unwrap();
         assert_eq!(search_result.len(), 1);
         assert_eq!(search_result[0].name, "The first Diva");
+    }
+
+    #[actix_rt::test]
+    async fn all_packages_with_pagination() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        setup().await.unwrap();
+        let pool = &DB_POOL;
+        let search_query = "first";
+        let (search_result, total_count, total_pages) = Package::all_packages(
+            &PackageSortField::Name,
+            &PackageSortOrder::Desc,
+            Some(1),
+            Some(2),
+            pool,
+        )
+        .await
+        .unwrap();
+        assert_eq!(total_count, 3);
+        assert_eq!(total_pages, 2);
+
+        assert_eq!(search_result.len(), 2);
+        assert_eq!(search_result[0].name, "The first package");
+        assert_eq!(search_result[1].name, "The first Diva");
+
+        let (search_result, _total_count, _total_pages) = Package::all_packages(
+            &PackageSortField::Name,
+            &PackageSortOrder::Desc,
+            Some(2),
+            Some(2),
+            pool,
+        )
+        .await
+        .unwrap();
+        assert_eq!(search_result.len(), 1);
+        assert_eq!(search_result[0].name, "Charles Diya");
     }
 
     #[actix_rt::test]

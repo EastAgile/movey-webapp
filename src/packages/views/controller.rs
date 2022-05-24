@@ -1,4 +1,3 @@
-use convert_case::{Case, Casing};
 use jelly::actix_web::{web::Path, web::Query, HttpRequest};
 use jelly::forms::TextField;
 use jelly::prelude::*;
@@ -106,13 +105,55 @@ pub async fn show_search_results(
 
     let current_page = search.page.unwrap_or_else(|| 1);
     let field_name = match &search.field {
-        Some(f) => f.to_string().to_case(Case::Snake),
+        Some(f) => f.to_string(),
         None => "".to_string()
     };
 
     request.render(200, "search/search_results.html", {
         let mut ctx = Context::new();
         ctx.insert("query", &search.query.value);
+        ctx.insert("sort_type", &field_name);
+        ctx.insert("current_page", &current_page);
+        ctx.insert("packages", &packages);
+        ctx.insert("total_count", &total_count);
+        ctx.insert("total_pages", &total_pages);
+        ctx
+    })
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct PackageIndexParams {
+    pub field: Option<PackageSortField>,
+    pub order: Option<PackageSortOrder>,
+    pub page: Option<i64>,
+}
+
+pub async fn packages_index(
+    request: HttpRequest,
+    mut params: Query<PackageIndexParams>
+) -> Result<HttpResponse> {
+    let db = request.db_pool()?;
+    if let None = params.field {
+        params.field = Some(PackageSortField::Name);
+    }
+    if let None = params.order {
+        params.order = Some(PackageSortOrder::Desc);
+    }
+    let (packages, total_count, total_pages) = Package::all_packages(
+        &params.field.as_ref().unwrap(),
+        &params.order.as_ref().unwrap(),
+        params.page,
+        None,
+        &db).await.unwrap();
+
+    let current_page = params.page.unwrap_or_else(|| 1);
+    let field_name = match &params.field {
+        Some(f) => f.to_string(),
+        None => "".to_string()
+    };
+
+    request.render(200, "packages/index.html", {
+        let mut ctx = Context::new();
         ctx.insert("sort_type", &field_name);
         ctx.insert("current_page", &current_page);
         ctx.insert("packages", &packages);
