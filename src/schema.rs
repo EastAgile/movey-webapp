@@ -23,7 +23,7 @@ table! {
     api_tokens (id) {
         id -> Int4,
         account_id -> Int4,
-        // token -> Varchar,
+        token -> Varchar,
         name -> Varchar,
         created_at -> Timestamptz,
         last_used_at -> Nullable<Timestamptz>,

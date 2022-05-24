@@ -2,11 +2,23 @@
 
 {% block title %}{% endblock %}
 
+{% block script %}
+<script src="/static/js/settings/tokens.js"></script>
+{% endblock %}
+
 {% block content %}
 <h1>Movey App, coming soon...</h1>
 <a class="api-tokens">API Tokens</a>
 <a class="new-token-button">New Token</a>
-<a href="" class="create-button">Create</a>
+<button class="create-button">Create</button>
 <input class="new-token" placeholder="New token name">New Token</input>
+<p class="created-token"></p>
+<p class="error"></p>
 
+<script>
+  new Tokens()
+</script>
 {% endblock %}
+
+
+
