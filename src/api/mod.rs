@@ -1,6 +1,6 @@
 //! URL dispatcher for user account related API endpoints.
 
-use jelly::actix_web::web::{get, post, resource, scope, ServiceConfig};
+use jelly::actix_web::web::{get, post, put, resource, scope, ServiceConfig};
 
 pub mod services;
 
@@ -15,6 +15,11 @@ pub fn configure(config: &mut ServiceConfig) {
                     .route(post().to(services::package::index::search_package)),
             ).service(
 				resource("/download")
-					.route(get().to(services::package::index::increment_download)))
+					.route(get().to(services::package::index::increment_download))
+            )
+            .service(
+                resource("/tokens")
+                    .route(put().to(services::setting::token_controller::create_token))
+            )
     );
 }
