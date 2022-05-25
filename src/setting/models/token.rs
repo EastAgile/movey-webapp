@@ -12,7 +12,7 @@ use jelly::Result;
 pub struct ApiToken {
     pub id: i32,
     pub account_id: i32,
-    token: String,
+    pub token: String,
     pub name: String,
     pub created_at: NaiveDateTime,
     pub last_used_at: Option<NaiveDateTime>,
@@ -94,7 +94,7 @@ mod tests {
         ApiToken::insert(uid, "name1", &DB_POOL).await.unwrap();
         match ApiToken::insert(uid, "name1", &DB_POOL).await {
             Err(Error::Database(DatabaseError(DatabaseErrorKind::UniqueViolation, _))) => (),
-            _ => {}
+            _ => panic!(),
         }
     }
 }

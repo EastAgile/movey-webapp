@@ -755,6 +755,7 @@ mod tests {
         assert_eq!(PackageVersion::count(&DB_POOL).await, 4);
     }
 
+    #[actix_rt::test]
     async fn increase_download_count_works() {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
