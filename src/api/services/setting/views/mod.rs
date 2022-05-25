@@ -1,8 +1,8 @@
 use crate::setting::models::token::CreatedApiToken;
 use jelly::chrono::NaiveDateTime;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Serialize, Debug)]
 pub struct EncodableApiTokenWithToken {
     pub id: i32,
     pub name: String,

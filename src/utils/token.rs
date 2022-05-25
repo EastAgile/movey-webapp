@@ -11,7 +11,7 @@ impl SecureToken {
     pub fn generate() -> NewSecureToken {
         let plaintext = generate_secure_alphanumeric_string(TOKEN_LENGTH);
         let sha256 = Sha256::digest(plaintext.as_bytes());
-        let sha256 = String::from_utf8_lossy(sha256.as_slice()).into_owned();
+        let sha256 = format!("{:x?}", sha256.as_slice());
         NewSecureToken {
             plaintext,
             inner: Self { sha256 },

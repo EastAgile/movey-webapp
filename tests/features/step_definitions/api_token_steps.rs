@@ -16,7 +16,6 @@ async fn maximum_tokens(_world: &mut TestWorld) {
 
     for n in 0..max_token {
         ApiToken::insert(1, &n.to_string(), &DB_POOL).await.unwrap();
-        thread::sleep(Duration::from_millis(200));
     }
 }
 #[when("I access the API Tokens page")]
