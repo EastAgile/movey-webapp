@@ -137,11 +137,8 @@ pub async fn packages_index(
         params.field = Some(PackageSortField::Name);
     }
     if let None = params.order {
-        params.order = if let Some(field) = &params.field {
-            match field {
-                PackageSortField::Name => Some(PackageSortOrder::Asc),
-                _ => Some(PackageSortOrder::Desc)
-            }
+        params.order = if let Some(PackageSortField::Name) = params.field {
+            Some(PackageSortOrder::Asc)
         } else {
             Some(PackageSortOrder::Desc)
         }
