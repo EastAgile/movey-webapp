@@ -19,3 +19,5 @@ pub async fn homepage(request: HttpRequest) -> Result<HttpResponse> {
 pub fn configure(config: &mut ServiceConfig) {
     config.service(resource("/").to(homepage));
 }
+
+
