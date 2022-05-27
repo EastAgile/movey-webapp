@@ -155,12 +155,16 @@ pub async fn packages_index(
         Some(f) => f.to_string(),
         None => "".to_string()
     };
+    let display_pagination_start = (current_page - 1) * 20 + 1;
+    let display_pagination_end: usize = (display_pagination_start as usize) + packages.len() - 1;
 
     request.render(200, "packages/index.html", {
         let mut ctx = Context::new();
         ctx.insert("sort_type", &field_name);
         ctx.insert("current_page", &current_page);
         ctx.insert("packages", &packages);
+        ctx.insert("display_pagination_start", &display_pagination_start);
+        ctx.insert("display_pagination_end", &display_pagination_end);
         ctx.insert("total_count", &total_count);
         ctx.insert("total_pages", &total_pages);
         ctx

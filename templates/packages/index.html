@@ -21,7 +21,7 @@
             <select name="packages-sort"
                     class="packages-sort"
                     data-sort="{{ sort_type }}"
-                    data-url="/packages/index"
+                    data-url="/packages/"
             >
                 <option value="name">Name</option>
                 <option value="description">Description</option>
@@ -65,6 +65,9 @@
             {% endfor %}
         </div>
         <div class="paginationjs">
+            <div class="pagination-info-message">
+                Displaying {{display_pagination_start}} - {{display_pagination_end}} of {{total_count}} total results
+            </div>
             <div class="paginationjs-pages">
                 <ul>
                     {% if current_page != 1 %}
@@ -74,7 +77,7 @@
                     {% endif %}
 
                     {% for i in range(end=total_pages) %}
-                    <li class="paginationjs-page J-paginationjs-page {% if i + 1 == current_page %}active{% endif %}" data-url="/packages/index?field={{ sort_type }}" data-page="{{ i + 1 }}">
+                    <li class="paginationjs-page J-paginationjs-page {% if i + 1 == current_page %}active{% endif %}" data-url="/packages/?field={{ sort_type }}" data-page="{{ i + 1 }}">
                         <a>{{ i + 1 }}</a>
                     </li>
                     {% endfor %}

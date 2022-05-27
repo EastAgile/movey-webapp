@@ -9,7 +9,7 @@ use super::super::world::TestWorld;
 async fn go_to_package_list_page(world: &mut TestWorld) {
     world
         .driver
-        .get("http://localhost:17002/packages/index")
+        .get("http://localhost:17002/packages/")
         .await
         .unwrap();
     assert_eq!(
@@ -23,6 +23,16 @@ async fn go_to_package_list_page(world: &mut TestWorld) {
         .unwrap()
         .len();
     assert_eq!(package_count, 4);
+
+    let pagination_message = world
+        .driver
+        .find_element(By::ClassName("pagination-info-message"))
+        .await
+        .unwrap()
+        .text()
+        .await
+        .unwrap();
+    assert_eq!(pagination_message, "Displaying 1 - 4 of 4 total results")
 }
 
 #[then(expr = "I should see the packages sorted by {word}")]

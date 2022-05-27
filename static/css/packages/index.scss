@@ -149,13 +149,10 @@
 
                     .download-count {
                         color: var(--dark-blue-color);
-
-                        @include large-screen {
-                            display: none;
-                        }
+                        margin-right: 25px;
 
                         @include medium-small-screen {
-                            display: block;
+                            margin-right: 0;
                         }
                     }
 
@@ -267,11 +264,10 @@
                         border-radius: 8px;
                         font-size: 16px;
                         font-weight: 600;
-                        height: 35px;
                         color: var(--dark-blue-color);
 
                         @include large-screen {
-                            padding: 3px 10px;
+                            padding: 4px 10px;
                             margin: 0 10px;
                         }
 
@@ -315,11 +311,13 @@
                 align-items: center;
             }
 
+            .pagination-info-message {
+                float: left;
+            }
+
             .paginationjs-pages {
                 @include large-screen {
-                    max-width: 50%;
-                    position: absolute;
-                    right: 0;
+                    float: right;
                 }
 
                 @include medium-small-screen {

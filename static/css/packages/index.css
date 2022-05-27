@@ -135,15 +135,11 @@
 }
 .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper .download-count {
   color: var(--dark-blue-color);
-}
-@media screen and (min-width: 769px) {
-  .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper .download-count {
-    display: none;
-  }
+  margin-right: 25px;
 }
 @media screen and (min-width: 320px) and (max-width: 768px) {
   .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper .download-count {
-    display: block;
+    margin-right: 0;
   }
 }
 @media screen and (min-width: 769px) {
@@ -255,12 +251,11 @@
   border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
-  height: 35px;
   color: var(--dark-blue-color);
 }
 @media screen and (min-width: 769px) {
   .content-wrapper #package-list-container .package-list .left-wrapper .sub-tag-list .sub-tag {
-    padding: 3px 10px;
+    padding: 4px 10px;
     margin: 0 10px;
   }
 }
@@ -302,11 +297,12 @@
     align-items: center;
   }
 }
+.content-wrapper #package-list-container .paginationjs .pagination-info-message {
+  float: left;
+}
 @media screen and (min-width: 769px) {
   .content-wrapper #package-list-container .paginationjs .paginationjs-pages {
-    max-width: 50%;
-    position: absolute;
-    right: 0;
+    float: right;
   }
 }
 @media screen and (min-width: 320px) and (max-width: 768px) {
