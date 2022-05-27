@@ -1,10 +1,15 @@
 @import "static/css/queries.scss";
 
+$navbar-height: 100px;
+$card-height-max: 588px;
+$page-height: max(100vh, $navbar-height + $card-height-max);
+$from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar-height));
+
 .login-container {
   font-family: 'Mulish', serif;
   width: 100vw;
   height: 100vh;
-  min-height: 800px;
+  height: $page-height;
   background: var(--cool-gray) url(/static/img/Map.png);
   background-position-y: -200px;
 
@@ -15,20 +20,16 @@
     padding: 30px;
 
     @include medium-screen {
-      padding: 4vh 0 0 7vw;
+      padding: calc(($navbar-height - 31px) / 2) $navbar-height;
     }
 
     @include small-screen {
-      padding: 38px calc(50vw - 118px) 46px calc(50vw - 118px);
+      padding: 38px calc((100vw - 236px) / 2) 46px;
     }
   }
 
   .login-card-container {
-    margin-top: min(13vh, calc(50vh - 272px));
-
-    @include medium-screen {
-      margin-top: min(19vh, calc(50vh - 272px));
-    }
+    margin-top: $from-nav-to-card;
 
     @include small-screen {
       margin-top: 0;
@@ -37,29 +38,19 @@
     &::before {
       content: url(/static/resources/large_curve.svg);
       position: fixed;
-      left: 57vw;
-      top: 3vh;
-      
-      @include medium-screen {
-        top: 17vh;
-        left: 65vw;
-      }
+      left: calc(50vw + 97px);
+      top: calc(50vh - 271px - 110px);
 
       @include small-screen {
         display: none;
       }
     }
-  
+
     &::after {
       content: url(/static/resources/small_curve.svg);
       position: fixed;
-      left: 25vw;
-      bottom: 11vh;
-
-      @include medium-screen {
-        left: -98px;
-        bottom: 12vh;
-      }
+      left: calc(50vw - 236px - 164px);
+      top: calc(50vh + 175px - 9px);
 
       @include small-screen {
         display: none;
@@ -99,10 +90,11 @@
           display: block;
           margin-bottom: 24px;
         }
-        
+
         .g-signin2 {
-  
-          .abcRioButton, .abcRioButtonLightBlue {
+
+          .abcRioButton,
+          .abcRioButtonLightBlue {
             width: 100% !important;
             border-radius: 4px;
             border: 1px solid var(--cool-gray);
@@ -115,7 +107,7 @@
               width: 100% !important;
             }
 
-            .abcRioButtonContentWrapper{
+            .abcRioButtonContentWrapper {
               @include small-screen {
                 display: flex;
                 justify-content: center;
@@ -144,7 +136,7 @@
             align-items: center;
             height: 36px;
             border-radius: 4px;
-            box-shadow: 0 2px 4px 0 rgba(0,0,0,.25);
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .25);
             transition: border-color 0.218s ease-in-out, box-shadow 0.218s ease-in-out;
 
             @include small-screen {
@@ -157,6 +149,7 @@
               color: var(--blue-color);
               margin: auto .75rem;
             }
+
             .btn-text {
               font-size: 14px;
               margin: auto;
@@ -182,7 +175,7 @@
       .login-separator {
         color: var(--gray-color);
         margin-top: 36px;
-        margin-bottom: 24px;   
+        margin-bottom: 24px;
 
         .login-separator-line {
           border-top: 2px solid var(--gray-color);
@@ -218,8 +211,8 @@
             margin-top: 0;
             margin-bottom: 8px;
           }
-  
-          .login-input-field {          
+
+          .login-input-field {
             display: block;
             box-sizing: border-box;
             width: 100%;
@@ -234,7 +227,7 @@
             background-clip: padding-box;
             border: 1px solid var(--cool-gray);
             border-radius: 4px;
-            box-shadow: 0 1px 5px 0 rgba(0,0,0,.25);
+            box-shadow: 0 1px 5px 0 rgba(0, 0, 0, .25);
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
@@ -247,7 +240,7 @@
               box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
             }
           }
-  
+
           .error-container {
             display: flex;
             align-items: center;
@@ -270,14 +263,14 @@
             }
           }
         }
-        
+
         .login-remember {
           display: flex;
           justify-content: space-between;
           margin-bottom: 24px;
           font-size: 14px;
           height: 20px;
-          
+
           a {
             text-decoration: none;
             color: var(--blue-color);
@@ -295,14 +288,14 @@
           background-color: var(--blue-color);
           color: white;
           cursor: pointer;
-        
+
           &:disabled {
             color: #808FB0;
             background-color: #D9DDE7;
           }
         }
       }
-      
+
       .login-invitation {
         color: var(--dark-blue-color);
         font-size: 14px;
