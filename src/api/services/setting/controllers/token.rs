@@ -2,7 +2,6 @@ use crate::accounts::Account;
 use crate::api::services::setting::views::EncodableApiTokenWithToken;
 use crate::request;
 use crate::setting::models::token::ApiToken;
-use diesel::prelude::*;
 use diesel::result::DatabaseErrorKind;
 use diesel::result::Error::DatabaseError;
 use jelly::actix_web::http::header::ContentType;
@@ -30,22 +29,13 @@ pub async fn create_token(
     let user = request.user()?;
     let db = request.db_pool()?;
     let account = Account::get(user.id, db).await?;
-    let max_token_per_user = std::env::var("MAX_TOKEN")
-        .expect("MAX_TOKEN not set!")
-        .parse::<i64>()
-        .unwrap();
-    let count: i64 = ApiToken::belonging_to(&account)
-        .count()
-        .get_result(&db.get()?)?;
-    if count >= max_token_per_user {
-        return Ok(HttpResponse::BadRequest().body("Too many tokens created."));
-    }
+    let api_token = ApiToken::insert(&account, &req.name.value, db).await;
 
-    let api_token = ApiToken::insert(user.id, &req.name.value, db).await;
     let api_token = match api_token {
         Err(Error::Database(DatabaseError(DatabaseErrorKind::UniqueViolation, _))) => {
             return Ok(HttpResponse::BadRequest().body("That name has already been taken."))
         }
+        Err(Error::Generic(error)) => return Ok(HttpResponse::BadRequest().body(error)),
         Err(_) => return Ok(HttpResponse::InternalServerError().body("")),
         Ok(api_token) => api_token,
     };

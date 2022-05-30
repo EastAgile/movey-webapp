@@ -4,6 +4,7 @@ use mainlib::test::DB_POOL;
 use std::thread;
 use std::time::Duration;
 use thirtyfour::prelude::*;
+use mainlib::accounts::Account;
 
 use super::super::world::TestWorld;
 
@@ -13,9 +14,9 @@ async fn maximum_tokens(_world: &mut TestWorld) {
         .expect("MAX_TOKEN not set!")
         .parse::<i32>()
         .expect("MAX_TOKEN must be an integer");
-
+    let account = Account::get(1, &DB_POOL).await.unwrap();
     for n in 0..max_token {
-        ApiToken::insert(1, &n.to_string(), &DB_POOL).await.unwrap();
+        ApiToken::insert(&account, &n.to_string(), &DB_POOL).await.unwrap();
     }
 }
 #[when("I access the API Tokens page")]
@@ -60,7 +61,8 @@ async fn click_create_button(world: &mut TestWorld) {
 
 #[when("I enter a token name that is already existed")]
 async fn enter_duplicated_name(world: &mut TestWorld) {
-    ApiToken::insert(1, "token name", &DB_POOL).await.unwrap();
+    let account = Account::get(1, &DB_POOL).await.unwrap();
+    ApiToken::insert(&account, "token name", &DB_POOL).await.unwrap();
     let new_token_text_box = world
         .driver
         .find_element(By::ClassName("new-token"))

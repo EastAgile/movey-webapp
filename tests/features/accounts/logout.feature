@@ -1,7 +1,7 @@
 Feature: Log out
 
   Background:
-    Given I am an user on Movey
+    Given I am a user on Movey
 
   Scenario: Sign-in then logout
     Given I am signed in
