@@ -8,7 +8,7 @@ use thirtyfour::prelude::*;
 use super::super::world::TestWorld;
 use super::signup_steps::*;
 
-#[given("I am an user on Movey")]
+#[given("I am a user on Movey")]
 async fn an_user(_world: &mut TestWorld) {
     let form = NewAccountForm {
         email: EmailField {

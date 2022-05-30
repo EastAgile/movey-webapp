@@ -1,7 +1,7 @@
 Feature: API token
 
   Scenario: able to access API Tokens page
-    Given I am an user on Movey
+    Given I am a user on Movey
     And I am signed in
     When I access the API Tokens page
     Then I should see the API Tokens page
@@ -9,7 +9,7 @@ Feature: API token
   Rule: create new API token
 
     Background:
-      Given I am an user on Movey
+      Given I am a user on Movey
       And I am signed in
       When I access the API Tokens page
       When I click on the New Token button

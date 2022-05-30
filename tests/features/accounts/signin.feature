@@ -3,7 +3,7 @@ Feature: Sign in
   Rule: Non signed-in user
   
     Background:
-      Given I am an user on Movey
+      Given I am a user on Movey
       And I am not signed in
       When I access the Movey website
       And I click on the Sign in button on the home page
@@ -34,7 +34,7 @@ Feature: Sign in
   Rule: Signed-in user without remember me option
 
     Scenario: Default session expired
-      Given I am an user on Movey
+      Given I am a user on Movey
       And I am signed in
       When I close all browser tabs and reopen my browser
       And I access the Dashboard page
@@ -43,7 +43,7 @@ Feature: Sign in
   Rule: Permanently signed-in user
 
     Background:
-      Given I am an user on Movey
+      Given I am a user on Movey
       And I am signed in with remember me option
 
     Scenario: Permanent session works
