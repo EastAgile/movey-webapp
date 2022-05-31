@@ -21,7 +21,7 @@ pub fn configure(config: &mut ServiceConfig) {
     config.service(
         scope("/")
             .service(
-                resource("/term-of-use").to(term_),
+                resource("/terms-of-use").to(term_),
             )
             .service(
                 resource("/policy").to(policy_),
