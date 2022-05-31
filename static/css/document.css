@@ -16,7 +16,7 @@
 }
 
 .container {
-  width: 60%;
+  width: 70%;
   margin: auto;
   margin-top: 2%;
   position: relative;
@@ -24,12 +24,12 @@
 }
 @media screen and (max-width: 843px) {
   .container {
-    width: 60%;
+    width: 80%;
   }
 }
 @media screen and (min-width: 844px) and (max-width: 1280px) {
   .container {
-    width: 60%;
+    width: 70%;
   }
 }
 @media screen and (min-width: 1280px) and (max-width: 2048px) {

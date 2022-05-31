@@ -18,17 +18,17 @@
 }
 
 .container {
-    width: 60%;
+    width: 70%;
     margin: auto;
     margin-top: 2%;
     position: relative;
     padding: 16px;
 
     @include small-screen {
-        width: 60%;
+        width: 80%;
     }
     @include medium-screen {
-        width: 60%;
+        width: 70%;
     }
     @include large-screen {
         width: 60%;
