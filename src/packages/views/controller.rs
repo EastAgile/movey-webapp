@@ -5,7 +5,7 @@ use jelly::request::DatabasePool;
 use jelly::Result;
 
 use crate::packages::{Package, PackageVersion, PackageVersionSort};
-use crate::packages::models::{PackageSortField, PackageSortOrder};
+use crate::packages::models::{PackageSortField, PackageSortOrder, PACKAGES_PER_PAGE};
 
 #[derive(serde::Serialize, serde::Deserialize)]
 struct PackageShowParams {
@@ -155,7 +155,7 @@ pub async fn packages_index(
         Some(f) => f.to_string(),
         None => "".to_string()
     };
-    let display_pagination_start = (current_page - 1) * 20 + 1;
+    let display_pagination_start = (current_page - 1) * PACKAGES_PER_PAGE + 1;
     let display_pagination_end: usize = (display_pagination_start as usize) + packages.len() - 1;
 
     request.render(200, "packages/index.html", {

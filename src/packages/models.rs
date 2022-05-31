@@ -22,7 +22,7 @@ use crate::schema::package_versions::dsl::*;
 use crate::schema::packages;
 use crate::schema::packages::dsl::*;
 
-const PACKAGES_PER_PAGE: i64 = 10;
+pub const PACKAGES_PER_PAGE: i64 = 10;
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset, QueryableByName)]
 #[table_name = "packages"]
