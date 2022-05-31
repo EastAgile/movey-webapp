@@ -1,10 +1,24 @@
-{% extends "layout.html" %}
+{% extends "accounts/layout.html" %}
 
 {% block title %}Verify Your Account{% endblock %}
 
+{% block css %}
+<link rel="stylesheet" href="/static/css/verify/verify.css">
+{% endblock %}
+
 {% block content %}
-<h1>Verification Failure</h1>
-<p>
-    If you believe you're experiencing this in error, please contact support.
-</p>
+<div class="verify-container">
+    <a href="/">
+        <span class="movey-logo"></span>
+    </a>
+    <div class="verify-card-container">
+        <div class="verify-card">
+            <h1 class="verify-card-title">Verification Failure</h1>
+            
+            <p class="verify-card-content">
+                If you believe you're experiencing this in error, please contact support.
+            </p>
+        </div>
+    </div>
+</div>
 {% endblock %}

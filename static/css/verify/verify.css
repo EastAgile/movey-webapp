@@ -1,0 +1,82 @@
+.verify-container {
+  font-family: "Mulish", serif;
+  width: 100vw;
+  height: 100vh;
+  height: max(100vh, 688px);
+  background: var(--cool-gray) url(/static/img/Map.png);
+  background-position-y: -200px;
+}
+.verify-container .movey-logo {
+  content: url(/static/resources/movey_logo.svg);
+  top: 0;
+  position: sticky;
+  padding: 30px;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .verify-container .movey-logo {
+    padding: 34.5px 100px;
+  }
+}
+@media screen and (max-width: 843px) {
+  .verify-container .movey-logo {
+    padding: 38px calc((100vw - 236px) / 2) 46px;
+  }
+}
+.verify-container .verify-card-container {
+  margin-top: max(0px, (max(100vh, 688px) - 588px) / 2 - 100px);
+}
+@media screen and (max-width: 843px) {
+  .verify-container .verify-card-container {
+    margin-top: 0;
+  }
+}
+.verify-container .verify-card-container::before {
+  content: url(/static/resources/large_curve.svg);
+  position: fixed;
+  left: calc(50vw + 97px);
+  top: calc(50vh - 271px - 110px);
+}
+@media screen and (max-width: 843px) {
+  .verify-container .verify-card-container::before {
+    display: none;
+  }
+}
+.verify-container .verify-card-container::after {
+  content: url(/static/resources/small_curve.svg);
+  position: fixed;
+  left: calc(50vw - 236px - 164px);
+  top: calc(50vh + 175px - 9px);
+}
+@media screen and (max-width: 843px) {
+  .verify-container .verify-card-container::after {
+    display: none;
+  }
+}
+.verify-container .verify-card-container .verify-card {
+  position: relative;
+  z-index: 99;
+  background-color: white;
+  width: 424px;
+  padding: 32px;
+  margin: auto;
+}
+@media screen and (max-width: 843px) {
+  .verify-container .verify-card-container .verify-card {
+    padding: 16px;
+    width: 373px;
+  }
+}
+.verify-container .verify-card-container .verify-card .verify-card-title {
+  font-family: var(--sub-title-font);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 32px;
+  color: var(--blue-color);
+  margin-bottom: 24px;
+}
+.verify-container .verify-card-container .verify-card .verify-card-content {
+  font-size: 20px;
+  color: var(--dark-blue-color);
+}
+
+/*# sourceMappingURL=verify.css.map */
