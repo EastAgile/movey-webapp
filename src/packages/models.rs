@@ -221,6 +221,17 @@ impl Package {
         Ok(result)
     }
 
+    pub async fn get_by_account(owner_id: i32, pool: &DieselPgPool) -> Result<Vec<Self>, Error> {
+        let connection = pool.get()?;
+
+        let result = packages
+            .filter(account_id.eq(owner_id))
+            .select(PACKAGE_COLUMNS)
+            .load::<Package>(&connection)?;
+        
+        Ok(result)
+    } 
+
     pub async fn get_version(
         &self,
         version_name: &String,
@@ -356,6 +367,7 @@ impl Package {
 
         return Ok(result);
     }
+
 }
 
 impl PackageVersion {
