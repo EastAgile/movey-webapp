@@ -16,9 +16,10 @@ extern crate diesel_migrations;
 pub mod accounts;
 pub mod api;
 pub mod dashboard;
-pub mod pages;
 pub mod github_service;
 pub mod packages;
+pub mod pages;
+pub mod settings;
 mod utils;
 
 pub mod schema;
@@ -39,6 +40,7 @@ pub async fn main() -> io::Result<()> {
         .register_service(packages::configure)
         .register_service(dashboard::configure)
         .register_service(api::configure)
+        .register_service(settings::configure)
         .run()
         .await?
         .await

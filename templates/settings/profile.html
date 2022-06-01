@@ -1,0 +1,19 @@
+{% extends "settings/layout.html" %}
+
+% block javascript %}
+  <script src="/static/js/settings/profile.js"></script>
+{% endblock %}
+
+{% block content %}
+<input class="email disabled"></input>
+
+<input class="current-password"></input>
+<input name="password" class="new-password"></input>
+<input name="password" class="password-confirm"></input>
+<button class="save"></button>
+<button class="discard"></button>
+
+<script>
+  new Profile()
+</script>
+{% endblock %}

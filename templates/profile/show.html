@@ -1,0 +1,111 @@
+{% extends "packages/layout.html" %}
+
+{% block package_content %}
+<div class="package-detail-container">
+    <div class="package-readme-content">{{package_version.readme_content}}</div>
+    <div class="package-sidebar">
+        <div class="package-information">
+            <div class="package-install">
+                <div class="package-information-title">
+                    Install
+                </div>
+                <div class="package-install-instruction">
+                    <span class="instruction-command">{{package.name}} = { git = "{{package.repository_url}}", rev = "{{package_version.rev}}" }</span><div class="copy-icon"></div>
+                <p class="copy-tooltip">Copied</p>
+                </div>
+                <div class="package-information-title">
+                    Repository
+                </div>
+                <div class="package-repo">
+                    <div class="package-repo-icon"></div>
+                    <div class="package-repo-url">
+                        <a href="{{package.repository_url}}">{{package.repository_url}}</a>
+                    </div>
+                </div>
+                <div class="horizontal-line"></div>
+            </div>
+            <div class="package-metadata">
+                <div class="package-total-download">
+                    <div class="package-download-icon"></div>
+                    <div class="package-download-count">Total downloads</div>
+                </div>
+                <div class="package-download-info">
+                    <div class="package-download-number">
+                        {{package_version.downloads_count}}
+                    </div>
+                    <div class="package-download-figure"></div>
+                </div>
+                <div class="package-metadata-content">
+                    <div class="package-metadata-title">
+                        Version
+                    </div>
+                    <div class="package-metadata-value">
+                        {{package_version.version}}
+                    </div>
+                </div>
+                <div class="package-metadata-content">
+                    <div class="package-metadata-title">
+                        License
+                    </div>
+                    <div class="package-metadata-value">
+                        {{package_version.license}}
+                    </div>
+                </div>
+
+                <div class="package-metadata-content">
+                    <div class="package-metadata-title">
+                        Unpacked Size
+                    </div>
+                    <div class="package-metadata-value">
+                        271 kB
+                    </div>
+                </div>
+
+                <div class="package-metadata-content">
+                    <div class="package-metadata-title">
+                        Total Files
+                    </div>
+                    <div class="package-metadata-value">
+                        32
+                    </div>
+                </div>
+
+                <div class="package-metadata-content">
+                    <div class="package-metadata-title">
+                        Issues
+                    </div>
+                    <div class="package-metadata-value">
+                        271 kB
+                    </div>
+                </div>
+
+                <div class="package-metadata-content">
+                    <div class="package-metadata-title">
+                        Pull Requests
+                    </div>
+                    <div class="package-metadata-value">
+                        100
+                    </div>
+                </div>
+            </div>
+            <div class="horizontal-line"></div>
+            <div class="package-owners">
+                <div class="package-information-title">
+                    Owners
+                </div>
+                <div class="package-owners-info">
+                    John Doe
+                </div>
+            </div>
+        </div>
+        <div class="package-report">
+            <div class="package-report-flag-icon"></div>
+            <div>REPORT</div>
+        </div>
+    </div>
+</div>
+<script>
+    new PackageShow();
+</script>
+
+{% endblock %}
