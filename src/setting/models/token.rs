@@ -1,5 +1,8 @@
 use crate::accounts::Account;
+use crate::schema::accounts;
+use crate::schema::accounts::dsl::*;
 use crate::schema::api_tokens;
+use crate::schema::api_tokens::dsl::*;
 use crate::utils::token::SecureToken;
 use diesel::prelude::*;
 use diesel::{Associations, ExpressionMethods, Identifiable, Queryable, RunQueryDsl};
@@ -42,6 +45,25 @@ impl ApiToken {
             plaintext: secure_token.plaintext,
             model,
         })
+    }
+
+    /// Check and return an account with given plaintext api token
+    pub async fn associated_account(
+        plaintext_token: &str,
+        pool: &DieselPgPool,
+    ) -> Result<Account> {
+        let connection = pool.get()?;
+        let formatted_sha256 = SecureToken::to_formatted_sha256(&plaintext_token.to_string());
+
+        let matched_token = api_tokens
+            .filter(api_tokens::token.eq(formatted_sha256))
+            .first::<ApiToken>(&connection)?;
+
+        let account = accounts
+            .filter(accounts::id.eq(matched_token.account_id))
+            .first::<Account>(&connection)?;
+
+        Ok(account)
     }
 
     pub async fn max_token_reached(account: &Account, pool: &DieselPgPool) -> Result<()> {
@@ -147,6 +169,22 @@ mod tests {
             assert_eq!(message, "Too many tokens created.")
         } else {
             panic!()
+        }
+    }
+
+    #[actix_rt::test]
+    async fn api_token_associated_account_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+
+        let account = setup_user().await;
+
+        let result = ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
+
+        if let Ok(associated_account) = ApiToken::associated_account(&result.plaintext, &DB_POOL).await {
+            assert_eq!(associated_account.id, account.id)
+        } else {
+            panic!("Associated account not found!")
         }
     }
 }

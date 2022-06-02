@@ -86,6 +86,7 @@ pub struct NewPackage {
     pub name: String,
     pub description: String,
     pub repository_url: String,
+    pub account_id: Option<i32>
 }
 
 #[derive(Serialize, Deserialize)]
@@ -167,6 +168,7 @@ impl Package {
         version_rev: &String,
         version_files: i32,
         version_size: i32,
+        account_id_: Option<i32>,
         service: &GithubService,
         pool: &DieselPgPool,
     ) -> Result<i32, Error> {
@@ -181,6 +183,7 @@ impl Package {
                     name: github_data.name,
                     description: package_description.to_string(),
                     repository_url: repo_url.to_string(),
+                    account_id: account_id_
                 };
 
                 let record = diesel::insert_into(packages::table)
@@ -306,6 +309,7 @@ impl Package {
                     &https_url, &String::from(""), &rev_,
                     -1,
                     -1,
+                    None,
                     service,
                     &pool)
                 .await?
@@ -590,6 +594,7 @@ mod tests {
             &"1".to_string(),
             2,
             100,
+            None,
             &mock_github_service,
             &DB_POOL,
         )
@@ -635,6 +640,7 @@ mod tests {
             &"1".to_string(),
             2,
             100,
+            None,
             &mock_github_service,
             &DB_POOL,
         )
@@ -681,6 +687,7 @@ mod tests {
             &"1".to_string(),
             2,
             3,
+            None,
             &mock_github_service,
             &DB_POOL,
         )
@@ -727,6 +734,7 @@ mod tests {
             &"1".to_string(),
             2,
             3,
+            None,
             &mock_github_service,
             &DB_POOL,
         )
@@ -991,6 +999,7 @@ impl Package {
             name: package_name.to_string(),
             description: package_description.to_string(),
             repository_url: repo_url.to_string(),
+            account_id: None
         };
 
         let record = diesel::insert_into(packages::table)
