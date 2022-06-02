@@ -2,7 +2,7 @@ use cucumber::{given, then, when};
 use regex::Regex;
 use std::fs;
 use std::{thread, time};
-use jelly::forms::{EmailField, PasswordField, TextField};
+use jelly::forms::{EmailField, PasswordField};
 use thirtyfour::prelude::*;
 use mainlib::accounts::Account;
 use mainlib::accounts::forms::NewAccountForm;

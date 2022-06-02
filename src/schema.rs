@@ -20,6 +20,20 @@ table! {
     use diesel::sql_types::*;
     use diesel_full_text_search::*;
 
+    api_tokens (id) {
+        id -> Int4,
+        account_id -> Int4,
+        token -> Varchar,
+        name -> Varchar,
+        created_at -> Timestamptz,
+        last_used_at -> Nullable<Timestamptz>,
+    }
+}
+
+table! {
+    use diesel::sql_types::*;
+    use diesel_full_text_search::*;
+
     package_versions (id) {
         id -> Int4,
         package_id -> Int4,
@@ -52,10 +66,12 @@ table! {
     }
 }
 
+joinable!(api_tokens -> accounts (account_id));
 joinable!(package_versions -> packages (package_id));
 
 allow_tables_to_appear_in_same_query!(
     accounts,
+    api_tokens,
     package_versions,
     packages,
 );
