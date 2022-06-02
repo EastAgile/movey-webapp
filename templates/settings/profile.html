@@ -1,17 +1,39 @@
 {% extends "settings/layout.html" %}
 
-% block javascript %}
-  <script src="/static/js/settings/profile.js"></script>
+{% block javascript %}
+<script src="/static/js/settings/profile.js"></script>
 {% endblock %}
 
 {% block content %}
-<input class="email disabled"></input>
 
-<input class="current-password"></input>
-<input name="password" class="new-password"></input>
-<input name="password" class="password-confirm"></input>
+<!--<input class="current-password"></input>-->
+<!--<input name="password" class="new-password"></input>-->
+<!--<input name="password" class="password-confirm"></input>-->
 <button class="save"></button>
-<button class="discard"></button>
+<button class="discard">asdsa</button>
+
+<form action="/settings/profile" method="POST">
+    <label for="email">Email</label>
+    <input name="email" id="email" type="email" class="email disabled" disabled></input>
+
+    <label for="current-password">Current password</label>
+    <input name="current_password" id="current-password" type="password" class="current-password">
+
+    <label for="new-password">New password</label>
+    <input name="new_password" id="new-password" type="password" class="new">
+
+    <label for="password-confirm">Confirm password</label>
+    <input name="password_confirm" id="password-confirm" type="password" class="password-confirm">
+
+    <button id="submit-btn" type="submit" class="submit-btn">
+        Submit
+    </button>
+</form>
+{% if form %}
+    {% for err in form.new_password.errors %}
+        <p class="error">{{ err }}</p>
+    {% endfor %}
+{% endif %}
 
 <script>
   new Profile()

@@ -1,9 +1,6 @@
-use jelly::actix_web::web::{get, resource, scope, ServiceConfig};
-
-pub mod models;
+use jelly::actix_web::web::{get, post, resource, scope, ServiceConfig};
 pub mod views;
 
-pub use models::{Package, PackageVersion, PackageVersionSort, NewPackage, NewPackageVersion};
 use crate::utils::new_auth;
 
 pub fn configure(config: &mut ServiceConfig) {
@@ -14,7 +11,8 @@ pub fn configure(config: &mut ServiceConfig) {
             .wrap(guard)
             .service(
                 resource("/profile")
-                    .route(get().to(views::controller::profile)),
+                    .route(get().to(views::controller::profile))
+                    .route(post().to(views::controller::change_password)),
             )
     );
 }

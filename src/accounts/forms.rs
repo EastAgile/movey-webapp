@@ -52,7 +52,7 @@ impl Validation for EmailForm {
 }
 
 #[derive(Default, Debug, Deserialize, Serialize)]
-pub struct ChangePasswordForm {
+pub struct ChangePasswordViaEmailForm {
     // Unused in rendering, but stored here to enable password
     // checking with relative values.
     pub name: Option<String>,
@@ -62,7 +62,7 @@ pub struct ChangePasswordForm {
     pub password_confirm: PasswordField,
 }
 
-impl Validation for ChangePasswordForm {
+impl Validation for ChangePasswordViaEmailForm {
     fn is_valid(&mut self) -> bool {
         if !self.password.is_valid() || !self.password_confirm.is_valid() {
             return false;
@@ -76,6 +76,34 @@ impl Validation for ChangePasswordForm {
         }
 
         self.password
+            .validate_with(&[&self.name.as_ref().unwrap(), &self.email.as_ref().unwrap()])
+    }
+}
+
+#[derive(Default, Debug, Deserialize, Serialize)]
+pub struct ChangePasswordForm {
+    pub name: Option<String>,
+    pub email: Option<String>,
+
+    pub current_password: PasswordField,
+    pub new_password: PasswordField,
+    pub password_confirm: PasswordField,
+}
+
+impl Validation for ChangePasswordForm {
+    fn is_valid(&mut self) -> bool {
+        if !self.current_password.is_valid() || !self.new_password.is_valid() || !self.password_confirm.is_valid() {
+            return false;
+        }
+
+        if self.new_password.value != self.password_confirm.value {
+            self.new_password
+                .errors
+                .push("Passwords must match.".to_string());
+            return false;
+        }
+
+        self.new_password
             .validate_with(&[&self.name.as_ref().unwrap(), &self.email.as_ref().unwrap()])
     }
 }
