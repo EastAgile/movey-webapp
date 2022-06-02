@@ -1,0 +1,26 @@
+@import "static/css/queries.scss";
+
+$header-and-footer-height: 350px;
+
+.not-found-wrapper {
+  min-height: calc(100vh - $header-and-footer-height);
+  padding: 100px;
+
+  p {
+    font-family: var(--sub-title-font);
+    color: var(--dark-blue-color);
+    font-size: 48px;
+    line-height: 72px;
+    font-weight: 700;
+
+    @include medium-screen {
+      font-size: 32px;
+      line-height: 48px;
+    }
+
+    @include small-screen {
+      font-size: 24px;
+      line-height: 48px;
+    }
+  }
+}
