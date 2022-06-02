@@ -1,4 +1,5 @@
 use jelly::actix_web::web::{get, resource, scope, ServiceConfig};
+use jelly::guards::Auth;
 
 pub mod models;
 pub mod views;
@@ -6,6 +7,10 @@ pub mod views;
 pub use models::{Package, PackageVersion, PackageVersionSort, NewPackage, NewPackageVersion};
 
 pub fn configure(config: &mut ServiceConfig) {
+    let guard = Auth {
+        redirect_to: "/accounts/login/",
+    };
+
     config.service(
         scope("/packages/")
             .service(
@@ -15,6 +20,10 @@ pub fn configure(config: &mut ServiceConfig) {
             .service(
                 resource("/search")
                     .route(get().to(views::controller::show_search_results)),
+            )
+            .service(
+                resource("/owned")
+                .route(get().to(views::controller::show_owned_packages)),
             )
             .service(
                 resource("/{package_name}")

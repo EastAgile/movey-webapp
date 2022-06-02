@@ -121,3 +121,21 @@ pub async fn show_search_results(
         ctx
     })
 }
+
+pub async fn show_owned_packages(
+    request: HttpRequest
+) -> Result<HttpResponse> {
+    let db = request.db_pool()?;
+    if let Ok(user) = request.user() {
+        let packages = Package::get_by_account(user.id, &db).await.unwrap();
+
+        request.render(200, "search/search_results.html", {
+            let mut ctx = Context::new();
+            ctx.insert("packages", &packages);
+            ctx
+        })
+    } else {
+        Ok(HttpResponse::NotFound().body("Cannot find user"))
+    }
+
+}

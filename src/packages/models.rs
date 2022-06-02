@@ -1,7 +1,9 @@
+use crate::accounts::Account;
+
 use diesel::dsl::count;
 use diesel::prelude::*;
 use diesel::sql_types::{Integer, Text, Timestamptz};
-use diesel::{AsChangeset, Identifiable, Insertable, Queryable};
+use diesel::{Associations, AsChangeset, Identifiable, Insertable, Queryable};
 
 use diesel_full_text_search::{plainto_tsquery, TsVectorExtensions};
 
@@ -24,8 +26,9 @@ use crate::schema::packages::dsl::*;
 
 const PACKAGES_PER_PAGE: i64 = 10;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset, QueryableByName)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset, QueryableByName, Associations)]
 #[table_name = "packages"]
+#[belongs_to(Account)]
 pub struct Package {
     pub id: i32,
     pub name: String,
@@ -34,6 +37,7 @@ pub struct Package {
     pub total_downloads_count: i32,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    pub account_id: Option<i32>
 }
 
 type PackageColumns = (
@@ -43,7 +47,8 @@ type PackageColumns = (
     packages::repository_url,
     packages::total_downloads_count,
     packages::created_at,
-    packages::updated_at
+    packages::updated_at,
+    packages::account_id
 );
 
 const PACKAGE_COLUMNS: PackageColumns = (
@@ -53,7 +58,8 @@ const PACKAGE_COLUMNS: PackageColumns = (
     packages::repository_url,
     packages::total_downloads_count,
     packages::created_at,
-    packages::updated_at
+    packages::updated_at,
+    packages::account_id
 );
 
 #[derive(Debug, Serialize, Deserialize, QueryableByName, Queryable)]
@@ -228,9 +234,9 @@ impl Package {
             .filter(account_id.eq(owner_id))
             .select(PACKAGE_COLUMNS)
             .load::<Package>(&connection)?;
-        
+
         Ok(result)
-    } 
+    }
 
     pub async fn get_version(
         &self,
