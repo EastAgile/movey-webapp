@@ -5,10 +5,9 @@ $card-height-max: 588px;
 $page-height: max(100vh, $navbar-height + $card-height-max);
 $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar-height));
 
-.login-container {
+.signup-container {
   font-family: 'Mulish', serif;
   width: 100vw;
-  height: 100vh;
   height: $page-height;
   background: var(--cool-gray) url(/static/img/Map.png);
   background-position-y: -200px;
@@ -28,7 +27,7 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar
     }
   }
 
-  .login-card-container {
+  .signup-card-container {
     margin-top: $from-nav-to-card;
 
     @include small-screen {
@@ -57,7 +56,7 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar
       }
     }
 
-    .login-card {
+    .signup-card {
       position: relative;
       z-index: 99;
       background-color: white;
@@ -70,7 +69,7 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar
         width: 373px;
       }
 
-      .login-card-title {
+      .signup-card-title {
         font-family: var(--sub-title-font);
         font-weight: 700;
         font-size: 24px;
@@ -79,7 +78,7 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar
         margin-bottom: 24px;
       }
 
-      .login-thirdparty {
+      .signup-thirdparty {
         display: grid;
         grid-template-columns: 1fr 1fr;
         column-gap: 8px;
@@ -92,12 +91,18 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar
         }
 
         .g-signin2 {
+          transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+          &:hover {
+            box-shadow: 0 0 5px var(--blue-color);
+          }
 
           .abcRioButton,
           .abcRioButtonLightBlue {
             width: 100% !important;
             border-radius: 4px;
             border: 1px solid var(--cool-gray);
+            box-shadow: 0 0 1px 1px rgba(0, 0, 0, .1);
 
             @include medium-screen {
               width: 176px !important;
@@ -121,7 +126,7 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar
                 font-family: 'Mulish', serif;
                 font-size: 14px;
                 font-weight: 500;
-                color: black;
+                color: var(--cool-gray-700);
               }
             }
           }
@@ -129,15 +134,14 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar
 
         .github-btn-wrapper {
           text-decoration: none;
-          color: black;
 
           .github-btn {
             display: flex;
             align-items: center;
             height: 36px;
             border-radius: 4px;
-            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .25);
-            transition: border-color 0.218s ease-in-out, box-shadow 0.218s ease-in-out;
+            box-shadow: 0 0 1px 1px rgba(0, 0, 0, .1);
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 
             @include small-screen {
               justify-content: center;
@@ -152,6 +156,7 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar
 
             .btn-text {
               font-size: 14px;
+              color: var(--cool-gray-700);
               margin: auto;
               justify-content: center;
               overflow-x: hidden;
@@ -162,7 +167,7 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar
             }
 
             &:hover {
-              box-shadow: 0 0 6px var(--blue-color);
+              box-shadow: 0 0 5px var(--blue-color);
             }
 
             &:active {
@@ -172,16 +177,16 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar
         }
       }
 
-      .login-separator {
+      .signup-separator {
         color: var(--gray-color);
         margin-top: 36px;
         margin-bottom: 24px;
 
-        .login-separator-line {
+        .signup-separator-line {
           border-top: 2px solid var(--gray-color);
         }
 
-        .login-separator-text {
+        .signup-separator-text {
           background-color: white;
           width: fit-content;
           font-size: 16px;
@@ -191,18 +196,18 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar
         }
       }
 
-      .login-form {
+      .signup-form {
 
-        .login-input {
+        .signup-input {
           margin-bottom: 16px;
 
           &:focus-within {
-            .login-input-label {
+            .signup-input-label {
               color: var(--blue-color);
             }
           }
 
-          .login-input-label {
+          .signup-input-label {
             display: inline-block;
             font-size: 16px;
             font-weight: 500;
@@ -212,7 +217,7 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar
             margin-bottom: 8px;
           }
 
-          .login-input-field {
+          .signup-input-field {
             display: block;
             box-sizing: border-box;
             width: 100%;
@@ -225,63 +230,37 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar
             line-height: 20px;
             color: var(--dark-blue-color);
             background-clip: padding-box;
-            border: 1px solid var(--cool-gray);
+            border: 2px solid var(--cool-gray);
             border-radius: 4px;
-            box-shadow: 0 1px 5px 0 rgba(0, 0, 0, .25);
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
+            box-shadow: 0 0 1px 1px rgba(0, 0, 0, .1);
             transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 
             &:focus {
               color: var(--dark-blue-color);
               border-color: #86b7fe;
               outline: 0;
-              box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+              box-shadow: 0 0 0 1px rgba(13, 110, 253, 0.3);
             }
           }
 
-          .error-container {
-            display: flex;
-            align-items: center;
-            background-color: var(--rose-color);
-            border-radius: 4px;
-            color: var(--dark-rose-color);
-            margin-top: 16px;
-            margin-bottom: 16px;
-
-            .error-icon {
-              font-size: 24px;
-              margin-left: 1.25rem;
-            }
-
-            .error {
-              padding: .75rem 0 .75rem 1.25rem;
-              font-size: 14px;
-              font-weight: 600;
-              margin: 0;
-            }
-          }
-        }
-
-        .login-remember {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 24px;
-          font-size: 14px;
-          height: 20px;
-
-          a {
-            text-decoration: none;
+          .error {
+            font-size: 14px;
             color: var(--blue-color);
+            margin-bottom: 0;
+
+            i {
+              font-size: 16px;
+              margin-right: 8px;
+            }
           }
         }
 
-        .login-btn {
+        .create_account_btn {
           font-size: 14px;
           width: 100%;
           height: 36px;
           padding: .75rem;
+          margin-top: 16px;
           margin-bottom: 24px;
           border-radius: 4px;
           border: none;
@@ -292,14 +271,29 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar
           &:disabled {
             color: #808FB0;
             background-color: #D9DDE7;
+            cursor: default;
           }
         }
       }
 
-      .login-invitation {
+      .signup-agree {
+        margin-bottom: 24px;
+        font-size: 14px;
+        vertical-align: middle;
+
+        @include medium-screen {
+          margin-left: 4px;
+        }
+
+        a {
+          color: var(--dark-blue-color);
+          text-decoration: underline;
+        }
+      }
+
+      .signin-invitation {
         color: var(--dark-blue-color);
         font-size: 14px;
-        margin: 0;
 
         a {
           text-decoration: none;

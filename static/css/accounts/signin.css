@@ -87,11 +87,18 @@
     margin-bottom: 24px;
   }
 }
+.login-container .login-card-container .login-card .login-thirdparty .g-signin2 {
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+.login-container .login-card-container .login-card .login-thirdparty .g-signin2:hover {
+  box-shadow: 0 0 5px var(--blue-color);
+}
 .login-container .login-card-container .login-card .login-thirdparty .g-signin2 .abcRioButton,
 .login-container .login-card-container .login-card .login-thirdparty .g-signin2 .abcRioButtonLightBlue {
   width: 100% !important;
   border-radius: 4px;
   border: 1px solid var(--cool-gray);
+  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 @media screen and (min-width: 844px) and (max-width: 1280px) {
   .login-container .login-card-container .login-card .login-thirdparty .g-signin2 .abcRioButton,
@@ -119,19 +126,18 @@
   font-family: "Mulish", serif;
   font-size: 14px;
   font-weight: 500;
-  color: black;
+  color: var(--cool-gray-700) !important;
 }
 .login-container .login-card-container .login-card .login-thirdparty .github-btn-wrapper {
   text-decoration: none;
-  color: black;
 }
 .login-container .login-card-container .login-card .login-thirdparty .github-btn-wrapper .github-btn {
   display: flex;
   align-items: center;
   height: 36px;
   border-radius: 4px;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
-  transition: border-color 0.218s ease-in-out, box-shadow 0.218s ease-in-out;
+  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 @media screen and (max-width: 843px) {
   .login-container .login-card-container .login-card .login-thirdparty .github-btn-wrapper .github-btn {
@@ -146,6 +152,7 @@
 }
 .login-container .login-card-container .login-card .login-thirdparty .github-btn-wrapper .github-btn .btn-text {
   font-size: 14px;
+  color: var(--cool-gray-700);
   margin: auto;
   justify-content: center;
   overflow-x: hidden;
@@ -205,19 +212,16 @@
   line-height: 20px;
   color: var(--dark-blue-color);
   background-clip: padding-box;
-  border: 1px solid var(--cool-gray);
+  border: 2px solid var(--cool-gray);
   border-radius: 4px;
-  box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.25);
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
+  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.1);
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 .login-container .login-card-container .login-card .login-form .login-input .login-input-field:focus {
   color: var(--dark-blue-color);
   border-color: #86b7fe;
   outline: 0;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  box-shadow: 0 0 0 1px rgba(13, 110, 253, 0.3);
 }
 .login-container .login-card-container .login-card .login-form .login-input .error-container {
   display: flex;
@@ -264,6 +268,7 @@
 .login-container .login-card-container .login-card .login-form .login-btn:disabled {
   color: #808FB0;
   background-color: #D9DDE7;
+  cursor: default;
 }
 .login-container .login-card-container .login-card .login-invitation {
   color: var(--dark-blue-color);
