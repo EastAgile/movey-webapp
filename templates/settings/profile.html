@@ -6,34 +6,40 @@
 
 {% block content %}
 
-<!--<input class="current-password"></input>-->
-<!--<input name="password" class="new-password"></input>-->
-<!--<input name="password" class="password-confirm"></input>-->
-<button class="save"></button>
-<button class="discard">asdsa</button>
-
 <form action="/settings/profile" method="POST">
     <label for="email">Email</label>
-    <input name="email" id="email" type="email" class="email disabled" disabled></input>
+    <input name="email" id="email" type="email" class="email disabled" disabled placeholder="{{ email }}">
 
     <label for="current-password">Current password</label>
-    <input name="current_password" id="current-password" type="password" class="current-password">
+    <input name="current_password" id="current-password" type="password" minlength="8" class="current-password">
 
     <label for="new-password">New password</label>
-    <input name="new_password" id="new-password" type="password" class="new">
+    <input name="new_password" id="new-password" type="password" minlength="8" class="new-password">
 
     <label for="password-confirm">Confirm password</label>
-    <input name="password_confirm" id="password-confirm" type="password" class="password-confirm">
+    <input name="password_confirm" id="password-confirm" type="password" minlength="8" class="password-confirm">
 
-    <button id="submit-btn" type="submit" class="submit-btn">
+    <button id="save-btn" type="submit" class="submit-btn" disabled>
         Submit
     </button>
 </form>
+<button id="discard-btn">Discard</button>
 {% if form %}
     {% for err in form.new_password.errors %}
         <p class="error">{{ err }}</p>
     {% endfor %}
 {% endif %}
+
+{% if form %}
+    {% for err in form.current_password.errors %}
+        <p class="error">{{ err }}</p>
+    {% endfor %}
+{% endif %}
+
+{% if error %}
+    <p class="error">{{ error }}</p>
+{% endif %}
+
 
 <script>
   new Profile()

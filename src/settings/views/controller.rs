@@ -10,7 +10,14 @@ use crate::accounts::Account;
 use crate::accounts::forms::ChangePasswordForm;
 
 pub async fn profile(request: HttpRequest) -> Result<HttpResponse> {
-    request.render(200, "settings/profile.html",Context::new())
+    let user = request.user()?;
+    let db = request.db_pool()?;
+    let account = Account::get(user.id, db).await.unwrap();
+    request.render(200, "settings/profile.html",{
+        let mut context = Context::new();
+        context.insert("email", &account.email);
+        context
+    })
 }
 
 pub async fn change_password(request: HttpRequest, form: Form<ChangePasswordForm>) -> Result<HttpResponse> {
@@ -18,14 +25,15 @@ pub async fn change_password(request: HttpRequest, form: Form<ChangePasswordForm
     let user = request.user()?;
     let db = request.db_pool()?;
     let account = Account::get(user.id, db).await?;
-    form.name = Some(account.name);
-    form.email = Some(account.email);
+    form.name = Some(account.name.clone());
+    form.email = Some(account.email.clone());
 
     if !form.is_valid() {
         return request.render(200, "settings/profile.html", {
             let mut context = Context::new();
             context.insert("form", &form);
             context.insert("is_ok", &false);
+            context.insert("email", &account.email);
             context
         });
     }
@@ -61,6 +69,7 @@ pub async fn change_password(request: HttpRequest, form: Form<ChangePasswordForm
     request.render(200, "settings/profile.html", {
         let mut context = Context::new();
         context.insert("error", message);
+        context.insert("email", &account.email);
         context
     })
 }

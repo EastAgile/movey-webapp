@@ -19,19 +19,15 @@ Feature: View user profile
         When I enter my current password into 'Current password' textbox
         And I enter new valid password into 'New password' textbox
         And I enter different password into 'Repeat new password' textbox
-        And I click on 'Save' button
-        Then I should see the Profile page
-        And I should see the error 'Passwords must match.'
+        Then I should see the 'Save' button is disabled
 
-
+    @wip
     Scenario: User changes password failed because new passwords is not long enough
         When I enter my current password into 'Current password' textbox
         And I enter an short password into 'New password' textbox
         And I repeat the same short password into 'Repeat new password' textbox
-        And I click on 'Save' button
-        Then I should see the error 'Password must contain at least 8 characters.'
+        Then I should see the 'Save' button is disabled
 
-    @wip
     Scenario: User discard changes
         When I enter random texts into whatever textboxes
         And I click on 'Discard' button

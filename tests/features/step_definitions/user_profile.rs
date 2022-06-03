@@ -48,7 +48,7 @@ async fn different_password(world: &mut TestWorld) {
 
 #[when("I click on 'Save' button")]
 async fn click_on_save_button(world: &mut TestWorld) {
-    let save_button = world.driver.find_element(By::Id("submit-btn")).await.unwrap();
+    let save_button = world.driver.find_element(By::Id("save-btn")).await.unwrap();
     save_button.click().await.unwrap();
 }
 
@@ -67,7 +67,7 @@ async fn enter_text_whatever_textbox(world: &mut TestWorld) {
 
 #[when("I click on 'Discard' button")]
 async fn click_on_discard_button(world: &mut TestWorld) {
-    let discard_button = world.driver.find_element(By::ClassName("discard")).await.unwrap();
+    let discard_button = world.driver.find_element(By::Id("discard-btn")).await.unwrap();
     discard_button.click().await.unwrap();
 }
 
@@ -94,8 +94,8 @@ async fn see_account_settings_page(world: &mut TestWorld) {
     world.driver.find_element(By::Id("current-password")).await.unwrap();
     world.driver.find_element(By::Id("new-password")).await.unwrap();
     world.driver.find_element(By::Id("password-confirm")).await.unwrap();
-    world.driver.find_element(By::ClassName("save")).await.unwrap();
-    world.driver.find_element(By::ClassName("discard")).await.unwrap();
+    world.driver.find_element(By::Id("save-btn")).await.unwrap();
+    world.driver.find_element(By::Id("discard-btn")).await.unwrap();
 }
 
 #[then(expr = "I should see a popup with text {word}")]
@@ -111,7 +111,10 @@ async fn signed_out_and_redirected_to_sign_in_page(world: &mut TestWorld) {
         "http://localhost:17002/accounts/login/"
     );
 }
-
+#[then("I should see the 'Save' button is disabled")]
+async fn save_button_disabled(world: &mut TestWorld) {
+    assert!(!world.driver.find_element(By::Id("save-btn")).await.unwrap().is_enabled().await.unwrap());
+}
 #[then("I should be able to sign in again with new password")]
 async fn sign_in_with_new_password(world: &mut TestWorld) {
     let email_field = world.driver.find_element(By::Name("email")).await.unwrap();
