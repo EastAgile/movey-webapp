@@ -11,16 +11,18 @@
     <div class="search-container">
       <div id="input-main"></div>
     </div>
-    <div class="home-component stat-container">
-      <div class="stat-package">
-        <div class="stat-no">{{package_count}}</div>
-        <div class="stat-name">PACKAGES</div>
+    <a href="/packages/">
+      <div class="home-component stat-container">
+        <div class="stat-package">
+          <div class="stat-no">{{package_count}}</div>
+          <div class="stat-name">PACKAGES</div>
+        </div>
+        <div>
+          <div class="stat-no">{{package_version_count}}</div>
+          <div class="stat-name">RELEASES</div>
+        </div>
       </div>
-      <div>
-        <div class="stat-no">{{package_version_count}}</div>
-        <div class="stat-name">RELEASES</div>
-      </div>
-    </div>
+    </a>
     <div class="social-container">
       <div class="social-subtitle">MOVEY was developed by East Agile.</div>
       <ul class="social-icons">

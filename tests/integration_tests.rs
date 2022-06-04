@@ -19,5 +19,5 @@ async fn main() {
             }
             ready(TestDatabaseHelper::cleanup_test_database()).boxed_local()
         })
-        .run("tests/features/").await;
+        .run_and_exit("tests/features/").await;
 }

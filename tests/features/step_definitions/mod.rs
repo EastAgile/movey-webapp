@@ -8,4 +8,5 @@ pub mod reset_steps;
 pub mod layouts_steps;
 pub mod search_results_steps;
 pub mod signup_steps;
+pub mod package_list_steps;
 mod api_token_steps;

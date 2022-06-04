@@ -18,7 +18,11 @@ pub fn configure(config: &mut ServiceConfig) {
             )
             .service(
                 resource("/{package_name}")
-                    .route(get().to(views::controller::show_package)),
+                .route(get().to(views::controller::show_package)),
+            )
+            .service(
+                resource("")
+                    .route(get().to(views::controller::packages_index)),
             )
     );
 }

@@ -49,7 +49,7 @@ impl Job for SendVerifyAccountEmail {
             let email = Email::new(
                 "email/verify-account",
                 &[account.email],
-                "Verify your new account",
+                "Verify your new Movey account",
                 build_context(&verify_url),
                 state.templates,
             );

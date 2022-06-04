@@ -3,7 +3,7 @@
 .package-show-container {
     .package-info-container {
         max-width: 1574px;
-        margin: 0 auto;
+        margin: 48px auto;
         padding: 20px 30px 0;
 
         .package-name-version {
@@ -535,6 +535,7 @@
                     border-radius: 4px;
                     display: flex;
                     justify-content: center;
+                    align-items: center;
                     color: #EB5757;
                     font-weight: 700;
                     line-height: 18px;
