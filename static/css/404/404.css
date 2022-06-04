@@ -1,6 +1,9 @@
 .not-found-wrapper {
   min-height: calc(100vh - 350px);
   padding: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .not-found-wrapper p {
   font-family: var(--sub-title-font);
