@@ -2,7 +2,7 @@
   font-family: "Mulish", serif;
   width: 100vw;
   height: 100vh;
-  height: max(100vh, 688px);
+  height: max(100vh, 332px);
   background: var(--cool-gray) url(/static/img/Map.png);
   background-position-y: -200px;
 }
@@ -23,7 +23,7 @@
   }
 }
 .verify-container .verify-card-container {
-  margin-top: max(0px, (max(100vh, 688px) - 588px) / 2 - 100px);
+  margin-top: max(0px, (max(100vh, 332px) - 232px) / 2 - 100px);
 }
 @media screen and (max-width: 843px) {
   .verify-container .verify-card-container {

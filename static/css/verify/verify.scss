@@ -1,9 +1,9 @@
 @import "static/css/queries.scss";
 
 $navbar-height: 100px;
-$card-height-max: 588px;
-$page-height: max(100vh, $navbar-height + $card-height-max);
-$from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar-height));
+$card-height: 232px;
+$page-height: max(100vh, $navbar-height + $card-height);
+$from-nav-to-card: max(0px, calc(($page-height - $card-height) / 2 - $navbar-height));
 
 .verify-container {
   font-family: 'Mulish', serif;
