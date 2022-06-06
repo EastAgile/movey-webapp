@@ -1,13 +1,16 @@
 use crate::accounts::Account;
 use crate::schema::api_tokens;
+use crate::schema::api_tokens::dsl::*;
 use crate::utils::token::SecureToken;
 use diesel::prelude::*;
 use diesel::{Associations, ExpressionMethods, Identifiable, Queryable, RunQueryDsl};
+
 use jelly::chrono::NaiveDateTime;
 use jelly::error::Error;
 use jelly::serde::Serialize;
 use jelly::DieselPgPool;
 use jelly::Result;
+use sha2::{Digest, Sha256};
 
 #[derive(Clone, Debug, PartialEq, Eq, Identifiable, Queryable, Associations, Serialize)]
 #[belongs_to(Account)]
@@ -60,6 +63,15 @@ impl ApiToken {
             Err(Error::Generic(String::from("Too many tokens created.")))
         }
     }
+
+    pub async fn get(api_token: &String, pool: &DieselPgPool) -> Result<i32> {
+        let connection = pool.get()?;
+        let sha256 = Sha256::digest(api_token.as_bytes());
+        let sha256 = format!("{:x?}", sha256.as_slice());
+        let result = api_tokens.filter(api_tokens::token.eq(sha256))
+            .select(id).first::<i32>(&connection)?;
+        Ok(result)
+    }
 }
 
 pub struct CreatedApiToken {
@@ -78,7 +90,6 @@ mod tests {
     use jelly::error::Error;
     use jelly::forms::{EmailField, PasswordField};
     use std::env;
-
     async fn setup_user() -> Account {
         let form = NewAccountForm {
             email: EmailField {
@@ -149,4 +160,16 @@ mod tests {
             panic!()
         }
     }
+
+    #[actix_rt::test]
+    async fn get_token_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+
+        let account = setup_user().await;
+        let new_api_token = ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
+        let token_id = ApiToken::get(&new_api_token.plaintext, &DB_POOL).await.unwrap();
+        assert_eq!(token_id, 1);
+    }
+
 }
