@@ -11,8 +11,3 @@ class Helper {
         })
     }
 }
-
-function onSignIn(googleUser) {
-    let profile = googleUser.getBasicProfile()
-    window.location.href = `/accounts/google/callback?name=${profile.getName()}`
-}

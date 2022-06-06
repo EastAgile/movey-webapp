@@ -98,10 +98,10 @@ async fn see_account_settings_page(world: &mut TestWorld) {
     world.driver.find_element(By::Id("discard-btn")).await.unwrap();
 }
 
-#[then(expr = "I should see a popup with text {word}")]
-async fn see_popup_with_text(world: &mut TestWorld, word: String) {
-    let popup = world.driver.find_element(By::ClassName(".popup")).await.unwrap();
-    assert_eq!(popup.text().await.unwrap(), word);
+#[then(regex = r"^I should see a message with text '(.+)'$")]
+async fn see_popup_with_text(world: &mut TestWorld, flash_message: String) {
+    let message = world.driver.find_element(By::ClassName("flash_message")).await.unwrap();
+    assert_eq!(message.text().await.unwrap(), flash_message);
 }
 
 #[then("I am signed out of my account and redirected to Sign in page")]
@@ -111,6 +111,7 @@ async fn signed_out_and_redirected_to_sign_in_page(world: &mut TestWorld) {
         "http://localhost:17002/accounts/login/"
     );
 }
+
 #[then("I should see the 'Save' button is disabled")]
 async fn save_button_disabled(world: &mut TestWorld) {
     assert!(!world.driver.find_element(By::Id("save-btn")).await.unwrap().is_enabled().await.unwrap());

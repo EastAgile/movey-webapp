@@ -1,7 +1,6 @@
 //! Admin dashboard.
 
 use jelly::actix_web::web::{resource, scope, ServiceConfig};
-use jelly::guards::Auth;
 use crate::utils::new_auth;
 
 mod views;

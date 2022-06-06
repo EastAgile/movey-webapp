@@ -1,8 +1,7 @@
 use jelly::actix_session::UserSession;
-use jelly::actix_web::{web::Path, web::Query, HttpRequest};
+use jelly::actix_web::HttpRequest;
 use jelly::actix_web::http::header;
 use jelly::actix_web::web::Form;
-use jelly::forms::TextField;
 use jelly::prelude::*;
 use jelly::request::DatabasePool;
 use jelly::Result;
@@ -62,6 +61,7 @@ pub async fn change_password(request: HttpRequest, form: Form<ChangePasswordForm
         request.get_session().clear();
         return Ok(HttpResponse::Found()
             .header(header::SET_COOKIE, "remember_me_token=\"\"; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT")
+            .header(header::SET_COOKIE, format!("flash={}; path=/; Max-Age=10", message))
             .header(header::LOCATION, "/accounts/login/")
             .finish()
         );

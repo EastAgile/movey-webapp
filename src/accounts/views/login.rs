@@ -1,5 +1,5 @@
 use jelly::actix_session::UserSession;
-use jelly::actix_web::{web, web::Form, HttpRequest};
+use jelly::actix_web::{web, web::Form, HttpRequest, HttpMessage};
 use jelly::prelude::*;
 use jelly::request::{Authentication, DatabasePool};
 use jelly::Result;
@@ -23,13 +23,16 @@ pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
     if request::is_authenticated(&request).await? {
         return request.redirect("/dashboard/");
     }
-
     request.render(200, "accounts/login.html", {
         let mut ctx = Context::new();
         let google_client_id =
             std::env::var("GOOGLE_CLIENT_ID").unwrap();
         ctx.insert("form", &LoginForm::default());
         ctx.insert("client_id", &google_client_id);
+        let flash = request.cookie("flash");
+        if let Some(message) = flash {
+            ctx.insert("flash", message.value());
+        }
         ctx
     })
 }

@@ -13,7 +13,6 @@
 
 {% block script %}
     <script src="https://apis.google.com/js/platform.js" async defer></script>
-    <script src="/static/js/signin/helper.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -68,7 +67,7 @@
                 </div>
                 <div class="login-remember">
                     <span>
-                        <input type="checkbox" name="remember_me">
+                        <input type="checkbox" name="remember_me" id="remember_me">
                         <label for="remember_me">
                             Keep me logged in
                         </label>
@@ -78,6 +77,9 @@
                 <button type="submit" class="login-btn">Login</button>
             </form>
             <p class="login-invitation">Not a member? <a href="/accounts/register/">Sign up</a></p>
+            {% if flash %}
+                <p class="flash_message">{{ flash }}</p>
+            {% endif %}
         </div>
     </div>
 </div>
