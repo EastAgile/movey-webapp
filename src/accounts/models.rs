@@ -2,17 +2,17 @@
 // users, along with welcome email and verification.
 
 use diesel::prelude::*;
-use diesel::{AsChangeset, Identifiable, Insertable, Queryable};
 #[allow(unused_imports)]
-use diesel::result::{Error as DBError};
+use diesel::result::Error as DBError;
+use diesel::{AsChangeset, Identifiable, Insertable, Queryable};
 
 use jelly::accounts::{OneTimeUseTokenGenerator, User};
 use jelly::chrono::{offset, DateTime, Utc};
 use jelly::djangohashers::{check_password, make_password};
 use jelly::error::Error;
+use jelly::error::Error::Generic;
 use jelly::serde::{Deserialize, Serialize};
 use jelly::DieselPgPool;
-use jelly::error::Error::Generic;
 
 use super::forms::{LoginForm, NewAccountForm};
 use crate::schema::accounts;
@@ -56,7 +56,9 @@ impl Account {
             .filter(email.eq(&form.email.value))
             .first::<Account>(&connection)?;
         if !user.has_verified_email {
-            return Err(Generic(String::from("Your account has not been activated.")));
+            return Err(Generic(String::from(
+                "Your account has not been activated.",
+            )));
         }
         if !check_password(&form.password, &user.password)? {
             return Err(Error::InvalidPassword);
@@ -203,24 +205,24 @@ impl NewAccount {
 mod tests {
     use super::*;
     use crate::test::{DatabaseTestContext, DB_POOL};
-    use jelly::forms::{EmailField, PasswordField};
-	use diesel::result::DatabaseErrorKind;
+    use diesel::result::DatabaseErrorKind;
     use diesel::result::Error::DatabaseError;
+    use jelly::forms::{EmailField, PasswordField};
 
     fn login_form() -> LoginForm {
-      LoginForm {
-          email: EmailField {
-              value: "email@host.com".to_string(),
-              errors: vec![],
-          },
-          password: PasswordField {
-              value: "So$trongpas0word!".to_string(),
-              errors: vec![],
-              hints: vec![],
-          },
-          remember_me: "off".to_string(),
-          redirect: "".to_string(),
-      }
+        LoginForm {
+            email: EmailField {
+                value: "email@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+            remember_me: "off".to_string(),
+            redirect: "".to_string(),
+        }
     }
     async fn setup_user() -> i32 {
         let form = NewAccountForm {
@@ -244,7 +246,9 @@ mod tests {
         let uid = setup_user().await;
         Account::mark_verified(uid, &DB_POOL).await.unwrap();
 
-        let user = Account::authenticate(&login_form(), &DB_POOL).await.unwrap();
+        let user = Account::authenticate(&login_form(), &DB_POOL)
+            .await
+            .unwrap();
         assert_eq!(user.id, uid);
     }
 
@@ -306,13 +310,14 @@ mod tests {
         setup_user().await;
 
         match Account::authenticate(&login_form(), &DB_POOL).await {
-            Err(Error::Generic(e)) =>
-                assert_eq!(e, String::from("Your account has not been activated.")),
+            Err(Error::Generic(e)) => {
+                assert_eq!(e, String::from("Your account has not been activated."))
+            }
             _ => panic!(),
         }
     }
 
-	#[actix_rt::test]
+    #[actix_rt::test]
     async fn register_works() {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
@@ -375,15 +380,19 @@ mod tests {
         Account::mark_verified(uid, &DB_POOL).await.unwrap();
 
         let new_password = String::from("nEw$trongpas0word!");
-        Account::change_password(uid,
-                                 String::from("So$trongpas0word!"),
-                                 new_password.clone(),
-                                 &DB_POOL).await.unwrap();
+        Account::change_password(
+            uid,
+            String::from("So$trongpas0word!"),
+            new_password.clone(),
+            &DB_POOL,
+        )
+        .await
+        .unwrap();
         let account = Account::get(uid, &DB_POOL).await.unwrap();
         let mut login_form = login_form();
         login_form.password.value = new_password.clone();
         match Account::authenticate(&login_form, &DB_POOL).await {
-            Ok(user) => assert_eq!(user.id , uid),
+            Ok(user) => assert_eq!(user.id, uid),
             _ => panic!(),
         }
     }
