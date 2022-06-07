@@ -24,7 +24,7 @@ pub struct NewSecureToken {
     pub inner: SecureToken,
 }
 
-fn generate_secure_alphanumeric_string(len: usize) -> String {
+pub fn generate_secure_alphanumeric_string(len: usize) -> String {
     const CHARS: &[u8] = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     OsRng

@@ -49,8 +49,10 @@ pub async fn with_token(
 }
 
 #[derive(Debug, serde::Deserialize)]
-pub struct OauthUser {
-    name: String,
+pub struct GithubOauthUser {
+    pub name: String,
+    pub login: String,
+    pub email: String
 }
 
 pub async fn callback_github(
@@ -71,13 +73,11 @@ pub async fn callback_github(
                         .header("User-Agent", "Movey")
                         .send()
                         .unwrap();
-                    let response_json: OauthUser = response.json().unwrap();
-                    request.set_user(User {
-                        id: 0,
-                        name: response_json.name,
-                        is_admin: false,
-                        is_anonymous: false,
-                    })?;
+
+                    let oauth_user: GithubOauthUser = response.json().unwrap();
+                    let db = request.db_pool()?;
+                    let user = Account::register_from_github(&oauth_user, &db).await.unwrap();
+                    request.set_user(user)?;
                     request.redirect("/dashboard/")
                 }
                 Err(_) => request.redirect("/accounts/register/"),
@@ -89,7 +89,7 @@ pub async fn callback_github(
 
 pub async fn callback_google(
     request: HttpRequest,
-    user: web::Query<OauthUser>,
+    user: web::Query<GithubOauthUser>,
 ) -> Result<HttpResponse> {
     request.set_user(User {
         id: 0,
