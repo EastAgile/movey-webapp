@@ -26,6 +26,7 @@ pub mod schema;
 
 pub mod request;
 pub mod test;
+pub mod setting;
 
 use jelly::Server;
 
@@ -41,6 +42,7 @@ pub async fn main() -> io::Result<()> {
         .register_service(dashboard::configure)
         .register_service(api::configure)
         .register_service(policy::configure)
+        .register_service(setting::configure)
         .run()
         .await?
         .await
