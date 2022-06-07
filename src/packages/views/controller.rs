@@ -1,4 +1,3 @@
-use convert_case::{Case, Casing};
 use jelly::actix_web::{web::Path, web::Query, HttpRequest};
 use jelly::forms::TextField;
 use jelly::prelude::*;
@@ -6,7 +5,7 @@ use jelly::request::DatabasePool;
 use jelly::Result;
 
 use crate::packages::{Package, PackageVersion, PackageVersionSort};
-use crate::packages::models::{PackageSortField, PackageSortOrder};
+use crate::packages::models::{PackageSortField, PackageSortOrder, PACKAGES_PER_PAGE};
 
 #[derive(serde::Serialize, serde::Deserialize)]
 struct PackageShowParams {
@@ -106,7 +105,7 @@ pub async fn show_search_results(
 
     let current_page = search.page.unwrap_or_else(|| 1);
     let field_name = match &search.field {
-        Some(f) => f.to_string().to_case(Case::Snake),
+        Some(f) => f.to_string(),
         None => "".to_string()
     };
 
@@ -116,6 +115,56 @@ pub async fn show_search_results(
         ctx.insert("sort_type", &field_name);
         ctx.insert("current_page", &current_page);
         ctx.insert("packages", &packages);
+        ctx.insert("total_count", &total_count);
+        ctx.insert("total_pages", &total_pages);
+        ctx
+    })
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct PackageIndexParams {
+    pub field: Option<PackageSortField>,
+    pub order: Option<PackageSortOrder>,
+    pub page: Option<i64>,
+}
+
+pub async fn packages_index(
+    request: HttpRequest,
+    mut params: Query<PackageIndexParams>
+) -> Result<HttpResponse> {
+    let db = request.db_pool()?;
+    if let None = params.field {
+        params.field = Some(PackageSortField::Name);
+    }
+    if let None = params.order {
+        params.order = if let Some(PackageSortField::Name) = params.field {
+            Some(PackageSortOrder::Asc)
+        } else {
+            Some(PackageSortOrder::Desc)
+        }
+    }
+    let (packages, total_count, total_pages) = Package::all_packages(
+        &params.field.as_ref().unwrap(),
+        &params.order.as_ref().unwrap(),
+        params.page,
+        None,
+        &db).await.unwrap();
+
+    let current_page = params.page.unwrap_or_else(|| 1);
+    let field_name = match &params.field {
+        Some(f) => f.to_string(),
+        None => "".to_string()
+    };
+    let display_pagination_start = (current_page - 1) * PACKAGES_PER_PAGE + 1;
+    let display_pagination_end: usize = (display_pagination_start as usize) + packages.len() - 1;
+
+    request.render(200, "packages/index.html", {
+        let mut ctx = Context::new();
+        ctx.insert("sort_type", &field_name);
+        ctx.insert("current_page", &current_page);
+        ctx.insert("packages", &packages);
+        ctx.insert("display_pagination_start", &display_pagination_start);
+        ctx.insert("display_pagination_end", &display_pagination_end);
         ctx.insert("total_count", &total_count);
         ctx.insert("total_pages", &total_pages);
         ctx
