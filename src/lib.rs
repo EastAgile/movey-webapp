@@ -2,6 +2,7 @@
 
 use std::env;
 use std::io;
+use jelly::actix_web::dev;
 
 #[macro_use]
 extern crate diesel;
@@ -54,4 +55,18 @@ pub async fn main() -> io::Result<()> {
         .run()
         .await?
         .await
+}
+
+#[cfg(feature = "test")]
+pub async fn test_main() -> dev::Server {
+    Server::new()
+        .register_service(pages::configure)
+        .register_service(accounts::configure)
+        .register_jobs(accounts::jobs::configure)
+        .register_service(packages::configure)
+        .register_service(dashboard::configure)
+        .register_service(api::configure)
+        .run()
+        .await
+        .unwrap()
 }

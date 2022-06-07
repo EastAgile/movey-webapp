@@ -21,8 +21,8 @@ jobs:
       - run: cargo install grcov
 
       - run:
-          name: Setup test server for integration tests
-          command: "DATABASE_URL=$DATABASE_URL_TEST diesel setup && PORT=17002 cargo run --features test"
+          name: Setup test database for integration tests
+          command: "DATABASE_URL=$DATABASE_URL_TEST diesel setup"
           background: true
       - browser-tools/install-chrome
       - browser-tools/install-chromedriver
