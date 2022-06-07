@@ -76,7 +76,8 @@ pub async fn callback_github(
 
                     let oauth_user: GithubOauthUser = response.json().unwrap();
                     let db = request.db_pool()?;
-                    let user = Account::register_from_github(&oauth_user, &db).await.unwrap();
+                    let user = Account::register_from_github(&oauth_user, &db).await?;
+                    Account::update_last_login(user.id, &db).await?;
                     request.set_user(user)?;
                     request.redirect("/dashboard/")
                 }
