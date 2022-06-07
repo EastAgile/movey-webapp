@@ -41,8 +41,8 @@ pub async fn main() -> io::Result<()> {
         .register_service(packages::configure)
         .register_service(dashboard::configure)
         .register_service(api::configure)
-        .register_service(policy::configure)
         .register_service(setting::configure)
+        .register_service(policy::configure)
         .run()
         .await?
         .await
