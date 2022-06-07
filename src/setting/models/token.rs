@@ -4,13 +4,11 @@ use crate::schema::api_tokens::dsl::*;
 use crate::utils::token::SecureToken;
 use diesel::prelude::*;
 use diesel::{Associations, ExpressionMethods, Identifiable, Queryable, RunQueryDsl};
-
 use jelly::chrono::NaiveDateTime;
 use jelly::error::Error;
 use jelly::serde::Serialize;
 use jelly::DieselPgPool;
 use jelly::Result;
-use sha2::{Digest, Sha256};
 
 #[derive(Clone, Debug, PartialEq, Eq, Identifiable, Queryable, Associations, Serialize)]
 #[belongs_to(Account)]
@@ -66,8 +64,7 @@ impl ApiToken {
 
     pub async fn get(api_token: &String, pool: &DieselPgPool) -> Result<i32> {
         let connection = pool.get()?;
-        let sha256 = Sha256::digest(api_token.as_bytes());
-        let sha256 = format!("{:x?}", sha256.as_slice());
+        let sha256 = SecureToken::hash(api_token);
         let result = api_tokens.filter(api_tokens::token.eq(sha256))
             .select(id).first::<i32>(&connection)?;
         Ok(result)
@@ -90,6 +87,7 @@ mod tests {
     use jelly::error::Error;
     use jelly::forms::{EmailField, PasswordField};
     use std::env;
+    
     async fn setup_user() -> Account {
         let form = NewAccountForm {
             email: EmailField {
@@ -171,5 +169,4 @@ mod tests {
         let token_id = ApiToken::get(&new_api_token.plaintext, &DB_POOL).await.unwrap();
         assert_eq!(token_id, 1);
     }
-
 }
