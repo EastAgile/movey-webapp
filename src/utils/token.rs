@@ -10,12 +10,16 @@ pub struct SecureToken {
 impl SecureToken {
     pub fn generate() -> NewSecureToken {
         let plaintext = generate_secure_alphanumeric_string(TOKEN_LENGTH);
-        let sha256 = Sha256::digest(plaintext.as_bytes());
-        let sha256 = format!("{:x?}", sha256.as_slice());
+        let sha256 = Self::hash(&plaintext);
         NewSecureToken {
             plaintext,
             inner: Self { sha256 },
         }
+    }
+
+    pub fn hash(plaintext: &str) -> String {
+        let sha256 = Sha256::digest(plaintext.as_bytes());
+        format!("{:x?}", sha256.as_slice())
     }
 }
 
