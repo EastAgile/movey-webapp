@@ -57,7 +57,7 @@ impl Job for SendAccountOddRegisterAttemptEmail {
             let email = Email::new(
                 "email/odd-registration-attempt",
                 &[self.to],
-                "Did you want to reset your password?",
+                "Did you want to reset your Movey password?",
                 build_context(&name),
                 state.templates,
             );

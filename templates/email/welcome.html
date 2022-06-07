@@ -1,10 +1,9 @@
 {% extends "email/layout.html" %}
 {% block content %}
-<h1>Welcome, {{ name }}!</h1>
-<p>Thanks for signing up - we’re thrilled to have you on board.</p>
-<p>If you have any questions, feel free to <a href="mailto:{{ JELLY_SUPPORT_EMAIL }}">email our support team</a>.</p>
-<p>Thanks,
-  <br>- The Team</p>
-<p><strong>P.S.</strong> Need immediate help getting started? Check out our <a href="{{ help_url }}">help documentation</a>. Or, just reply to this email - the support team is always ready to help!</p>
-{% endblock %}
+<p>Welcome to Movey</p>
 
+<p>Thanks for signing up - we’re thrilled to have you on board.</p>
+
+<p>Thanks,</p>
+<p><a href="mailto:{{ JELLY_SUPPORT_EMAIL }}">The Movey Team</a></p>
+{% endblock %}
