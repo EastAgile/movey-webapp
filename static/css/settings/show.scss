@@ -1,6 +1,7 @@
 @import "./queries";
 
 .package-show-container {
+    min-height: calc(100vh - 350px);
     .package-info-container {
         max-width: 1574px;
         margin: 0 auto;
@@ -113,6 +114,7 @@
                 flex-grow: 1;
                 display: flex;
                 justify-content: center;
+                text-align: center;
                 cursor: pointer;
 
                 > a {
@@ -129,25 +131,25 @@
                 }
 
                 .tab-icon {
-                    width: 32px;
-                    height: 32px;
+                    width: 34px;
+                    height: 36px;
                     background-repeat: no-repeat;
                     margin-right: 8px;
-
-                    &.tab-icon-readme {
-                        background-image: url("/static/resources/packages/package_tab_readme_icon.svg")
+                    margin-top: 2px;
+                    &.tab-icon-profile {
+                        background-image: url("/static/resources/profile-icon.png")
                     }
 
-                    &.tab-icon-dependency {
-                        background-image: url("/static/resources/packages/package_tab_dependency_icon.svg")
+                    &.tab-icon-packages {
+                        background-image: url("/static/resources/blocks-icon.png")
                     }
 
-                    &.tab-icon-dependents {
-                        background-image: url("/static/resources/packages/package_tab_dependents_icon.svg")
+                    &.tab-icon-downloads {
+                        background-image: url("/static/resources/download-icon.png")
                     }
 
-                    &.tab-icon-versions {
-                        background-image: url("/static/resources/packages/package_tab_versions_icon.svg")
+                    &.tab-icon-tokens {
+                        background-image: url("/static/resources/token-icon.png")
                     }
                 }
 

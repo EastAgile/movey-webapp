@@ -4,6 +4,11 @@ use async_trait::async_trait;
 use cucumber::{World, WorldInit};
 use thirtyfour::prelude::*;
 
+#[derive(Debug, std::default::Default)]
+pub struct AccountInformation {
+    pub email: String,
+    pub password: String
+}
 // `World` is your shared, likely mutable state.
 #[derive(Debug, WorldInit)]
 pub struct TestWorld {
@@ -11,6 +16,7 @@ pub struct TestWorld {
     pub root_url: String,
     pub suggestion: String,
     pub reset_token: String,
+    pub account: AccountInformation,
 }
 
 // `World` needs to be implemented, so Cucumber knows how to construct it
@@ -34,6 +40,7 @@ impl World for TestWorld {
             root_url: "http://localhost:17002/".to_string(),
             suggestion: String::from(""),
             reset_token: String::from(""),
+            account: Default::default()
         })
     }
 }

@@ -98,7 +98,7 @@ async fn see_confirm_request_page(world: &mut TestWorld) {
 }
 
 #[then("I should receive an email that contains valid password reset link")]
-async fn receive_verification_email(world: &mut TestWorld) {
+async fn receive_verification_email(_world: &mut TestWorld) {
     let email_dir = fs::read_dir("./emails").unwrap().next();
     let email = fs::read_to_string(email_dir.unwrap().unwrap().path()).unwrap();
     assert!(email.contains("test@email.com"));
@@ -124,6 +124,6 @@ async fn fill_in_unregistered_email(world: &mut TestWorld) {
 }
 
 #[then("I should not receive an email")]
-async fn not_receive_verification_email(world: &mut TestWorld) {
+async fn not_receive_verification_email(_world: &mut TestWorld) {
     assert!(!Path::new("./emails").exists());
 }

@@ -20,4 +20,3 @@ Feature: View search results
         | 'Description'      | description       |
         | 'Most Downloads'   | most_downloads    |
         | 'Newly Added'      | newly_added       |
-

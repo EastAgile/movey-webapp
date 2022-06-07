@@ -9,3 +9,4 @@ pub mod layouts_steps;
 pub mod search_results_steps;
 pub mod signup_steps;
 mod api_token_steps;
+pub mod user_profile;
