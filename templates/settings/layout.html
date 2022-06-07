@@ -15,6 +15,7 @@
 {% endblock %}
 
 {% block content%}
+
 <div class="package-show-container">
     <div class="package-info-container">
         <div class="package-name-version">
@@ -24,26 +25,26 @@
     <div class="horizontal-line"></div>
     <div class="package-content-container">
         <div class="package-content-tabs">
-            <div class="content-tab tab-readme active">
-                <a href="/packages/package.name">
+            <div class="content-tab tab-readme {% if profile_tab == 'profile' %}active{% endif %}">
+                <a href="/settings/profile">
                     <div class="tab-icon tab-icon-profile"></div>
                     <div class="tab-name">Profile</div>
                 </a>
             </div>
-            <div class="content-tab tab-dependency">
-                <a href="/packages/package.name">
+            <div class="content-tab tab-dependency {% if profile_tab == 'packages' %}active{% endif %}">
+                <a href="/settings/packages">
                     <div class="tab-icon tab-icon-packages"></div>
                     <div class="tab-name">My packages</div>
                 </a>
             </div>
-            <div class="content-tab tab-dependents">
-                <a href="/packages/package.name">
+            <div class="content-tab tab-dependents {% if profile_tab == 'downloads' %}active{% endif %}" >
+                <a href="/settings/downloads">
                     <div class="tab-icon tab-icon-downloads"></div>
                     <div class="tab-name">Downloads</div>
                 </a>
             </div>
-            <div class="content-tab tab-versions">
-                <a href="/packages/package.name/versions">
+            <div class="content-tab tab-versions {% if profile_tab == 'tokens' %}active{% endif %}">
+                <a href="/settings/tokens">
                     <div class="tab-icon tab-icon-tokens"></div>
                     <div class="tab-name">Tokens</div>
                 </a>

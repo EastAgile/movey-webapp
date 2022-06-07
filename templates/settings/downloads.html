@@ -1,0 +1,25 @@
+{% extends "settings/layout.html" %}
+
+{% block javascript %}
+
+<script src="/static/js/settings/user_package.js"></script>
+<link href="/static/css/settings/user_packages.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.6.7/jquery.timeago.min.js" type="text/javascript"></script>
+{% endblock %}
+
+{% block settings_content %}
+
+
+<div class="user_package_container">
+        {% set_global my_var = 2 %}
+    
+        {% for package in packages %}
+            {% set_global my_var = my_var + package.total_downloads_count %}
+        {% endfor %}
+        
+        <div class="total_package">{{my_var}} downloads</div>
+</div>
+<script>
+    new Package()
+</script>
+{% endblock %}

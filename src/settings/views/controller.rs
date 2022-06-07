@@ -1,5 +1,7 @@
 use crate::accounts::forms::ChangePasswordForm;
 use crate::accounts::Account;
+use crate::packages::Package;
+
 use jelly::actix_session::UserSession;
 use jelly::actix_web::http::header;
 use jelly::actix_web::web::Form;
@@ -15,6 +17,7 @@ pub async fn profile(request: HttpRequest) -> Result<HttpResponse> {
     request.render(200, "settings/profile.html", {
         let mut context = Context::new();
         context.insert("email", &account.email);
+        context.insert("profile_tab","profile");
         context
     })
 }
@@ -36,6 +39,7 @@ pub async fn change_password(
             context.insert("form", &form);
             context.insert("is_ok", &false);
             context.insert("email", &account.email);
+            context.insert("profile_tab","profile");
             context
         });
     }
@@ -80,6 +84,61 @@ pub async fn change_password(
         context.insert("error", message);
         context.insert("email", &account.email);
         context.insert("connect-status", &account.email);
+        context.insert("profile_tab","profile");
         context
     })
+}
+
+pub async fn show_packages(
+    request: HttpRequest
+) -> Result<HttpResponse> {
+    let db = request.db_pool()?;
+    if let Ok(user) = request.user() {
+        let packages = Package::get_by_account(user.id, &db).await.unwrap();
+
+        request.render(200, "settings/user_packages.html", {
+            let mut ctx = Context::new();
+            ctx.insert("packages", &packages);
+            ctx.insert("profile_tab","packages");
+            ctx
+        })
+    } else {
+        Ok(HttpResponse::NotFound().body("Cannot find user"))
+    }
+}
+
+pub async fn show_downloads(
+    request: HttpRequest
+) -> Result<HttpResponse> {
+    let db = request.db_pool()?;
+    if let Ok(user) = request.user() {
+        let packages = Package::get_by_account(user.id, &db).await.unwrap();
+
+        request.render(200, "settings/downloads.html", {
+            let mut ctx = Context::new();
+            ctx.insert("packages", &packages);
+            ctx.insert("profile_tab","downloads");
+            ctx
+        })
+    } else {
+        Ok(HttpResponse::NotFound().body("Cannot find user"))
+    }
+}
+
+pub async fn show_tokens(
+    request: HttpRequest
+) -> Result<HttpResponse> {
+    let db = request.db_pool()?;
+    if let Ok(user) = request.user() {
+        let packages = Package::get_by_account(user.id, &db).await.unwrap();
+
+        request.render(200, "settings/tokens.html", {
+            let mut ctx = Context::new();
+            ctx.insert("packages", &packages);
+            ctx.insert("profile_tab","tokens");
+            ctx
+        })
+    } else {
+        Ok(HttpResponse::NotFound().body("Cannot find user"))
+    }
 }

@@ -1,0 +1,13 @@
+.tokens-banner {
+  background: #F2F2F2;
+  padding: 10px 16px;
+  width: 1207px;
+  height: 50px;
+  font-weight: 500;
+  font-size: 20px;
+  margin-top: 60px;
+  margin-bottom: 60px;
+  color: var(--dark-blue-color);
+}
+
+/*# sourceMappingURL=user_tokens.css.map */

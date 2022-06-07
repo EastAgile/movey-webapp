@@ -25,5 +25,6 @@ class Profile {
       this.newPassword.value = ''
       this.passwordConfirm.value = ''
     })
+
   }
 }

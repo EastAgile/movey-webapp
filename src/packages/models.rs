@@ -230,13 +230,15 @@ impl Package {
         Ok(result)
     }
 
-    pub async fn get_by_account(owner_id: i32, pool: &DieselPgPool) -> Result<Vec<Self>, Error> {
+    pub async fn get_by_account(owner_id: i32, pool: &DieselPgPool) -> Result<Vec<PackageSearchResult>, Error> {
         let connection = pool.get()?;
 
         let result = packages
+            .inner_join(package_versions::table)
+            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
             .filter(account_id.eq(owner_id))
-            .select(PACKAGE_COLUMNS)
-            .load::<Package>(&connection)?;
+            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
+            .load::<PackageSearchResult>(&connection)?;
 
         Ok(result)
     }

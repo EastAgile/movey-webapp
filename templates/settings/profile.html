@@ -9,24 +9,24 @@
 {% block settings_content %}
 <div class="content-wrapper">
     <div class="avatar">
-        <img class=avatar-image" src="/static/resources/associated_photo.png">
+        <img class="avatar-image" src="/static/resources/associated_photo.png">
         <button class="upload-button"></button>
     </div>
     <div class="aaaa">
         <div class="profile-form">
             <p>Account data</p>
             <form action="/settings/profile" method="POST">
-                <label for="email">Email address</label>
-                <input class="email disabled" disabled id="email" name="email" placeholder="{{ email }}" type="email">
+                <label class="label_title" for="email">Email address</label>
+                <input  class="email disabled" disabled id="email" name="email" placeholder="{{ email }}" type="email">
 
-                <label for="current-password">Current password</label>
+                <label class="label_title" for="current-password">Current password</label>
                 <input class="current-password" id="current-password" minlength="8" name="current_password"
                        type="password">
 
-                <label for="new-password">New password</label>
+                <label class="label_title" for="new-password">New password</label>
                 <input class="new-password" id="new-password" minlength="8" name="new_password" type="password">
 
-                <label for="password-confirm">Repeat new password</label>
+                <label class="label_title" for="password-confirm">Repeat new password</label>
                 <input class="password-confirm" id="password-confirm" minlength="8" name="password_confirm"
                        type="password">
             </form>
@@ -45,7 +45,7 @@
             </div>
         </div>
         <div class="form-buttons">
-            <button class="form-btn discard" id=discard-btn" type="submit">
+            <button class="form-btn discard" id="discard-btn" type="submit">
                 Discard
             </button>
             <button class="form-btn save" id="save-btn" type="submit">
