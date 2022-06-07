@@ -4,17 +4,11 @@ use jelly::Result;
 
 
 pub async fn term_(request: HttpRequest) -> Result<HttpResponse> {
-    request.render(200, "policy/term.html", {
-        let mut context = Context::new();
-        context
-    })
+    request.render(200, "policy/term.html", Context::new())
 }
 
 pub async fn policy_(request: HttpRequest) -> Result<HttpResponse> {
-    request.render(200, "policy/policy.html", {
-        let mut context = Context::new();
-        context
-    })
+    request.render(200, "policy/policy.html", Context::new())
 }
 
 pub fn configure(config: &mut ServiceConfig) {
