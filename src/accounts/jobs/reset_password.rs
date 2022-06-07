@@ -49,7 +49,7 @@ impl Job for SendResetPasswordEmail {
             let email = Email::new(
                 "email/reset-password",
                 &[account.email],
-                "Reset your account password",
+                "Reset your Movey account password",
                 build_context(&verify_url),
                 state.templates,
             );
@@ -78,7 +78,7 @@ impl Job for SendPasswordWasResetEmail {
             let email = Email::new(
                 "email/password-was-reset",
                 &[self.to],
-                "Your Password Was Reset",
+                "Your Movey password was reset",
                 Context::new(),
                 state.templates,
             );

@@ -1,11 +1,25 @@
-{% extends "layout.html" %}
+{% extends "accounts/layout.html" %}
 
 {% block title %}Verify Your Account{% endblock %}
 
+{% block css %}
+<link rel="stylesheet" href="/static/css/verify/verify.css">
+{% endblock %}
+
 {% block content %}
-<h1>Verify Account</h1>
-<p>
-    Further instructions have been sent to your email.
-    Follow them to finish setting up your account.
-</p>
+<div class="verify-container">
+    <a href="/">
+        <span class="movey-logo"></span>
+    </a>
+    <div class="verify-card-container">
+        <div class="verify-card">
+            <h1 class="verify-card-title">Verify Account</h1>
+            
+            <p class="verify-card-content">
+                Further instructions have been sent to your email.
+                Follow them to finish setting up your account.
+            </p>
+        </div>
+    </div>
+</div>
 {% endblock %}

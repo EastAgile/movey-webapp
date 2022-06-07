@@ -43,7 +43,7 @@ impl Job for SendWelcomeAccountEmail {
             let email = Email::new(
                 "email/welcome",
                 &[email],
-                "Welcome to the service",
+                "Welcome to Movey",
                 build_context(&name),
                 state.templates,
             );
