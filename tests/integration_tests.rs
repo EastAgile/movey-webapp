@@ -7,19 +7,21 @@ use features::world::TestWorld;
 use mainlib::test::TestDatabaseHelper;
 use std::env;
 use std::{thread, time::Duration};
+use tokio::time::sleep;
 
 #[tokio::main]
 async fn main() {
-    thread::Builder::new().name("test-server".to_string()).spawn(move || {
+    dotenv().ok();
+    ready(TestDatabaseHelper::create_test_database()).boxed_local();
+    tokio::spawn(async {
         let _ = actix_rt::System::new("test-server");
         env::set_var("PORT", "17002");
-        block_on(mainlib::test_main());
-    }).unwrap();
+        mainlib::main().await.unwrap();
+    });
 
     // make sure the test server has time to boot up
-    let twenty_seconds = Duration::from_secs(20);
-    thread::sleep(twenty_seconds);
-
+    //TODO: optimize this value
+    sleep(Duration::from_secs(30)).await;
     TestWorld::cucumber()
         .before(|_feature, _rule, _scenario, _world| {
             dotenv().ok();
