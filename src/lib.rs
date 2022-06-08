@@ -35,15 +35,12 @@ pub async fn main() -> io::Result<()> {
     let stdout = io::stdout();
     let _lock = stdout.lock();
 
-    #[cfg(feature = "production")]
-    {
-        dotenv::dotenv().ok();
-        let sentry_url = env::var("SENTRY_URL").unwrap_or_else(|_| "".to_string());
-        let _guard = sentry::init((sentry_url, sentry::ClientOptions {
-            release: sentry::release_name!(),
-            ..Default::default()
-        }));
-    }
+    dotenv::dotenv().ok();
+    let sentry_url = env::var("SENTRY_URL").unwrap_or_else(|_| "".to_string());
+    let _guard = sentry::init((sentry_url, sentry::ClientOptions {
+        release: sentry::release_name!(),
+        ..Default::default()
+    }));
 
     Server::new()
         .register_service(pages::configure)
