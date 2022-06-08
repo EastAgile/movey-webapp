@@ -6,6 +6,11 @@
     <meta name="google-signin-scope" content="profile email">
     <meta name="google-signin-client_id" content="{{client_id}}.apps.googleusercontent.com">
 {% endblock %}
+
+{% block css %}
+<link href="/static/css/accounts/signup.css" rel="stylesheet"/>
+{% endblock %}
+
 {% block script %}
     <script src="https://apis.google.com/js/platform.js" async defer></script>
     <script src="/static/js/signup/helper.js"></script>
@@ -82,7 +87,7 @@
 
             <input id="i_agree" type="checkbox" name="i_agree" class="signup-agree">
             <label for="i_agree" class="signup-agree">
-                I agree to <a href="#">Term of Service</a> and <a href="#">Privacy Policy</a>
+                I agree to <a href="/terms-of-use">Term of Service</a> and <a href="/policy">Privacy Policy</a>
             </label>
     
             <p class="signin-invitation">Already a member? <a href="/accounts/login/">Sign in</a></p>

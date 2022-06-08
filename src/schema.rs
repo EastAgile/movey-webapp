@@ -13,6 +13,7 @@ table! {
         last_login -> Nullable<Timestamptz>,
         created -> Timestamptz,
         updated -> Timestamptz,
+        github_login -> Nullable<Text>,
     }
 }
 

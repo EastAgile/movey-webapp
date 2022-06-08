@@ -1,6 +1,9 @@
+.package-show-container {
+  min-height: calc(100vh - 350px);
+}
 .package-show-container .package-info-container {
   max-width: 1574px;
-  margin: 0 auto;
+  margin: 48px auto;
   padding: 20px 30px 0;
 }
 .package-show-container .package-info-container .package-name-version {
@@ -333,6 +336,7 @@
 }
 .package-show-container .package-content-container .package-detail-container .package-sidebar .package-information {
   padding: 22px;
+  margin-bottom: 30px;
   background-color: var(--gray-background-color);
 }
 .package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-information-title {
@@ -471,6 +475,7 @@
   border-radius: 4px;
   display: flex;
   justify-content: center;
+  align-items: center;
   color: #EB5757;
   font-weight: 700;
   line-height: 18px;

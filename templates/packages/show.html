@@ -54,10 +54,10 @@
 
                 <div class="package-metadata-content">
                     <div class="package-metadata-title">
-                        Unpacked Size
+                        Size
                     </div>
                     <div class="package-metadata-value">
-                        271 kB
+                        {{package_version.total_size}}B
                     </div>
                 </div>
 
@@ -66,27 +66,10 @@
                         Total Files
                     </div>
                     <div class="package-metadata-value">
-                        32
+                        {{package_version.total_files}}
                     </div>
                 </div>
 
-                <div class="package-metadata-content">
-                    <div class="package-metadata-title">
-                        Issues
-                    </div>
-                    <div class="package-metadata-value">
-                        271 kB
-                    </div>
-                </div>
-
-                <div class="package-metadata-content">
-                    <div class="package-metadata-title">
-                        Pull Requests
-                    </div>
-                    <div class="package-metadata-value">
-                        100
-                    </div>
-                </div>
             </div>
             {% if account_name != "" %}
             <div class="horizontal-line"></div>
@@ -99,10 +82,6 @@
                 </div>
             </div>
             {% endif %} 
-        </div>
-        <div class="package-report">
-            <div class="package-report-flag-icon"></div>
-            <div>REPORT</div>
         </div>
     </div>
 </div>

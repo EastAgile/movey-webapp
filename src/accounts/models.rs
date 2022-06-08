@@ -15,6 +15,7 @@ use jelly::serde::{Deserialize, Serialize};
 use jelly::DieselPgPool;
 
 use super::forms::{LoginForm, NewAccountForm};
+use super::views::verify::GithubOauthUser;
 use crate::schema::accounts;
 use crate::schema::accounts::dsl::*;
 
@@ -31,6 +32,7 @@ pub struct Account {
     pub last_login: Option<DateTime<Utc>>,
     pub created: DateTime<Utc>,
     pub updated: DateTime<Utc>,
+    pub github_login: Option<String>
 }
 
 impl Account {
@@ -166,6 +168,33 @@ impl Account {
 
         Ok(())
     }
+
+    pub async fn register_from_github(oauth_user: &GithubOauthUser, pool: &DieselPgPool) -> Result<User, Error> {
+        let connection = pool.get()?;
+
+        let account = if let Ok(record) = Account::get_by_email(&oauth_user.email, pool).await {
+            // if there already is an account with this email, update it with git info then return
+            diesel::update(accounts.filter(id.eq(record.id)))
+            .set((name.eq(oauth_user.name.clone()), github_login.eq(oauth_user.login.clone())))
+            .execute(&connection)?;
+
+            record
+        } else {
+            // create a new account via github
+            let new_record = NewGithubAccount::from_oauth_user(oauth_user);
+
+            diesel::insert_into(accounts::table)
+            .values(new_record)
+            .get_result::<Account>(&connection)?
+        };
+
+        Ok(User {
+            id: account.id,
+            name: account.name,
+            is_admin: account.is_admin,
+            is_anonymous: false,
+        })
+    }
 }
 
 impl OneTimeUseTokenGenerator for Account {
@@ -201,6 +230,30 @@ impl NewAccount {
     }
 }
 
+#[derive(Insertable)]
+#[table_name = "accounts"]
+pub struct NewGithubAccount {
+    pub name: String,
+    pub email: String,
+    pub github_login: String,
+    pub password: String
+}
+
+impl NewGithubAccount {
+    fn from_oauth_user(oauth_user: &GithubOauthUser) -> Self {
+        return NewGithubAccount {
+            name: oauth_user.name.clone(),
+            email: oauth_user.email.clone(),
+            github_login: oauth_user.login.clone(),
+            password: {
+                // Give it a dummy password because postgres complains
+                let plaintext = crate::utils::token::generate_secure_alphanumeric_string(32);
+                make_password(&plaintext)
+            }
+        };
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -224,6 +277,7 @@ mod tests {
             redirect: "".to_string(),
         }
     }
+
     async fn setup_user() -> i32 {
         let form = NewAccountForm {
             email: EmailField {
@@ -395,5 +449,40 @@ mod tests {
             Ok(user) => assert_eq!(user.id, uid),
             _ => panic!(),
         }
+    }
+
+    #[actix_rt::test]
+    async fn register_with_github_new_account_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        let oauth_user = GithubOauthUser {
+            email: "a@b.com".to_string(),
+            login: "git".to_string(),
+            name: "git_username".to_string()
+        };
+        Account::register_from_github(&oauth_user, &DB_POOL).await.unwrap();
+
+        let account = Account::get_by_email(&oauth_user.email, &DB_POOL).await.unwrap();
+        assert_eq!(account.name, "git_username");
+        assert_eq!(account.email, "a@b.com");
+        assert_eq!(account.github_login.unwrap(), "git");
+    }
+
+    #[actix_rt::test]
+    async fn register_with_github_existing_account_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        setup_user().await;
+        let oauth_user = GithubOauthUser {
+            email: "email@host.com".to_string(),
+            login: "git".to_string(),
+            name: "git_username".to_string()
+        };
+        Account::register_from_github(&oauth_user, &DB_POOL).await.unwrap();
+
+        let account = Account::get_by_email(&oauth_user.email, &DB_POOL).await.unwrap();
+        assert_eq!(account.name, "git_username");
+        assert_eq!(account.email, "email@host.com");
+        assert_eq!(account.github_login.unwrap(), "git");
     }
 }

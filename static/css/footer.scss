@@ -77,9 +77,9 @@ footer {
     .link-container {
       display: flex;
       flex-wrap: wrap;
-      justify-content: space-around;
+      justify-content: space-evenly;
       color: white;
-      padding: 0 50px;
+      padding: 0 120px;
 
       @include medium-screen {
         position: absolute;
@@ -88,7 +88,7 @@ footer {
         left: 18px;
         right: 18px;
         display: flex;
-        justify-content: space-between;
+        justify-content: space-around;
         font-weight: 700;
       }
 
@@ -109,6 +109,9 @@ footer {
 
       a {
         color: white;
+        flex-grow: 1;
+        flex-basis: 0;
+        text-align: center;
         &:link {
           text-decoration: underline;
         }
@@ -123,8 +126,7 @@ footer {
     .social-icons {
       list-style-type: none;
       display: flex;
-      justify-content: space-between;
-      width: 40%;
+      justify-content: center;
       margin: 30px auto;
 
       @include medium-small-screen {
@@ -140,6 +142,7 @@ footer {
         border-radius: 50%;
         width: 50px;
         height: 50px;
+        margin: 0 20px;
         display: flex;
         justify-content: center;
         align-content: center;

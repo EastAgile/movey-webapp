@@ -1,0 +1,28 @@
+.not-found-wrapper {
+  min-height: calc(100vh - 350px);
+  padding: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.not-found-wrapper p {
+  font-family: var(--sub-title-font);
+  color: var(--dark-blue-color);
+  font-size: 48px;
+  line-height: 72px;
+  font-weight: 700;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .not-found-wrapper p {
+    font-size: 32px;
+    line-height: 48px;
+  }
+}
+@media screen and (max-width: 843px) {
+  .not-found-wrapper p {
+    font-size: 24px;
+    line-height: 48px;
+  }
+}
+
+/*# sourceMappingURL=404.css.map */

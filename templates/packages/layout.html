@@ -22,17 +22,6 @@
             <div class="package-version">{{package_version.version}}</div>
         </div>
         <div class="package-description">{{package.description}}</div>
-        <div class="package-tags">
-            <div class="package-tag">
-                Tag 1
-            </div>
-            <div class="package-tag">
-                Tag 2
-            </div>
-            <div class="package-tag">
-                Tag 3
-            </div>
-        </div>
     </div>
     <div class="horizontal-line"></div>
     <div class="package-content-container">
@@ -41,18 +30,6 @@
                 <a href="/packages/{{package.name}}">
                     <div class="tab-icon tab-icon-readme"></div>
                     <div class="tab-name">Readme</div>
-                </a>
-            </div>
-            <div class="content-tab tab-dependency">
-                <a href="/packages/{{package.name}}">
-                    <div class="tab-icon tab-icon-dependency"></div>
-                    <div class="tab-name">Dependency</div>
-                </a>
-            </div>
-            <div class="content-tab tab-dependents">
-                <a href="/packages/{{package.name}}">
-                    <div class="tab-icon tab-icon-dependents"></div>
-                    <div class="tab-name">Dependents</div>
                 </a>
             </div>
             <div class="content-tab tab-versions {% if package_tab == 'versions' %}active{% endif %}">

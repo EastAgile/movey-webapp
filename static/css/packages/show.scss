@@ -1,9 +1,11 @@
 @import "./queries";
 
 .package-show-container {
+    min-height: calc(100vh - 350px);
+
     .package-info-container {
         max-width: 1574px;
-        margin: 0 auto;
+        margin: 48px auto;
         padding: 20px 30px 0;
 
         .package-name-version {
@@ -372,6 +374,7 @@
 
                 .package-information {
                     padding: 22px;
+                    margin-bottom: 30px;
                     background-color: var(--gray-background-color);
 
                     .package-information-title {
@@ -535,6 +538,7 @@
                     border-radius: 4px;
                     display: flex;
                     justify-content: center;
+                    align-items: center;
                     color: #EB5757;
                     font-weight: 700;
                     line-height: 18px;

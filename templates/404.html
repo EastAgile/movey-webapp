@@ -1,7 +1,13 @@
-{% extends "layout.html" %}
+{% extends "layout_dark.html" %}
 
 {% block title %}Not Found{% endblock %}
 
+{% block css %}
+<link href="/static/css/404/404.css" rel="stylesheet"/>
+{% endblock %}
+
 {% block content %}
-<p>Uh oh! We couldn't find that page.</p>
+<div class="not-found-wrapper">
+    <p>Uh oh! We couldn't find that page.</p>
+</div>
 {% endblock %}
