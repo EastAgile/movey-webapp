@@ -60,9 +60,23 @@ class AutoComplete {
     this.suggestions.forEach((suggestion, index) => {
       const option = this.getOptionValue(suggestion);
 
+      const packageName = document.createElement("div");
+      packageName.setAttribute("class", "package-name");
+      packageName.innerHTML = option;
+
+      const packageDescription = document.createElement("div");
+      packageDescription.setAttribute("class", "package-description");
+      packageDescription.innerHTML = "Insert description here";
+
+      const packageVersion = document.createElement("div")
+      packageVersion.setAttribute("class", "package-version");
+      packageVersion.innerHTML = "0.0.1"
+
       const node = document.createElement("div");
-      node.setAttribute("id", "suggestion" + index);
-      node.innerHTML = option;
+      node.setAttribute('id', 'suggestion' + index)
+      node.appendChild(packageName);
+      node.appendChild(packageDescription);
+      node.appendChild(packageVersion);
 
       if (this.currentChoiceIndex === index)
         node.classList.add("autocomplete-item-hover");

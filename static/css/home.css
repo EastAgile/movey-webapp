@@ -50,8 +50,12 @@
     margin-top: 22px;
   }
 }
-.home-container .search-container #search-bar {
+.home-container .search-container .autocomplete-main-wrapper {
+  border-radius: 5px;
+}
+.home-container .search-container .autocomplete-main-wrapper #search-bar {
   text-align: start;
+  border-radius: 5px;
 }
 .home-container .search-container .button {
   float: left;
@@ -62,6 +66,42 @@
 }
 .home-container .search-container .button:hover {
   background: #ccc;
+}
+.home-container .search-container #suggestions > div {
+  display: grid;
+  grid-template-columns: 90% 10%;
+  grid-template-areas: "package-name package-version" "package-description package-version";
+  height: fit-content;
+  padding: 10px 25px;
+  border-bottom: 1px solid rgba(128, 143, 176, 0.5);
+}
+.home-container .search-container #suggestions > div:first-child {
+  padding-top: 35px;
+}
+.home-container .search-container #suggestions > div .package-name {
+  grid-area: package-name;
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 0;
+  margin-right: auto;
+  height: fit-content;
+  background: none;
+}
+.home-container .search-container #suggestions > div .package-description {
+  grid-area: package-description;
+  font-size: 20px;
+  margin-right: auto;
+  color: var(--gray-color);
+  font-size: 20px;
+  background: none;
+}
+.home-container .search-container #suggestions > div .package-version {
+  grid-area: package-version;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--dark-blue-color);
+  margin-left: auto;
+  background: none;
 }
 .home-container .stat-container {
   display: grid;

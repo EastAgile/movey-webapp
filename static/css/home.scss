@@ -45,10 +45,16 @@
     @include small-screen {
       margin-top: 22px;
     }
-    #search-bar {
-      text-align: start;
-    }
 
+    .autocomplete-main-wrapper {
+      border-radius: 5px;
+
+      #search-bar {
+        text-align: start;
+        border-radius: 5px;
+      }
+    }
+    
     .button {
       float: left;
       padding: 16px;
@@ -59,7 +65,51 @@
         background: #ccc;
       }
     }
+
+    #suggestions > div {
+      display: grid;
+      grid-template-columns: 90% 10%;
+      grid-template-areas:
+        "package-name package-version"
+        "package-description package-version";
+      height: fit-content;
+      padding: 10px 25px;
+      border-bottom: 1px solid rgba(128, 143, 176, 0.5);
+
+      &:first-child {
+        padding-top: 35px;
+      }
+      
+      .package-name {
+        grid-area: package-name;
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 0;
+        margin-right: auto;
+        height: fit-content;
+        background: none;
+      }
+
+      .package-description {
+        grid-area: package-description;
+        font-size: 20px;
+        margin-right: auto;
+        color: var(--gray-color);
+        font-size: 20px;
+        background: none;
+      }
+
+      .package-version {
+        grid-area: package-version;
+        font-size: 20px;
+        font-weight: 500;
+        color: var(--dark-blue-color);
+        margin-left: auto;
+        background: none;
+      }
+    }
   }
+
   .stat-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
