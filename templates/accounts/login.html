@@ -2,17 +2,11 @@
 
 {% block title %}Login{% endblock %}
 
-{% block meta %}
-    <meta name="google-signin-scope" content="profile email">
-    <meta name="google-signin-client_id" content="{{client_id}}.apps.googleusercontent.com">
-{% endblock %}
-
 {% block css %}
     <link rel="stylesheet" href="/static/css/accounts/signin.css">
 {% endblock %}
 
 {% block script %}
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
     <script src="/static/js/signin/helper.js"></script>
 {% endblock %}
 
@@ -26,12 +20,7 @@
         <div class="login-card">
             <h1 class="login-card-title">Login</h1>
             <div class="login-thirdparty">
-                <div class="g-signin2" data-onsuccess="onSignIn"
-                    data-width="220"
-                    data-height="36"
-                    data-longtitle="true"
-                ></div>
-                <a href="/accounts/oauth" class="github-btn-wrapper">                    
+                <a href="/accounts/oauth" class="github-btn-wrapper">
                     <div class="github-btn">
                         <i class="fa fa-github" aria-hidden="true"></i>
                         <p class="btn-text">Sign in with Github</p>
@@ -81,5 +70,5 @@
         </div>
     </div>
 </div>
-    
+
 {% endblock %}

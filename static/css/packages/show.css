@@ -1,3 +1,6 @@
+.package-show-container {
+  min-height: calc(100vh - 350px);
+}
 .package-show-container .package-info-container {
   max-width: 1574px;
   margin: 48px auto;
@@ -333,6 +336,7 @@
 }
 .package-show-container .package-content-container .package-detail-container .package-sidebar .package-information {
   padding: 22px;
+  margin-bottom: 30px;
   background-color: var(--gray-background-color);
 }
 .package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-information-title {
