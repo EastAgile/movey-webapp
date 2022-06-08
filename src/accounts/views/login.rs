@@ -117,7 +117,6 @@ pub async fn oauth(request: HttpRequest, client: web::Data<BasicClient>) -> Resu
 
     let (authorize_url, csrf_state) = client
         .authorize_url(CsrfToken::new_random)
-        .add_scope(Scope::new("public_repo".to_string()))
         .add_scope(Scope::new("user:email".to_string()))
         .url();
 

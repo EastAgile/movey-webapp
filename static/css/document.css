@@ -1,0 +1,56 @@
+.document-container {
+  width: 70%;
+  margin: auto;
+  margin-top: 2%;
+  position: relative;
+  padding: 16px;
+}
+@media screen and (max-width: 843px) {
+  .document-container {
+    width: 80%;
+  }
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .document-container {
+    width: 70%;
+  }
+}
+@media screen and (min-width: 1280px) and (max-width: 2048px) {
+  .document-container {
+    width: 60%;
+  }
+}
+.document-container .page_name {
+  text-align: center;
+  color: var(--dark-blue-color);
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.document-container ol .title {
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 54px;
+  color: var(--dark-blue-color);
+  counter-reset: title;
+  counter-reset: sub;
+  margin-bottom: 32px;
+  counter-increment: title;
+}
+.document-container ol .title .subtitle {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 36px;
+  color: #2F2F2F;
+  margin-top: 24px;
+}
+.document-container ol .title .subtitle::before {
+  content: counter(title) "." counter(sub) ". ";
+  counter-increment: sub;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 28px;
+  color: var(--dark-blue-color);
+}
+
+/*# sourceMappingURL=document.css.map */

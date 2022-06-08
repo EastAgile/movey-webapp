@@ -1,5 +1,6 @@
 //! Your Service Description here, etc.
 
+use std::env;
 use std::io;
 
 #[macro_use]
@@ -20,6 +21,7 @@ pub mod github_service;
 pub mod packages;
 pub mod pages;
 pub mod settings;
+pub mod policy;
 mod utils;
 
 pub mod schema;
@@ -34,6 +36,13 @@ pub async fn main() -> io::Result<()> {
     let stdout = io::stdout();
     let _lock = stdout.lock();
 
+    dotenv::dotenv().ok();
+    let sentry_url = env::var("SENTRY_URL").unwrap_or_else(|_| "".to_string());
+    let _guard = sentry::init((sentry_url, sentry::ClientOptions {
+        release: sentry::release_name!(),
+        ..Default::default()
+    }));
+
     Server::new()
         .register_service(pages::configure)
         .register_service(accounts::configure)
@@ -41,8 +50,9 @@ pub async fn main() -> io::Result<()> {
         .register_service(packages::configure)
         .register_service(dashboard::configure)
         .register_service(api::configure)
-        // .register_service(setting::configure)
         .register_service(settings::configure)
+        .register_service(setting::configure)
+        .register_service(policy::configure)
         .run()
         .await?
         .await

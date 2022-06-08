@@ -1,10 +1,14 @@
 @import "static/css/queries.scss";
 
+$navbar-height: 100px;
+$card-height-max: 588px;
+$page-height: max(100vh, $navbar-height + $card-height-max);
+$from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar-height));
+
 .signup-container {
   font-family: 'Mulish', serif;
   width: 100vw;
-  height: 100vh;
-  min-height: 800px;
+  height: $page-height;
   background: var(--cool-gray) url(/static/img/Map.png);
   background-position-y: -200px;
 
@@ -15,20 +19,16 @@
     padding: 30px;
 
     @include medium-screen {
-      padding: 4vh 0 0 7vw;
+      padding: calc(($navbar-height - 31px) / 2) $navbar-height;
     }
 
     @include small-screen {
-      padding: 38px calc(50vw - 118px) 46px calc(50vw - 118px);
+      padding: 38px calc((100vw - 236px) / 2) 46px;
     }
   }
 
   .signup-card-container {
-    margin-top: min(13vh, calc(50vh - 272px));
-
-    @include medium-screen {
-      margin-top: min(19vh, calc(50vh - 272px));
-    }
+    margin-top: $from-nav-to-card;
 
     @include small-screen {
       margin-top: 0;
@@ -37,35 +37,24 @@
     &::before {
       content: url(/static/resources/large_curve.svg);
       position: fixed;
-      left: 57vw;
-      top: 3vh;
-
-      @include medium-screen {
-        top: 17vh;
-        left: 65vw;
-      }
+      left: calc(50vw + 97px);
+      top: calc(50vh - 271px - 110px);
 
       @include small-screen {
         display: none;
       }
     }
-  
+
     &::after {
       content: url(/static/resources/small_curve.svg);
       position: fixed;
-      left: 25vw;
-      bottom: 11vh;
-
-      @include medium-screen {
-        left: -98px;
-        bottom: 12vh;
-      }
+      left: calc(50vw - 236px - 164px);
+      top: calc(50vh + 175px - 9px);
 
       @include small-screen {
         display: none;
       }
     }
-
 
     .signup-card {
       position: relative;
@@ -102,11 +91,18 @@
         }
 
         .g-signin2 {
-  
-          .abcRioButton, .abcRioButtonLightBlue {
+          transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+          &:hover {
+            box-shadow: 0 0 5px var(--blue-color);
+          }
+
+          .abcRioButton,
+          .abcRioButtonLightBlue {
             width: 100% !important;
             border-radius: 4px;
             border: 1px solid var(--cool-gray);
+            box-shadow: 0 0 1px 1px rgba(0, 0, 0, .1);
 
             @include medium-screen {
               width: 176px !important;
@@ -116,7 +112,7 @@
               width: 100% !important;
             }
 
-            .abcRioButtonContentWrapper{
+            .abcRioButtonContentWrapper {
               @include small-screen {
                 display: flex;
                 justify-content: center;
@@ -124,12 +120,13 @@
                 height: 36px;
               }
             }
+
             .abcRioButtonContentWrapper .abcRioButtonContents {
               span {
                 font-family: 'Mulish', serif;
                 font-size: 14px;
                 font-weight: 500;
-                color: black;
+                color: var(--cool-gray-700);
               }
             }
           }
@@ -137,15 +134,14 @@
 
         .github-btn-wrapper {
           text-decoration: none;
-          color: black;
 
           .github-btn {
             display: flex;
             align-items: center;
             height: 36px;
             border-radius: 4px;
-            box-shadow: 0 2px 4px 0 rgba(0,0,0,.25);
-            transition: border-color 0.218s ease-in-out, box-shadow 0.218s ease-in-out;
+            box-shadow: 0 0 1px 1px rgba(0, 0, 0, .1);
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 
             @include small-screen {
               justify-content: center;
@@ -157,8 +153,10 @@
               color: var(--blue-color);
               margin: auto .75rem;
             }
+
             .btn-text {
               font-size: 14px;
+              color: var(--cool-gray-700);
               margin: auto;
               justify-content: center;
               overflow-x: hidden;
@@ -167,9 +165,11 @@
                 margin: unset;
               }
             }
+
             &:hover {
-              box-shadow: 0 0 6px var(--blue-color);
+              box-shadow: 0 0 5px var(--blue-color);
             }
+
             &:active {
               background: var(--cool-gray);
             }
@@ -197,7 +197,7 @@
       }
 
       .signup-form {
-        
+
         .signup-input {
           margin-bottom: 16px;
 
@@ -216,8 +216,8 @@
             margin-top: 0;
             margin-bottom: 8px;
           }
-  
-          .signup-input-field {          
+
+          .signup-input-field {
             display: block;
             box-sizing: border-box;
             width: 100%;
@@ -230,34 +230,31 @@
             line-height: 20px;
             color: var(--dark-blue-color);
             background-clip: padding-box;
-            border: 1px solid var(--cool-gray);
+            border: 2px solid var(--cool-gray);
             border-radius: 4px;
-            box-shadow: 0 1px 5px 0 rgba(0,0,0,.25);
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
+            box-shadow: 0 0 1px 1px rgba(0, 0, 0, .1);
             transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 
             &:focus {
               color: var(--dark-blue-color);
               border-color: #86b7fe;
               outline: 0;
-              box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+              box-shadow: 0 0 0 1px rgba(13, 110, 253, 0.3);
             }
           }
-  
+
           .error {
             font-size: 14px;
             color: var(--blue-color);
             margin-bottom: 0;
-            
+
             i {
               font-size: 16px;
               margin-right: 8px;
             }
           }
         }
-        
+
         .create_account_btn {
           font-size: 14px;
           width: 100%;
@@ -270,14 +267,15 @@
           background-color: var(--blue-color);
           color: white;
           cursor: pointer;
-        
+
           &:disabled {
             color: #808FB0;
             background-color: #D9DDE7;
+            cursor: default;
           }
         }
       }
-      
+
       .signup-agree {
         margin-bottom: 24px;
         font-size: 14px;
@@ -292,11 +290,10 @@
           text-decoration: underline;
         }
       }
-      
+
       .signin-invitation {
         color: var(--dark-blue-color);
         font-size: 14px;
-        margin-bottom: unset;
 
         a {
           text-decoration: none;
