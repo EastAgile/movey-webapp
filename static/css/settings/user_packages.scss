@@ -17,19 +17,20 @@
         flex-flow: column nowrap;
         justify-content: space-between;
         border-bottom: 1px solid rgba(128, 143, 176, .5);
-        margin-bottom: 20px;
+        margin-bottom: 24px;
         
         .package_title {
             display: flex;
             flex-flow: row nowrap;
             justify-content: flex-start;
             align-items: center;
+            margin-bottom: 12px;
 
             .package_name {
                 color: var(--dark-blue-color);
                 font-weight: 700;
-                font-size: 24px;
-                line-height: 24px;
+                font-size: 28px;
+                line-height: 32px;
             }
 
             .package_version {
@@ -37,22 +38,22 @@
                 color: var(--gray-color);
                 margin-left: 8px;
                 font-weight: 700;
-                font-size: 18px;
+                font-size: 20px;
             }
         }
         .package_description {
             color: var(--gray-color);
             font-weight: 400;
-            font-size: 20px;
-            line-height: 24px;
-            margin-bottom: 8px;
+            font-size: 24px;
+            line-height: 32px;
+            margin-bottom: 16px;
         }
         .package-time {
             color: var(--gray-color);
             font-weight: 400;
-            font-size: 20px;
-            line-height: 24px;
-            margin-bottom: 20px;
+            font-size: 24px;
+            line-height: 32px;
+            margin-bottom: 16px;
         }
     }
 

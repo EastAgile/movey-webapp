@@ -20,11 +20,8 @@
             </div>
 
             <div class="package_description">{{package.description}}</div>
-
-            <time class="package-time" datetime="{{package.updated_at}}">{{package.updated_at}}</time>
-          
-            <!-- <div class="package_description">{{package.total_downloads_count}}</div> -->
-
+            <div class="package-time">Published <time class="package-time" datetime="{{package.created_at}}"> {{package.created_at}}</time></div>
+            
         </div>
         {% endfor %}
 </div>
