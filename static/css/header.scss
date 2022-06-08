@@ -18,8 +18,8 @@ header {
   }
 
   .header-container {
-    display: grid;
-    grid-template-columns: 40% auto;
+    display: flex;
+    justify-content: space-between;
 
     @include medium-small-screen {
       display: flex;
@@ -101,7 +101,8 @@ header {
             display: block;
             left: -300px;
             top: 100px;
-            height: 110px;
+            width: 150px;
+            height: 60px;
             background: white;
             z-index: 100;
           }
@@ -146,7 +147,7 @@ header {
           @include medium-screen {
             position: absolute;
             left: -300px;
-            top: 170px;
+            top: 100px;
             z-index: 100;
             padding-left: 30px;
           }
@@ -154,7 +155,7 @@ header {
           @include small-screen {
             position: absolute;
             left: -300px;
-            top: 170px;
+            top: 100px;
             z-index: 100;
             padding-left: 15px;
           }

@@ -1,6 +1,8 @@
 @import "./queries.scss";
 
 .package-show-container {
+    min-height: calc(100vh - 350px);
+
     .package-info-container {
         max-width: 1574px;
         margin: 48px auto;
@@ -372,6 +374,7 @@
 
                 .package-information {
                     padding: 22px;
+                    margin-bottom: 30px;
                     background-color: var(--gray-background-color);
 
                     .package-information-title {

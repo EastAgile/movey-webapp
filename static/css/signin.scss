@@ -39,7 +39,7 @@
       position: fixed;
       left: 57vw;
       top: 3vh;
-      
+
       @include medium-screen {
         top: 17vh;
         left: 65vw;
@@ -49,7 +49,7 @@
         display: none;
       }
     }
-  
+
     &::after {
       content: url(/static/resources/small_curve.svg);
       position: fixed;
@@ -89,19 +89,15 @@
       }
 
       .login-thirdparty {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        column-gap: 8px;
-        place-items: center / stretch;
         margin-bottom: 24px;
 
         @include small-screen {
           display: block;
           margin-bottom: 24px;
         }
-        
+
         .g-signin2 {
-  
+
           .abcRioButton, .abcRioButtonLightBlue {
             width: 100% !important;
             border-radius: 4px;
@@ -142,6 +138,7 @@
           .github-btn {
             display: flex;
             align-items: center;
+            justify-content: center;
             height: 36px;
             border-radius: 4px;
             box-shadow: 0 2px 4px 0 rgba(0,0,0,.25);
@@ -159,8 +156,8 @@
             }
             .btn-text {
               font-size: 14px;
-              margin: auto;
-              justify-content: center;
+              margin: auto 20px;
+              justify-content: 1 center;
               overflow-x: hidden;
 
               @include small-screen {
@@ -182,7 +179,7 @@
       .login-separator {
         color: var(--gray-color);
         margin-top: 36px;
-        margin-bottom: 24px;   
+        margin-bottom: 24px;
 
         .login-separator-line {
           border-top: 2px solid var(--gray-color);
@@ -218,8 +215,8 @@
             margin-top: 0;
             margin-bottom: 8px;
           }
-  
-          .login-input-field {          
+
+          .login-input-field {
             display: block;
             box-sizing: border-box;
             width: 100%;
@@ -247,7 +244,7 @@
               box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
             }
           }
-  
+
           .error-container {
             display: flex;
             align-items: center;
@@ -270,14 +267,14 @@
             }
           }
         }
-        
+
         .login-remember {
           display: flex;
           justify-content: space-between;
           margin-bottom: 24px;
           font-size: 14px;
           height: 20px;
-          
+
           a {
             text-decoration: none;
             color: var(--blue-color);
@@ -295,14 +292,14 @@
           background-color: var(--blue-color);
           color: white;
           cursor: pointer;
-        
+
           &:disabled {
             color: #808FB0;
             background-color: #D9DDE7;
           }
         }
       }
-      
+
       .login-invitation {
         color: var(--dark-blue-color);
         font-size: 14px;
