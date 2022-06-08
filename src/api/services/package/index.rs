@@ -9,6 +9,7 @@ use crate::setting::models::token::ApiToken;
 
 #[double]
 use crate::github_service::GithubService;
+// use crate::setting::models::token::ApiToken;
 
 #[derive(Serialize, Deserialize)]
 pub struct PackageRequest {
@@ -36,7 +37,10 @@ pub async fn post_package(
     } else {
         None
     };
-
+    
+    // if let Err(_) = ApiToken::get(&res.token, db).await {
+    //     return Ok(HttpResponse::BadRequest().body("Invalid Api Token"));
+    // }
     Package::create(
         &res.github_repo_url,
         &res.description,

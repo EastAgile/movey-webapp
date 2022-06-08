@@ -82,6 +82,14 @@ impl ApiToken {
             Err(Error::Generic(String::from("Too many tokens created.")))
         }
     }
+
+    pub async fn get(api_token: &String, pool: &DieselPgPool) -> Result<i32> {
+        let connection = pool.get()?;
+        let sha256 = SecureToken::to_formatted_sha256(api_token);
+        let result = api_tokens.filter(api_tokens::token.eq(sha256))
+            .select(api_tokens::id).first::<i32>(&connection)?;
+        Ok(result)
+    }
 }
 
 pub struct CreatedApiToken {
@@ -100,7 +108,7 @@ mod tests {
     use jelly::error::Error;
     use jelly::forms::{EmailField, PasswordField};
     use std::env;
-
+    
     async fn setup_user() -> Account {
         let form = NewAccountForm {
             email: EmailField {
