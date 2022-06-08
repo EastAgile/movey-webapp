@@ -23,6 +23,8 @@
 }
 
 .content-wrapper {
+    min-height: calc(100vh - 350px);
+
     .setting-bar {
         width: 100%;
         display: flex;
@@ -98,12 +100,12 @@
                 border-bottom: 1px solid rgba(128, 143, 176, .5);
 
                 @include large-screen {
-                    height: 165px;
+                    height: 135px;
                     padding-bottom: 20px;
                 }
 
                 @include medium-small-screen {
-                    height: 242px;
+                    height: 150px;
                     padding: 0 33px 20px 16px;
                     flex-direction: column;
                 }
@@ -313,6 +315,7 @@
 
             .pagination-info-message {
                 float: left;
+                margin-bottom: 20px;
             }
 
             .paginationjs-pages {

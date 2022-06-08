@@ -87,13 +87,13 @@ body {
 }
 @media screen and (min-width: 769px) {
   .content-wrapper #package-list-container .package-list .package-list-item {
-    height: 165px;
+    height: 135px;
     padding-bottom: 20px;
   }
 }
 @media screen and (min-width: 320px) and (max-width: 768px) {
   .content-wrapper #package-list-container .package-list .package-list-item {
-    height: 242px;
+    height: 150px;
     padding: 0 33px 20px 16px;
     flex-direction: column;
   }

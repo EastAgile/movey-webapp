@@ -80,10 +80,6 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar
       }
 
       .login-thirdparty {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        column-gap: 8px;
-        place-items: center / stretch;
         margin-bottom: 24px;
 
         @include small-screen {
@@ -139,6 +135,7 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar
           .github-btn {
             display: flex;
             align-items: center;
+            justify-content: center;
             height: 36px;
             border-radius: 4px;
             box-shadow: 0 0 1px 1px rgba(0, 0, 0, .1);
