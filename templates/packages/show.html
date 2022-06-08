@@ -88,15 +88,17 @@
                     </div>
                 </div>
             </div>
+            {% if account_name != "" %}
             <div class="horizontal-line"></div>
             <div class="package-owners">
                 <div class="package-information-title">
                     Owners
                 </div>
                 <div class="package-owners-info">
-                    John Doe
+                    {{account_name}}
                 </div>
             </div>
+            {% endif %} 
         </div>
         <div class="package-report">
             <div class="package-report-flag-icon"></div>

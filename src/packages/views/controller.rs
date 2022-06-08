@@ -5,6 +5,7 @@ use jelly::prelude::*;
 use jelly::request::DatabasePool;
 use jelly::Result;
 
+use crate::accounts::Account;
 use crate::packages::{Package, PackageVersion, PackageVersionSort};
 use crate::packages::models::{PackageSortField, PackageSortOrder};
 
@@ -33,10 +34,22 @@ pub async fn show_package(
         package_version = package.get_version(version, &db).await.unwrap().clone()
     }
 
+    let account_name =  if let Some(uid) =  package.account_id {
+        let account = Account::get(uid, &db).await.unwrap();
+        if account.name == "" {
+            account.email
+        } else {
+            account.name
+        }
+    } else {
+        "".to_string()
+    };
+
     return request.render(200, "packages/show.html", {
         let mut ctx = Context::new();
         ctx.insert("package", &package);
         ctx.insert("package_version", &package_version);
+        ctx.insert("account_name",&account_name);
         ctx.insert("package_tab", "readme");
         ctx
     });
