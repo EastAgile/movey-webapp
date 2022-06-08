@@ -29,7 +29,7 @@ pub mod schema;
 
 pub mod request;
 pub mod test;
-
+pub mod jobs;
 
 use jelly::Server;
 
