@@ -53,14 +53,18 @@ header .header-container .menu-nav:hover {
     margin: 0 15px;
   }
 }
-header .header-container .header-logo {
+header .header-container .header-logo-container {
+  display: flex;
+  align-items: center;
+}
+header .header-container .header-logo-container .header-logo {
   background-image: url("/static/resources/logo.svg");
   background-repeat: no-repeat;
   height: 31px;
   width: 236px;
 }
 @media screen and (max-width: 843px) {
-  header .header-container .header-logo {
+  header .header-container .header-logo-container .header-logo {
     height: 18px;
     width: 50px;
     background-image: url("/static/resources/logo_extra_small.svg");
@@ -167,7 +171,9 @@ header .header-container nav a.sign-up {
   color: white;
   width: 147px;
   height: 48px;
-  display: inline-block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   text-align: center;
 }
 @media screen and (max-width: 843px) {

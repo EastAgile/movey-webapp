@@ -79,11 +79,11 @@ footer {
       flex-wrap: wrap;
       justify-content: space-evenly;
       color: white;
-      padding: 0 120px;
+      padding: 0 260px;
 
       @include medium-screen {
         position: absolute;
-        padding: 0;
+        padding: 0 220px;
         top: 37px;
         left: 18px;
         right: 18px;
@@ -98,7 +98,7 @@ footer {
         top: 27px;
         left: 0;
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         grid-row-gap: 24px;
         width: 100%;
         margin: 0 auto;
