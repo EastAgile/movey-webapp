@@ -53,7 +53,7 @@ impl ApiToken {
         pool: &DieselPgPool,
     ) -> Result<Account> {
         let connection = pool.get()?;
-        let formatted_sha256 = SecureToken::to_formatted_sha256(&plaintext_token.to_string());
+        let formatted_sha256 = SecureToken::hash(&plaintext_token.to_string());
 
         let matched_token = api_tokens
             .filter(api_tokens::token.eq(formatted_sha256))
@@ -85,7 +85,7 @@ impl ApiToken {
 
     pub async fn get(api_token: &String, pool: &DieselPgPool) -> Result<i32> {
         let connection = pool.get()?;
-        let sha256 = SecureToken::to_formatted_sha256(api_token);
+        let sha256 = SecureToken::hash(api_token);
         let result = api_tokens.filter(api_tokens::token.eq(sha256))
             .select(api_tokens::id).first::<i32>(&connection)?;
         Ok(result)
@@ -108,7 +108,7 @@ mod tests {
     use jelly::error::Error;
     use jelly::forms::{EmailField, PasswordField};
     use std::env;
-    
+
     async fn setup_user() -> Account {
         let form = NewAccountForm {
             email: EmailField {
