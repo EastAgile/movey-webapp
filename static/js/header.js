@@ -3,6 +3,8 @@ class Header {
         this.menu = $('.menu-nav');
         this.navLinks = $('.nav-links');
         this.signInButton = $('.sign-in');
+        this.accountDropdownToggle = $('#account-dropdown-toggle');
+        this.accountDropdownList = $('#account-dropdown-list');
 
         this.init();
     }
@@ -15,6 +17,14 @@ class Header {
             } else {
                 this.navLinks.css('left', '0px');
                 this.signInButton.css('left', '0px')
+            }
+        })
+
+        this.accountDropdownToggle.click(() => {
+            if (this.accountDropdownList.css("display") === "none") {
+                this.accountDropdownList.css('display', 'flex')
+            } else {
+                this.accountDropdownList.css('display', 'none')
             }
         })
 
