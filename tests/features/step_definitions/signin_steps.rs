@@ -209,7 +209,7 @@ async fn see_sign_up_page(world: &mut TestWorld) {
 async fn signed_in(world: &mut TestWorld) {
     assert_eq!(
         world.driver.current_url().await.unwrap(),
-        "http://localhost:17002/dashboard/"
+        "http://localhost:17002/settings/profile"
     );
 
     let welcome = world.driver
@@ -227,6 +227,6 @@ async fn signed_in(world: &mut TestWorld) {
 async fn see_dashboard_page(world: &mut TestWorld) {
     assert_eq!(
         world.driver.current_url().await.unwrap(),
-        "http://localhost:17002/dashboard/"
+        "http://localhost:17002/settings/profile"
     );
 }
