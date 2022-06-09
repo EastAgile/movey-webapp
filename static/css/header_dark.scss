@@ -2,11 +2,8 @@
 
 header {
   height: 100px;
-  padding: 30px;
+  padding: 26px;
   background: var(--dark-blue-color);
-  top: 0;
-  left: 0;
-  right: 0;
   box-sizing: border-box;
 
   @include medium-screen {
@@ -20,6 +17,11 @@ header {
   .header-container {
     display: grid;
     grid-template-columns: 40% auto;
+
+    > a {
+      display: flex;
+      align-items: center;
+    }
 
     @include medium-small-screen {
       display: flex;
