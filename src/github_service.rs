@@ -1,4 +1,6 @@
-use serde::{Deserialize};
+use std::rc::Rc;
+use std::sync::Arc;
+use serde::Deserialize;
 use jelly::error::Error;
 
 #[derive(Deserialize, Debug)]
@@ -17,13 +19,21 @@ struct PackageToml {
     version: String
 }
 
+#[derive(Clone, Debug, Eq, Deserialize)]
 pub struct GithubRepoData {
     pub name: String,
     pub version: String,
     pub readme_content: String
 }
 
-static APP_USER_AGENT: &str = concat!(
+impl PartialEq for GithubRepoData {
+    fn eq(&self, other: &GithubRepoData) -> bool {
+        self.name == other.name && self.version == other.version
+    }
+}
+
+
+pub static APP_USER_AGENT: &str = concat!(
     env!("CARGO_PKG_NAME"),
     "/",
     env!("CARGO_PKG_VERSION"),
@@ -31,6 +41,8 @@ static APP_USER_AGENT: &str = concat!(
 
 #[cfg(test)]
 use mockall::{automock, predicate::*};
+use reqwest::header;
+
 
 pub struct GithubService {}
 

@@ -35,6 +35,7 @@ oauth2 = "4.1"
 time = "0.2.27"
 rand = "0.7.3"
 sha2 = "0.9"
+rayon = "1.5"
 
 [features]
 default = ["jelly/template_watcher", "jelly/static"]
