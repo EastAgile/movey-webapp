@@ -2,17 +2,11 @@
 
 {% block title %}Sign Up{% endblock %}
 
-{% block meta %}
-    <meta name="google-signin-scope" content="profile email">
-    <meta name="google-signin-client_id" content="{{client_id}}.apps.googleusercontent.com">
-{% endblock %}
-
 {% block css %}
 <link href="/static/css/accounts/signup.css" rel="stylesheet"/>
 {% endblock %}
 
 {% block script %}
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
     <script src="/static/js/signup/helper.js"></script>
     <script src="/static/js/signin/helper.js"></script>
 {% endblock %}
@@ -34,10 +28,6 @@
             <h1 class="signup-card-title">Sign Up</h1>
 
             <div class="signup-thirdparty">
-                <div class="g-signin2" data-onsuccess="onSignIn"
-                    data-height="36"
-                    data-longtitle="true"
-                ></div>
                 <a href="/accounts/oauth" class="github-btn-wrapper">
                     <div class="github-btn">
                         <i class="fa fa-github" aria-hidden="true"></i>
@@ -53,13 +43,13 @@
                     </p>
                 </div>
             </div>
-    
+
             <form action="/accounts/register/" method="POST" class="signup-form">
-                
+
                 <div class="signup-input">
                     <label for="email" class="signup-input-label">Email Address</label>
-                    <input id="email" name="email" type="email" 
-                        class="signup-input-field" 
+                    <input id="email" name="email" type="email"
+                        class="signup-input-field"
                         value="{{ form.email.value }}">
                     {% if form.email.errors | length > 0 %}
                         {% for err in form.email.errors %}
@@ -67,11 +57,11 @@
                         {% endfor %}
                     {% endif %}
                 </div>
-    
+
                 <div class="signup-input">
                     <label for="password" class="signup-input-label">Password</label>
-                    <input id="password" name="password" type="password" 
-                        class="signup-input-field" 
+                    <input id="password" name="password" type="password"
+                        class="signup-input-field"
                         placeholder="8+ characters">
                     {% if form.password.errors | length > 0 %}
                         {% for err in form.password.errors %}
@@ -79,7 +69,7 @@
                         {% endfor %}
                     {% endif %}
                 </div>
-    
+
                 <button type="submit" class="create_account_btn" disabled>
                     Create an Account
                 </button>
@@ -89,7 +79,7 @@
             <label for="i_agree" class="signup-agree">
                 I agree to <a href="/terms-of-use">Term of Service</a> and <a href="/policy">Privacy Policy</a>
             </label>
-    
+
             <p class="signin-invitation">Already a member? <a href="/accounts/login/">Sign in</a></p>
         </div>
     </div>
