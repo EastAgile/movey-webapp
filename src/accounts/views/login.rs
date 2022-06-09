@@ -111,10 +111,6 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
 }
 
 pub async fn oauth(request: HttpRequest, client: web::Data<BasicClient>) -> Result<HttpResponse> {
-    if request.is_authenticated()? {
-        return request.redirect("/settings/profile");
-    }
-
     let (authorize_url, csrf_state) = client
         .authorize_url(CsrfToken::new_random)
         .add_scope(Scope::new("user:email".to_string()))

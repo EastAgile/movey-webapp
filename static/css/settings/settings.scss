@@ -118,12 +118,14 @@
   }
 
   .discard {
-    color: var(--blue-color)
+    color: var(--blue-color);
+    cursor: pointer;
   }
 
   .save {
     background-color: var(--blue-color);
-    color: white
+    color: white;
+    cursor: pointer;
   }
 }
 

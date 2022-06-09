@@ -17,7 +17,7 @@ pub async fn profile(request: HttpRequest) -> Result<HttpResponse> {
     let account = Account::get(user.id, db).await.unwrap();
     request.render(200, "settings/profile.html", {
         let mut context = Context::new();
-        context.insert("email", &account.email);
+        context.insert("account", &account);
         context.insert("profile_tab","profile");
         context
     })
