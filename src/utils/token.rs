@@ -62,8 +62,8 @@ mod tests {
     }
 
     #[actix_rt::test]
-    async fn secure_token_to_formatted_sha256_works() {
-        let formatted_sha256 = SecureToken::to_formatted_sha256(&"qwerty123456".to_string());
+    async fn secure_token_hash_works() {
+        let formatted_sha256 = SecureToken::hash(&"qwerty123456".to_string());
         assert_eq!(formatted_sha256, "[3a, 57, 45, a0, 5f, 87, dd, ee, 1d, b6, 8b, 21, 7d, c0, 43, bf, a2, 6, d1, c7, aa, a1, dd, a, 7d, d7, 6b, 85, 2a, 73, 35, 97]");
     }
 }
