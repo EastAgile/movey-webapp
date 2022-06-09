@@ -112,12 +112,12 @@ pub async fn show_downloads(
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
-        let packages = Package::get_by_account(user.id, &db).await.unwrap();
+        let download = Package::get_downloads(user.id,&db).await;
 
         request.render(200, "settings/downloads.html", {
             let mut ctx = Context::new();
-            ctx.insert("packages", &packages);
             ctx.insert("profile_tab","downloads");
+            ctx.insert("total_downloads",&download);
             ctx
         })
     } else {
