@@ -8,6 +8,7 @@ use crate::packages::Package;
 
 #[double]
 use crate::github_service::GithubService;
+use crate::setting::models::token::ApiToken;
 
 #[derive(Serialize, Deserialize)]
 pub struct PackageRequest {
@@ -16,6 +17,7 @@ pub struct PackageRequest {
     rev: String,
     total_files: i32,
     total_size: i32,
+    token: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -29,6 +31,9 @@ pub async fn post_package(
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     let service = GithubService::new();
+    if let Err(_) = ApiToken::get(&res.token, db).await {
+        return Ok(HttpResponse::BadRequest().body("Invalid Api Token"));
+    }
     Package::create(
         &res.github_repo_url,
         &res.description,
