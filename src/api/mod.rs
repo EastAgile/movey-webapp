@@ -25,5 +25,9 @@ pub fn configure(config: &mut ServiceConfig) {
                 resource("/tokens")
                     .route(put().to(services::setting::controllers::token::create_token))
             )
+            .service(
+                resource("/me")
+                    .route(get().to(services::setting::controllers::profile::get_logged_in_user))
+            )
     );
 }
