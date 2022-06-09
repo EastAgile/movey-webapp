@@ -5,7 +5,7 @@ use crate::setting::models::token::ApiToken;
 use diesel::result::DatabaseErrorKind;
 use diesel::result::Error::DatabaseError;
 use jelly::actix_web::http::header::ContentType;
-use jelly::actix_web::web;
+use jelly::actix_web::{web, web::Path};
 use jelly::forms::TextField;
 use jelly::prelude::*;
 use jelly::Result;
@@ -41,4 +41,23 @@ pub async fn create_token(
     };
     let api_token = EncodableApiTokenWithToken::from(api_token);
     Ok(HttpResponse::Ok().set(ContentType::json()).json(&api_token))
+}
+
+pub async fn revoke_token(
+    request: HttpRequest,
+    Path(token_id): Path<String>,
+) -> Result<HttpResponse> {
+    if !request::is_authenticated(&request).await? {
+        return Ok(HttpResponse::Unauthorized().body(""));
+    }
+    let user = request.user()?;
+    let db = request.db_pool()?;
+    let token = ApiToken::get_by_id(token_id.parse::<i32>().unwrap(), &db).await?;
+
+    // checks if token belongs to account
+    if token.account_id == user.id {
+        ApiToken::revoke(token.id, &db).await?;
+    }
+
+    Ok(HttpResponse::Ok().body(""))
 }

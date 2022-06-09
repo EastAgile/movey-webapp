@@ -29,6 +29,13 @@ class Tokens {
       $(e.currentTarget).removeClass('blink')
       $(e.currentTarget).addClass('blink')
     })
+
+    $('body').on('click', '.revoke-token-btn', (e) => {
+      if(confirm('Revoke this token?')) {
+        const tokenId = $(e.currentTarget).closest('.token-item').data('id')
+        this.revokeToken(tokenId)
+      }
+    })
   }
 
   submitNewToken() {
@@ -56,6 +63,21 @@ class Tokens {
         $(".tokens-error").text(xhr.responseText)
         return errorThrown
       },
+    })
+  }
+
+  revokeToken(id) {
+    $.ajax({
+      type: 'DELETE',
+      dataType: "json",
+      url: '/api/v1/tokens/' + id,
+      contentType: "application/json",
+      processData: false,
+      headers: {},
+      data: {},
+      complete: () => {
+        window.location.reload()
+      }
     })
   }
 }

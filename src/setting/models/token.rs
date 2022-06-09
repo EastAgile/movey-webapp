@@ -101,6 +101,25 @@ impl ApiToken {
 
         Ok(result)
     }
+
+    pub async fn get_by_id(token_id: i32, pool: &DieselPgPool) -> Result<Self> {
+        let connection = pool.get()?;
+
+        let result = api_tokens
+            .filter(api_tokens::dsl::id.eq(token_id))
+            .first::<Self>(&connection)?;
+
+        Ok(result)
+    }
+
+    pub async fn revoke(token_id: i32, pool: &DieselPgPool) -> Result<()> {
+        let connection = pool.get()?;
+
+        diesel::delete(api_tokens.filter(api_tokens::dsl::id.eq(token_id)))
+            .execute(&connection)?;
+
+        Ok(())
+    }
 }
 
 pub struct CreatedApiToken {

@@ -22,7 +22,7 @@
   <div class="tokens-error"></div>
   <div class="tokens-list">
     {% for token in tokens %}
-    <div class="token-item existing">
+    <div class="token-item existing" data-id="{{token.id}}">
       <div class="token-info">
         <div class="name-created-at">
           <div class="token-name">{{token.name}}</div>
