@@ -70,9 +70,14 @@
 
     #package-list-container {
         width: 100%;
+        padding: 70px 175px 265px;
 
-        @include large-screen {
-            padding: 70px 175px 265px 175px;
+        @media screen and (max-width: 1280px) {
+            padding: 70px 120px 265px;
+        }
+
+        @media screen and (max-width: 860px) {
+            padding: 70px 80px 265px;
         }
 
         @include medium-small-screen {
@@ -147,11 +152,23 @@
 
                     .update-timestamp {
                         color: var(--gray-color);
+                        display: flex;
+                        align-items: center;
+
+                        img {
+                            margin-right: 5px;
+                        }
                     }
 
                     .download-count {
                         color: var(--dark-blue-color);
                         margin-right: 25px;
+                        display: flex;
+                        align-items: center;
+
+                        img {
+                            margin-right: 5px;
+                        }
 
                         @include medium-small-screen {
                             margin-right: 0;

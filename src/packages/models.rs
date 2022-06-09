@@ -356,7 +356,7 @@ impl Package {
             PackageSortField::Name => "name",
             PackageSortField::Description => "description",
             PackageSortField::MostDownloads => "total_downloads_count",
-            PackageSortField::NewlyAdded => "updated_at",
+            PackageSortField::NewlyAdded => "packages.created_at",
         };
         let order = match sort_order {
             PackageSortOrder::Asc => "ASC",
@@ -392,7 +392,7 @@ impl Package {
             PackageSortField::Name => "name",
             PackageSortField::Description => "description",
             PackageSortField::MostDownloads => "total_downloads_count",
-            PackageSortField::NewlyAdded => "updated_at",
+            PackageSortField::NewlyAdded => "packages.created_at",
         };
         let order = match sort_order {
             PackageSortOrder::Asc => "ASC",
