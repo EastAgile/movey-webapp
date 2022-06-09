@@ -56,6 +56,7 @@
 .home-container .search-container .autocomplete-main-wrapper #search-bar {
   text-align: start;
   border-radius: 5px;
+  caret-color: var(--blue-color);
 }
 .home-container .search-container .button {
   float: left;
@@ -68,12 +69,12 @@
   background: #ccc;
 }
 .home-container .search-container #suggestions {
-  height: 500px;
+  max-height: 460px;
   overflow: auto;
 }
 .home-container .search-container #suggestions > div {
   display: grid;
-  grid-template-columns: 90% 10%;
+  grid-template-columns: 80% 20%;
   grid-template-areas: "package-name package-version" "package-description package-version";
   height: fit-content;
   padding: 10px 25px;
@@ -99,9 +100,7 @@
   color: var(--gray-color);
   background: none;
   text-align: left;
-  line-height: 1.5em;
-  height: 3em;
-  overflow: hidden;
+  height: fit-content;
 }
 .home-container .search-container #suggestions > div .package-version {
   grid-area: package-version;

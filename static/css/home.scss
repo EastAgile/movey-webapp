@@ -52,6 +52,7 @@
       #search-bar {
         text-align: start;
         border-radius: 5px;
+        caret-color: var(--blue-color);
       }
     }
     
@@ -67,13 +68,13 @@
     }
 
     #suggestions {
-      height: 500px;
+      max-height: 460px;
       overflow: auto;
     }
 
     #suggestions > div {
       display: grid;
-      grid-template-columns: 90% 10%;
+      grid-template-columns: 80% 20%;
       grid-template-areas:
         "package-name package-version"
         "package-description package-version";
@@ -103,10 +104,7 @@
         color: var(--gray-color);
         background: none;
         text-align: left;
-
-        line-height: 1.5em;
-        height: 3em;
-        overflow: hidden;
+        height: fit-content;
       }
 
       .package-version {
