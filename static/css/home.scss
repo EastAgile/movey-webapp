@@ -86,6 +86,7 @@
         font-weight: bold;
         margin-top: 0;
         margin-right: auto;
+        margin-bottom: 5px;
         height: fit-content;
         background: none;
       }
@@ -95,8 +96,12 @@
         font-size: 20px;
         margin-right: auto;
         color: var(--gray-color);
-        font-size: 20px;
         background: none;
+        text-align: left;
+
+        line-height: 1.5em;
+        height: 3em;
+        overflow: hidden;
       }
 
       .package-version {

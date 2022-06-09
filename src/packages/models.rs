@@ -312,12 +312,18 @@ impl Package {
 	pub async fn auto_complete_search(
         search_query: &str,
         pool: &DieselPgPool,
-    ) -> Result<Vec<String>, Error> {
+    ) -> Result<Vec<(String, String, String)>, Error> {
+
         let connection = pool.get()?;
-        return Ok(packages
+        let result: Vec<(String, String, String)> = packages::table
+            .inner_join(package_versions::table)
             .filter(name.ilike(format!("{}{}{}", "%", search_query, "%")))
-            .select(packages::name)
-            .load::<String>(&connection)?);
+            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at"))
+            .select((packages::name, packages::description, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
+            .load::<(String, String, String)>(&connection)
+            .unwrap();
+        
+        Ok(result)
     }
 
     pub async fn search(

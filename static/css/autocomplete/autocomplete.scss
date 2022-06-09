@@ -153,6 +153,10 @@ input[type="text"]:focus {
 
 .autocomplete-item-hover {
   background-color: var(--gray-color) !important;
+
+  .package-description {
+    color: var(--dark-blue-color) !important;
+  }
 }
 
 .hidden {
