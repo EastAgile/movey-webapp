@@ -67,6 +67,10 @@
 .home-container .search-container .button:hover {
   background: #ccc;
 }
+.home-container .search-container #suggestions {
+  height: 500px;
+  overflow: auto;
+}
 .home-container .search-container #suggestions > div {
   display: grid;
   grid-template-columns: 90% 10%;

@@ -66,6 +66,11 @@
       }
     }
 
+    #suggestions {
+      height: 500px;
+      overflow: auto;
+    }
+
     #suggestions > div {
       display: grid;
       grid-template-columns: 90% 10%;
