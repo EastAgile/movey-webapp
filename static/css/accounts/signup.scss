@@ -79,10 +79,6 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar
       }
 
       .signup-thirdparty {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        column-gap: 8px;
-        place-items: center / stretch;
         margin-bottom: 24px;
 
         @include small-screen {
