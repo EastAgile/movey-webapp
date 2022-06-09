@@ -1,6 +1,7 @@
 use crate::accounts::forms::ChangePasswordForm;
 use crate::accounts::Account;
 use crate::packages::Package;
+use crate::setting::models::token::ApiToken;
 
 use jelly::actix_session::UserSession;
 use jelly::actix_web::http::header;
@@ -130,11 +131,11 @@ pub async fn show_tokens(
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
-        let packages = Package::get_by_account(user.id, &db).await.unwrap();
+        let tokens = ApiToken::get_by_account(user.id, &db).await.unwrap();
 
         request.render(200, "settings/tokens.html", {
             let mut ctx = Context::new();
-            ctx.insert("packages", &packages);
+            ctx.insert("tokens", &tokens);
             ctx.insert("profile_tab","tokens");
             ctx
         })

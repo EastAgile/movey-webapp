@@ -90,6 +90,17 @@ impl ApiToken {
             .select(api_tokens::id).first::<i32>(&connection)?;
         Ok(result)
     }
+
+    pub async fn get_by_account(owner_id: i32, pool: &DieselPgPool) -> Result<Vec<Self>> {
+        let connection = pool.get()?;
+
+        let result = api_tokens
+            .filter(account_id.eq(owner_id))
+            .order_by(api_tokens::dsl::id.desc())
+            .load::<Self>(&connection)?;
+
+        Ok(result)
+    }
 }
 
 pub struct CreatedApiToken {
@@ -194,5 +205,21 @@ mod tests {
         } else {
             panic!("Associated account not found!")
         }
+    }
+
+    #[actix_rt::test]
+    async fn api_token_get_by_account_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+
+        let account = setup_user().await;
+
+        ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
+        ApiToken::insert(&account, "name2", &DB_POOL).await.unwrap();
+
+        let results = ApiToken::get_by_account(account.id, &DB_POOL).await.unwrap();
+        assert_eq!(results.len(), 2);
+        assert_eq!(results[0].name, "name2");
+        assert_eq!(results[1].name, "name1");
     }
 }
