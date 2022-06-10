@@ -14,6 +14,7 @@ use jelly::DieselPgPool;
 use diesel::result::Error::NotFound;
 
 use mockall_double::double;
+use crate::github_service::GithubRepoData;
 
 // use super::forms::{LoginForm, NewAccountForm};
 #[double]
@@ -172,10 +173,22 @@ impl Package {
         service: &GithubService,
         pool: &DieselPgPool,
     ) -> Result<i32, Error> {
-        let connection = pool.get()?;
-
         let github_data = service.fetch_repo_data(&repo_url).unwrap();
 
+        Package::create_util(repo_url, package_description, version_rev,
+                             version_files, version_size, github_data, pool).await
+    }
+
+    pub async fn create_util(
+        repo_url: &str,
+        package_description: &str,
+        version_rev: &str,
+        version_files: i32,
+        version_size: i32,
+        github_data: crate::github_service::GithubRepoData,
+        pool: &DieselPgPool,
+    ) -> Result<i32, Error> {
+        let connection = pool.get()?;
         let record = match Package::get_by_name(&github_data.name, &pool).await {
             Ok(package) => package,
             Err(_) => {
@@ -271,7 +284,7 @@ impl Package {
         url: &String,
         rev_: &String,
         service: &GithubService,
-        pool: &DieselPgPool
+        pool: &DieselPgPool,
     ) -> Result<usize, Error> {
         let connection = pool.get()?;
 
@@ -308,14 +321,14 @@ impl Package {
                             rev_.clone(),
                             -1,
                             -1,
-                            pool
+                            pool,
                         ).await?;
-                    },
+                    }
                     Err(e) => { return Err(Error::Database(e)); }
                 };
 
                 package_id_
-            },
+            }
             Err(NotFound) => {
                 // Package is not found, creating shadow package and package version
                 Package::create(
@@ -325,8 +338,8 @@ impl Package {
                     None,
                     service,
                     &pool)
-                .await?
-            },
+                    .await?
+            }
             Err(e) => { return Err(Error::Database(e)); }
         };
 
@@ -343,7 +356,7 @@ impl Package {
         Ok(changed_rows)
     }
 
-	pub async fn auto_complete_search(
+    pub async fn auto_complete_search(
         search_query: &str,
         pool: &DieselPgPool,
     ) -> Result<Vec<(String, String, String)>, Error> {
@@ -514,7 +527,7 @@ mod tests {
             0,
             &pool,
         )
-        .await?;
+            .await?;
         Package::create_test_package(
             &"The first Diva".to_string(),
             &"".to_string(),
@@ -526,7 +539,7 @@ mod tests {
             0,
             &pool,
         )
-        .await?;
+            .await?;
         Package::create_test_package(
             &"Charles Diya".to_string(),
             &"".to_string(),
@@ -538,7 +551,7 @@ mod tests {
             0,
             &pool,
         )
-        .await?;
+            .await?;
         Ok(())
     }
 
@@ -557,8 +570,8 @@ mod tests {
             None,
             pool,
         )
-        .await
-        .unwrap();
+            .await
+            .unwrap();
         assert_eq!(total_count, 1);
         assert_eq!(total_pages, 1);
         assert_eq!(search_result[0].name, "The first package");
@@ -579,8 +592,8 @@ mod tests {
             None,
             pool,
         )
-        .await
-        .unwrap();
+            .await
+            .unwrap();
         assert_eq!(total_count, 1);
         assert_eq!(total_pages, 1);
         assert_eq!(search_result[0].name, "The first package");
@@ -601,8 +614,8 @@ mod tests {
             Some(1),
             pool,
         )
-        .await
-        .unwrap();
+            .await
+            .unwrap();
         assert_eq!(total_count, 2);
         assert_eq!(total_pages, 2);
 
@@ -617,8 +630,8 @@ mod tests {
             Some(1),
             pool,
         )
-        .await
-        .unwrap();
+            .await
+            .unwrap();
         assert_eq!(search_result.len(), 1);
         assert_eq!(search_result[0].name, "The first Diva");
     }
@@ -637,8 +650,8 @@ mod tests {
             Some(2),
             pool,
         )
-        .await
-        .unwrap();
+            .await
+            .unwrap();
         assert_eq!(total_count, 3);
         assert_eq!(total_pages, 2);
 
@@ -653,8 +666,8 @@ mod tests {
             Some(2),
             pool,
         )
-        .await
-        .unwrap();
+            .await
+            .unwrap();
         assert_eq!(search_result.len(), 1);
         assert_eq!(search_result[0].name, "Charles Diya");
     }
@@ -686,8 +699,8 @@ mod tests {
             &mock_github_service,
             &DB_POOL,
         )
-        .await
-        .unwrap();
+            .await
+            .unwrap();
 
         let package = Package::get(uid, &DB_POOL).await.unwrap();
         assert_eq!(package.name, "name");
@@ -765,8 +778,8 @@ mod tests {
             &mock_github_service,
             &DB_POOL,
         )
-        .await
-        .unwrap();
+            .await
+            .unwrap();
 
         PackageVersion::create(
             uid,
@@ -777,8 +790,8 @@ mod tests {
             100,
             &DB_POOL,
         )
-        .await
-        .unwrap();
+            .await
+            .unwrap();
 
         let versions = PackageVersion::from_package_id(uid, &PackageVersionSort::Latest, &DB_POOL)
             .await
@@ -812,8 +825,8 @@ mod tests {
             &mock_github_service,
             &DB_POOL,
         )
-        .await
-        .unwrap();
+            .await
+            .unwrap();
 
         PackageVersion::create(
             uid,
@@ -824,8 +837,8 @@ mod tests {
             3,
             &DB_POOL,
         )
-        .await
-        .unwrap();
+            .await
+            .unwrap();
 
         let versions = PackageVersion::from_package_id(uid, &PackageVersionSort::Oldest, &DB_POOL)
             .await
@@ -859,8 +872,8 @@ mod tests {
             &mock_github_service,
             &DB_POOL,
         )
-        .await
-        .unwrap();
+            .await
+            .unwrap();
 
         let mut version_2 = PackageVersion::create(
             uid,
@@ -871,8 +884,8 @@ mod tests {
             3,
             &DB_POOL,
         )
-        .await
-        .unwrap();
+            .await
+            .unwrap();
         version_2.downloads_count = 5;
         _ = &version_2
             .save_changes::<PackageVersion>(&*(DB_POOL.get().unwrap()))
@@ -909,8 +922,8 @@ mod tests {
             100,
             &DB_POOL,
         )
-        .await
-        .unwrap();
+            .await
+            .unwrap();
         assert_eq!(PackageVersion::count(&DB_POOL).await, 4);
     }
 
@@ -930,7 +943,7 @@ mod tests {
             rev_,
             20,
             100,
-            &DB_POOL
+            &DB_POOL,
         ).await.unwrap();
 
         let package_versions_before = PackageVersion
@@ -951,7 +964,7 @@ mod tests {
         Package::increase_download_count(url, rev_, &mock_github_service, &DB_POOL).await.unwrap();
         Package::increase_download_count(url, rev_, &mock_github_service, &DB_POOL).await.unwrap();
         let package_versions_after = PackageVersion
-            ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
+        ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
             .await.unwrap();
         let package_version_after = package_versions_after.first().unwrap();
         assert_eq!(package_version_after.downloads_count, 2);
@@ -962,7 +975,7 @@ mod tests {
             &mock_github_service,
             &DB_POOL).await;
         let package_versions_after = PackageVersion
-            ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
+        ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
             .await.unwrap();
         let package_version_after = package_versions_after.first().unwrap();
         assert_eq!(package_version_after.downloads_count, 3);
@@ -1039,11 +1052,11 @@ mod tests {
             &"".to_string(),
             &rev1,
             20, 100,
-            &DB_POOL
+            &DB_POOL,
         ).await.unwrap();
         PackageVersion::create(
             package_id_, String::from(""), String::from(""),
-            rev2.clone(), 40, 200, &DB_POOL
+            rev2.clone(), 40, 200, &DB_POOL,
         ).await.unwrap();
 
         let mut mock_github_service = GithubService::new();
@@ -1064,7 +1077,7 @@ mod tests {
         Package::increase_download_count(&url, &rev1, &mock_github_service, &DB_POOL).await.unwrap();
         Package::increase_download_count(&url, &rev2, &mock_github_service, &DB_POOL).await.unwrap();
         let package_versions_after = PackageVersion
-            ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
+        ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
             .await.unwrap();
         for package_version_after in package_versions_after {
             assert_eq!(package_version_after.downloads_count, 1);
@@ -1078,7 +1091,7 @@ mod tests {
             &mock_github_service,
             &DB_POOL).await.unwrap();
         let package_versions_after = PackageVersion
-            ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
+        ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
             .await.unwrap();
         let first_package_version_after = package_versions_after.first().unwrap();
         assert_eq!(first_package_version_after.downloads_count, 2);
@@ -1087,7 +1100,6 @@ mod tests {
         let package_total_downloads = Package::get(1, &DB_POOL).await.unwrap().total_downloads_count;
         assert_eq!(package_total_downloads, 3);
     }
-
 }
 
 // Helpers for integration tests only. Wondering why cfg(test) below doesn't work... (commented out for now)
@@ -1137,8 +1149,8 @@ impl Package {
             version_size,
             pool,
         )
-        .await
-        .unwrap();
+            .await
+            .unwrap();
         Ok(record.id)
     }
 
@@ -1172,8 +1184,8 @@ impl Package {
             500,
             pool,
         )
-        .await
-        .unwrap();
+            .await
+            .unwrap();
 
         Ok(record.id)
     }

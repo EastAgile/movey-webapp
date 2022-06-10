@@ -1,3 +1,4 @@
+use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 use std::sync::Arc;
 use serde::Deserialize;
@@ -29,6 +30,13 @@ pub struct GithubRepoData {
 impl PartialEq for GithubRepoData {
     fn eq(&self, other: &GithubRepoData) -> bool {
         self.name == other.name && self.version == other.version
+    }
+}
+
+impl Hash for GithubRepoData {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
+        self.version.hash(state);
     }
 }
 
