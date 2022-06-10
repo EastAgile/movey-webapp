@@ -9,7 +9,7 @@ use background_jobs::memory_storage::Storage;
 use background_jobs::{create_server, WorkerConfig};
 
 use crate::email::{Configurable, Email};
-use crate::database;
+use crate::{database, DieselPgPool};
 use crate::jobs::{JobState, DEFAULT_QUEUE};
 
 /// This struct provides a slightly simpler way to write `main.rs` in
@@ -49,7 +49,7 @@ impl Server {
 
     /// Consumes and then runs the server, with default settings that we
     /// generally want.
-    pub async fn run(self) -> std::io::Result<dev::Server> {
+    pub async fn run(self) -> std::io::Result<(dev::Server, DieselPgPool)> {
         dotenv::dotenv().ok();
         #[cfg(not(feature = "test"))]
         pretty_env_logger::init();
@@ -71,7 +71,7 @@ impl Server {
         let templates = template_store.templates.clone();
 
         let pool = database::init_database();
-
+        let pool_return = pool.clone();
         let apps = Arc::new(self.apps);
         let jobs = Arc::new(self.jobs);
 
@@ -139,6 +139,6 @@ impl Server {
         .bind((bind, port))?
         .run();
 
-        Ok(server)
+        Ok((server, pool_return.clone()))
     }
 }
