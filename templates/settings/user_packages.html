@@ -1,0 +1,31 @@
+{% extends "settings/layout.html" %}
+{% block title %}Settings{% endblock %}
+{% block javascript %}
+
+<script src="/static/js/settings/user_package.js"></script>
+<link href="/static/css/settings/user_packages.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.6.7/jquery.timeago.min.js" type="text/javascript"></script>
+{% endblock %}
+
+
+{% block settings_content %}
+<div class="user_package_container">
+        <div class="total_package">{{packages|length}} Packages</div>
+        {% for package in packages %}
+        
+        <div class="package_content">
+            <div class="package_title">
+                <a class="package_name" href="/packages/{{ package.name }}"><span>{{ package.name }}</span></a>&nbsp;
+                <p class="package_version">{{package.version}}</p>
+            </div>
+
+            <div class="package_description">{{package.description}}</div>
+            <div class="package-time">Published <time class="package-time" datetime="{{package.created_at}}"> {{package.created_at}}</time></div>
+            
+        </div>
+        {% endfor %}
+</div>
+<script>
+    new Package()
+</script>
+{% endblock %}

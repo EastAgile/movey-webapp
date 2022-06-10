@@ -4,23 +4,29 @@ use mainlib::accounts::forms::NewAccountForm;
 use mainlib::accounts::Account;
 use mainlib::test::DB_POOL;
 use thirtyfour::prelude::*;
+use crate::features::world::AccountInformation;
 
 use super::super::world::TestWorld;
 use super::signup_steps::*;
 
 #[given("I am a user on Movey")]
-async fn an_user(_world: &mut TestWorld) {
+async fn an_user(world: &mut TestWorld) {
+    let account = AccountInformation {
+        email: "email@host.com".to_string(),
+        password: "So$trongpas0word!".to_string(),
+    };
     let form = NewAccountForm {
         email: EmailField {
-            value: "email@host.com".to_string(),
+            value: account.email.clone(),
             errors: vec![],
         },
         password: PasswordField {
-            value: "So$trongpas0word!".to_string(),
+            value: account.password.clone(),
             errors: vec![],
             hints: vec![],
         },
     };
+    world.account = account;
     let uid = Account::register(&form, &DB_POOL).await.unwrap();
     Account::mark_verified(uid, &DB_POOL).await.unwrap();
 }
@@ -42,7 +48,7 @@ async fn signed_in_with_remember_me(world: &mut TestWorld) {
 
     let email_field = world.driver.find_element(By::Name("email")).await.unwrap();
     email_field.send_keys("email@host.com").await.unwrap();
-    
+
     let password_field = world.driver
         .find_element(By::Name("password"))
         .await.unwrap();
@@ -71,7 +77,7 @@ async fn click_on_sign_in_button(world: &mut TestWorld) {
 }
 
 #[when("I fill in my email and password and submit the form on the sign in page")]
-async fn fill_in_sign_in_form(world: &mut TestWorld) {
+pub async fn fill_in_sign_in_form(world: &mut TestWorld) {
     let email_field = world.driver.find_element(By::Name("email")).await.unwrap();
     email_field.send_keys("email@host.com").await.unwrap();
 
@@ -155,7 +161,7 @@ async fn visit_sign_in_page(world: &mut TestWorld) {
 #[when("I access the Dashboard page")]
 async fn visit_dashboard_page(world: &mut TestWorld) {
     world.driver
-        .get("http://localhost:17002/dashboard/")
+        .get("http://localhost:17002/accounts/login/")
         .await.unwrap()
 }
 
@@ -203,24 +209,14 @@ async fn see_sign_up_page(world: &mut TestWorld) {
 async fn signed_in(world: &mut TestWorld) {
     assert_eq!(
         world.driver.current_url().await.unwrap(),
-        "http://localhost:17002/dashboard/"
+        "http://localhost:17002/settings/profile"
     );
-
-    let welcome = world.driver
-        .find_element(By::XPath("/html/body/div/p"))
-        .await.unwrap();
-    let welcome_text = welcome.text().await.unwrap();
-    assert!(welcome_text.contains("Welcome back"));
-
-    world.driver
-        .find_element(By::XPath("/html/body/form"))
-        .await.unwrap();
 }
 
 #[then("I should be on the Dashboard page")]
 async fn see_dashboard_page(world: &mut TestWorld) {
     assert_eq!(
         world.driver.current_url().await.unwrap(),
-        "http://localhost:17002/dashboard/"
+        "http://localhost:17002/settings/profile"
     );
 }

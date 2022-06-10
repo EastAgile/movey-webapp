@@ -6,7 +6,7 @@ use jelly::actix_web::{
 use jelly::prelude::*;
 use jelly::Result;
 
-use crate::accounts::forms::{ChangePasswordForm, EmailForm};
+use crate::accounts::forms::{ChangePasswordViaEmailForm, EmailForm};
 use crate::accounts::jobs::{SendPasswordWasResetEmail, SendResetPasswordEmail};
 use crate::accounts::views::utils::validate_token;
 use crate::accounts::Account;
@@ -66,7 +66,7 @@ pub async fn with_token(
     if let Ok(_account) = validate_token(&request, &uidb64, &ts, &token).await {
         return request.render(200, "accounts/reset_password/change_password.html", {
             let mut context = Context::new();
-            context.insert("form", &ChangePasswordForm::default());
+            context.insert("form", &ChangePasswordViaEmailForm::default());
             context.insert("uidb64", &uidb64);
             context.insert("ts", &ts);
             context.insert("token", &token);
@@ -82,7 +82,7 @@ pub async fn with_token(
 pub async fn reset(
     request: HttpRequest,
     Path((uidb64, ts, token)): Path<(String, String, String)>,
-    form: Form<ChangePasswordForm>,
+    form: Form<ChangePasswordViaEmailForm>,
 ) -> Result<HttpResponse> {
     let mut form = form.into_inner();
 

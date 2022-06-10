@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="lt-ie9"><![endif]-->
+<!--[if gt IE 8]><!--><html><!--<![endif]-->
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{% endblock %}">
+    <meta property="og:site_name" content="{% block og_sitename %}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{% endblock %}">
+    <link rel="icon" type="image/x-icon" href="/static/resources/Favicon_Light.png">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
+    <link href="http://fonts.cdnfonts.com/css/inter" rel="stylesheet"/>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.7.4/css/foundation.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.7.4/js/foundation.min.js"></script>
+
+    <link href="/static/css/layout.css" rel="stylesheet"/>
+    <link href="/static/css/header_dark.css" rel="stylesheet"/>
+    <link href="/static/css/footer.css" rel="stylesheet"/>
+    <script src="/static/js/search/search_bar.js"></script>
+    <script src="/static/js/header.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"/>
+    <link href="/static/css/packages/show.css" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.0.3/showdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.6.7/jquery.timeago.min.js"></script>
+    <script src="/static/js/packages/show.js"></script>
+    <script src="/static/js/packages/versions.js"></script>
+    <script src="/static/js/settings/profile.js"></script>
+
+    <!--[if lte IE 8]>
+    (function(i,e){for(;i<10;i++)document.createElement(e[i]);})(0,['section','article','aside','header','footer','nav','figure','figcaption','time','mark']);
+    <![endif]-->
+</head>
+<body>
+<header>
+    <div class="header-container">
+        <div class="menu-nav"></div>
+        <a href="/">
+            <div class="header-logo"></div>
+        </a>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#" class="header-text">About</a></li>
+                <li><a href="#" class="header-text">Documentation</a></li>
+                <li><a href="#" class="header-text">Community</a></li>
+            </ul>
+            <ul id="right-wrapper">
+                <li>
+                    <button class="search-btn" data-active="false">
+                        <i id="search-btn-icon" class="fa fa-search"></i>
+                    </button>
+                </li>
+                <li>
+                    <a class="sign-in" href="/accounts/login/">
+                        SIGN IN
+                    </a>
+                </li>
+                <li>
+                    <a class="sign-up" href="/accounts/register/">
+                        SIGN UP
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>
+<div id="search-bar">
+    <form action="/packages/search">
+        <button type="submit">
+            <i class="fa fa-search"></i>
+        </button>
+        <input id="search-field"
+               type="text"
+               placeholder="Search packages..."
+               name="query"
+               autofocus
+        >
+        <i class="fa fa-times-circle"></i>
+    </form>
+</div>
+<script>
+    new Header();
+    new SearchBar();
+</script>
+
+<input class="email disabled"></input>
+
+<input class="current-password"></input>
+<input name="password" class="new-password"></input>
+<input name="password" class="password-confirm"></input>
+<button class="save"></button>
+<button class="discard"></button>
+
+<script>
+    new Profile()
+</script>
+
+
+<footer>
+    <div class="footer-container">
+        <div class="footer-about">
+            <img
+                    src="/static/resources/logo_blue.svg"
+                    height="30"
+                    width="235" />
+            <div class="about-us">
+                We're East Agile, the company behind Movey, the Move package manager, the Movey Registry.
+            </div>
+        </div>
+        <div class="footer-center">
+            <div class="link-container">
+                <a class="footer-link" href="#">OUR TEAM</a>
+                <span>/</span>
+                <a class="footer-link" href="#">CONTACT US</a>
+                <span>/</span>
+                <a class="footer-link" href="#">TERMS & CONDITIONS</a>
+                <span>/</span>
+                <a class="footer-link" href="#">SECURITY POLICY</a>
+            </div>
+            <ul class="social-icons">
+                <li>
+                    <a class="" href="#" target="_blank">
+                        <img class="" src="/static/resources/twitter_small.svg"/>
+                    </a>
+                </li>
+                <li>
+                    <a class="" href="#" target="_blank">
+                        <img class="" src="/static/resources/medium.svg"/>
+                    </a>
+                </li>
+                <li>
+                    <a class="" href="#" target="_blank">
+                        <img class="icon" src="/static/resources/github_small.svg"/>
+                    </a>
+                </li>
+                <li>
+                    <a class="" href="#" target="_blank">
+                        <img class="icon flex" src="/static/resources/reddit_small.svg"/>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="footer-copyright">
+            <div class="copyright">
+                © 2022 East Agile. All rights reserved.
+            </div>
+            <img src="/static/resources/EA_logo_primary.svg"
+                 height="40"
+                 width="160" />
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

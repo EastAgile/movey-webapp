@@ -1,0 +1,131 @@
+.content-wrapper {
+  min-height: calc(100vh - 350px);
+  height: 1200px;
+  margin-top: 75px;
+  margin-bottom: 80px;
+}
+
+.avatar {
+  float: left;
+  border-radius: 50%;
+  margin-right: 72px;
+  position: relative;
+}
+.avatar .avatar-image {
+  width: 200px;
+  height: 200px;
+}
+.avatar .upload-button {
+  width: 46px;
+  height: 46px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.08);
+  border-radius: 50%;
+  position: absolute;
+  bottom: 7px;
+  right: 13px;
+  background: #fff url("/static/resources/edit.png") no-repeat center;
+}
+
+.connect-wrapper .connect-account {
+  display: flex;
+  justify-content: space-between;
+  height: 55px;
+}
+.connect-wrapper .connect-text-group {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+}
+.connect-wrapper .connect-logo {
+  width: 50px;
+  height: 50px;
+  background: url("/static/resources/github_medium.svg") no-repeat center;
+  margin-right: 15px;
+}
+.connect-wrapper .connect-name {
+  font-size: 20px;
+  line-height: 25px;
+  letter-spacing: 0.7px;
+  color: var(--dark-blue-color);
+}
+.connect-wrapper .connect-status {
+  font-size: 16px;
+  line-height: 20px;
+  color: #9CA3AF;
+}
+.connect-wrapper .connect-button {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  font-size: 16px;
+  line-height: 20px;
+}
+.connect-wrapper .connect-button:hover {
+  text-decoration: underline 1px solid #9CA3AF;
+}
+
+.profile-form {
+  width: 70%;
+  float: left;
+  margin-bottom: 70px;
+}
+.profile-form .label_title {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  color: var(--dark-blue-color);
+  margin-bottom: 8px;
+}
+.profile-form input {
+  border: 1px solid #E5E7EB;
+  box-shadow: 0px 1px 2px rgba(31, 41, 55, 0.08);
+  border-radius: 4px;
+}
+
+.form-buttons {
+  width: 70%;
+  float: left;
+  margin-bottom: 70px;
+  border-top: 1px solid #808FB0;
+  display: flex;
+  justify-content: space-between;
+}
+.form-buttons .form-btn {
+  margin-top: 32px;
+  width: 147px;
+  height: 48px;
+  border: 2px solid #44A1E7;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 18px;
+}
+.form-buttons .discard {
+  color: var(--blue-color);
+  cursor: pointer;
+}
+.form-buttons .save {
+  background-color: var(--blue-color);
+  color: white;
+  cursor: pointer;
+}
+
+.profile-form {
+  width: 70%;
+  float: left;
+  margin-bottom: 70px;
+}
+
+p {
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 54px;
+  letter-spacing: -0.02em;
+  color: var(--dark-blue-color);
+}
+
+.aaaa {
+  display: flex;
+  flex-direction: column;
+}
+
+/*# sourceMappingURL=settings.css.map */

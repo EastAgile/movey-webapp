@@ -1,7 +1,9 @@
-use diesel::dsl::count;
+use crate::accounts::Account;
+
+use diesel::dsl::{count,sum};
 use diesel::prelude::*;
 use diesel::sql_types::{Integer, Text, Timestamptz};
-use diesel::{AsChangeset, Identifiable, Insertable, Queryable};
+use diesel::{Associations, AsChangeset, Identifiable, Insertable, Queryable};
 
 use diesel_full_text_search::{plainto_tsquery, TsVectorExtensions};
 
@@ -24,8 +26,9 @@ use crate::schema::packages::dsl::*;
 
 pub const PACKAGES_PER_PAGE: i64 = 10;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset, QueryableByName)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset, QueryableByName, Associations)]
 #[table_name = "packages"]
+#[belongs_to(Account)]
 pub struct Package {
     pub id: i32,
     pub name: String,
@@ -34,6 +37,7 @@ pub struct Package {
     pub total_downloads_count: i32,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    pub account_id: Option<i32>
 }
 
 type PackageColumns = (
@@ -43,7 +47,8 @@ type PackageColumns = (
     packages::repository_url,
     packages::total_downloads_count,
     packages::created_at,
-    packages::updated_at
+    packages::updated_at,
+    packages::account_id
 );
 
 const PACKAGE_COLUMNS: PackageColumns = (
@@ -53,7 +58,8 @@ const PACKAGE_COLUMNS: PackageColumns = (
     packages::repository_url,
     packages::total_downloads_count,
     packages::created_at,
-    packages::updated_at
+    packages::updated_at,
+    packages::account_id
 );
 
 #[derive(Debug, Serialize, Deserialize, QueryableByName, Queryable)]
@@ -80,6 +86,7 @@ pub struct NewPackage {
     pub name: String,
     pub description: String,
     pub repository_url: String,
+    pub account_id: Option<i32>
 }
 
 #[derive(Serialize, Deserialize)]
@@ -161,6 +168,7 @@ impl Package {
         version_rev: &String,
         version_files: i32,
         version_size: i32,
+        account_id_: Option<i32>,
         service: &GithubService,
         pool: &DieselPgPool,
     ) -> Result<i32, Error> {
@@ -175,6 +183,7 @@ impl Package {
                     name: github_data.name,
                     description: package_description.to_string(),
                     repository_url: repo_url.to_string(),
+                    account_id: account_id_
                 };
 
                 let record = diesel::insert_into(packages::table)
@@ -186,18 +195,21 @@ impl Package {
             }
         };
 
-        if let Err(_) = record.get_version(&github_data.version, &pool).await {
-            PackageVersion::create(
-                record.id,
-                github_data.version,
-                github_data.readme_content,
-                version_rev.to_string(),
-                version_files,
-                version_size,
-                pool,
-            )
-            .await
-            .unwrap();
+        // Only creates new version if same user with package owner
+        if (record.account_id == account_id_) {
+            if let Err(_) = record.get_version(&github_data.version, &pool).await {
+                PackageVersion::create(
+                    record.id,
+                    github_data.version,
+                    github_data.readme_content,
+                    version_rev.to_string(),
+                    version_files,
+                    version_size,
+                    pool,
+                )
+                .await
+                .unwrap();
+            }
         }
 
         Ok(record.id)
@@ -219,6 +231,27 @@ impl Package {
             .first::<Package>(&connection)?;
 
         Ok(result)
+    }
+
+    pub async fn get_by_account(owner_id: i32, pool: &DieselPgPool) -> Result<Vec<PackageSearchResult>, Error> {
+        let connection = pool.get()?;
+
+        let result = packages
+            .inner_join(package_versions::table)
+            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
+            .filter(account_id.eq(owner_id))
+            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
+            .load::<PackageSearchResult>(&connection)?;
+
+        Ok(result)
+    }
+
+    pub async fn get_downloads(owner_id: i32, pool: &DieselPgPool) -> Option<i64>{
+        let connection = pool.get().unwrap();
+        packages
+            .select(sum(packages::total_downloads_count))
+            .filter(account_id.eq(owner_id))
+            .first::<Option<i64>>(&connection).unwrap()
     }
 
     pub async fn get_version(
@@ -289,6 +322,7 @@ impl Package {
                     &https_url, &String::from(""), &rev_,
                     -1,
                     -1,
+                    None,
                     service,
                     &pool)
                 .await?
@@ -339,7 +373,7 @@ impl Package {
             PackageSortField::Name => "name",
             PackageSortField::Description => "description",
             PackageSortField::MostDownloads => "total_downloads_count",
-            PackageSortField::NewlyAdded => "updated_at",
+            PackageSortField::NewlyAdded => "packages.created_at",
         };
         let order = match sort_order {
             PackageSortOrder::Asc => "ASC",
@@ -375,7 +409,7 @@ impl Package {
             PackageSortField::Name => "name",
             PackageSortField::Description => "description",
             PackageSortField::MostDownloads => "total_downloads_count",
-            PackageSortField::NewlyAdded => "updated_at",
+            PackageSortField::NewlyAdded => "packages.created_at",
         };
         let order = match sort_order {
             PackageSortOrder::Asc => "ASC",
@@ -648,6 +682,7 @@ mod tests {
             &"1".to_string(),
             2,
             100,
+            Some(1),
             &mock_github_service,
             &DB_POOL,
         )
@@ -671,6 +706,39 @@ mod tests {
                 panic!("readme content is wrong")
             }
         }
+
+        // Asserts that no new version is created with different account id
+        let mut mock_github_service_2 = GithubService::new();
+        mock_github_service_2
+            .expect_fetch_repo_data()
+            .with(eq("repo_url".to_string()))
+            .returning(|_| {
+                Ok(GithubRepoData {
+                    name: "name".to_string(),
+                    version: "version_2".to_string(),
+                    readme_content: "readme_content".to_string(),
+                })
+            });
+
+        let uid = Package::create(
+                &"repo_url".to_string(),
+                &"package_description".to_string(),
+                &"1".to_string(),
+                2,
+                100,
+                Some(2),
+                &mock_github_service_2,
+                &DB_POOL,
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(package.id, uid);
+        let versions = PackageVersion::from_package_id(uid, &PackageVersionSort::Latest, &DB_POOL)
+            .await
+            .unwrap();
+
+        assert_eq!(versions.len(), 1);
     }
 
     #[actix_rt::test]
@@ -693,6 +761,7 @@ mod tests {
             &"1".to_string(),
             2,
             100,
+            None,
             &mock_github_service,
             &DB_POOL,
         )
@@ -739,6 +808,7 @@ mod tests {
             &"1".to_string(),
             2,
             3,
+            None,
             &mock_github_service,
             &DB_POOL,
         )
@@ -785,6 +855,7 @@ mod tests {
             &"1".to_string(),
             2,
             3,
+            None,
             &mock_github_service,
             &DB_POOL,
         )
@@ -1049,6 +1120,7 @@ impl Package {
             name: package_name.to_string(),
             description: package_description.to_string(),
             repository_url: repo_url.to_string(),
+            account_id: None
         };
 
         let record = diesel::insert_into(packages::table)

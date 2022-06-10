@@ -1,5 +1,5 @@
 use jelly::actix_session::UserSession;
-use jelly::actix_web::{web, web::Form, HttpRequest};
+use jelly::actix_web::{web, web::Form, HttpRequest, HttpMessage};
 use jelly::prelude::*;
 use jelly::request::{Authentication, DatabasePool};
 use jelly::Result;
@@ -21,15 +21,18 @@ use crate::accounts::Account;
 /// The login form.
 pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
     if request::is_authenticated(&request).await? {
-        return request.redirect("/dashboard/");
+        return request.redirect("/settings/profile");
     }
-
     request.render(200, "accounts/login.html", {
         let mut ctx = Context::new();
         let google_client_id =
             std::env::var("GOOGLE_CLIENT_ID").unwrap();
         ctx.insert("form", &LoginForm::default());
         ctx.insert("client_id", &google_client_id);
+        let flash = request.cookie("flash");
+        if let Some(message) = flash {
+            ctx.insert("flash", message.value());
+        }
         ctx
     })
 }
@@ -37,7 +40,7 @@ pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
 /// POST-handler for logging in.
 pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result<HttpResponse> {
     if request::is_authenticated(&request).await? {
-        return request.redirect("/dashboard/");
+        return request.redirect("/settings/profile");
     }
 
     let mut form = form.into_inner();
@@ -61,7 +64,7 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
 
             return if form.remember_me == "off" {
                 request.set_user(user)?;
-                request.redirect("/dashboard/")
+                request.redirect("/settings/profile")
             } else {
                 let key = std::env::var("SECRET_KEY").expect("SECRET_KEY not set!");
                 let value = user.id;
@@ -84,7 +87,7 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
                         header::SET_COOKIE,
                         jar.get("remember_me_token").unwrap().encoded().to_string(),
                     )
-                    .header(header::LOCATION, "/dashboard/")
+                    .header(header::LOCATION, "/settings/profile")
                     .finish())
             };
         },
@@ -108,10 +111,6 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
 }
 
 pub async fn oauth(request: HttpRequest, client: web::Data<BasicClient>) -> Result<HttpResponse> {
-    if request.is_authenticated()? {
-        return request.redirect("/dashboard/");
-    }
-
     let (authorize_url, csrf_state) = client
         .authorize_url(CsrfToken::new_random)
         .add_scope(Scope::new("user:email".to_string()))

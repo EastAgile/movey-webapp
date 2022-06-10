@@ -276,5 +276,11 @@
   text-decoration: none;
   color: var(--blue-color);
 }
+.login-container .login-card-container .login-card .flash_message {
+  margin: 16px auto 0;
+  color: var(--dark-blue-color);
+  font-size: 24px;
+  font-weight: bold;
+}
 
 /*# sourceMappingURL=signin.css.map */

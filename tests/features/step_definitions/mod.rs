@@ -10,3 +10,5 @@ pub mod search_results_steps;
 pub mod signup_steps;
 pub mod package_list_steps;
 mod api_token_steps;
+pub mod user_profile;
+pub mod user_profile_tokens_steps;
