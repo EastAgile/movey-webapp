@@ -11,13 +11,7 @@
 
 
 <div class="user_package_container">
-        {% set_global my_var = 2 %}
-    
-        {% for package in packages %}
-            {% set_global my_var = my_var + package.total_downloads_count %}
-        {% endfor %}
-        
-        <div class="total_package">{{my_var}} downloads</div>
+        <div class="total_package">{{total_downloads}} download{{ total_downloads | pluralize }}</div>
 </div>
 <script>
     new Package()

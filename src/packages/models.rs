@@ -1,6 +1,6 @@
 use crate::accounts::Account;
 
-use diesel::dsl::count;
+use diesel::dsl::{count,sum};
 use diesel::prelude::*;
 use diesel::sql_types::{Integer, Text, Timestamptz};
 use diesel::{Associations, AsChangeset, Identifiable, Insertable, Queryable};
@@ -241,6 +241,14 @@ impl Package {
             .load::<PackageSearchResult>(&connection)?;
 
         Ok(result)
+    }
+
+    pub async fn get_downloads(owner_id: i32, pool: &DieselPgPool) -> Option<i64>{
+        let connection = pool.get().unwrap();
+        packages
+            .select(sum(packages::total_downloads_count))   
+            .filter(account_id.eq(owner_id))
+            .first::<Option<i64>>(&connection).unwrap()
     }
 
     pub async fn get_version(
