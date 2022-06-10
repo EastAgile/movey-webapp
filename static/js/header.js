@@ -5,6 +5,7 @@ class Header {
         this.signInButton = $('.sign-in');
         this.accountDropdownToggle = $('#account-dropdown-toggle');
         this.accountDropdownList = $('#account-dropdown-list');
+        this.logoutForm = $('.logout-form');
 
         this.init();
     }
@@ -28,6 +29,10 @@ class Header {
             } else {
                 this.accountDropdownList.css('display', 'none')
             }
+        })
+
+        this.logoutForm.find('a').on('click', () => {
+            this.logoutForm.submit()
         })
 
         $(document).click(e => {
