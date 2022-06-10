@@ -233,11 +233,13 @@ header .header-container nav #account-dropdown #account-dropdown-list li {
   font-weight: 500;
   text-align: left;
 }
+header .header-container nav #account-dropdown #account-dropdown-list li form {
+  width: 100%;
+}
 header .header-container nav #account-dropdown #account-dropdown-list li a {
   display: block;
   padding: 5px;
   color: var(--dark-blue-color);
-  width: 198px;
 }
 header .header-container nav #account-dropdown #account-dropdown-list li:hover {
   background-color: #7086B2;
