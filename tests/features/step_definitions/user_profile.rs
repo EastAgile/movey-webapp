@@ -131,6 +131,6 @@ async fn sign_in_with_new_password(world: &mut TestWorld) {
     create_account_button.click().await.unwrap();
     assert_eq!(
         world.driver.current_url().await.unwrap(),
-        "http://localhost:17002/dashboard/"
+        "http://localhost:17002/settings/profile"
     );
 }

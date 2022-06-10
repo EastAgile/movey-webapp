@@ -42,7 +42,7 @@ pub async fn with_token(
             is_anonymous: false,
         })?;
 
-        return request.redirect("/dashboard/");
+        return request.redirect("/settings/profile");
     }
 
     return request.render(200, "accounts/invalid_token.html", Context::new());
@@ -79,7 +79,7 @@ pub async fn callback_github(
                     let user = Account::register_from_github(&oauth_user, &db).await?;
                     Account::update_last_login(user.id, &db).await?;
                     request.set_user(user)?;
-                    request.redirect("/dashboard/")
+                    request.redirect("/settings/profile")
                 }
                 Err(_) => request.redirect("/accounts/register/"),
             }
@@ -98,5 +98,5 @@ pub async fn callback_google(
         is_admin: false,
         is_anonymous: false,
     })?;
-    request.redirect("/dashboard/")
+    request.redirect("/settings/profile")
 }

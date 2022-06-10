@@ -10,6 +10,7 @@ class Header {
     }
 
     init() {
+        this.checkForLoggedInUser()
         this.menu.click(() => {
             if (this.navLinks.css('left') === '0px') {
                 this.navLinks.css('left', '-300px');
@@ -35,5 +36,17 @@ class Header {
                 this.signInButton.css('left', '-300px')
             }
         });
+    }
+
+    checkForLoggedInUser() {
+        $.ajax({
+            method: 'GET',
+            url: '/api/v1/me',
+            success: (data) => {
+                if(data.id) {
+                    // Change account dropdown
+                }
+            }
+        })
     }
 }

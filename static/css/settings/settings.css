@@ -101,10 +101,12 @@
 }
 .form-buttons .discard {
   color: var(--blue-color);
+  cursor: pointer;
 }
 .form-buttons .save {
   background-color: var(--blue-color);
   color: white;
+  cursor: pointer;
 }
 
 .profile-form {

@@ -10,17 +10,16 @@ pub struct SecureToken {
 impl SecureToken {
     pub fn generate() -> NewSecureToken {
         let plaintext = generate_secure_alphanumeric_string(TOKEN_LENGTH);
-        let sha256 = Self::to_formatted_sha256(&plaintext);
+        let sha256 = Self::hash(&plaintext);
         NewSecureToken {
             plaintext,
             inner: Self { sha256 },
         }
     }
 
-    pub fn to_formatted_sha256(plaintext: &String) -> String {
+    pub fn hash(plaintext: &str) -> String {
         let sha256 = Sha256::digest(plaintext.as_bytes());
-        let sha256 = format!("{:x?}", sha256.as_slice());
-        sha256
+        format!("{:x?}", sha256.as_slice())
     }
 }
 
@@ -63,8 +62,8 @@ mod tests {
     }
 
     #[actix_rt::test]
-    async fn secure_token_to_formatted_sha256_works() {
-        let formatted_sha256 = SecureToken::to_formatted_sha256(&"qwerty123456".to_string());
+    async fn secure_token_hash_works() {
+        let formatted_sha256 = SecureToken::hash(&"qwerty123456".to_string());
         assert_eq!(formatted_sha256, "[3a, 57, 45, a0, 5f, 87, dd, ee, 1d, b6, 8b, 21, 7d, c0, 43, bf, a2, 6, d1, c7, aa, a1, dd, a, 7d, d7, 6b, 85, 2a, 73, 35, 97]");
     }
 }

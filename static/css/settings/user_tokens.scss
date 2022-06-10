@@ -1,11 +1,323 @@
-.tokens-banner {
-    background: #F2F2F2;
-    padding: 10px 16px; 
-    width: 1207px;
-    height: 50px;;
-    font-weight: 500;
-    font-size: 20px;
-    margin-top: 60px;
-    margin-bottom: 60px;
+.settings-tokens-container {
+    .tokens-error {
+        color: #EB5757;
+        font-weight: 700;
+    }
+
+    .tokens-banner {
+        background: #F2F2F2;
+        padding: 10px 16px;
+        width: fit-content;
+        font-weight: 500;
+        font-size: 20px;
+        margin: 50px 0;
+        color: var(--dark-blue-color);
+
+        @media screen and (max-width: 640px) {
+            margin: 40px 0 25px;
+        }
+    }
+
+    .tokens-list-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .token-list-title {
+            font-weight: 700;
+            font-size: 36px;
+            line-height: 54px;
+            letter-spacing: -0.02em;
+            color: var(--dark-blue-color);
+        }
+
+        .create-new-token-btn {
+            padding: 15px 55px;
+            font-weight: 700;
+            font-size: 14px;
+            line-height: 18px;
+            color: #fff;
+            background-color: var(--blue-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        @media screen and (max-width: 640px) {
+            .token-list-title {
+                font-size: 24px;
+            }
+
+            .create-new-token-btn {
+                display: none;
+            }
+        }
+    }
+
+    .no-tokens {
+        margin-top: 80px;
+        padding: 82px;
+        text-align: center;
+        font-size: 24px;
+        line-height: 150%;
+        color: var(--gray-color);
+        border: 1px dashed var(--gray-color);
+
+        @media screen and (max-width: 640px) {
+            padding: 50px;
+            margin: 25px 0;
+            font-size: 16px;
+        }
+    }
+
+    .tokens-list {
+        margin: 50px 0 0;
+
+        @media screen and (max-width: 640px) {
+            margin: 25px 0 0;
+        }
+
+        .token-item {
+            border: 1px solid var(--geyser-color);
+            border-radius: 4px;
+            padding: 32px;
+            max-width: 866px;
+            color: var(--dark-blue-color);
+            margin-bottom: 50px;
+
+            &.existing {
+                .new-token-only {
+                    display: none;
+                }
+            }
+
+            .small-only {
+                display: none;
+            }
+
+            .token-info {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+
+                .token-name {
+                    font-weight: 700;
+                    font-size: 24px;
+                    line-height: 40px;
+                    letter-spacing: -0.02em;
+                }
+
+                .token-created-at {
+                    font-size: 16px;
+                    line-height: 30px;
+                    letter-spacing: -0.02em;
+                    color: var(--gray-color);
+                }
+
+                .revoke-token-btn {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 156px;
+                    height: 48px;
+                    font-weight: 700;
+                    font-size: 14px;
+                    line-height: 18px;
+                    color: #EB5757;
+                    background-color: rgba(235, 87, 87, 0.15);
+                    border-radius: 4px;
+                    cursor: pointer;
+                }
+            }
+
+            .token-copy-message {
+                margin-top: 10px;
+                font-size: 24px;
+                line-height: 40px;
+                letter-spacing: -0.02em;
+            }
+
+            .token-content-container {
+                margin-top: 20px;
+                background-color: #F2F2F2;
+                border-radius: 5px;
+                height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                overflow: hidden;
+
+                .token-plaintext {
+                    padding: 0 20px;
+                    font-size: 20px;
+                    line-height: 20px;
+                    letter-spacing: 0.1px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                .copy-token-icon-btn {
+                    width: 50px;
+                    height: 50px;
+                    background-color: var(--blue-color);
+                    background-image: url("/static/resources/token-copy.svg");
+                    background-repeat: no-repeat;
+                    background-size: 20px 20px;
+                    background-position: center;
+                    cursor: pointer;
+                    flex-shrink: 0;
+                }
+            }
+        }
+
+        @media screen and (max-width: 640px) {
+            .token-item {
+                margin-bottom: 25px;
+
+                .small-only {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-top: 20px;
+
+                    .copy-token-btn, .revoke-token-btn {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 156px;
+                        height: 48px;
+                        font-weight: 700;
+                        font-size: 14px;
+                        line-height: 18px;
+                        color: #EB5757;
+                        background-color: rgba(235, 87, 87, 0.15);
+                        border-radius: 4px;
+                        cursor: pointer;
+                    }
+
+                    .copy-token-btn {
+                        color: var(--blue-color);
+                        background-color: #E3F1FB;
+                        margin-right: 14px;
+                    }
+                }
+
+                .token-info {
+                    display: block;
+
+                    .revoke-token-btn {
+                        display: none;
+                    }
+                }
+
+                .token-copy-message {
+                    font-size: 16px;
+                    line-height: 24px;
+                }
+
+                .token-content-container {
+                    .copy-token-icon-btn {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+
+    .create-new-token-mobile-btn {
+        display: none;
+    }
+
+    .token-item-template {
+        display: none;
+    }
+
+    @media screen and (max-width: 640px) {
+        .create-new-token-mobile-btn {
+            padding: 15px 55px;
+            font-weight: 700;
+            font-size: 14px;
+            line-height: 18px;
+            color: #fff;
+            background-color: var(--blue-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 35px;
+        }
+    }
+}
+
+#new_token_modal {
     color: var(--dark-blue-color);
+    padding: 40px;
+
+    @media screen and (max-width: 39.99875em) {
+        top: 50% !important;
+        transform: translateY(-50%);
+        height: unset;
+        min-height: unset;
+    }
+
+    .new-token-title {
+        font-weight: 700;
+        font-size: 36px;
+        line-height: 54px;
+        letter-spacing: -0.02em;
+        margin-bottom: 30px;
+    }
+
+    .new-token-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .new-token-name {
+            height: 48px;
+            border: 1px solid #E5E7EB;
+            box-shadow: 0px 1px 2px rgba(31, 41, 55, 0.08);
+            border-radius: 4px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+
+            input {
+                outline: none;
+                border: none;
+                width: 100%;
+            }
+        }
+
+        .new-token-submit-btn {
+            padding: 15px 40px;
+            font-weight: 700;
+            font-size: 14px;
+            line-height: 18px;
+            color: #fff;
+            background-color: var(--blue-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 20px;
+            flex-shrink: 0;
+        }
+    }
+}
+
+.blink {
+    animation: blinker 0.5s linear 1;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0;
+    }
 }

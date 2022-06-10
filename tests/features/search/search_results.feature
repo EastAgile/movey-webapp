@@ -17,6 +17,5 @@ Feature: View search results
     Examples:
         | option             | field             |
         | 'Name'             | name              |
-        | 'Description'      | description       |
         | 'Most Downloads'   | most_downloads    |
         | 'Newly Added'      | newly_added       |

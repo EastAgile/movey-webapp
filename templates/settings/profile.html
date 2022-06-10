@@ -17,7 +17,7 @@
             <p>Account data</p>
             <form action="/settings/profile" method="POST">
                 <label class="label_title" for="email">Email address</label>
-                <input  class="email disabled" disabled id="email" name="email" placeholder="{{ email }}" type="email">
+                <input  class="email disabled" disabled id="email" name="email" placeholder="{{ account.email }}" type="email">
 
                 <label class="label_title" for="current-password">Current password</label>
                 <input class="current-password" id="current-password" minlength="8" name="current_password"
@@ -37,10 +37,17 @@
                         <div class="connect-logo"></div>
                         <div class="connect-text-group">
                             <div class="connect-name">Github</div>
+                            {% if account.github_login %}
                             <div class="connect-status">Connected</div>
+                            {% else %}
+                            <div class="connect-status">Not Connected</div>
+                            {% endif %}
                         </div>
                     </div>
-                    <div class="connect-button"><a>Disconnect</a></div>
+                    {% if account.github_login %}
+                    {% else %}
+                    <div class="connect-button"><a href="/accounts/oauth">Connect</a></div>
+                    {% endif %}
                 </div>
             </div>
         </div>

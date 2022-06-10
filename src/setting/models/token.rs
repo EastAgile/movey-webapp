@@ -53,7 +53,7 @@ impl ApiToken {
         pool: &DieselPgPool,
     ) -> Result<Account> {
         let connection = pool.get()?;
-        let formatted_sha256 = SecureToken::to_formatted_sha256(&plaintext_token.to_string());
+        let formatted_sha256 = SecureToken::hash(&plaintext_token.to_string());
 
         let matched_token = api_tokens
             .filter(api_tokens::token.eq(formatted_sha256))
@@ -85,10 +85,40 @@ impl ApiToken {
 
     pub async fn get(api_token: &String, pool: &DieselPgPool) -> Result<i32> {
         let connection = pool.get()?;
-        let sha256 = SecureToken::to_formatted_sha256(api_token);
+        let sha256 = SecureToken::hash(api_token);
         let result = api_tokens.filter(api_tokens::token.eq(sha256))
             .select(api_tokens::id).first::<i32>(&connection)?;
         Ok(result)
+    }
+
+    pub async fn get_by_account(owner_id: i32, pool: &DieselPgPool) -> Result<Vec<Self>> {
+        let connection = pool.get()?;
+
+        let result = api_tokens
+            .filter(account_id.eq(owner_id))
+            .order_by(api_tokens::dsl::id.desc())
+            .load::<Self>(&connection)?;
+
+        Ok(result)
+    }
+
+    pub async fn get_by_id(token_id: i32, pool: &DieselPgPool) -> Result<Self> {
+        let connection = pool.get()?;
+
+        let result = api_tokens
+            .filter(api_tokens::dsl::id.eq(token_id))
+            .first::<Self>(&connection)?;
+
+        Ok(result)
+    }
+
+    pub async fn revoke(token_id: i32, pool: &DieselPgPool) -> Result<()> {
+        let connection = pool.get()?;
+
+        diesel::delete(api_tokens.filter(api_tokens::dsl::id.eq(token_id)))
+            .execute(&connection)?;
+
+        Ok(())
     }
 }
 
@@ -108,7 +138,7 @@ mod tests {
     use jelly::error::Error;
     use jelly::forms::{EmailField, PasswordField};
     use std::env;
-    
+
     async fn setup_user() -> Account {
         let form = NewAccountForm {
             email: EmailField {
@@ -194,5 +224,21 @@ mod tests {
         } else {
             panic!("Associated account not found!")
         }
+    }
+
+    #[actix_rt::test]
+    async fn api_token_get_by_account_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+
+        let account = setup_user().await;
+
+        ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
+        ApiToken::insert(&account, "name2", &DB_POOL).await.unwrap();
+
+        let results = ApiToken::get_by_account(account.id, &DB_POOL).await.unwrap();
+        assert_eq!(results.len(), 2);
+        assert_eq!(results[0].name, "name2");
+        assert_eq!(results[1].name, "name1");
     }
 }
