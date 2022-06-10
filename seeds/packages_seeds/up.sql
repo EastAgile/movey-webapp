@@ -82,6 +82,12 @@ INSERT INTO package_versions(package_id, version, readme_content, license, rev, 
     VALUES (1, '1.0.0', 'Read me plz!', 'MIT', '01c84198819310620f2417413c3c800df8292ae5', 2, 100);
 
 INSERT INTO package_versions(package_id, version, readme_content, license, rev, total_files,total_size)
+    VALUES (1, '1.0.1', 'Read me plz!', 'MIT', '01c84198819310620f2417413c3c800df8292ae5', 2, 100);
+
+INSERT INTO package_versions(package_id, version, readme_content, license, rev, total_files,total_size)
+    VALUES (1, '1.0.2', 'Read me plz!', 'MIT', '01c84198819310620f2417413c3c800df8292ae5', 2, 100);
+
+INSERT INTO package_versions(package_id, version, readme_content, license, rev, total_files,total_size)
     VALUES (2, '1.1.0', 'Read me plz! Updated', 'Apache', '01c84198819310620f2417413c3c800df82xxxx', 4 ,200);
 
 INSERT INTO package_versions(package_id, version, readme_content, license, rev, total_files,total_size)
