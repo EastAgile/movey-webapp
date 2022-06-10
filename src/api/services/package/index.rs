@@ -17,7 +17,7 @@ pub struct PackageRequest {
     rev: String,
     total_files: i32,
     total_size: i32,
-    api_token: Option<String>
+    token: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -31,22 +31,19 @@ pub async fn post_package(
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     let service = GithubService::new();
-    let account_id: Option<i32> = if let Some(token) = &res.api_token {
-        Some(ApiToken::associated_account(&token, &db).await?.id)
-    } else {
-        None
-    };
+    if let Err(_) = ApiToken::get(&res.token, db).await {
+        return Ok(HttpResponse::BadRequest().body("Invalid Api Token"));
+    }
 
-    // if let Err(_) = ApiToken::get(&res.token, db).await {
-    //     return Ok(HttpResponse::BadRequest().body("Invalid Api Token"));
-    // }
+    let account_id = ApiToken::associated_account(&res.token, &db).await?.id;
+
     Package::create(
         &res.github_repo_url,
         &res.description,
         &res.rev,
         res.total_files,
         res.total_size,
-        account_id,
+        Some(account_id),
         &service,
         &db,
     )

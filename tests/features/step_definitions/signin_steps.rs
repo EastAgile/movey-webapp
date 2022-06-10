@@ -85,10 +85,10 @@ pub async fn fill_in_sign_in_form(world: &mut TestWorld) {
         .find_element(By::Name("password"))
         .await.unwrap();
     password_field.send_keys("So$trongpas0word!").await.unwrap();
-    let create_account_button = world.driver
+    let login_button = world.driver
         .find_element(By::ClassName("login-btn"))
         .await.unwrap();
-    create_account_button.click().await.unwrap();
+    login_button.click().await.unwrap();
 }
 
 #[when("I fill in wrong email and submit the form on the sign in page")]
