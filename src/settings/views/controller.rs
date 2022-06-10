@@ -114,6 +114,7 @@ pub async fn show_downloads(
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
         let download = Package::get_downloads(user.id,&db).await;
+        let download = download.unwrap_or_else(|| 0);
 
         request.render(200, "settings/downloads.html", {
             let mut ctx = Context::new();
