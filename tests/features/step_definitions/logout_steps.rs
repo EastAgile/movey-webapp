@@ -5,10 +5,15 @@ use super::super::world::TestWorld;
 
 #[when("I click on the Log out button")]
 async fn click_log_out(world: &mut TestWorld) {
-    let log_out = world.driver
-        .find_element(By::XPath("/html/body/form/button"))
+    let account_dropdown = world.driver
+        .find_element(By::Id("account-dropdown-toggle"))
         .await.unwrap();
-    log_out.click().await.unwrap();
+    account_dropdown.click().await.unwrap();
+
+    let logout_link = world.driver
+        .find_element(By::ClassName("logout-form"))
+        .await.unwrap();
+        logout_link.click().await.unwrap();
 }
 
 #[then("I should see the home page")]
