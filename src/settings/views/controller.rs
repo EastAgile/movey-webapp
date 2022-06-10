@@ -39,7 +39,7 @@ pub async fn change_password(
             let mut context = Context::new();
             context.insert("form", &form);
             context.insert("is_ok", &false);
-            context.insert("email", &account.email);
+            context.insert("account", &account);
             context.insert("profile_tab","profile");
             context
         });
@@ -83,7 +83,7 @@ pub async fn change_password(
     request.render(200, "settings/profile.html", {
         let mut context = Context::new();
         context.insert("error", message);
-        context.insert("email", &account.email);
+        context.insert("account", &account);
         context.insert("connect-status", &account.email);
         context.insert("profile_tab","profile");
         context

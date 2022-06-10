@@ -51,6 +51,7 @@ impl Server {
     /// generally want.
     pub async fn run(self) -> std::io::Result<dev::Server> {
         dotenv::dotenv().ok();
+        #[cfg(not(feature = "test"))]
         pretty_env_logger::init();
         Email::check_conf();
 

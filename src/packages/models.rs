@@ -195,18 +195,21 @@ impl Package {
             }
         };
 
-        if let Err(_) = record.get_version(&github_data.version, &pool).await {
-            PackageVersion::create(
-                record.id,
-                github_data.version,
-                github_data.readme_content,
-                version_rev.to_string(),
-                version_files,
-                version_size,
-                pool,
-            )
-            .await
-            .unwrap();
+        // Only creates new version if same user with package owner
+        if (record.account_id == account_id_) {
+            if let Err(_) = record.get_version(&github_data.version, &pool).await {
+                PackageVersion::create(
+                    record.id,
+                    github_data.version,
+                    github_data.readme_content,
+                    version_rev.to_string(),
+                    version_files,
+                    version_size,
+                    pool,
+                )
+                .await
+                .unwrap();
+            }
         }
 
         Ok(record.id)
@@ -246,7 +249,7 @@ impl Package {
     pub async fn get_downloads(owner_id: i32, pool: &DieselPgPool) -> Option<i64>{
         let connection = pool.get().unwrap();
         packages
-            .select(sum(packages::total_downloads_count))   
+            .select(sum(packages::total_downloads_count))
             .filter(account_id.eq(owner_id))
             .first::<Option<i64>>(&connection).unwrap()
     }
@@ -673,7 +676,7 @@ mod tests {
             &"1".to_string(),
             2,
             100,
-            None,
+            Some(1),
             &mock_github_service,
             &DB_POOL,
         )
@@ -697,6 +700,39 @@ mod tests {
                 panic!("readme content is wrong")
             }
         }
+
+        // Asserts that no new version is created with different account id
+        let mut mock_github_service_2 = GithubService::new();
+        mock_github_service_2
+            .expect_fetch_repo_data()
+            .with(eq("repo_url".to_string()))
+            .returning(|_| {
+                Ok(GithubRepoData {
+                    name: "name".to_string(),
+                    version: "version_2".to_string(),
+                    readme_content: "readme_content".to_string(),
+                })
+            });
+
+        let uid = Package::create(
+                &"repo_url".to_string(),
+                &"package_description".to_string(),
+                &"1".to_string(),
+                2,
+                100,
+                Some(2),
+                &mock_github_service_2,
+                &DB_POOL,
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(package.id, uid);
+        let versions = PackageVersion::from_package_id(uid, &PackageVersionSort::Latest, &DB_POOL)
+            .await
+            .unwrap();
+
+        assert_eq!(versions.len(), 1);
     }
 
     #[actix_rt::test]

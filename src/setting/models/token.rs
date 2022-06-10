@@ -241,4 +241,16 @@ mod tests {
         assert_eq!(results[0].name, "name2");
         assert_eq!(results[1].name, "name1");
     }
+
+    #[actix_rt::test]
+    async fn get_token_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+
+        let account = setup_user().await;
+
+        let new_api_token = ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
+        let token_id = ApiToken::get(&new_api_token.plaintext, &DB_POOL).await.unwrap();
+        assert_eq!(token_id, 1);
+    }
 }

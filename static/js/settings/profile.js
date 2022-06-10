@@ -5,6 +5,7 @@ class Profile {
     this.passwordConfirm = document.getElementById('password-confirm')
     this.saveButton = document.getElementById('save-btn')
     this.discardButton = document.getElementById('discard-btn')
+    this.form = $('.profile-form form')
     this.init()
   }
 
@@ -26,5 +27,8 @@ class Profile {
       this.passwordConfirm.value = ''
     })
 
+    $(this.saveButton).on('click', () => {
+      this.form.submit()
+    })
   }
 }

@@ -48,7 +48,7 @@ async fn signed_in_with_remember_me(world: &mut TestWorld) {
 
     let email_field = world.driver.find_element(By::Name("email")).await.unwrap();
     email_field.send_keys("email@host.com").await.unwrap();
-    
+
     let password_field = world.driver
         .find_element(By::Name("password"))
         .await.unwrap();
@@ -85,10 +85,10 @@ pub async fn fill_in_sign_in_form(world: &mut TestWorld) {
         .find_element(By::Name("password"))
         .await.unwrap();
     password_field.send_keys("So$trongpas0word!").await.unwrap();
-    let create_account_button = world.driver
+    let login_button = world.driver
         .find_element(By::ClassName("login-btn"))
         .await.unwrap();
-    create_account_button.click().await.unwrap();
+    login_button.click().await.unwrap();
 }
 
 #[when("I fill in wrong email and submit the form on the sign in page")]
@@ -161,7 +161,7 @@ async fn visit_sign_in_page(world: &mut TestWorld) {
 #[when("I access the Dashboard page")]
 async fn visit_dashboard_page(world: &mut TestWorld) {
     world.driver
-        .get("http://localhost:17002/dashboard/")
+        .get("http://localhost:17002/accounts/login/")
         .await.unwrap()
 }
 
@@ -211,16 +211,6 @@ async fn signed_in(world: &mut TestWorld) {
         world.driver.current_url().await.unwrap(),
         "http://localhost:17002/settings/profile"
     );
-
-    let welcome = world.driver
-        .find_element(By::XPath("/html/body/div/p"))
-        .await.unwrap();
-    let welcome_text = welcome.text().await.unwrap();
-    assert!(welcome_text.contains("Welcome back"));
-
-    world.driver
-        .find_element(By::XPath("/html/body/form"))
-        .await.unwrap();
 }
 
 #[then("I should be on the Dashboard page")]
