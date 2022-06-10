@@ -175,8 +175,8 @@ impl Package {
     ) -> Result<i32, Error> {
         let github_data = service.fetch_repo_data(&repo_url).unwrap();
 
-        Package::create_util(repo_url, package_description, version_rev,
-                             version_files, version_size, github_data, pool).await
+        Package::create_util(repo_url, package_description, version_rev, version_files,
+                             version_size, account_id_, github_data, pool).await
     }
 
     pub async fn create_util(
@@ -185,7 +185,8 @@ impl Package {
         version_rev: &str,
         version_files: i32,
         version_size: i32,
-        github_data: crate::github_service::GithubRepoData,
+        account_id_: Option<i32>,
+        github_data: GithubRepoData,
         pool: &DieselPgPool,
     ) -> Result<i32, Error> {
         let connection = pool.get()?;
@@ -209,7 +210,7 @@ impl Package {
         };
 
         // Only creates new version if same user with package owner
-        if (record.account_id == account_id_) {
+        if record.account_id == account_id_ {
             if let Err(_) = record.get_version(&github_data.version, &pool).await {
                 PackageVersion::create(
                     record.id,
@@ -642,7 +643,6 @@ mod tests {
         let _ctx = DatabaseTestContext::new();
         setup().await.unwrap();
         let pool = &DB_POOL;
-        let search_query = "first";
         let (search_result, total_count, total_pages) = Package::all_packages(
             &PackageSortField::Name,
             &PackageSortOrder::Desc,

@@ -3,6 +3,7 @@
 #[cfg(not(feature = "test"))]
 use std::env;
 use std::io;
+#[cfg(not(feature = "test"))]
 use std::sync::Mutex;
 use jelly::actix_web::dev;
 
