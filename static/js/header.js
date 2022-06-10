@@ -24,6 +24,7 @@ class Header {
         this.accountDropdownToggle.click(() => {
             if (this.accountDropdownList.css("display") === "none") {
                 this.accountDropdownList.css('display', 'flex')
+                this.accountDropdownList.css('justify-content', 'flex-start')
             } else {
                 this.accountDropdownList.css('display', 'none')
             }
@@ -44,7 +45,11 @@ class Header {
             url: '/api/v1/me',
             success: (data) => {
                 if(data.id) {
-                    // Change account dropdown
+                   $(".header-container .sign-in-li").addClass('hide');
+                   $(".header-container .sign-up-li").addClass('hide');
+                   $(".header-container #account-dropdown").removeClass('hide');
+                   const char = (data.name != '' ? data.name[0] : data.email[0]);
+                   $(".header-container #account-dropdown #account-icon").text(char);
                 }
             }
         })
