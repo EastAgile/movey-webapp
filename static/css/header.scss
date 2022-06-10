@@ -245,8 +245,10 @@ header {
             font-weight: 500;
             text-align: left;
             a {
+              display: block;
               padding: 5px;
               color: var(--dark-blue-color);
+              width: 198px;
             }
           }
           
