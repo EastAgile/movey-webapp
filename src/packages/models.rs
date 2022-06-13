@@ -1,33 +1,42 @@
 use crate::accounts::Account;
 
-use diesel::dsl::{count,sum};
+use diesel::dsl::{count, sum};
 use diesel::prelude::*;
 use diesel::sql_types::{Integer, Text, Timestamptz};
-use diesel::{Associations, AsChangeset, Identifiable, Insertable, Queryable};
+use diesel::{AsChangeset, Associations, Identifiable, Insertable, Queryable};
 
 use diesel_full_text_search::{plainto_tsquery, TsVectorExtensions};
 
+use diesel::result::Error::NotFound;
 use jelly::chrono::{DateTime, NaiveDateTime, Utc};
 use jelly::error::Error;
 use jelly::serde::{Deserialize, Serialize};
 use jelly::DieselPgPool;
-use diesel::result::Error::NotFound;
 
-use mockall_double::double;
 use crate::github_service::GithubRepoData;
+use mockall_double::double;
 
 // use super::forms::{LoginForm, NewAccountForm};
 #[double]
 use crate::github_service::GithubService;
-use crate::utils::paginate::{LoadPaginated};
 use crate::schema::package_versions;
 use crate::schema::package_versions::dsl::*;
 use crate::schema::packages;
 use crate::schema::packages::dsl::*;
+use crate::utils::paginate::LoadPaginated;
 
 pub const PACKAGES_PER_PAGE: i64 = 10;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset, QueryableByName, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Queryable,
+    Identifiable,
+    AsChangeset,
+    QueryableByName,
+    Associations,
+)]
 #[table_name = "packages"]
 #[belongs_to(Account)]
 pub struct Package {
@@ -38,7 +47,7 @@ pub struct Package {
     pub total_downloads_count: i32,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub account_id: Option<i32>
+    pub account_id: Option<i32>,
 }
 
 type PackageColumns = (
@@ -49,7 +58,7 @@ type PackageColumns = (
     packages::total_downloads_count,
     packages::created_at,
     packages::updated_at,
-    packages::account_id
+    packages::account_id,
 );
 
 const PACKAGE_COLUMNS: PackageColumns = (
@@ -60,7 +69,7 @@ const PACKAGE_COLUMNS: PackageColumns = (
     packages::total_downloads_count,
     packages::created_at,
     packages::updated_at,
-    packages::account_id
+    packages::account_id,
 );
 
 #[derive(Debug, Serialize, Deserialize, QueryableByName, Queryable)]
@@ -87,7 +96,7 @@ pub struct NewPackage {
     pub name: String,
     pub description: String,
     pub repository_url: String,
-    pub account_id: Option<i32>
+    pub account_id: Option<i32>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -175,11 +184,20 @@ impl Package {
     ) -> Result<i32, Error> {
         let github_data = service.fetch_repo_data(&repo_url).unwrap();
 
-        Package::create_util(repo_url, package_description, version_rev, version_files,
-                             version_size, account_id_, github_data, pool).await
+        Package::create_from_crawled_data(
+            repo_url,
+            package_description,
+            version_rev,
+            version_files,
+            version_size,
+            account_id_,
+            github_data,
+            pool,
+        )
+        .await
     }
 
-    pub async fn create_util(
+    pub async fn create_from_crawled_data(
         repo_url: &str,
         package_description: &str,
         version_rev: &str,
@@ -197,7 +215,7 @@ impl Package {
                     name: github_data.name,
                     description: package_description.to_string(),
                     repository_url: repo_url.to_string(),
-                    account_id: account_id_
+                    account_id: account_id_,
                 };
 
                 let record = diesel::insert_into(packages::table)
@@ -231,7 +249,10 @@ impl Package {
 
     pub async fn get(uid: i32, pool: &DieselPgPool) -> Result<Self, Error> {
         let connection = pool.get()?;
-        let result = packages.find(uid).select(PACKAGE_COLUMNS).first::<Package>(&connection)?;
+        let result = packages
+            .find(uid)
+            .select(PACKAGE_COLUMNS)
+            .first::<Package>(&connection)?;
 
         Ok(result)
     }
@@ -247,7 +268,10 @@ impl Package {
         Ok(result)
     }
 
-    pub async fn get_by_account(owner_id: i32, pool: &DieselPgPool) -> Result<Vec<PackageSearchResult>, Error> {
+    pub async fn get_by_account(
+        owner_id: i32,
+        pool: &DieselPgPool,
+    ) -> Result<Vec<PackageSearchResult>, Error> {
         let connection = pool.get()?;
 
         let result = packages
@@ -260,12 +284,13 @@ impl Package {
         Ok(result)
     }
 
-    pub async fn get_downloads(owner_id: i32, pool: &DieselPgPool) -> Option<i64>{
+    pub async fn get_downloads(owner_id: i32, pool: &DieselPgPool) -> Option<i64> {
         let connection = pool.get().unwrap();
         packages
             .select(sum(packages::total_downloads_count))
             .filter(account_id.eq(owner_id))
-            .first::<Option<i64>>(&connection).unwrap()
+            .first::<Option<i64>>(&connection)
+            .unwrap()
     }
 
     pub async fn get_version(
@@ -323,9 +348,12 @@ impl Package {
                             -1,
                             -1,
                             pool,
-                        ).await?;
+                        )
+                        .await?;
                     }
-                    Err(e) => { return Err(Error::Database(e)); }
+                    Err(e) => {
+                        return Err(Error::Database(e));
+                    }
                 };
 
                 package_id_
@@ -333,15 +361,20 @@ impl Package {
             Err(NotFound) => {
                 // Package is not found, creating shadow package and package version
                 Package::create(
-                    &https_url, &String::from(""), &rev_,
+                    &https_url,
+                    &String::from(""),
+                    &rev_,
                     -1,
                     -1,
                     None,
                     service,
-                    &pool)
-                    .await?
+                    &pool,
+                )
+                .await?
             }
-            Err(e) => { return Err(Error::Database(e)); }
+            Err(e) => {
+                return Err(Error::Database(e));
+            }
         };
 
         let mut changed_rows = diesel::update(package_versions)
@@ -361,7 +394,6 @@ impl Package {
         search_query: &str,
         pool: &DieselPgPool,
     ) -> Result<Vec<(String, String, String)>, Error> {
-
         let connection = pool.get()?;
         let result: Vec<(String, String, String)> = packages::table
             .inner_join(package_versions::table)
@@ -370,7 +402,7 @@ impl Package {
             .select((packages::name, packages::description, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
             .load::<(String, String, String)>(&connection)
             .unwrap();
-        
+
         Ok(result)
     }
 
@@ -496,11 +528,9 @@ impl PackageVersion {
             PackageVersionSort::Oldest => versions
                 .order_by(package_versions::dsl::id.asc())
                 .load::<PackageVersion>(&connection)?,
-            PackageVersionSort::MostDownloads => {
-                versions
-                    .order_by(package_versions::dsl::downloads_count.desc())
-                    .load::<PackageVersion>(&connection)?
-            }
+            PackageVersionSort::MostDownloads => versions
+                .order_by(package_versions::dsl::downloads_count.desc())
+                .load::<PackageVersion>(&connection)?,
         };
 
         Ok(records)
@@ -513,7 +543,7 @@ mod tests {
     use crate::test::{DatabaseTestContext, DB_POOL};
     use mockall::predicate::*;
 
-    use crate::github_service::GithubRepoData;
+    use crate::github_service::{GithubRepoData, GithubRepoInfo};
 
     async fn setup() -> Result<(), Error> {
         let pool = &DB_POOL;
@@ -528,7 +558,7 @@ mod tests {
             0,
             &pool,
         )
-            .await?;
+        .await?;
         Package::create_test_package(
             &"The first Diva".to_string(),
             &"".to_string(),
@@ -540,7 +570,7 @@ mod tests {
             0,
             &pool,
         )
-            .await?;
+        .await?;
         Package::create_test_package(
             &"Charles Diya".to_string(),
             &"".to_string(),
@@ -552,7 +582,7 @@ mod tests {
             0,
             &pool,
         )
-            .await?;
+        .await?;
         Ok(())
     }
 
@@ -571,8 +601,8 @@ mod tests {
             None,
             pool,
         )
-            .await
-            .unwrap();
+        .await
+        .unwrap();
         assert_eq!(total_count, 1);
         assert_eq!(total_pages, 1);
         assert_eq!(search_result[0].name, "The first package");
@@ -593,8 +623,8 @@ mod tests {
             None,
             pool,
         )
-            .await
-            .unwrap();
+        .await
+        .unwrap();
         assert_eq!(total_count, 1);
         assert_eq!(total_pages, 1);
         assert_eq!(search_result[0].name, "The first package");
@@ -615,8 +645,8 @@ mod tests {
             Some(1),
             pool,
         )
-            .await
-            .unwrap();
+        .await
+        .unwrap();
         assert_eq!(total_count, 2);
         assert_eq!(total_pages, 2);
 
@@ -631,8 +661,8 @@ mod tests {
             Some(1),
             pool,
         )
-            .await
-            .unwrap();
+        .await
+        .unwrap();
         assert_eq!(search_result.len(), 1);
         assert_eq!(search_result[0].name, "The first Diva");
     }
@@ -650,8 +680,8 @@ mod tests {
             Some(2),
             pool,
         )
-            .await
-            .unwrap();
+        .await
+        .unwrap();
         assert_eq!(total_count, 3);
         assert_eq!(total_pages, 2);
 
@@ -666,8 +696,8 @@ mod tests {
             Some(2),
             pool,
         )
-            .await
-            .unwrap();
+        .await
+        .unwrap();
         assert_eq!(search_result.len(), 1);
         assert_eq!(search_result[0].name, "Charles Diya");
     }
@@ -686,6 +716,9 @@ mod tests {
                     name: "name".to_string(),
                     version: "version".to_string(),
                     readme_content: "readme_content".to_string(),
+                    info: GithubRepoInfo { description: None, size: 0 },
+                    url: "".to_string(),
+                    rev: "".to_string()
                 })
             });
 
@@ -699,8 +732,8 @@ mod tests {
             &mock_github_service,
             &DB_POOL,
         )
-            .await
-            .unwrap();
+        .await
+        .unwrap();
 
         let package = Package::get(uid, &DB_POOL).await.unwrap();
         assert_eq!(package.name, "name");
@@ -730,21 +763,24 @@ mod tests {
                     name: "name".to_string(),
                     version: "version_2".to_string(),
                     readme_content: "readme_content".to_string(),
+                    info: GithubRepoInfo { description: None, size: 0 },
+                    url: "".to_string(),
+                    rev: "".to_string()
                 })
             });
 
         let uid = Package::create(
-                &"repo_url".to_string(),
-                &"package_description".to_string(),
-                &"1".to_string(),
-                2,
-                100,
-                Some(2),
-                &mock_github_service_2,
-                &DB_POOL,
-            )
-            .await
-            .unwrap();
+            &"repo_url".to_string(),
+            &"package_description".to_string(),
+            &"1".to_string(),
+            2,
+            100,
+            Some(2),
+            &mock_github_service_2,
+            &DB_POOL,
+        )
+        .await
+        .unwrap();
 
         assert_eq!(package.id, uid);
         let versions = PackageVersion::from_package_id(uid, &PackageVersionSort::Latest, &DB_POOL)
@@ -765,6 +801,9 @@ mod tests {
                 name: "name".to_string(),
                 version: "first_version".to_string(),
                 readme_content: "first_readme_content".to_string(),
+                info: GithubRepoInfo { description: None, size: 0 },
+                url: "".to_string(),
+                rev: "".to_string()
             })
         });
 
@@ -778,8 +817,8 @@ mod tests {
             &mock_github_service,
             &DB_POOL,
         )
-            .await
-            .unwrap();
+        .await
+        .unwrap();
 
         PackageVersion::create(
             uid,
@@ -790,8 +829,8 @@ mod tests {
             100,
             &DB_POOL,
         )
-            .await
-            .unwrap();
+        .await
+        .unwrap();
 
         let versions = PackageVersion::from_package_id(uid, &PackageVersionSort::Latest, &DB_POOL)
             .await
@@ -812,6 +851,9 @@ mod tests {
                 name: "name".to_string(),
                 version: "first_version".to_string(),
                 readme_content: "first_readme_content".to_string(),
+                info: GithubRepoInfo { description: None, size: 0 },
+                url: "".to_string(),
+                rev: "".to_string()
             })
         });
 
@@ -825,8 +867,8 @@ mod tests {
             &mock_github_service,
             &DB_POOL,
         )
-            .await
-            .unwrap();
+        .await
+        .unwrap();
 
         PackageVersion::create(
             uid,
@@ -837,8 +879,8 @@ mod tests {
             3,
             &DB_POOL,
         )
-            .await
-            .unwrap();
+        .await
+        .unwrap();
 
         let versions = PackageVersion::from_package_id(uid, &PackageVersionSort::Oldest, &DB_POOL)
             .await
@@ -859,6 +901,9 @@ mod tests {
                 name: "name".to_string(),
                 version: "first_version".to_string(),
                 readme_content: "first_readme_content".to_string(),
+                info: GithubRepoInfo { description: None, size: 0 },
+                url: "".to_string(),
+                rev: "".to_string()
             })
         });
 
@@ -872,8 +917,8 @@ mod tests {
             &mock_github_service,
             &DB_POOL,
         )
-            .await
-            .unwrap();
+        .await
+        .unwrap();
 
         let mut version_2 = PackageVersion::create(
             uid,
@@ -884,8 +929,8 @@ mod tests {
             3,
             &DB_POOL,
         )
-            .await
-            .unwrap();
+        .await
+        .unwrap();
         version_2.downloads_count = 5;
         _ = &version_2
             .save_changes::<PackageVersion>(&*(DB_POOL.get().unwrap()))
@@ -922,8 +967,8 @@ mod tests {
             100,
             &DB_POOL,
         )
-            .await
-            .unwrap();
+        .await
+        .unwrap();
         assert_eq!(PackageVersion::count(&DB_POOL).await, 4);
     }
 
@@ -944,28 +989,40 @@ mod tests {
             20,
             100,
             &DB_POOL,
-        ).await.unwrap();
+        )
+        .await
+        .unwrap();
 
-        let package_versions_before = PackageVersion
-        ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
-            .await.unwrap();
+        let package_versions_before =
+            PackageVersion::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
+                .await
+                .unwrap();
         let package_version_before = package_versions_before.first().unwrap();
         assert_eq!(package_version_before.downloads_count, 0);
 
         let mut mock_github_service = GithubService::new();
 
-        mock_github_service.expect_fetch_repo_data()
-            .returning(|_| Ok(GithubRepoData {
+        mock_github_service.expect_fetch_repo_data().returning(|_| {
+            Ok(GithubRepoData {
                 name: "name".to_string(),
                 version: "first_version".to_string(),
                 readme_content: "first_readme_content".to_string(),
-            }));
+                info: GithubRepoInfo { description: None, size: 0 },
+                url: "".to_string(),
+                rev: "".to_string()
+            })
+        });
 
-        Package::increase_download_count(url, rev_, &mock_github_service, &DB_POOL).await.unwrap();
-        Package::increase_download_count(url, rev_, &mock_github_service, &DB_POOL).await.unwrap();
-        let package_versions_after = PackageVersion
-        ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
-            .await.unwrap();
+        Package::increase_download_count(url, rev_, &mock_github_service, &DB_POOL)
+            .await
+            .unwrap();
+        Package::increase_download_count(url, rev_, &mock_github_service, &DB_POOL)
+            .await
+            .unwrap();
+        let package_versions_after =
+            PackageVersion::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
+                .await
+                .unwrap();
         let package_version_after = package_versions_after.first().unwrap();
         assert_eq!(package_version_after.downloads_count, 2);
 
@@ -973,10 +1030,13 @@ mod tests {
             &"git@github.com:eadungn/taohe.git".to_string(),
             rev_,
             &mock_github_service,
-            &DB_POOL).await;
-        let package_versions_after = PackageVersion
-        ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
-            .await.unwrap();
+            &DB_POOL,
+        )
+        .await;
+        let package_versions_after =
+            PackageVersion::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
+                .await
+                .unwrap();
         let package_version_after = package_versions_after.first().unwrap();
         assert_eq!(package_version_after.downloads_count, 3);
     }
@@ -990,12 +1050,16 @@ mod tests {
         let rev_ = &"30d4792b29330cf701af04b493a38a82102ed4fd".to_string();
 
         let mut mock_github_service = GithubService::new();
-        mock_github_service.expect_fetch_repo_data()
-            .returning(|_| Ok(GithubRepoData {
+        mock_github_service.expect_fetch_repo_data().returning(|_| {
+            Ok(GithubRepoData {
                 name: "name".to_string(),
                 version: "first_version".to_string(),
                 readme_content: "first_readme_content".to_string(),
-            }));
+                info: GithubRepoInfo { description: None, size: 0 },
+                url: "".to_string(),
+                rev: "".to_string()
+            })
+        });
 
         let rev_not_existed = package_versions
             .filter(rev.eq(rev_))
@@ -1015,8 +1079,12 @@ mod tests {
         assert_eq!(package_before, 0);
         assert_eq!(package_version_before, 0);
 
-        Package::increase_download_count(url, rev_, &mock_github_service, &DB_POOL).await.unwrap();
-        Package::increase_download_count(url, rev_, &mock_github_service, &DB_POOL).await.unwrap();
+        Package::increase_download_count(url, rev_, &mock_github_service, &DB_POOL)
+            .await
+            .unwrap();
+        Package::increase_download_count(url, rev_, &mock_github_service, &DB_POOL)
+            .await
+            .unwrap();
 
         let package_after = packages
             .select(diesel::dsl::count(packages::id))
@@ -1046,58 +1114,89 @@ mod tests {
         let rev1 = "30d4792b29330cf701af04b493a38a82102ed4fd".to_string();
         let rev2 = "fe66d6c60a3765c322edbcfa9b63650593971a28".to_string();
         let package_id_ = Package::create_test_package(
-            &"Test package".to_string(), &url,
+            &"Test package".to_string(),
+            &url,
             &"".to_string(),
             &"".to_string(),
             &"".to_string(),
             &rev1,
-            20, 100,
+            20,
+            100,
             &DB_POOL,
-        ).await.unwrap();
+        )
+        .await
+        .unwrap();
         PackageVersion::create(
-            package_id_, String::from(""), String::from(""),
-            rev2.clone(), 40, 200, &DB_POOL,
-        ).await.unwrap();
+            package_id_,
+            String::from(""),
+            String::from(""),
+            rev2.clone(),
+            40,
+            200,
+            &DB_POOL,
+        )
+        .await
+        .unwrap();
 
         let mut mock_github_service = GithubService::new();
 
-        mock_github_service.expect_fetch_repo_data()
-            .returning(|_| Ok(GithubRepoData {
+        mock_github_service.expect_fetch_repo_data().returning(|_| {
+            Ok(GithubRepoData {
                 name: "name".to_string(),
                 version: "first_version".to_string(),
                 readme_content: "first_readme_content".to_string(),
-            }));
+                info: GithubRepoInfo { description: None, size: 0 },
+                url: "".to_string(),
+                rev: "".to_string()
+            })
+        });
 
-        let package_versions_before = PackageVersion
-        ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
-            .await.unwrap();
+        let package_versions_before =
+            PackageVersion::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
+                .await
+                .unwrap();
         for package_version_before in package_versions_before {
             assert_eq!(package_version_before.downloads_count, 0);
         }
-        Package::increase_download_count(&url, &rev1, &mock_github_service, &DB_POOL).await.unwrap();
-        Package::increase_download_count(&url, &rev2, &mock_github_service, &DB_POOL).await.unwrap();
-        let package_versions_after = PackageVersion
-        ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
-            .await.unwrap();
+        Package::increase_download_count(&url, &rev1, &mock_github_service, &DB_POOL)
+            .await
+            .unwrap();
+        Package::increase_download_count(&url, &rev2, &mock_github_service, &DB_POOL)
+            .await
+            .unwrap();
+        let package_versions_after =
+            PackageVersion::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
+                .await
+                .unwrap();
         for package_version_after in package_versions_after {
             assert_eq!(package_version_after.downloads_count, 1);
         }
-        let package_total_downloads = Package::get(package_id_, &DB_POOL).await.unwrap().total_downloads_count;
+        let package_total_downloads = Package::get(package_id_, &DB_POOL)
+            .await
+            .unwrap()
+            .total_downloads_count;
         assert_eq!(package_total_downloads, 2);
 
         Package::increase_download_count(
             &"git@github.com:eadungn/taohe.git".to_string(),
             &rev2,
             &mock_github_service,
-            &DB_POOL).await.unwrap();
-        let package_versions_after = PackageVersion
-        ::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
-            .await.unwrap();
+            &DB_POOL,
+        )
+        .await
+        .unwrap();
+        let package_versions_after =
+            PackageVersion::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
+                .await
+                .unwrap();
         let first_package_version_after = package_versions_after.first().unwrap();
         assert_eq!(first_package_version_after.downloads_count, 2);
         let second_package_version_after = package_versions_after.last().unwrap();
         assert_eq!(second_package_version_after.downloads_count, 1);
-        let package_total_downloads = Package::get(1, &DB_POOL).await.unwrap().total_downloads_count;
+        let package_total_downloads = Package::get(1, &DB_POOL)
+            .await
+            .unwrap()
+            .total_downloads_count;
         assert_eq!(package_total_downloads, 3);
     }
 }
@@ -1132,7 +1231,7 @@ impl Package {
             name: package_name.to_string(),
             description: package_description.to_string(),
             repository_url: repo_url.to_string(),
-            account_id: None
+            account_id: None,
         };
 
         let record = diesel::insert_into(packages::table)
@@ -1149,8 +1248,8 @@ impl Package {
             version_size,
             pool,
         )
-            .await
-            .unwrap();
+        .await
+        .unwrap();
         Ok(record.id)
     }
 
@@ -1184,8 +1283,8 @@ impl Package {
             500,
             pool,
         )
-            .await
-            .unwrap();
+        .await
+        .unwrap();
 
         Ok(record.id)
     }

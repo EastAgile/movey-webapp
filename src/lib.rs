@@ -47,13 +47,14 @@ pub async fn main() -> io::Result<()> {
         ..Default::default()
     }));
     let (server, pool) = start_server().await?;
-    let gh_crawler = jobs::GithubCrawler {
-        repo_urls: vec![],
-        repos_data: Mutex::new(vec![]),
-        found_any_repos: false,
-        pool,
-    };
-    gh_crawler.run().await;
+    actix_rt::spawn(async {
+        let gh_crawler = jobs::GithubCrawler {
+            repo_urls: vec![],
+            repos_data: Mutex::new(vec![]),
+            pool,
+        };
+        gh_crawler.run().await;
+    });
     server.await
 }
 

@@ -25,7 +25,7 @@ jelly = { path = "jelly", features = ["email-local"] }
 lazy_static = "1.4.0"
 log = "*"
 mockall_double = "0.1.0"
-reqwest = { version = "0.11", features = ["blocking", "json"] }
+reqwest = { version = "0.11", features = ["blocking", "json", "multipart"] }
 sentry = "0.26.0"
 sentry-actix = "0.26.0"
 serde = { version = "1" }

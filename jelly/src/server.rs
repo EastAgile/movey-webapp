@@ -139,6 +139,6 @@ impl Server {
         .bind((bind, port))?
         .run();
 
-        Ok((server, pool_return.clone()))
+        Ok((server, pool_return))
     }
 }
