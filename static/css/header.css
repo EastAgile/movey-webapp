@@ -2,24 +2,23 @@ header {
   height: 100px;
   padding: 30px;
   background: white;
-  top: 0;
-  left: 0;
-  right: 0;
   box-sizing: border-box;
+  display: flex;
 }
 @media screen and (min-width: 844px) and (max-width: 1280px) {
   header {
-    padding: 0 30px 0 0;
+    padding: 0 30px 0 30px;
   }
 }
 @media screen and (max-width: 843px) {
   header {
-    padding: 0 15px 0 0;
+    padding: 0 15px 0 15px;
   }
 }
 header .header-container {
   display: flex;
   justify-content: space-between;
+  width: 100%;
 }
 @media screen and (max-width: 1280px) {
   header .header-container {
@@ -29,38 +28,18 @@ header .header-container {
     position: relative;
   }
 }
-header .header-container .menu-nav {
-  display: none;
-  background-image: url("/static/resources/icon-dashboard.svg");
-  background-repeat: no-repeat;
-  width: 40px;
-  height: 26px;
+header .header-container .header-logo-container {
+  display: flex;
+  align-items: center;
 }
-header .header-container .menu-nav:hover {
-  cursor: pointer;
-}
-@media screen and (min-width: 844px) and (max-width: 1280px) {
-  header .header-container .menu-nav {
-    display: block;
-    flex-shrink: 0;
-    margin: 0 30px;
-  }
-}
-@media screen and (max-width: 843px) {
-  header .header-container .menu-nav {
-    display: block;
-    flex-shrink: 0;
-    margin: 0 15px;
-  }
-}
-header .header-container .header-logo {
+header .header-container .header-logo-container .header-logo {
   background-image: url("/static/resources/logo.svg");
   background-repeat: no-repeat;
   height: 31px;
   width: 236px;
 }
 @media screen and (max-width: 843px) {
-  header .header-container .header-logo {
+  header .header-container .header-logo-container .header-logo {
     height: 18px;
     width: 50px;
     background-image: url("/static/resources/logo_extra_small.svg");
@@ -127,11 +106,6 @@ header .header-container nav ul {
 header .header-container nav ul li {
   margin: 0 10px;
 }
-@media screen and (max-width: 1280px) {
-  header .header-container nav ul li {
-    margin: 0;
-  }
-}
 header .header-container nav a {
   cursor: pointer;
   padding: 10px;
@@ -144,19 +118,11 @@ header .header-container nav a.sign-in {
 }
 @media screen and (min-width: 844px) and (max-width: 1280px) {
   header .header-container nav a.sign-in {
-    position: absolute;
-    left: -300px;
-    top: 100px;
-    z-index: 100;
     padding-left: 30px;
   }
 }
 @media screen and (max-width: 843px) {
   header .header-container nav a.sign-in {
-    position: absolute;
-    left: -300px;
-    top: 100px;
-    z-index: 100;
     padding-left: 15px;
   }
 }
@@ -167,7 +133,9 @@ header .header-container nav a.sign-up {
   color: white;
   width: 147px;
   height: 48px;
-  display: inline-block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   text-align: center;
 }
 @media screen and (max-width: 843px) {

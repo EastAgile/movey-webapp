@@ -1,12 +1,10 @@
 class Header {
     constructor() {
-        this.menu = $('.menu-nav');
         this.navLinks = $('.nav-links');
         this.signInButton = $('.sign-in');
         this.accountDropdownToggle = $('#account-dropdown-toggle');
         this.accountDropdownList = $('#account-dropdown-list');
         this.logoutForm = $('.logout-form');
-
         this.init();
     }
 
@@ -37,9 +35,8 @@ class Header {
 
         $(document).click(e => {
             let clicked = e.target.className;
-            if(clicked !== 'nav-links' && clicked !== 'menu-nav') {
+            if(clicked !== 'nav-links') {
                 this.navLinks.css('left', '-300px');
-                this.signInButton.css('left', '-300px')
             }
         });
     }
