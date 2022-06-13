@@ -19,23 +19,24 @@ pub async fn show_package(
     Path(package_name): Path<String>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    let package = Package::get_by_name(&package_name, &db).await.unwrap();
+    let package = Package::get_by_name(&package_name, &db).await?;
 
     let default_version: String = String::from("");
-    let params = Query::<PackageShowParams>::from_query(request.query_string()).unwrap();
+    let params = Query::<PackageShowParams>::from_query(request.query_string())
+        .map_err(|e| Error::Generic(format!("Error getting query params: {:?}", e)))?;
     let version: &String = params.version.as_ref().unwrap_or(&default_version);
 
     let package_version: PackageVersion;
 
     if version == "" {
-        let versions = PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db).await.unwrap();
+        let versions = PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db).await?;
         package_version = versions[0].clone();
     } else {
-        package_version = package.get_version(version, &db).await.unwrap().clone()
+        package_version = package.get_version(version, &db).await?.clone()
     }
 
     let account_name =  if let Some(uid) =  package.account_id {
-        let account = Account::get(uid, &db).await.unwrap();
+        let account = Account::get(uid, &db).await?;
         if account.name == "" {
             account.email
         } else {
