@@ -10,7 +10,7 @@ use crate::request;
 
 pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
     if request::is_authenticated(&request).await? {
-        return request.redirect("/dashboard/");
+        return request.redirect("/settings/profile");
     }
 
     request.render(200, "accounts/register.html", {
@@ -28,7 +28,7 @@ pub async fn create_account(
     form: Form<NewAccountForm>,
 ) -> Result<HttpResponse> {
     if request::is_authenticated(&request).await? {
-        return request.redirect("/dashboard/");
+        return request.redirect("/settings/profile");
     }
 
     let mut form = form.into_inner();

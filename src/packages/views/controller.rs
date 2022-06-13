@@ -5,6 +5,7 @@ use jelly::prelude::*;
 use jelly::request::DatabasePool;
 use jelly::Result;
 
+use crate::accounts::Account;
 use crate::packages::{Package, PackageVersion, PackageVersionSort};
 use crate::packages::models::{PackageSortField, PackageSortOrder, PACKAGES_PER_PAGE};
 
@@ -33,10 +34,22 @@ pub async fn show_package(
         package_version = package.get_version(version, &db).await.unwrap().clone()
     }
 
+    let account_name =  if let Some(uid) =  package.account_id {
+        let account = Account::get(uid, &db).await.unwrap();
+        if account.name == "" {
+            account.email
+        } else {
+            account.name
+        }
+    } else {
+        "".to_string()
+    };
+
     return request.render(200, "packages/show.html", {
         let mut ctx = Context::new();
         ctx.insert("package", &package);
         ctx.insert("package_version", &package_version);
+        ctx.insert("account_name",&account_name);
         ctx.insert("package_tab", "readme");
         ctx
     });
@@ -120,6 +133,23 @@ pub async fn show_search_results(
         ctx.insert("total_pages", &total_pages);
         ctx
     })
+}
+
+pub async fn show_owned_packages(
+    request: HttpRequest
+) -> Result<HttpResponse> {
+    let db = request.db_pool()?;
+    if let Ok(user) = request.user() {
+        let packages = Package::get_by_account(user.id, &db).await.unwrap();
+
+        request.render(200, "search/search_results.html", {
+            let mut ctx = Context::new();
+            ctx.insert("packages", &packages);
+            ctx
+        })
+    } else {
+        Ok(HttpResponse::NotFound().body("Cannot find user"))
+    }
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]

@@ -3,7 +3,7 @@
 {% block package_content %}
 <div class="package-versions-container">
     <div class="package-version-header">
-        <div class="package-version-summary">All <b>{{versions|length}} versions</b> of <b>{{package.name}}</b> since <b>{{package_version.created_at | date(format="%B %d, %Y")}}</b></div>
+        <div class="package-version-summary">All <b>{{versions|length}} version{{ versions | length | pluralize }}</b> of <b>{{package.name}}</b> since <b>{{package_version.created_at | date(format="%B %d, %Y")}}</b></div>
         <div class="package-version-sort">
             <label for="versions-sort">Sort by</label>
             <select name="versions-sort" class="versions-sort" data-url="/packages/{{package.name}}/versions" data-sort="{{sort_type}}">
@@ -32,7 +32,7 @@
                 </div>
                 <div class="package-version-timeline">
                     <div class="package-version-icon"></div>
-                    <time class="package-version-time" datetime="{{version.created_at}}">{{version.created_at}}</time>
+                    <time class="package-version-time" datetime="{{version.created_at | date(format='%FT%TZ')}}">{{version.created_at}}</time>
                 </div>
             </div>
         </a>

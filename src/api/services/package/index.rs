@@ -5,10 +5,10 @@ use mockall_double::double;
 use serde::{Deserialize, Serialize};
 
 use crate::packages::Package;
+use crate::setting::models::token::ApiToken;
 
 #[double]
 use crate::github_service::GithubService;
-use crate::setting::models::token::ApiToken;
 
 #[derive(Serialize, Deserialize)]
 pub struct PackageRequest {
@@ -34,12 +34,16 @@ pub async fn post_package(
     if let Err(_) = ApiToken::get(&res.token, db).await {
         return Ok(HttpResponse::BadRequest().body("Invalid Api Token"));
     }
+
+    let account_id = ApiToken::associated_account(&res.token, &db).await?.id;
+
     Package::create(
         &res.github_repo_url,
         &res.description,
         &res.rev,
         res.total_files,
         res.total_size,
+        Some(account_id),
         &service,
         &db,
     )
@@ -78,4 +82,3 @@ pub async fn search_package(
     let packages = Package::auto_complete_search(&res.search_query, &db).await?;
     Ok(HttpResponse::Ok().json(packages))
 }
-

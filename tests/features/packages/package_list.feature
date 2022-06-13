@@ -11,6 +11,5 @@ Feature: View package list
     Examples:
         | option             | field             |
         | 'Name'             | name              |
-        | 'Description'      | description       |
         | 'Most Downloads'   | most_downloads    |
         | 'Newly Added'      | newly_added       |

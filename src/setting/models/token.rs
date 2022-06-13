@@ -1,4 +1,6 @@
 use crate::accounts::Account;
+use crate::schema::accounts;
+use crate::schema::accounts::dsl::*;
 use crate::schema::api_tokens;
 use crate::schema::api_tokens::dsl::*;
 use crate::utils::token::SecureToken;
@@ -45,6 +47,25 @@ impl ApiToken {
         })
     }
 
+    /// Check and return an account with given plaintext api token
+    pub async fn associated_account(
+        plaintext_token: &str,
+        pool: &DieselPgPool,
+    ) -> Result<Account> {
+        let connection = pool.get()?;
+        let formatted_sha256 = SecureToken::hash(&plaintext_token.to_string());
+
+        let matched_token = api_tokens
+            .filter(api_tokens::token.eq(formatted_sha256))
+            .first::<ApiToken>(&connection)?;
+
+        let account = accounts
+            .filter(accounts::id.eq(matched_token.account_id))
+            .first::<Account>(&connection)?;
+
+        Ok(account)
+    }
+
     pub async fn max_token_reached(account: &Account, pool: &DieselPgPool) -> Result<()> {
         let connection = pool.get()?;
         let max_token_per_user = std::env::var("MAX_TOKEN")
@@ -66,8 +87,38 @@ impl ApiToken {
         let connection = pool.get()?;
         let sha256 = SecureToken::hash(api_token);
         let result = api_tokens.filter(api_tokens::token.eq(sha256))
-            .select(id).first::<i32>(&connection)?;
+            .select(api_tokens::id).first::<i32>(&connection)?;
         Ok(result)
+    }
+
+    pub async fn get_by_account(owner_id: i32, pool: &DieselPgPool) -> Result<Vec<Self>> {
+        let connection = pool.get()?;
+
+        let result = api_tokens
+            .filter(account_id.eq(owner_id))
+            .order_by(api_tokens::dsl::id.desc())
+            .load::<Self>(&connection)?;
+
+        Ok(result)
+    }
+
+    pub async fn get_by_id(token_id: i32, pool: &DieselPgPool) -> Result<Self> {
+        let connection = pool.get()?;
+
+        let result = api_tokens
+            .filter(api_tokens::dsl::id.eq(token_id))
+            .first::<Self>(&connection)?;
+
+        Ok(result)
+    }
+
+    pub async fn revoke(token_id: i32, pool: &DieselPgPool) -> Result<()> {
+        let connection = pool.get()?;
+
+        diesel::delete(api_tokens.filter(api_tokens::dsl::id.eq(token_id)))
+            .execute(&connection)?;
+
+        Ok(())
     }
 }
 
@@ -87,7 +138,7 @@ mod tests {
     use jelly::error::Error;
     use jelly::forms::{EmailField, PasswordField};
     use std::env;
-    
+
     async fn setup_user() -> Account {
         let form = NewAccountForm {
             email: EmailField {
@@ -160,11 +211,44 @@ mod tests {
     }
 
     #[actix_rt::test]
+    async fn api_token_associated_account_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+
+        let account = setup_user().await;
+
+        let result = ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
+
+        if let Ok(associated_account) = ApiToken::associated_account(&result.plaintext, &DB_POOL).await {
+            assert_eq!(associated_account.id, account.id)
+        } else {
+            panic!("Associated account not found!")
+        }
+    }
+
+    #[actix_rt::test]
+    async fn api_token_get_by_account_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+
+        let account = setup_user().await;
+
+        ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
+        ApiToken::insert(&account, "name2", &DB_POOL).await.unwrap();
+
+        let results = ApiToken::get_by_account(account.id, &DB_POOL).await.unwrap();
+        assert_eq!(results.len(), 2);
+        assert_eq!(results[0].name, "name2");
+        assert_eq!(results[1].name, "name1");
+    }
+
+    #[actix_rt::test]
     async fn get_token_works() {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
 
         let account = setup_user().await;
+
         let new_api_token = ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
         let token_id = ApiToken::get(&new_api_token.plaintext, &DB_POOL).await.unwrap();
         assert_eq!(token_id, 1);

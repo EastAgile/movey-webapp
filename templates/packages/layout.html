@@ -1,6 +1,10 @@
 {% extends "layout_dark.html" %}
 
 {% block title %}Package {{package.name}}{% endblock %}
+
+{% block meta_description %}{% if package.description != '' %}{{package.description}}{% else %}Package {{package.name}} on Movey{% endif %}{% endblock %}
+{% block og_title %}Package {{package.name}}{% endblock %}
+{% block og_description %}{% if package.description != '' %}{{package.description}}{% else %}Package {{package.name}} on Movey{% endif %}{% endblock %}
 {% block css %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"/>
     <link href="/static/css/packages/show.css" rel="stylesheet"/>

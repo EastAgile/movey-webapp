@@ -1,19 +1,91 @@
-{% extends "layout.html" %}
 
-{% block title %}{% endblock %}
-
+{% extends "settings/layout.html" %}
+{% block title %}Settings{% endblock %}
 {% block javascript %}
-  <script src="/static/js/settings/tokens.js"></script>
+
+<script src="/static/js/settings/user_package.js"></script>
+<script src="/static/js/settings/tokens.js"></script>
+<link href="/static/css/settings/user_tokens.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.6.7/jquery.timeago.min.js" type="text/javascript"></script>
 {% endblock %}
 
-{% block content %}
-<h1>Movey App, coming soon...</h1>
-<a class="api-tokens">API Tokens</a>
-<a class="new-token-button">New Token</a>
-<button class="create-button">Create</button>
-<input class="new-token" placeholder="New token name">New Token</input>
-<p class="created-token"></p>
-<p class="error"></p>
+
+{% block settings_content %}
+
+<div class="settings-tokens-container">
+  <div class="tokens-banner">Movey uses a new authentication token format. We encourage you to reset tokens to take advantage of this format.</div>
+
+  <div class="tokens-list-header">
+    <div class="token-list-title">Access Tokens</div>
+    <div class="create-new-token-btn">CREATE NEW TOKEN</div>
+  </div>
+  <div class="tokens-error"></div>
+  <div class="tokens-list">
+    {% for token in tokens %}
+    <div class="token-item existing" data-id="{{token.id}}">
+      <div class="token-info">
+        <div class="name-created-at">
+          <div class="token-name">{{token.name}}</div>
+          <time class="token-created-at" datetime="{{token.created_at | date(format='%FT%TZ')}}">{{token.created_at}}</time>
+        </div>
+        <div class="revoke-token-btn">REVOKE</div>
+      </div>
+      <div class="new-token-only">
+        <div class="token-copy-message">Make sure to copy your API token now. You won’t be able to see it again!</div>
+        <div class="token-content-container">
+          <span class="token-plaintext">26eff0635ffbe7f9ca6ec6acba3f0727</span>
+          <div class="copy-token-icon-btn"></div>
+        </div>
+        <div class="small-only">
+          <div class="copy-token-btn">COPY</div>
+          <div class="revoke-token-btn">REVOKE</div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="no-tokens">
+      You have not generated any tokens yet
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="token-item-template">
+    <div class="token-item">
+      <div class="token-info">
+        <div class="name-created-at">
+          <div class="token-name">Token Name</div>
+          <time class="token-created-at">Created less than a minute ago</time>
+        </div>
+        <div class="revoke-token-btn">REVOKE</div>
+      </div>
+      <div class="new-token-only">
+        <div class="token-copy-message">Make sure to copy your API token now. You won’t be able to see it again!</div>
+        <div class="token-content-container">
+          <span class="token-plaintext">26eff0635ffbe7f9ca6ec6acba3f0727</span>
+          <div class="copy-token-icon-btn"></div>
+        </div>
+        <div class="small-only">
+          <div class="copy-token-btn">COPY</div>
+          <div class="revoke-token-btn">REVOKE</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="create-new-token-mobile-btn">CREATE NEW TOKEN</div>
+
+  <div class="reveal" id="new_token_modal" data-reveal>
+    <div class="new-token-title">Generate new token</div>
+    <div class="new-token-container">
+      <div class="new-token-name">
+        <input class="new-token-input" placeholder="New token name"/>
+      </div>
+      <div class="new-token-submit-btn">GENERATE</div>
+    </div>
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+</div>
 
 <script>
   new Tokens()

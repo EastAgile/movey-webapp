@@ -6,10 +6,6 @@
     <link rel="stylesheet" href="/static/css/accounts/signin.css">
 {% endblock %}
 
-{% block script %}
-    <script src="/static/js/signin/helper.js"></script>
-{% endblock %}
-
 {% block content %}
 
 <div class="login-container">
@@ -67,6 +63,9 @@
                 <button type="submit" class="login-btn">Login</button>
             </form>
             <p class="login-invitation">Not a member? <a href="/accounts/register/">Sign up</a></p>
+            {% if flash %}
+                <p class="flash_message">{{ flash }}</p>
+            {% endif %}
         </div>
     </div>
 </div>

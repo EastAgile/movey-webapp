@@ -1,4 +1,4 @@
-const NO_MATCHES_FOUND = "No matches found";
+const NO_MATCHES_FOUND = ["No matches found", "", ""];
 
 class AutoComplete {
   // if isMain is false, type of auto complete will be inline
@@ -58,11 +58,25 @@ class AutoComplete {
     input.classList.add("input-has-item");
     wrapper.classList.add("autocomplete-shadow");
     this.suggestions.forEach((suggestion, index) => {
-      const option = this.getOptionValue(suggestion);
+      const option = this.getOptionValue(suggestion[0]);
+
+      const packageName = document.createElement("div");
+      packageName.setAttribute("class", "package-name");
+      packageName.innerHTML = option;
+
+      const packageDescription = document.createElement("div");
+      packageDescription.setAttribute("class", "package-description");
+      packageDescription.innerHTML = suggestion[1];
+
+      const packageVersion = document.createElement("div")
+      packageVersion.setAttribute("class", "package-version");
+      packageVersion.innerHTML = suggestion[2]
 
       const node = document.createElement("div");
-      node.setAttribute("id", "suggestion" + index);
-      node.innerHTML = option;
+      node.setAttribute('id', 'suggestion' + index)
+      node.appendChild(packageName);
+      node.appendChild(packageDescription);
+      node.appendChild(packageVersion);
 
       if (this.currentChoiceIndex === index)
         node.classList.add("autocomplete-item-hover");
@@ -72,7 +86,7 @@ class AutoComplete {
         node.addEventListener("click", () => {
           input.value = option;
           this.reDisplay(true);
-          this.selectSuggestion(suggestion);
+          this.selectSuggestion(suggestion[0]);
         });
 
         node.addEventListener("mouseover", () => {

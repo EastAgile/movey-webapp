@@ -133,7 +133,6 @@ input[type="text"]:focus {
   align-items: center;
   cursor: pointer;
   background-color: #fff;
-  border-bottom: 0.5px solid #d4d4d4;
   height: 56px;
   font-size: 16px;
 }
@@ -143,7 +142,8 @@ input[type="text"]:focus {
 }
 
 .autocomplete-items div:first-child {
-  border-top: 3px solid rgba(68, 161, 231, 0.5) !important;
+  border-radius: 4px 4px 0 0;
+  border-bottom: 0px;
 }
 
 .autocomplete-items div:last-child {
@@ -153,6 +153,10 @@ input[type="text"]:focus {
 
 .autocomplete-item-hover {
   background-color: var(--gray-color) !important;
+
+  .package-description {
+    color: var(--dark-blue-color) !important;
+  }
 }
 
 .hidden {

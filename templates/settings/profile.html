@@ -1,0 +1,85 @@
+{% extends "settings/layout.html" %}
+
+{% block title %}Settings{% endblock %}
+
+{% block javascript %}
+<script src="/static/js/settings/profile.js"></script>
+<link href="/static/css/settings/settings.css" rel="stylesheet"/>
+
+{% endblock %}
+
+{% block settings_content %}
+<div class="content-wrapper">
+    <div class="avatar">
+        <img class="avatar-image" src="/static/resources/associated_photo.png">
+        <button class="upload-button"></button>
+    </div>
+    <div class="aaaa">
+        <div class="profile-form">
+            <p>Account data</p>
+            <form action="/settings/profile" method="POST">
+                <label class="label_title" for="email">Email address</label>
+                <input  class="email disabled" disabled id="email" name="email" placeholder="{{ account.email }}" type="email">
+
+                <label class="label_title" for="current-password">Current password</label>
+                <input class="current-password" id="current-password" minlength="8" name="current_password"
+                       type="password">
+
+                <label class="label_title" for="new-password">New password</label>
+                <input class="new-password" id="new-password" minlength="8" name="new_password" type="password">
+
+                <label class="label_title" for="password-confirm">Repeat new password</label>
+                <input class="password-confirm" id="password-confirm" minlength="8" name="password_confirm"
+                       type="password">
+            </form>
+            <div class="connect-wrapper">
+                <p>Connect</p>
+                <div class="connect-account">
+                    <div class="flex">
+                        <div class="connect-logo"></div>
+                        <div class="connect-text-group">
+                            <div class="connect-name">Github</div>
+                            {% if account.github_login %}
+                            <div class="connect-status">Connected</div>
+                            {% else %}
+                            <div class="connect-status">Not Connected</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if account.github_login %}
+                    {% else %}
+                    <div class="connect-button"><a href="/accounts/oauth">Connect</a></div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="form-buttons">
+            <button class="form-btn discard" id="discard-btn" type="submit">
+                Discard
+            </button>
+            <button class="form-btn save" id="save-btn" type="submit">
+                Save
+            </button>
+        </div>
+    </div>
+    {% if form %}
+    {% for err in form.new_password.errors %}
+    <p class="error">{{ err }}</p>
+    {% endfor %}
+    {% endif %}
+
+    {% if form %}
+    {% for err in form.current_password.errors %}
+    <p class="error">{{ err }}</p>
+    {% endfor %}
+    {% endif %}
+
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <script>
+        new Profile()
+    </script>
+</div>
+{% endblock %}

@@ -63,6 +63,7 @@ table! {
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
         tsv -> TsVector,
+        account_id -> Nullable<Int4>,
     }
 }
 

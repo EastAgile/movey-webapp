@@ -307,6 +307,13 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar
           color: var(--blue-color);
         }
       }
+
+      .flash_message {
+        margin: 16px auto 0;
+        color: var(--dark-blue-color);
+        font-size: 24px;
+        font-weight: bold;
+      }
     }
   }
 }

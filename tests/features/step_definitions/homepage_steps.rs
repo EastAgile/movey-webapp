@@ -58,12 +58,12 @@ async fn search_for_packages(world: &mut TestWorld) {
 async fn dropdown_confirm(world: &mut TestWorld) {
     type_into_search_bar(world).await;
     thread::sleep(Duration::from_millis(2000));
-    let suggesstion = world
+    let suggestion = world
         .driver
         .find_element(By::Id("suggestions"))
         .await
         .unwrap();
-    let count = suggesstion.find_elements(By::Tag("div")).await.unwrap();
+    let count = suggestion.find_elements(By::Tag("div")).await.unwrap();
     assert_ne!(1, count.len());
     assert_ne!(0, count.len());
 }
@@ -75,11 +75,11 @@ async fn click_on_dropdown(world: &mut TestWorld) {
         .await
         .unwrap();
     let suggest = suggesstion
-        .find_element(By::Id("suggestion0"))
+        .find_element(By::Css("#suggestion1 .package-name"))
         .await
         .unwrap();
-    assert_eq!(suggest.text().await.unwrap(), "rand");
 
+    assert_eq!(suggest.text().await.unwrap(), "rand");
     suggest.click().await.unwrap()
 }
 

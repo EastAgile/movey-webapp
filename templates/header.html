@@ -8,8 +8,26 @@
       </ul>
       <ul>
         <li><div class="search_icon"></div></li>
-        <li><a class="sign-in" href="/accounts/login/">SIGN IN</a></li>
-        <li><a class="sign-up" href="/accounts/register/">SIGN UP</a></li>
+        <li class="sign-in-li"><a class="sign-in" href="/accounts/login/">SIGN IN</a></li>
+        <li class="sign-up-li"><a class="sign-up" href="/accounts/register/">SIGN UP</a></li>
+        <li id="account-dropdown" class="hide">
+          <a class="profile-link" href="/settings/profile">
+            <button id="account-icon">
+              A
+            </button>
+          </a>
+          <img id="account-dropdown-toggle" src="/static/resources/chevron_down_icon.svg">
+          <ul id="account-dropdown-list">
+            <li>
+              <a href="/settings/profile"> Account Settings</a>
+            </li>
+            <li>
+              <form class="logout-form" method="post" action="/accounts/logout/">
+                <a>Sign Out</a>
+              </form>
+            </li>
+          </ul>
+        </li>
       </ul>
     </nav>
   </div>
