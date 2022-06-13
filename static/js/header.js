@@ -1,7 +1,6 @@
 class Header {
     constructor() {
         this.navLinks = $('.nav-links');
-        this.signInButton = $('.sign-in');
         this.accountDropdownToggle = $('#account-dropdown-toggle');
         this.accountDropdownList = $('#account-dropdown-list');
         this.logoutForm = $('.logout-form');
@@ -10,15 +9,6 @@ class Header {
 
     init() {
         this.checkForLoggedInUser()
-        this.menu.click(() => {
-            if (this.navLinks.css('left') === '0px') {
-                this.navLinks.css('left', '-300px');
-                this.signInButton.css('left', '-300px')
-            } else {
-                this.navLinks.css('left', '0px');
-                this.signInButton.css('left', '0px')
-            }
-        })
 
         this.accountDropdownToggle.click(() => {
             if (this.accountDropdownList.css("display") === "none") {
@@ -32,13 +22,6 @@ class Header {
         this.logoutForm.find('a').on('click', () => {
             this.logoutForm.submit()
         })
-
-        $(document).click(e => {
-            let clicked = e.target.className;
-            if(clicked !== 'nav-links') {
-                this.navLinks.css('left', '-300px');
-            }
-        });
     }
 
     checkForLoggedInUser() {

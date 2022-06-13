@@ -78,12 +78,12 @@ footer {
   flex-wrap: wrap;
   justify-content: space-evenly;
   color: white;
-  padding: 0 260px;
+  padding: 0 120px;
 }
 @media screen and (min-width: 844px) and (max-width: 1280px) {
   .footer-container .footer-center .link-container {
     position: absolute;
-    padding: 0 220px;
+    padding: 0;
     top: 37px;
     left: 18px;
     right: 18px;
@@ -99,7 +99,7 @@ footer {
     top: 27px;
     left: 0;
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     grid-row-gap: 24px;
     width: 100%;
     margin: 0 auto;
