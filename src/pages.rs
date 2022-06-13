@@ -5,7 +5,7 @@ use jelly::Result;
 
 pub async fn homepage(request: HttpRequest) -> Result<HttpResponse> {
     request.render(200, "home.html", {
-        let db = request.db_pool().unwrap();
+        let db = request.db_pool()?;
         let package_count = Package::count(db).await;
         let package_version_count = PackageVersion::count(db).await;
 

@@ -1,5 +1,5 @@
 use serde::{Deserialize};
-use jelly::error::Error;
+use jelly::Result;
 
 #[derive(Deserialize, Debug)]
 struct GithubResponse {
@@ -42,9 +42,10 @@ impl GithubService {
 
 #[cfg_attr(test, automock)]
 impl GithubService {
-    pub fn fetch_repo_data(&self, input_url: &String) -> Result<GithubRepoData, Error> {
+    pub fn fetch_repo_data(&self, input_url: &String) -> Result<GithubRepoData> {
         let url = format!("{}{}", input_url.replace("https://github.com/", "https://api.github.com/repos/"), "/readme");
 
+        // TODO: figure out how to remove these unwraps
         let client = reqwest::blocking::Client::builder()
             .user_agent(APP_USER_AGENT)
             .build().unwrap();
