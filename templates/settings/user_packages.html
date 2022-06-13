@@ -10,9 +10,9 @@
 
 {% block settings_content %}
 <div class="user_package_container">
-        <div class="total_package">{{packages|length}} Packages</div>
+        <div class="total_package">{{packages|length}} Package{{ packages | length | pluralize }}</div>
         {% for package in packages %}
-        
+
         <div class="package_content">
             <div class="package_title">
                 <a class="package_name" href="/packages/{{ package.name }}"><span>{{ package.name }}</span></a>&nbsp;
@@ -20,8 +20,8 @@
             </div>
 
             <div class="package_description">{{package.description}}</div>
-            <div class="package-time">Published <time class="package-time" datetime="{{package.created_at}}"> {{package.created_at}}</time></div>
-            
+            <div class="package-time">Published <time class="package-time" datetime="{{package.created_at | date(format='%FT%TZ')}}"> {{package.created_at}}</time></div>
+
         </div>
         {% endfor %}
 </div>

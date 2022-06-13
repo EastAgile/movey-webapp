@@ -26,7 +26,7 @@
       <div class="token-info">
         <div class="name-created-at">
           <div class="token-name">{{token.name}}</div>
-          <time class="token-created-at" datetime="{{token.created_at}}">{{token.created_at}}</time>
+          <time class="token-created-at" datetime="{{token.created_at | date(format='%FT%TZ')}}">{{token.created_at}}</time>
         </div>
         <div class="revoke-token-btn">REVOKE</div>
       </div>
