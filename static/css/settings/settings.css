@@ -1,8 +1,12 @@
 .content-wrapper {
   min-height: calc(100vh - 350px);
-  height: 1200px;
   margin-top: 75px;
   margin-bottom: 80px;
+}
+@media screen and (max-width: 843px) {
+  .content-wrapper {
+    margin-bottom: 0;
+  }
 }
 
 .avatar {
@@ -11,9 +15,25 @@
   margin-right: 72px;
   position: relative;
 }
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .avatar {
+    float: none;
+  }
+}
+@media screen and (max-width: 843px) {
+  .avatar {
+    float: none;
+  }
+}
 .avatar .avatar-image {
   width: 200px;
   height: 200px;
+}
+@media screen and (max-width: 843px) {
+  .avatar .avatar-image {
+    width: auto;
+    height: auto;
+  }
 }
 .avatar .upload-button {
   width: 46px;
@@ -24,6 +44,18 @@
   bottom: 7px;
   right: 13px;
   background: #fff url("/static/resources/edit.png") no-repeat center;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .avatar .upload-button {
+    left: 145px;
+    right: auto;
+  }
+}
+@media screen and (max-width: 843px) {
+  .avatar .upload-button {
+    left: 145px;
+    right: auto;
+  }
 }
 
 .connect-wrapper .connect-account {
@@ -65,9 +97,19 @@
 }
 
 .profile-form {
-  width: 70%;
+  width: 80%;
   float: left;
   margin-bottom: 70px;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .profile-form {
+    width: 90%;
+  }
+}
+@media screen and (max-width: 843px) {
+  .profile-form {
+    width: 90%;
+  }
 }
 .profile-form .label_title {
   font-weight: 500;
@@ -83,12 +125,22 @@
 }
 
 .form-buttons {
-  width: 70%;
+  width: 80%;
   float: left;
   margin-bottom: 70px;
   border-top: 1px solid #808FB0;
   display: flex;
   justify-content: space-between;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .form-buttons {
+    width: 90%;
+  }
+}
+@media screen and (max-width: 843px) {
+  .form-buttons {
+    width: 90%;
+  }
 }
 .form-buttons .form-btn {
   margin-top: 32px;
@@ -107,12 +159,6 @@
   background-color: var(--blue-color);
   color: white;
   cursor: pointer;
-}
-
-.profile-form {
-  width: 70%;
-  float: left;
-  margin-bottom: 70px;
 }
 
 p {

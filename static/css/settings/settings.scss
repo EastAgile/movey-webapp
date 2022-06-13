@@ -2,21 +2,35 @@
 
 .content-wrapper {
   min-height: calc(100vh - 350px);
-  height: 1200px;
   margin-top: 75px;
   margin-bottom: 80px;
+
+  @include small-screen {
+    margin-bottom: 0;
+  }
 }
 
 .avatar {
-  //width: 30%;
   float: left;
   border-radius: 50%;
   margin-right: 72px;
   position: relative;
 
+  @include medium-screen {
+    float: none;
+  }
+
+  @include small-screen {
+    float: none;
+  }
   .avatar-image {
     width: 200px;
     height: 200px;
+
+    @include small-screen {
+      width: auto;
+      height: auto;
+    }
   }
 
   .upload-button {
@@ -28,6 +42,16 @@
     bottom: 7px;
     right: 13px;
     background: #fff url("/static/resources/edit.png") no-repeat center;
+
+    @include medium-screen {
+      left: 145px;
+      right: auto;
+    }
+
+    @include small-screen {
+      left: 145px;
+      right: auto;
+    }
   }
 }
 
@@ -80,10 +104,18 @@
 }
 
 .profile-form {
-  width: 70%;
+  width: 80%;
   float: left;
   margin-bottom: 70px;
-  
+
+  @include medium-screen {
+    width: 90%;
+  }
+
+  @include small-screen {
+    width: 90%;
+  }
+
   .label_title {
     font-weight: 500;
     font-size: 16px;
@@ -100,13 +132,20 @@
 }
 
 .form-buttons {
-  width: 70%;
+  width: 80%;
   float: left;
   margin-bottom: 70px;
   border-top: 1px solid #808FB0;
   display: flex;
   justify-content: space-between;
 
+  @include medium-screen {
+    width: 90%;
+  }
+
+  @include small-screen {
+    width: 90%;
+  }
   .form-btn {
     margin-top: 32px;
     width: 147px;
@@ -127,13 +166,6 @@
     color: white;
     cursor: pointer;
   }
-}
-
-
-.profile-form {
-  width: 70%;
-  float: left;
-  margin-bottom: 70px;
 }
 
 p {
