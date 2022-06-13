@@ -34,7 +34,7 @@ pub async fn show_package(
         package_version = package.get_version(version, &db).await.unwrap().clone()
     }
 
-    let account_name =  if let Some(uid) =  package.account_id {
+    let account_name = if let Some(uid) = package.account_id {
         let account = Account::get(uid, &db).await.unwrap();
         if account.name == "" {
             account.email

@@ -14,7 +14,7 @@
 @media screen and (max-width: 843px) {
   .home-container {
     padding: 32px 16px 0;
-    height: max(577px, 100vh - 583px);
+    height: max(577px, 100vh - 543px);
   }
 }
 .home-container .subtitle {
