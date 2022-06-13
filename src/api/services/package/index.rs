@@ -5,7 +5,7 @@ use mockall_double::double;
 use serde::{Deserialize, Serialize};
 
 use crate::packages::Package;
-use crate::setting::models::token::ApiToken;
+use crate::settings::models::token::ApiToken;
 
 #[double]
 use crate::github_service::GithubService;

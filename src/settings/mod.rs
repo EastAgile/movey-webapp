@@ -1,5 +1,6 @@
 use jelly::actix_web::web::{get, post, resource, scope, ServiceConfig};
 pub mod views;
+pub mod models;
 
 use jelly::prelude::*;
 use jelly::Result;
@@ -37,5 +38,6 @@ pub fn configure(config: &mut ServiceConfig) {
                 resource("/tokens")
                 .route(get().to(views::controller::show_tokens)),
             )
+            
     );
 }

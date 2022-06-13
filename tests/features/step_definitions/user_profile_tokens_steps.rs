@@ -1,6 +1,6 @@
 use crate::TestWorld;
 use mainlib::accounts::Account;
-use mainlib::setting::models::token::ApiToken;
+use mainlib::settings::models::token::ApiToken;
 use mainlib::test::DB_POOL;
 use std::thread;
 use std::time::Duration;

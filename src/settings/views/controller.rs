@@ -1,7 +1,7 @@
 use crate::accounts::forms::ChangePasswordForm;
 use crate::accounts::Account;
 use crate::packages::Package;
-use crate::setting::models::token::ApiToken;
+use crate::settings::models::token::ApiToken;
 
 use jelly::actix_session::UserSession;
 use jelly::actix_web::http::header;

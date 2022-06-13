@@ -1,7 +1,7 @@
 use crate::accounts::Account;
 use crate::api::services::setting::views::EncodableApiTokenWithToken;
 use crate::request;
-use crate::setting::models::token::ApiToken;
+use crate::settings::models::token::ApiToken;
 use diesel::result::DatabaseErrorKind;
 use diesel::result::Error::DatabaseError;
 use jelly::actix_web::http::header::ContentType;
