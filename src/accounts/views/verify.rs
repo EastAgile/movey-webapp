@@ -49,6 +49,13 @@ pub async fn with_token(
 }
 
 #[derive(Debug, serde::Deserialize)]
+pub struct GithubOauthResponse {
+    pub name: Option<String>,
+    pub login: String,
+    pub email: Option<String>
+}
+
+#[derive(Debug)]
 pub struct GithubOauthUser {
     pub name: String,
     pub login: String,
@@ -85,17 +92,4 @@ pub async fn callback_github(
         }
         _ => request.redirect("/accounts/register/"),
     };
-}
-
-pub async fn callback_google(
-    request: HttpRequest,
-    user: web::Query<GithubOauthUser>,
-) -> Result<HttpResponse> {
-    request.set_user(User {
-        id: 0,
-        name: user.name.clone(),
-        is_admin: false,
-        is_anonymous: false,
-    })?;
-    request.redirect("/settings/profile")
 }

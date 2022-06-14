@@ -1,0 +1,62 @@
+.github-missing-email-container {
+    min-height: calc(100vh - 350px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--dark-blue-color);
+
+    .github-missing-email {
+        padding: 50px;
+        max-width: 1200px;
+
+        .missing-email-message {
+            font-weight: 700;
+            font-size: 32px;
+            line-height: 40px;
+            text-align: center;
+            letter-spacing: -0.02em;
+            margin-bottom: 30px;
+        }
+
+        .action-bar {
+            display: flex;
+            // flex-direction: row-reverse;
+            justify-content: center;
+            max-width: 700px;
+            margin: 0 auto;
+
+            .action-retry, .action-back {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 230px;
+                height: 48px;
+                font-weight: 700;
+                font-size: 19px;
+                line-height: 20px;
+                color: #EB5757;
+                background-color: rgba(235, 87, 87, 0.15);
+                border-radius: 4px;
+                margin: 0 auto;
+                cursor: pointer;
+            }
+
+            .action-retry {
+                color: var(--blue-color);
+                background-color: #E3F1FB;
+            }
+
+            @media screen and (max-width: 640px) {
+                display: block;
+
+                .action-retry {
+                    margin-bottom: 25px;
+                }
+            }
+        }
+
+        @media screen and (max-width: 640px) {
+            padding: 25px;
+        }
+    }
+}
