@@ -1,5 +1,5 @@
 use jelly::error::Error;
-use reqwest::blocking::Response;
+use reqwest::blocking::{multipart, Response};
 use reqwest::header;
 use serde::Deserialize;
 use std::env;
@@ -65,10 +65,12 @@ impl GithubService {
 
 #[cfg_attr(test, automock)]
 impl GithubService {
+    // don't need to be async because it is used in rayon crate
+    // and rayon is not a good fit for async
     pub fn fetch_repo_data(&self, input_url: &String) -> Result<GithubRepoData, Error> {
         let url = input_url.replace("https://github.com/", "https://api.github.com/repos/");
         let response = call_github_api(&url);
-        let info = match response.json::<GithubRepoInfo>() {
+        let mut info = match response.json::<GithubRepoInfo>() {
             Ok(info) => info,
             Err(error) => {
                 error!(
@@ -104,7 +106,16 @@ impl GithubService {
             let response =
                 call_github_api(readme_url.get(0).unwrap().download_url.as_ref().unwrap());
             match response.text() {
-                Ok(content) => content,
+                Ok(content) => {
+                    // generate description from readme if not existed
+                    if info.description.is_none() {
+                        info.description = call_deep_ai_api(content.clone());
+                        if info.description.is_none() {
+                            info.description = Some(content.clone());
+                        }
+                    }
+                    content
+                },
                 Err(error) => {
                     error!(
                         "Error getting README.MD content. url: {:?}, error: {}",
@@ -176,7 +187,7 @@ impl GithubService {
 
 fn call_github_api(url: &str) -> Response {
     let access_token = env::var("GITHUB_ACCESS_TOKEN")
-        .expect("Unable to pull GITHUB_ACCESS_TOKEN for account token generation");
+        .expect("Unable to pull GITHUB_ACCESS_TOKEN");
     let client = reqwest::blocking::Client::builder()
         .user_agent(APP_USER_AGENT)
         .build()
@@ -186,4 +197,41 @@ fn call_github_api(url: &str) -> Response {
         .header(header::AUTHORIZATION, format!("Bearer {}", &access_token))
         .send()
         .unwrap()
+}
+
+fn call_deep_ai_api(content: String) -> Option<String> {
+    let access_token = env::var("DEEP_AI_API_KEY")
+        .expect("Unable to pull DEEP_AI_API_KEY");
+    let client = reqwest::blocking::Client::builder()
+        .user_agent(APP_USER_AGENT)
+        .build()
+        .unwrap();
+    let form = multipart::Form::new()
+        .text("text", content);
+    let response = client
+        .post("https://api.deepai.org/api/summarization")
+        .header("api-key", access_token)
+        .multipart(form)
+        .send()
+        .ok();
+    if response.is_none() {
+        return None;
+    };
+
+    #[derive(Deserialize)]
+    struct DeepApiResponse {
+        output: String
+    };
+    match response.unwrap().json::<DeepApiResponse>() {
+        Ok(response) => {
+            if response.output == "" {
+                return None;
+            }
+            Some(response.output)
+        },
+        Err(error) => {
+            error!("Error getting response from deepai.org. error: {}", error);
+            None
+        }
+    }
 }
