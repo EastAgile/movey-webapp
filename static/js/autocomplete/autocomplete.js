@@ -57,6 +57,8 @@ class AutoComplete {
 
     input.classList.add("input-has-item");
     wrapper.classList.add("autocomplete-shadow");
+
+    let total = this.suggestions.length;
     this.suggestions.forEach((suggestion, index) => {
       const option = this.getOptionValue(suggestion[0]);
 
@@ -71,11 +73,13 @@ class AutoComplete {
       const packageVersion = document.createElement("div")
       packageVersion.setAttribute("class", "package-version");
       packageVersion.innerHTML = suggestion[2]
-
       const node = document.createElement("div");
+      const suggesstionContent = document.createElement("div");
+      suggesstionContent.setAttribute("class", "suggestion-content");
       node.setAttribute('id', 'suggestion' + index)
-      node.appendChild(packageName);
-      node.appendChild(packageDescription);
+      suggesstionContent.appendChild(packageName);
+      suggesstionContent.appendChild(packageDescription);
+      node.appendChild(suggesstionContent);
       node.appendChild(packageVersion);
 
       if (this.currentChoiceIndex === index)
@@ -103,7 +107,17 @@ class AutoComplete {
         node.classList.add("no-pointer");
       }
       suggestionsContainer.appendChild(node);
+      if (total > 5 && index === total-1){
+        let height = document.querySelector("#suggestion0").offsetHeight;
+        height += document.querySelector("#suggestion1").offsetHeight;
+        height += document.querySelector("#suggestion2").offsetHeight;
+        height += document.querySelector("#suggestion3").offsetHeight;
+        height += document.querySelector("#suggestion4").offsetHeight;
+        suggestionsContainer.classList.add("overflow-scroll");
+        suggestionsContainer.style.height = height+"px";
+      }
     });
+
   }
 
   getOptionValue(suggestion) {

@@ -67,32 +67,16 @@
       }
     }
 
-    #suggestions {
-      max-height: 460px;
-      overflow: auto;
-    }
-
     #suggestions > div {
-      display: grid;
-      grid-template-columns: 80% 20%;
-      grid-template-areas:
-        "package-name package-version"
-        "package-description package-version";
       height: fit-content;
       padding: 10px 25px;
       border-bottom: 1px solid rgba(128, 143, 176, 0.5);
 
-      &:first-child {
-        padding-top: 35px;
-      }
-
       .package-name {
         grid-area: package-name;
+        font-weight: 600;
         font-size: 24px;
-        font-weight: bold;
-        margin-top: 0;
-        margin-right: auto;
-        margin-bottom: 5px;
+        line-height: 54px;
         height: fit-content;
         background: none;
       }
