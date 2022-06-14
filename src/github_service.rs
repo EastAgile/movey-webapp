@@ -1,9 +1,11 @@
 use jelly::error::Error;
+use reqwest::blocking::Response;
+use reqwest::header;
 use serde::Deserialize;
 use std::env;
 use std::hash::{Hash, Hasher};
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize)]
 struct GithubResponse {
     download_url: Option<String>,
 }
@@ -19,13 +21,13 @@ struct PackageToml {
     version: String,
 }
 
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
+#[derive(Clone, Deserialize, Eq, PartialEq)]
 pub struct GithubRepoInfo {
     pub description: Option<String>,
     pub size: i32,
 }
 
-#[derive(Clone, Debug, Eq, Deserialize)]
+#[derive(Clone, Eq, Deserialize)]
 pub struct GithubRepoData {
     pub name: String,
     pub version: String,
@@ -52,8 +54,6 @@ pub static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CAR
 
 #[cfg(test)]
 use mockall::{automock, predicate::*};
-use reqwest::blocking::Response;
-use reqwest::header;
 
 pub struct GithubService {}
 
@@ -82,9 +82,7 @@ impl GithubService {
             }
         };
 
-        let url = format!(
-            "{}{}", url, "/contents"
-        );
+        let url = format!("{}{}", url, "/contents");
         let response = call_github_api(&url);
         let response_json: Vec<GithubResponse> = response.json().unwrap();
         if response_json.is_empty() {
