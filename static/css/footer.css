@@ -18,7 +18,7 @@ footer {
   footer {
     position: relative;
     height: fit-content;
-    padding: 37px 18px 100px;
+    padding: 1px 18px 100px;
   }
 }
 
@@ -139,7 +139,7 @@ footer {
 @media screen and (max-width: 1280px) {
   .footer-container .footer-center .social-icons {
     position: absolute;
-    top: 370px;
+    top: 350px;
     width: min(260px, 100vw);
     height: 50px;
     margin-left: max(50vw - 148px, -18px);
@@ -175,7 +175,7 @@ footer {
 }
 @media screen and (max-width: 843px) {
   .footer-container .footer-copyright {
-    margin-top: 54px;
+    margin-top: 50px;
     text-align: center;
   }
 }

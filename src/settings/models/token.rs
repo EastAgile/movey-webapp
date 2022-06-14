@@ -131,7 +131,7 @@ pub struct CreatedApiToken {
 mod tests {
     use crate::accounts::forms::NewAccountForm;
     use crate::accounts::Account;
-    use crate::setting::models::token::ApiToken;
+    use crate::settings::models::token::ApiToken;
     use crate::test::{DatabaseTestContext, DB_POOL};
     use diesel::result::DatabaseErrorKind;
     use diesel::result::Error::DatabaseError;

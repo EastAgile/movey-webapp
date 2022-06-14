@@ -52,6 +52,7 @@
                     </div>
                 </div>
 
+                {% if package_version.total_size > 0 %}
                 <div class="package-metadata-content">
                     <div class="package-metadata-title">
                         Size
@@ -59,7 +60,9 @@
                     <div class="package-metadata-value package-size" data-value="{{package_version.total_size}}">
                     </div>
                 </div>
+                {% endif %}
 
+                {% if package_version.total_files > 0 %}
                 <div class="package-metadata-content">
                     <div class="package-metadata-title">
                         Total Files
@@ -68,6 +71,7 @@
                         {{package_version.total_files}}
                     </div>
                 </div>
+                {% endif %}
 
             </div>
             {% if account_name != "" %}
@@ -80,7 +84,7 @@
                     {{account_name}}
                 </div>
             </div>
-            {% endif %} 
+            {% endif %}
         </div>
     </div>
 </div>
