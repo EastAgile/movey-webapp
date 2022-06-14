@@ -6,7 +6,7 @@ mod features;
 use features::world::TestWorld;
 use mainlib::test::TestDatabaseHelper;
 use std::env;
-use std::{thread, time::Duration};
+use std::time::Duration;
 use tokio::time::sleep;
 
 #[tokio::main]

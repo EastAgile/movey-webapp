@@ -28,7 +28,7 @@ pub async fn see_profile_tokens_page(world: &mut TestWorld) {
 }
 
 #[given("I have an existing api token")]
-pub async fn have_existing_api_token(world: &mut TestWorld) {
+pub async fn have_existing_api_token(_world: &mut TestWorld) {
     let account = Account::get(1, &DB_POOL).await.unwrap();
     ApiToken::insert(&account, "token 1", &DB_POOL).await.unwrap();
 }

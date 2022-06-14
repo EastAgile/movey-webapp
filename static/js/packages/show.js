@@ -3,13 +3,14 @@ class PackageShow {
         this.readmeElement = $('.package-readme-content');
         this.instructionElement = $('.package-install-instruction');
         this.packageSizeElement = $('.package-size');
+        this.packageDescription = $('.package-description')
         this.init();
     }
 
     init() {
         var converter = new showdown.Converter();
         this.readmeElement.html(converter.makeHtml(this.readmeElement.html()));
-
+        this.packageDescription.html(converter.makeHtml(this.packageDescription.html()));
         this.instructionElement.on('click', (e) => {
             navigator.clipboard.writeText(this.instructionElement.find('.instruction-command').text());
             $('.copy-tooltip').show();

@@ -1,7 +1,10 @@
 //! Your Service Description here, etc.
 
+#[cfg(not(feature = "test"))]
 use std::env;
 use std::io;
+#[cfg(not(feature = "test"))]
+use std::sync::Mutex;
 use jelly::actix_web::dev;
 
 #[macro_use]
@@ -29,9 +32,9 @@ pub mod schema;
 
 pub mod request;
 pub mod test;
+pub mod jobs;
 
-
-use jelly::Server;
+use jelly::{DieselPgPool, Server};
 
 #[cfg(not(feature = "test"))]
 pub async fn main() -> io::Result<()> {
@@ -43,15 +46,25 @@ pub async fn main() -> io::Result<()> {
         release: sentry::release_name!(),
         ..Default::default()
     }));
-    start_server().await
+    let (server, pool) = start_server().await?;
+    actix_rt::spawn(async {
+        let gh_crawler = jobs::GithubCrawler {
+            repo_urls: vec![],
+            repos_data: Mutex::new(vec![]),
+            pool,
+        };
+        gh_crawler.run().await;
+    });
+    server.await
 }
 
 #[cfg(feature = "test")]
 pub async fn main() -> io::Result<()> {
-    start_server().await
+    let (server, _) = start_server().await?;
+    server.await
 }
 
-async fn start_server() -> io::Result<()> {
+async fn start_server() -> io::Result<(dev::Server, DieselPgPool)> {
     Server::new()
         .register_service(pages::configure)
         .register_service(accounts::configure)
@@ -62,6 +75,5 @@ async fn start_server() -> io::Result<()> {
         .register_service(settings::configure)
         .register_service(policy::configure)
         .run()
-        .await?
         .await
 }
