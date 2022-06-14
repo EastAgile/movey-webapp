@@ -1,4 +1,4 @@
-use crate::setting::models::token::CreatedApiToken;
+use crate::settings::models::token::CreatedApiToken;
 use jelly::chrono::NaiveDateTime;
 use serde::Serialize;
 
