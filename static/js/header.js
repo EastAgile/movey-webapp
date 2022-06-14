@@ -29,14 +29,17 @@ class Header {
             method: 'GET',
             url: '/api/v1/me',
             success: (data) => {
+                $(".header-container .search-li").removeClass('hide');
+
                 if(data.id) {
-                   $(".header-container .sign-in-li").addClass('hide');
-                   $(".header-container .sign-up-li").addClass('hide');
-                   $(".header-container #account-dropdown").removeClass('hide');
-                    
-                   const char = (data.name != '' ? data.name[0] : data.email[0]);
-                   $(".header-container #account-dropdown #account-icon").text(char);
-                   $(".search-btn").addClass('log');
+                    $(".header-container #account-dropdown").removeClass('hide');
+
+                    const char = (data.name != '' ? data.name[0] : data.email[0]);
+                    $(".header-container #account-dropdown #account-icon").text(char);
+                    $(".search-btn").addClass('log');
+                } else {
+                    $(".header-container .sign-in-li").removeClass('hide');
+                    $(".header-container .sign-up-li").removeClass('hide');
                 }
             }
         })
