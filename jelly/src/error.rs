@@ -8,6 +8,10 @@ use diesel::{
     r2d2::PoolError,
     result::{Error as DBError},
 };
+use tera::{Context, Tera};
+use std::sync::{Arc, RwLock};
+use std::env;
+use lazy_static::lazy_static;
 
 /// This enum represents the largest classes of errors we can expect to
 /// encounter in the lifespan of our application. Feel free to add to this
@@ -109,156 +113,75 @@ impl From<reqwest::Error> for Error {
   }
 }
 
+lazy_static! {
+   static ref TERA: Arc<RwLock<Tera>> = {
+        let templates_glob = env::var("TEMPLATES_GLOB").expect("TEMPLATES_GLOB not set!");
+        Arc::new(RwLock::new(
+            Tera::new(&templates_glob).expect("Unable to compile templates!"),
+        ))
+    };
+}
+
 impl ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
-        HttpResponse::NotFound()
-            .content_type("text/html; charset=utf-8")
-            .body(&render(self))
+        match TERA.read() {
+            Ok(engine) => {
+                match engine.render("404.html", &Context::new())
+                    .map_err(Error::from) {
+                    Ok(body) => {
+                        HttpResponse::NotFound()
+                            .content_type("text/html; charset=utf-8")
+                            .body(&body)
+                    }
+                    Err(error) => {
+                        error!("Error reading file content: {:?}", error);
+                        HttpResponse::InternalServerError().body("")
+                    }
+                }
+            }
+            Err(error) => {
+                error!("Error acquiring template read lock: {:?}", error);
+                HttpResponse::InternalServerError()
+                    .body("")
+            }
+        }
     }
 }
 
 /// A generic method for rendering an error to present to the browser.
 /// This should only be called in non-production settings.
 pub(crate) fn render<E: std::fmt::Debug>(e: E) -> String {
-    r#"<!DOCTYPE html>
-        <!--[if IE 8]><html class="lt-ie9"><![endif]-->
-        <!--[if gt IE 8]><!--><html><!--<![endif]-->
+    format!(
+        r#"<!DOCTYPE html>
+        <html>
         <head>
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-            <title>Not Found</title>
-            <link rel="icon" type="image/x-icon" href="/static/resources/Favicon_Light.png">
-            <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet"/>
-            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
-            <link href="http://fonts.cdnfonts.com/css/inter" rel="stylesheet"/>
-            <link href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.7.4/css/foundation.min.css" rel="stylesheet" />
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.7.4/js/foundation.min.js"></script>
-            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-            <link href="/static/css/layout.css" rel="stylesheet"/>
-            <link href="/static/css/header_dark.css" rel="stylesheet"/>
-            <link href="/static/css/footer.css" rel="stylesheet"/>
-            <link href="/static/css/404/404.css" rel="stylesheet"/>
-            <script src="/static/js/search/search_bar.js"></script>
-            <script src="/static/js/header.js"></script>
-            <!--[if lte IE 8]>
-            (function(i,e){for(;i<10;i++)document.createElement(e[i]);})(0,['section','article','aside','header','footer','nav','figure','figcaption','time','mark']);
-            <![endif]-->
+            <title>Jelly: An Error Occurred</title>
+            <style>
+                html, body {{
+                    margin: 0;
+                    padding: 0;
+                    background: #F0DEE0;
+                    color: #111;
+                    font-family: -apple-system, "Helvetica Neue", Helvetica, "Segoe UI", Ubuntu, arial, sans-serif;
+                }}
+                h1 {{ margin: 0; background: #F05758; border-bottom: 1px solid #C7484A; padding: 20px; font-size: 30px; font-weight: 600; line-height: 40px; }}
+                code {{
+                    display: block;
+                    font-family: "Anonymous Pro", Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
+                    font-size: 16px;
+                    line-height: 20px;
+                    padding: 20px;
+                }}
+            </style>
         </head>
         <body>
-            <header>
-              <div class="header-container">
-                <a href="/">
-                  <div class="header-logo"></div>
-                </a>
-                <nav>
-                  <ul class="nav-links">
-                  </ul>
-                  <ul id="right-wrapper">
-                    <li>
-                      <button class="search-btn" data-active="false">
-                        <i id="search-btn-icon" class="fa fa-search"></i>
-                      </button>
-                    </li>
-                    <li class="sign-in-li">
-                      <a class="sign-in" href="/accounts/login/">
-                        SIGN IN
-                      </a>
-                    </li>
-                    <li class="sign-up-li">
-                      <a class="sign-up" href="/accounts/register/">
-                        SIGN UP
-                      </a>
-                    </li>
-                    <li id="account-dropdown" class="hide">
-                      <a class="profile-link" href="/settings/profile">
-                        <button id="account-icon">
-                          A
-                        </button>
-                      </a>
-                      <img id="account-dropdown-toggle" src="/static/resources/chevron_down_icon_white.svg">
-                      <ul id="account-dropdown-list">
-                        <li>
-                          <a href="/settings/profile"> Account Settings</a>
-                        </li>
-                        <li>
-                          <form class="logout-form" method="post" action="/accounts/logout/">
-                            <a>Sign Out</a>
-                          </form>
-                        </li>
-                      </ul>
-                    </li>
-                  </ul>
-                </nav>
-              </div>
-            </header>
-            <div id="search-bar">
-              <form action="/packages/search">
-                <button type="submit">
-                  <i class="fa fa-search"></i>
-                </button>
-                <input id="search-field"
-                  type="text"
-                  placeholder="Search packages..."
-                  name="query"
-                  autofocus
-                >
-                <i class="fa fa-times-circle"></i>
-              </form>
-            </div>
-            <script>
-              new Header();
-              new SearchBar();
-            </script>
-
-            <div class="not-found-wrapper">
-                <p>Uh oh! We couldn't find that page.</p>
-            </div>
-
-            <footer>
-              <div class="footer-container">
-                <div class="footer-about">
-                  <a href="/">
-                    <img
-                            src="/static/resources/logo_blue.svg"
-                            height="30"
-                            width="235" />
-                  </a>
-                  <div class="about-us">
-                    We're East Agile, the company behind Movey, the Move package manager, the Movey Registry.
-                  </div>
-                </div>
-                <div class="footer-center">
-                  <div class="link-container">
-                    <a class="footer-link terms" href="/terms-of-use">TERMS & CONDITIONS</a>
-                    <a class="footer-link policy" href="/policy">PRIVACY POLICY</a>
-                  </div>
-                  <ul class="social-icons">
-                    <li>
-                      <a class="" href="https://github.com/ea-open-source" target="_blank">
-                        <img class="icon" src="/static/resources/github_small.svg"/>
-                      </a>
-                    </li>
-                    <li>
-                      <a class="" href="https://twitter.com/MoveyEastAgile" target="_blank">
-                        <img class="" src="/static/resources/twitter_small.svg"/>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-                <div class="footer-copyright">
-                  <div class="copyright">
-                  © 2022 East Agile. All rights reserved.
-                  </div>
-                  <a href="https://www.eastagile.com" target="_blank">
-                  <img src="/static/resources/EA_logo_primary.svg"
-                       height="40"
-                       width="160" />
-                      </a>
-                </div>
-              </div>
-            </footer>
+            <h1>Error</h1>
+            <code>{:#?}<code>
         </body>
         </html>
-    "#.to_string()
+    "#,
+        e
+    )
 }

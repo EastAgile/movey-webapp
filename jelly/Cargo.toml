@@ -41,6 +41,7 @@ validator = "0.11"
 zxcvbn = "2.0.1"
 lettre = { version="0.10.0-rc.3", optional = true, features = ["file-transport"] }
 reqwest = "0.11"
+lazy_static = "1.4.0"
 
 [features]
 default = [ ]
