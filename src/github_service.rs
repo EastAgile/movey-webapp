@@ -68,14 +68,14 @@ impl GithubService {
     // don't need to be async because it is used in rayon crate
     // and rayon is not a good fit for async
     pub fn fetch_repo_data(&self, input_url: &String) -> Result<GithubRepoData, Error> {
-        let url = input_url.replace("https://github.com/", "https://api.github.com/repos/");
-        let response = call_github_api(&url);
-        let mut info = match response.json::<GithubRepoInfo>() {
+        let repo_url = input_url.replace("https://github.com/", "https://api.github.com/repos/");
+        let response = call_github_api(&repo_url);
+        let mut repo_info = match response.json::<GithubRepoInfo>() {
             Ok(info) => info,
             Err(error) => {
                 error!(
                     "Error getting repo description and size. url: {:?}, error: {}",
-                    url, error
+                    repo_url, error
                 );
                 GithubRepoInfo {
                     description: None,
@@ -84,14 +84,14 @@ impl GithubService {
             }
         };
 
-        let url = format!("{}{}", url, "/contents");
-        let response = call_github_api(&url);
+        let content_url = format!("{}{}", repo_url, "/contents");
+        let response = call_github_api(&content_url);
         let response_json: Vec<GithubResponse> = response.json().unwrap();
         if response_json.is_empty() {
-            return Err(Error::Generic(format!("Invalid repo url: {}", &url)));
+            return Err(Error::Generic(format!("Invalid repo url: {}", &content_url)));
         }
 
-        let readme_url = response_json
+        let readme_urls = response_json
             .iter()
             .filter(|content| {
                 content.download_url.is_some()
@@ -102,34 +102,45 @@ impl GithubService {
                         .ends_with("/README.md")
             })
             .collect::<Vec<&GithubResponse>>();
-        let readme_content = if readme_url.len() > 0 {
+        let readme_content = if readme_urls.len() > 0 {
             let response =
-                call_github_api(readme_url.get(0).unwrap().download_url.as_ref().unwrap());
+                call_github_api(readme_urls.first().unwrap().download_url.as_ref().unwrap());
             match response.text() {
                 Ok(content) => {
                     // generate description from readme if not existed
-                    if info.description.is_none() {
-                        info.description = call_deep_ai_api(content.clone());
-                        if info.description.is_none() {
-                            info.description = Some(content.clone());
+                    if repo_info.description.is_none() {
+                        repo_info.description = call_deep_ai_api(content.clone());
+                        if repo_info.description.is_none() {
+                            let content_stripped = &content
+                                .replace("\n", " ")
+                                .replace("\r", "")
+                                .replace("#", "");
+                            let mut description_from_readme = 
+                                String::from("[Generated from README]\n") + 
+                                content_stripped;
+                            if description_from_readme.len() > 100 {
+                                description_from_readme = description_from_readme[0..100].to_string();
+                                description_from_readme += "...";
+                            }
+                            repo_info.description = Some(description_from_readme);
                         }
                     }
                     content
                 },
                 Err(error) => {
                     error!(
-                        "Error getting README.MD content. url: {:?}, error: {}",
-                        url, error
+                        "Error getting README.md content. url: {:?}, error: {}",
+                        content_url, error
                     );
                     String::from("")
                 }
             }
         } else {
-            warn!("Link to README.md not found. url: {}", &url);
+            warn!("Link to README.md not found. url: {}", &content_url);
             String::from("")
         };
 
-        let move_toml_url = response_json
+        let move_toml_urls = response_json
             .iter()
             .filter(|content| {
                 content.download_url.is_some()
@@ -141,21 +152,21 @@ impl GithubService {
                         .ends_with("move.toml")
             })
             .collect::<Vec<&GithubResponse>>();
-        let move_toml_content = if move_toml_url.len() > 0 {
+        let move_toml_content = if move_toml_urls.len() > 0 {
             let response =
-                call_github_api(move_toml_url.get(0).unwrap().download_url.as_ref().unwrap());
+                call_github_api(move_toml_urls.first().unwrap().download_url.as_ref().unwrap());
             match response.text() {
                 Ok(content) => content,
                 Err(error) => {
                     error!(
                         "Error getting Move.toml content. url: {:?}, error: {}",
-                        url, error
+                        content_url, error
                     );
                     String::from("")
                 }
             }
         } else {
-            error!("Link to Move.toml not found. url: {}", &url);
+            error!("Link to Move.toml not found. url: {}", &content_url);
             String::from("")
         };
         match toml::from_str::<MoveToml>(&move_toml_content) {
@@ -163,20 +174,20 @@ impl GithubService {
                 name: move_toml.package.name,
                 version: move_toml.package.version,
                 readme_content,
-                info,
+                info: repo_info,
                 url: String::from(""),
                 rev: "".to_string(),
             }),
             Err(error) => {
                 warn!(
-                    "Invalid Move.toml. url: {}, content: {}, error: {}",
-                    &url, &move_toml_content, &error
+                    "Invalid Move.toml url: {}, content: {}, error: {}",
+                    &content_url, &move_toml_content, &error
                 );
                 Ok(GithubRepoData {
                     name: String::from(""),
                     version: String::from(""),
                     readme_content,
-                    info,
+                    info: repo_info,
                     url: String::from(""),
                     rev: "".to_string(),
                 })
@@ -221,7 +232,8 @@ fn call_deep_ai_api(content: String) -> Option<String> {
     #[derive(Deserialize)]
     struct DeepApiResponse {
         output: String
-    };
+    }
+
     match response.unwrap().json::<DeepApiResponse>() {
         Ok(response) => {
             if response.output == "" {
