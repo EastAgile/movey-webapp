@@ -71,11 +71,9 @@ pub async fn callback_github(
                         .get("https://api.github.com/user")
                         .bearer_auth(token.access_token().secret())
                         .header("User-Agent", "Movey")
-                        .send()
-                        .map_err(|_| Error::Generic(String::from("OAuth request error.")))?;
+                        .send()?;
 
-                    let oauth_user: GithubOauthUser = response.json()
-                        .map_err(|_| Error::Generic(String::from("OAuth user has missing field.")))?;
+                    let oauth_user: GithubOauthUser = response.json()?;
                     let db = request.db_pool()?;
                     let user = Account::register_from_github(&oauth_user, &db).await?;
                     Account::update_last_login(user.id, &db).await?;

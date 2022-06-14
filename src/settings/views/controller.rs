@@ -14,7 +14,7 @@ use jelly::Result;
 pub async fn profile(request: HttpRequest) -> Result<HttpResponse> {
     let user = request.user()?;
     let db = request.db_pool()?;
-    let account = Account::get(user.id, db).await.unwrap();
+    let account = Account::get(user.id, db).await?;
     request.render(200, "settings/profile.html", {
         let mut context = Context::new();
         context.insert("account", &account);
@@ -95,7 +95,7 @@ pub async fn show_packages(
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
-        let packages = Package::get_by_account(user.id, &db).await.unwrap();
+        let packages = Package::get_by_account(user.id, &db).await?;
 
         request.render(200, "settings/user_packages.html", {
             let mut ctx = Context::new();
@@ -113,8 +113,7 @@ pub async fn show_downloads(
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
-        let download = Package::get_downloads(user.id,&db).await;
-        let download = download.unwrap_or_else(|| 0);
+        let download = Package::get_downloads(user.id,&db).await?;
 
         request.render(200, "settings/downloads.html", {
             let mut ctx = Context::new();
@@ -132,7 +131,7 @@ pub async fn show_tokens(
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
-        let tokens = ApiToken::get_by_account(user.id, &db).await.unwrap();
+        let tokens = ApiToken::get_by_account(user.id, &db).await?;
 
         request.render(200, "settings/tokens.html", {
             let mut ctx = Context::new();

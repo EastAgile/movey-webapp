@@ -9,6 +9,7 @@ use jelly::actix_web::{web, web::Path};
 use jelly::forms::TextField;
 use jelly::prelude::*;
 use jelly::Result;
+use jelly::anyhow::anyhow;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -36,7 +37,7 @@ pub async fn create_token(
             return Ok(HttpResponse::BadRequest().body("That name has already been taken."))
         }
         Err(Error::Generic(error)) => return Ok(HttpResponse::BadRequest().body(error)),
-        Err(_) => return Ok(HttpResponse::InternalServerError().body("")),
+        Err(_) => return Ok(HttpResponse::NotFound().body("")),
         Ok(api_token) => api_token,
     };
     let api_token = EncodableApiTokenWithToken::from(api_token);
@@ -52,7 +53,12 @@ pub async fn revoke_token(
     }
     let user = request.user()?;
     let db = request.db_pool()?;
-    let token = ApiToken::get_by_id(token_id.parse::<i32>().unwrap(), &db).await?;
+    let token = ApiToken::get_by_id(
+        token_id
+            .parse::<i32>()
+            .map_err(|e| anyhow!("Error parsing token id: {:?}", e))?,
+        &db)
+        .await?;
 
     // checks if token belongs to account
     if token.account_id == user.id {

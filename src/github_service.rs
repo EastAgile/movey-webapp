@@ -1,5 +1,5 @@
 use serde::{Deserialize};
-use jelly::Result;
+use jelly::{anyhow::anyhow, Result};
 
 #[derive(Deserialize, Debug)]
 struct GithubResponse {
@@ -45,23 +45,23 @@ impl GithubService {
     pub fn fetch_repo_data(&self, input_url: &String) -> Result<GithubRepoData> {
         let url = format!("{}{}", input_url.replace("https://github.com/", "https://api.github.com/repos/"), "/readme");
 
-        // TODO: figure out how to remove these unwraps
         let client = reqwest::blocking::Client::builder()
             .user_agent(APP_USER_AGENT)
-            .build().unwrap();
+            .build()?;
 
-        let response = client.get(url).send().unwrap();
-        let response_json: GithubResponse = response.json().unwrap();
+        let response = client.get(url).send()?;
+        let response_json: GithubResponse = response.json()?;
         let readme_url = response_json.download_url;
 
-        let response = client.get(&readme_url).send().unwrap();
-        let readme_content = response.text().unwrap();
+        let response = client.get(&readme_url).send()?;
+        let readme_content = response.text()?;
 
         let move_toml_url = readme_url.replace("README.md", "Move.toml");
-        let response = client.get(&move_toml_url).send().unwrap();
-        let move_toml_content = response.text().unwrap();
+        let response = client.get(&move_toml_url).send()?;
+        let move_toml_content = response.text()?;
 
-        let move_toml: MoveToml = toml::from_str(&move_toml_content).unwrap();
+        let move_toml: MoveToml = toml::from_str(&move_toml_content)
+            .map_err(|e| anyhow!("Error parsing Move.toml file: {:?}", e))?;
 
         Ok(GithubRepoData {
             name: move_toml.package.name,

@@ -26,6 +26,7 @@ pub enum Error {
     InvalidPassword,
     InvalidAccountToken,
     PasswordHasher(djangohashers::HasherError),
+    Reqwest(reqwest::Error),
 }
 
 impl fmt::Display for Error {
@@ -48,7 +49,8 @@ impl error::Error for Error {
             Error::Generic(_)
             | Error::InvalidPassword
             | Error::InvalidAccountToken
-            | Error::PasswordHasher(_) => None,
+            | Error::PasswordHasher(_)
+            | Error::Reqwest(_) => None,
         }
     }
 }
@@ -99,6 +101,12 @@ impl From<djangohashers::HasherError> for Error {
     fn from(e: djangohashers::HasherError) -> Self {
         Error::PasswordHasher(e)
     }
+}
+
+impl From<reqwest::Error> for Error {
+  fn from(e: reqwest::Error) -> Self {
+      Error::Reqwest(e)
+  }
 }
 
 impl ResponseError for Error {

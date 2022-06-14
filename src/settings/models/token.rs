@@ -71,7 +71,7 @@ impl ApiToken {
         let max_token_per_user = std::env::var("MAX_TOKEN")
             .expect("MAX_TOKEN not set!")
             .parse::<i64>()
-            .unwrap();
+            .map_err(|e| jelly::anyhow::anyhow!("Error parsing MAX_TOKEN: {:?}", e))?;
         let count: i64 = ApiToken::belonging_to(account)
             .count()
             .get_result(&connection)?;
