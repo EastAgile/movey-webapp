@@ -175,7 +175,7 @@ impl Account {
         let account = if let Ok(record) = Account::get_by_email(&oauth_user.email, pool).await {
             // if there already is an account with this email, update it with git info then return
             diesel::update(accounts.filter(id.eq(record.id)))
-            .set((name.eq(oauth_user.name.clone()), github_login.eq(oauth_user.login.clone())))
+            .set((name.eq(oauth_user.name.clone()), github_login.eq(oauth_user.login.clone()), has_verified_email.eq(true)))
             .execute(&connection)?;
 
             record
@@ -236,7 +236,8 @@ pub struct NewGithubAccount {
     pub name: String,
     pub email: String,
     pub github_login: String,
-    pub password: String
+    pub password: String,
+    pub has_verified_email: bool
 }
 
 impl NewGithubAccount {
@@ -249,7 +250,8 @@ impl NewGithubAccount {
                 // Give it a dummy password because postgres complains
                 let plaintext = crate::utils::token::generate_secure_alphanumeric_string(32);
                 make_password(&plaintext)
-            }
+            },
+            has_verified_email: true
         };
     }
 }
@@ -465,6 +467,7 @@ mod tests {
         assert_eq!(account.name, "git_username");
         assert_eq!(account.email, "a@b.com");
         assert_eq!(account.github_login.unwrap(), "git");
+        assert_eq!(account.has_verified_email, true);
     }
 
     #[actix_rt::test]
@@ -483,5 +486,6 @@ mod tests {
         assert_eq!(account.name, "git_username");
         assert_eq!(account.email, "email@host.com");
         assert_eq!(account.github_login.unwrap(), "git");
+        assert_eq!(account.has_verified_email, true);
     }
 }
