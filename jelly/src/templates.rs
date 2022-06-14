@@ -10,11 +10,11 @@
 use std::sync::{Arc, RwLock};
 use std::{env, thread};
 
+use crate::error::TERA;
 use serde::{Deserialize, Serialize};
-use tera::Tera;
-
 #[cfg(feature = "template_watcher")]
 use std::{fs::read_dir, path::Path, sync::mpsc::channel, time::Duration};
+use tera::Tera;
 
 #[cfg(feature = "template_watcher")]
 use notify::{watcher, DebouncedEvent::*, RecursiveMode, Watcher};
@@ -44,11 +44,7 @@ pub struct TemplateStore {
 /// will watch the glob directory for changes and automatically rebuild the templates as
 /// they're updated.
 pub fn load() -> TemplateStore {
-    let templates_glob = env::var("TEMPLATES_GLOB").expect("TEMPLATES_GLOB not set!");
-    let templates = Arc::new(RwLock::new(
-        Tera::new(&templates_glob).expect("Unable to compile templates!"),
-    ));
-
+    let templates = TERA.clone();
     #[cfg(feature = "template_watcher")]
     let store = templates.clone();
 
@@ -57,7 +53,7 @@ pub fn load() -> TemplateStore {
         let (tx, rx) = channel();
         let mut watcher =
             watcher(tx, Duration::from_secs(1)).expect("Template watcher creation failed!");
-
+        let templates_glob = env::var("TEMPLATES_GLOB").expect("TEMPLATES_GLOB not set!");
         let path = templates_glob.replace("**/*", "");
         let watcher_err_msg = format!("Can't watch for changes in folder `{}`. Does it exist, and do you have correct permissions?", path);
         watcher

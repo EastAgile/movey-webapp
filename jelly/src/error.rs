@@ -114,7 +114,7 @@ impl From<reqwest::Error> for Error {
 }
 
 lazy_static! {
-   static ref TERA: Arc<RwLock<Tera>> = {
+   pub static ref TERA: Arc<RwLock<Tera>> = {
         let templates_glob = env::var("TEMPLATES_GLOB").expect("TEMPLATES_GLOB not set!");
         Arc::new(RwLock::new(
             Tera::new(&templates_glob).expect("Unable to compile templates!"),

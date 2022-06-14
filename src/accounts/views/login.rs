@@ -86,7 +86,7 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
                     .header(
                         header::SET_COOKIE,
                         jar.get("remember_me_token")
-                            .expect("Getting key from cookie jar should not failed.")
+                            .expect("Getting key from cookie jar should not fail.")
                             .encoded().to_string(),
                     )
                     .header(header::LOCATION, "/settings/profile")
