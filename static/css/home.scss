@@ -69,14 +69,14 @@
 
     #suggestions > div {
       height: fit-content;
-      padding: 10px 25px;
+      padding: 15px 25px;
       border-bottom: 1px solid rgba(128, 143, 176, 0.5);
 
       .package-name {
         grid-area: package-name;
         font-weight: 600;
         font-size: 24px;
-        line-height: 54px;
+        line-height: 30px;
         height: fit-content;
         background: none;
       }
