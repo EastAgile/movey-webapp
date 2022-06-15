@@ -50,14 +50,14 @@ pub async fn with_token(
 
 #[derive(Debug, serde::Deserialize)]
 pub struct GithubOauthResponse {
-    pub name: Option<String>,
+    pub id: i64,
     pub login: String,
     pub email: Option<String>
 }
 
 #[derive(Debug)]
 pub struct GithubOauthUser {
-    pub name: String,
+    pub id: i64,
     pub login: String,
     pub email: String
 }
@@ -79,6 +79,25 @@ pub async fn callback_github(
                         .bearer_auth(token.access_token().secret())
                         .header("User-Agent", "Movey")
                         .send()?;
+
+                    let mut oauth_response: GithubOauthResponse = response.json().unwrap();
+                    if oauth_response.email.is_none() {
+                        // user does not expose email, create mock email
+                        let email_domain = std::env::var("NO_REPLY_EMAIL_DOMAIN")
+                            .expect("NO_REPLY_EMAIL_DOMAIN is not set!");
+                        let mock_email = format!("{}+{}@{}",
+                            &(oauth_response.id).to_string(),
+                            oauth_response.login.clone(),
+                            email_domain
+                        );
+                        oauth_response.email = Some(mock_email);
+                    }
+
+                    let oauth_user = GithubOauthUser {
+                        id: oauth_response.id,
+                        login: oauth_response.login,
+                        email: oauth_response.email.unwrap(),
+                    };
 
                     let oauth_user: GithubOauthUser = response.json()?;
                     let db = request.db_pool()?;
