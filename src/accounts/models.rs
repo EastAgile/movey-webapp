@@ -442,7 +442,6 @@ mod tests {
         )
         .await
         .unwrap();
-        let account = Account::get(uid, &DB_POOL).await.unwrap();
         let mut login_form = login_form();
         login_form.password.value = new_password.clone();
         match Account::authenticate(&login_form, &DB_POOL).await {

@@ -1,4 +1,3 @@
-use convert_case::{Case, Casing};
 use jelly::actix_web::{web::Path, web::Query, HttpRequest};
 use jelly::forms::TextField;
 use jelly::prelude::*;
@@ -6,12 +5,12 @@ use jelly::request::DatabasePool;
 use jelly::Result;
 
 use crate::accounts::Account;
-use crate::packages::{Package, PackageVersion, PackageVersionSort};
 use crate::packages::models::{PackageSortField, PackageSortOrder, PACKAGES_PER_PAGE};
+use crate::packages::{Package, PackageVersion, PackageVersionSort};
 
 #[derive(serde::Serialize, serde::Deserialize)]
 struct PackageShowParams {
-    version: Option<String>
+    version: Option<String>,
 }
 
 pub async fn show_package(
@@ -50,7 +49,7 @@ pub async fn show_package(
         let mut ctx = Context::new();
         ctx.insert("package", &package);
         ctx.insert("package_version", &package_version);
-        ctx.insert("account_name",&account_name);
+        ctx.insert("account_name", &account_name);
         ctx.insert("package_tab", "readme");
         ctx
     });
@@ -58,7 +57,7 @@ pub async fn show_package(
 
 #[derive(serde::Serialize, serde::Deserialize)]
 struct VersionParams {
-    sort_type: Option<String>
+    sort_type: Option<String>,
 }
 
 pub async fn show_package_versions(
@@ -67,7 +66,10 @@ pub async fn show_package_versions(
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     let package = Package::get_by_name(&package_name, &db).await.unwrap();
-    let package_latest_version = &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db).await.unwrap()[0];
+    let package_latest_version =
+        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db)
+            .await
+            .unwrap()[0];
 
     let params = Query::<VersionParams>::from_query(request.query_string()).unwrap();
     let default_sort: String = String::from("latest");
@@ -76,9 +78,11 @@ pub async fn show_package_versions(
     let sort_type = match sort_type_text {
         "oldest" => PackageVersionSort::Oldest,
         "most_downloads" => PackageVersionSort::MostDownloads,
-        _ => PackageVersionSort::Latest
+        _ => PackageVersionSort::Latest,
     };
-    let package_versions = PackageVersion::from_package_id(package.id, &sort_type, &db).await.unwrap();
+    let package_versions = PackageVersion::from_package_id(package.id, &sort_type, &db)
+        .await
+        .unwrap();
 
     return request.render(200, "packages/versions.html", {
         let mut ctx = Context::new();
@@ -101,7 +105,7 @@ pub struct PackageSearchParams {
 
 pub async fn show_search_results(
     request: HttpRequest,
-    mut search: Query<PackageSearchParams>
+    mut search: Query<PackageSearchParams>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let None = search.field {
@@ -116,12 +120,15 @@ pub async fn show_search_results(
         &search.order.as_ref().unwrap(),
         search.page,
         None,
-        &db).await.unwrap();
+        &db,
+    )
+    .await
+    .unwrap();
 
     let current_page = search.page.unwrap_or_else(|| 1);
     let field_name = match &search.field {
         Some(f) => f.to_string(),
-        None => "".to_string()
+        None => "".to_string(),
     };
 
     request.render(200, "search/search_results.html", {
@@ -136,9 +143,7 @@ pub async fn show_search_results(
     })
 }
 
-pub async fn show_owned_packages(
-    request: HttpRequest
-) -> Result<HttpResponse> {
+pub async fn show_owned_packages(request: HttpRequest) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
         let packages = Package::get_by_account(user.id, &db).await.unwrap();
@@ -162,7 +167,7 @@ pub struct PackageIndexParams {
 
 pub async fn packages_index(
     request: HttpRequest,
-    mut params: Query<PackageIndexParams>
+    mut params: Query<PackageIndexParams>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let None = params.field {
@@ -180,12 +185,15 @@ pub async fn packages_index(
         &params.order.as_ref().unwrap(),
         params.page,
         None,
-        &db).await.unwrap();
+        &db,
+    )
+    .await
+    .unwrap();
 
     let current_page = params.page.unwrap_or_else(|| 1);
     let field_name = match &params.field {
         Some(f) => f.to_string(),
-        None => "".to_string()
+        None => "".to_string(),
     };
     let display_pagination_start = (current_page - 1) * PACKAGES_PER_PAGE + 1;
     let display_pagination_end: usize = (display_pagination_start as usize) + packages.len() - 1;

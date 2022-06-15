@@ -15,11 +15,3 @@ async fn click_log_out(world: &mut TestWorld) {
         .await.unwrap();
         logout_link.click().await.unwrap();
 }
-
-#[then("I should see the home page")]
-async fn see_home_page(world: &mut TestWorld) {
-    assert_eq!(
-        world.driver.current_url().await.unwrap(),
-        "http://localhost:17002/"
-    );
-}

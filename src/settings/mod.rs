@@ -9,7 +9,7 @@ use crate::utils::new_auth;
 
 pub async fn show_packages(request: HttpRequest) -> Result<HttpResponse> {
     request.render(200, "settings/user_packages.html", {
-        let mut context = Context::new();
+        let context = Context::new();
         context
     })
 }
