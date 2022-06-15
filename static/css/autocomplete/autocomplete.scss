@@ -127,6 +127,11 @@ input[type="text"]:focus {
   top: 100%;
   left: 0;
   right: 0;
+
+  &#suggestions {
+    overflow-y: auto;
+    max-height: 250px;
+  }
 }
 
 .autocomplete-items div {

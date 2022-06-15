@@ -107,15 +107,6 @@ class AutoComplete {
         node.classList.add("no-pointer");
       }
       suggestionsContainer.appendChild(node);
-      if (total > 5 && index === total-1){
-        let height = document.querySelector("#suggestion0").offsetHeight;
-        height += document.querySelector("#suggestion1").offsetHeight;
-        height += document.querySelector("#suggestion2").offsetHeight;
-        height += document.querySelector("#suggestion3").offsetHeight;
-        height += document.querySelector("#suggestion4").offsetHeight;
-        suggestionsContainer.classList.add("overflow-scroll");
-        suggestionsContainer.style.height = height+"px";
-      }
     });
 
   }
