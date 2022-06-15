@@ -26,7 +26,7 @@ pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
     request.render(200, "accounts/login.html", {
         let mut ctx = Context::new();
         let google_client_id =
-            std::env::var("GOOGLE_CLIENT_ID").unwrap();
+            std::env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID not set!");
         ctx.insert("form", &LoginForm::default());
         ctx.insert("client_id", &google_client_id);
         let flash = request.cookie("flash");
@@ -48,7 +48,7 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
         return request.render(400, "accounts/login.html", {
             let mut context = Context::new();
             let google_client_id =
-                std::env::var("GOOGLE_CLIENT_ID").unwrap();
+                std::env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID not set!");
             context.insert("error", "Invalid email or password! Try again.");
             context.insert("form", &form);
             context.insert("client_id", &google_client_id);
@@ -85,7 +85,9 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
                 Ok(HttpResponse::Found()
                     .header(
                         header::SET_COOKIE,
-                        jar.get("remember_me_token").unwrap().encoded().to_string(),
+                        jar.get("remember_me_token")
+                            .expect("Getting key from cookie jar should not fail.")
+                            .encoded().to_string(),
                     )
                     .header(header::LOCATION, "/settings/profile")
                     .finish())
@@ -102,7 +104,7 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
     request.render(400, "accounts/login.html", {
         let mut context = Context::new();
         let google_client_id =
-            std::env::var("GOOGLE_CLIENT_ID").unwrap();
+            std::env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID not set!");
         context.insert("error", error_message.as_str());
         context.insert("form", &form);
         context.insert("client_id", &google_client_id);

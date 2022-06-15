@@ -3,6 +3,7 @@ use jelly::actix_session::UserSession;
 use jelly::actix_web::{HttpMessage, HttpRequest};
 use jelly::prelude::*;
 use jelly::Result;
+use jelly::anyhow::anyhow;
 
 use crate::accounts::Account;
 
@@ -18,8 +19,10 @@ pub async fn renew_token(request: &HttpRequest) -> Result<bool> {
         let remember_me_cookie = request.cookie("remember_me_token");
         if let Some(cookie) = remember_me_cookie {
             let cookie = cookie.value();
-            let index = cookie.find("=").unwrap();
-            let uid = &cookie[index + 1..].parse::<i32>().unwrap();
+            let index = cookie.find("=")
+                .ok_or(anyhow!("Error parsing cookie: Should be key=value."))?;
+            let uid = &cookie[index + 1..].parse::<i32>()
+                .map_err(|e| anyhow!("Error parsing user id from cookie: {:?}", e))?;
 
             let acc = Account::get(*uid, request.db_pool()?).await?;
             let user = User {

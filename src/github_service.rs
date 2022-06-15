@@ -1,4 +1,4 @@
-use jelly::error::Error;
+use jelly::{anyhow::anyhow, error::Error};
 use reqwest::blocking::{multipart, Response};
 use reqwest::header;
 use serde::Deserialize;
@@ -69,7 +69,7 @@ impl GithubService {
     // and rayon is not a good fit for async
     pub fn fetch_repo_data(&self, input_url: &String) -> Result<GithubRepoData, Error> {
         let repo_url = input_url.replace("https://github.com/", "https://api.github.com/repos/");
-        let response = call_github_api(&repo_url);
+        let response = call_github_api(&repo_url)?;
         let mut repo_info = match response.json::<GithubRepoInfo>() {
             Ok(info) => info,
             Err(error) => {
@@ -85,8 +85,8 @@ impl GithubService {
         };
 
         let content_url = format!("{}{}", repo_url, "/contents");
-        let response = call_github_api(&content_url);
-        let response_json: Vec<GithubResponse> = response.json().unwrap();
+        let response = call_github_api(&content_url)?;
+        let response_json: Vec<GithubResponse> = response.json()?;
         if response_json.is_empty() {
             return Err(Error::Generic(format!("Invalid repo url: {}", &content_url)));
         }
@@ -104,12 +104,12 @@ impl GithubService {
             .collect::<Vec<&GithubResponse>>();
         let readme_content = if readme_urls.len() > 0 {
             let response =
-                call_github_api(readme_urls.first().unwrap().download_url.as_ref().unwrap());
+                call_github_api(readme_urls.first().unwrap().download_url.as_ref().unwrap())?;
             match response.text() {
                 Ok(content) => {
                     // generate description from readme if not existed
                     if repo_info.description.is_none() {
-                        repo_info.description = call_deep_ai_api(content.clone());
+                        repo_info.description = call_deep_ai_api(content.clone())?;
                         if repo_info.description.is_none() {
                             let content_stripped = &content
                                 .replace("\n", " ")
@@ -154,7 +154,7 @@ impl GithubService {
             .collect::<Vec<&GithubResponse>>();
         let move_toml_content = if move_toml_urls.len() > 0 {
             let response =
-                call_github_api(move_toml_urls.first().unwrap().download_url.as_ref().unwrap());
+                call_github_api(move_toml_urls.first().unwrap().download_url.as_ref().unwrap())?;
             match response.text() {
                 Ok(content) => content,
                 Err(error) => {
@@ -196,27 +196,26 @@ impl GithubService {
     }
 }
 
-fn call_github_api(url: &str) -> Response {
+fn call_github_api(url: &str) -> Result<Response, Error> {
     let access_token = env::var("GITHUB_ACCESS_TOKEN")
         .expect("Unable to pull GITHUB_ACCESS_TOKEN");
     let client = reqwest::blocking::Client::builder()
         .user_agent(APP_USER_AGENT)
-        .build()
-        .unwrap();
-    client
+        .build()?;
+    let res = client
         .get(url)
         .header(header::AUTHORIZATION, format!("Bearer {}", &access_token))
-        .send()
-        .unwrap()
+        .send()?;
+    
+    Ok(res)
 }
 
-fn call_deep_ai_api(content: String) -> Option<String> {
+fn call_deep_ai_api(content: String) -> Result<Option<String>, Error> {
     let access_token = env::var("DEEP_AI_API_KEY")
         .expect("Unable to pull DEEP_AI_API_KEY");
     let client = reqwest::blocking::Client::builder()
         .user_agent(APP_USER_AGENT)
-        .build()
-        .unwrap();
+        .build()?;
     let form = multipart::Form::new()
         .text("text", content);
     let response = client
@@ -226,7 +225,7 @@ fn call_deep_ai_api(content: String) -> Option<String> {
         .send()
         .ok();
     if response.is_none() {
-        return None;
+        return Ok(None);
     };
 
     #[derive(Deserialize)]
@@ -237,13 +236,13 @@ fn call_deep_ai_api(content: String) -> Option<String> {
     match response.unwrap().json::<DeepApiResponse>() {
         Ok(response) => {
             if response.output == "" {
-                return None;
+                return Ok(None);
             }
-            Some(response.output)
+            Ok(Some(response.output))
         },
         Err(error) => {
             error!("Error getting response from deepai.org. error: {}", error);
-            None
+            Ok(None)
         }
     }
 }

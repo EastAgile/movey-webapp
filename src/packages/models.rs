@@ -165,13 +165,15 @@ pub enum PackageVersionSort {
 }
 
 impl Package {
-    pub async fn count(pool: &DieselPgPool) -> i64 {
-        let connection = pool.get().unwrap();
-        packages
+    pub async fn count(pool: &DieselPgPool) -> Result<i64, Error> {
+        let connection = pool.get()?;
+        let result = packages
             .select(count(packages::id))
-            .first::<i64>(&connection)
-            .unwrap()
+            .first::<i64>(&connection)?;
+
+        Ok(result)
     }
+
     pub async fn create(
         repo_url: &String,
         package_description: &String,
@@ -182,7 +184,7 @@ impl Package {
         service: &GithubService,
         pool: &DieselPgPool,
     ) -> Result<i32, Error> {
-        let github_data = service.fetch_repo_data(&repo_url).unwrap();
+        let github_data = service.fetch_repo_data(&repo_url)?;
 
         Package::create_from_crawled_data(
             repo_url,
@@ -239,8 +241,7 @@ impl Package {
                     version_size,
                     pool,
                 )
-                .await
-                .unwrap();
+                .await?;
             }
         }
 
@@ -284,13 +285,17 @@ impl Package {
         Ok(result)
     }
 
-    pub async fn get_downloads(owner_id: i32, pool: &DieselPgPool) -> Option<i64> {
-        let connection = pool.get().unwrap();
-        packages
+    pub async fn get_downloads(owner_id: i32, pool: &DieselPgPool) -> Result<i64, Error>{
+        let connection = pool.get()?;
+        let result = packages
             .select(sum(packages::total_downloads_count))
             .filter(account_id.eq(owner_id))
-            .first::<Option<i64>>(&connection)
-            .unwrap()
+            .first::<Option<i64>>(&connection)?;
+
+        match result {
+            Some(result) => Ok(result),
+            None => Ok(0)
+        }
     }
 
     pub async fn get_version(
@@ -400,9 +405,8 @@ impl Package {
             .filter(name.ilike(format!("{}{}{}", "%", search_query, "%")))
             .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at"))
             .select((packages::name, packages::description, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
-            .load::<(String, String, String)>(&connection)
-            .unwrap();
-
+            .load::<(String, String, String)>(&connection)?;
+        
         Ok(result)
     }
 
@@ -437,8 +441,7 @@ impl Package {
             .filter(tsv.matches(plainto_tsquery(search_query)))
             .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
             .order(diesel::dsl::sql::<diesel::sql_types::Text>(&order_query))
-            .load_with_pagination(&connection, Some(page), Some(per_page))
-            .unwrap();
+            .load_with_pagination(&connection, Some(page), Some(per_page))?;
 
         return Ok(result);
     }
@@ -471,20 +474,20 @@ impl Package {
             .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
             .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
             .order(diesel::dsl::sql::<diesel::sql_types::Text>(&order_query))
-            .load_with_pagination(&connection, Some(page), Some(per_page))
-            .unwrap();
+            .load_with_pagination(&connection, Some(page), Some(per_page))?;
 
         return Ok(result);
     }
 }
 
 impl PackageVersion {
-    pub async fn count(pool: &DieselPgPool) -> i64 {
-        let connection = pool.get().unwrap();
-        package_versions
+    pub async fn count(pool: &DieselPgPool) -> Result<i64, Error> {
+        let connection = pool.get()?;
+        let result = package_versions
             .select(count(package_versions::id))
-            .first::<i64>(&connection)
-            .unwrap()
+            .first::<i64>(&connection)?;
+
+        Ok(result)
     }
     pub async fn create(
         version_package_id: i32,
@@ -951,12 +954,12 @@ mod tests {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
 
-        assert_eq!(Package::count(&DB_POOL).await, 0);
-        assert_eq!(PackageVersion::count(&DB_POOL).await, 0);
+        assert_eq!(Package::count(&DB_POOL).await.unwrap(), 0);
+        assert_eq!(PackageVersion::count(&DB_POOL).await.unwrap(), 0);
         setup().await.unwrap();
 
-        assert_eq!(Package::count(&DB_POOL).await, 3);
-        assert_eq!(PackageVersion::count(&DB_POOL).await, 3);
+        assert_eq!(Package::count(&DB_POOL).await.unwrap(), 3);
+        assert_eq!(PackageVersion::count(&DB_POOL).await.unwrap(), 3);
 
         PackageVersion::create(
             1,
@@ -969,7 +972,7 @@ mod tests {
         )
         .await
         .unwrap();
-        assert_eq!(PackageVersion::count(&DB_POOL).await, 4);
+        assert_eq!(PackageVersion::count(&DB_POOL).await.unwrap(), 4);
     }
 
     #[actix_rt::test]
