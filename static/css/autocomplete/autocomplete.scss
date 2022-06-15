@@ -10,9 +10,6 @@
   line-height:0;
   border: none;
   cursor: pointer;
-  &:hover {
-     background: #ccc;
-   }
   @include medium-screen {
     padding: 25px;
   }
@@ -43,7 +40,7 @@
 .autocomplete-main-wrapper{
   position: relative;
   height: 56px;
-  outline: 3px solid rgba(68, 161, 231, 0.5);
+  border: 3px solid rgba(68, 161, 231, 0.5);
   z-index: 99 !important;
 
   @include medium-screen {
@@ -134,7 +131,7 @@ input[type="text"]:focus {
   }
 }
 
-.autocomplete-items div {
+.autocomplete-items > div {
   display: flex;
   justify-content: center;
   align-items: center;

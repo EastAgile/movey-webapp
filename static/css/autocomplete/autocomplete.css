@@ -9,9 +9,6 @@
   border: none;
   cursor: pointer;
 }
-.icon-default-main:hover {
-  background: #ccc;
-}
 @media screen and (min-width: 844px) and (max-width: 1280px) {
   .icon-default-main {
     padding: 25px;
@@ -44,7 +41,7 @@
 .autocomplete-main-wrapper {
   position: relative;
   height: 56px;
-  outline: 3px solid rgba(68, 161, 231, 0.5);
+  border: 3px solid rgba(68, 161, 231, 0.5);
   z-index: 99 !important;
 }
 @media screen and (min-width: 844px) and (max-width: 1280px) {
@@ -133,7 +130,7 @@ input[type=text]:focus {
   max-height: 350px;
 }
 
-.autocomplete-items div {
+.autocomplete-items > div {
   display: flex;
   justify-content: center;
   align-items: center;

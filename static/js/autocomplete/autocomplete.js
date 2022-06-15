@@ -59,6 +59,9 @@ class AutoComplete {
     wrapper.classList.add("autocomplete-shadow");
 
     let total = this.suggestions.length;
+
+    let descriptionWidth = $(".autocomplete-main-wrapper").width() - 120;
+
     this.suggestions.forEach((suggestion, index) => {
       const option = this.getOptionValue(suggestion[0]);
 
@@ -68,6 +71,7 @@ class AutoComplete {
 
       const packageDescription = document.createElement("div");
       packageDescription.setAttribute("class", "package-description");
+      packageDescription.setAttribute("style", "width:" + descriptionWidth + "px");
       packageDescription.innerHTML = suggestion[1];
 
       const packageVersion = document.createElement("div")
@@ -217,7 +221,9 @@ class AutoComplete {
     const input = this.container.querySelector("input");
     const button = this.container.querySelector("#button-main");
     button.addEventListener("click", () => {
-      window.location.href = '/packages/search?query='+input.value;
+      if(input.value) {
+        window.location.href = '/packages/search?query='+input.value;
+      }
     });
     const xButton = this.container.querySelector("#button-x");
     xButton.addEventListener("click", () => {
@@ -226,4 +232,8 @@ class AutoComplete {
       xButton.classList.add("hidden");
     });
   }
+
+  truncateString(str, length) {
+    return str.length > length ? str.substring(0, length - 3) + '...' : str
+ }
 }
