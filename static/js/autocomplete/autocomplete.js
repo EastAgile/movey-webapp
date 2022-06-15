@@ -57,6 +57,8 @@ class AutoComplete {
 
     input.classList.add("input-has-item");
     wrapper.classList.add("autocomplete-shadow");
+
+    let total = this.suggestions.length;
     this.suggestions.forEach((suggestion, index) => {
       const option = this.getOptionValue(suggestion[0]);
 
@@ -71,11 +73,13 @@ class AutoComplete {
       const packageVersion = document.createElement("div")
       packageVersion.setAttribute("class", "package-version");
       packageVersion.innerHTML = suggestion[2]
-
       const node = document.createElement("div");
+      const suggesstionContent = document.createElement("div");
+      suggesstionContent.setAttribute("class", "suggestion-content");
       node.setAttribute('id', 'suggestion' + index)
-      node.appendChild(packageName);
-      node.appendChild(packageDescription);
+      suggesstionContent.appendChild(packageName);
+      suggesstionContent.appendChild(packageDescription);
+      node.appendChild(suggesstionContent);
       node.appendChild(packageVersion);
 
       if (this.currentChoiceIndex === index)
@@ -104,6 +108,7 @@ class AutoComplete {
       }
       suggestionsContainer.appendChild(node);
     });
+
   }
 
   getOptionValue(suggestion) {
