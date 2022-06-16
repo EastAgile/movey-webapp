@@ -4,12 +4,13 @@ use jelly::accounts::User;
 use jelly::actix_session::UserSession;
 use jelly::actix_web::web::Query;
 use jelly::actix_web::{web, web::Path, HttpRequest};
-use jelly::prelude::*;
+use jelly::{prelude::*, DieselPgPool};
 use jelly::request::DatabasePool;
 use jelly::Result;
 use oauth2::basic::BasicClient;
 use oauth2::reqwest::http_client;
 use oauth2::{AuthorizationCode, TokenResponse};
+use diesel::result::Error as DBError;
 
 #[derive(serde::Deserialize)]
 pub struct AuthRequest {
@@ -80,29 +81,22 @@ pub async fn callback_github(
                         .header("User-Agent", "Movey")
                         .send()?;
 
-                    let mut oauth_response: GithubOauthResponse = response.json().unwrap();
-                    if oauth_response.email.is_none() {
-                        // user does not expose email, create mock email
-                        let email_domain = std::env::var("NO_REPLY_EMAIL_DOMAIN")
-                            .expect("NO_REPLY_EMAIL_DOMAIN is not set!");
-                        let mock_email = format!("{}+{}@{}",
-                            &(oauth_response.id).to_string(),
-                            oauth_response.login.clone(),
-                            email_domain
-                        );
-                        oauth_response.email = Some(mock_email);
-                    }
-
-                    let oauth_user = GithubOauthUser {
-                        id: oauth_response.id,
-                        login: oauth_response.login,
-                        email: oauth_response.email.unwrap(),
+                    let oauth_response: GithubOauthResponse = response.json().unwrap();
+                    let db = request.db_pool()?;
+                    
+                    let updated_account = 
+                        link_github_to_movey_account(request.user()?, &oauth_response, db).await?;
+                    let user = if updated_account.is_none() {
+                        create_default_account_for_github_user(oauth_response, db).await?
+                    } else {
+                        User {
+                            id: updated_account.as_ref().unwrap().id,
+                            is_admin: updated_account.as_ref().unwrap().is_admin,
+                            name: updated_account.unwrap().name,
+                            is_anonymous: false,
+                        }
                     };
 
-                    let oauth_user: GithubOauthUser = response.json()?;
-                    let db = request.db_pool()?;
-                    let user = Account::register_from_github(&oauth_user, &db).await?;
-                    Account::update_last_login(user.id, &db).await?;
                     request.set_user(user)?;
                     request.redirect("/settings/profile")
                 }
@@ -111,4 +105,395 @@ pub async fn callback_github(
         }
         _ => request.redirect("/accounts/register/"),
     };
+}
+
+async fn link_github_to_movey_account(
+    current_user: User,
+    oauth_response: &GithubOauthResponse,
+    pool: &DieselPgPool
+) -> Result<Option<Account>> {
+
+    // If id == 0, user is not signed in
+    if current_user.id == 0 {
+        return Ok(None);
+    }
+
+    let movey_account = match Account::get(current_user.id, pool).await {
+        Ok(account) => {
+            if account.github_id.is_some() || account.github_login.is_some() {
+                error!("This user has already linked to Github account. uid: {}, current Github id: {}, new Github id: {}", 
+                    account.id, account.github_id.unwrap(), oauth_response.id);
+                return Err(Error::Generic("This user has already linked to Github account.".to_string()));
+            }
+            account
+        },
+        Err(e) => {
+            error!("A valid user_id is expected, but cannot be found: {:?}", e);
+            return Err(e);
+        }
+    };
+    
+    let current_github_account = Account::get_by_github_id(oauth_response.id, pool).await;
+    match current_github_account {
+        Ok(current_github_account) => {
+            if current_github_account.name != "".to_string() {
+                error!("This Github account has already been linked to a Movey account. current uid: {}, thief uid: {}, Github id: {}", 
+                    current_github_account.id, movey_account.id, current_github_account.github_id.unwrap());
+                return Err(Error::Generic("This Github account has already been linked to a Movey account.".to_string()));
+            }
+
+            error!("{:?}", current_github_account);
+
+            Account::merge_github_account_and_movey_account(
+                movey_account.id, 
+                oauth_response.id, 
+                oauth_response.login.clone(), 
+                pool
+            ).await?;
+        },
+        Err(Error::Database(DBError::NotFound)) => {
+            Account::update_movey_account_with_github_info(
+                movey_account.id, 
+                oauth_response.id, 
+                oauth_response.login.clone(), 
+                pool
+            ).await?;
+        },
+        Err(e) => {
+            error!("Error linking Movey account with Github. uid: {}, error: {:?}", movey_account.id, e);
+            return Err(e);
+        }
+    }
+    Account::update_last_login(movey_account.id, pool).await?;
+
+    let updated_account = Account::get(movey_account.id, pool).await?;
+    return Ok(Some(updated_account));
+}
+
+async fn create_default_account_for_github_user(
+    mut oauth_response: GithubOauthResponse,
+    pool: &DieselPgPool
+) -> Result<User> {
+    if oauth_response.email.is_none() {
+        // user does not expose email, create mock email
+        let email_domain = std::env::var("NO_REPLY_EMAIL_DOMAIN")
+            .expect("NO_REPLY_EMAIL_DOMAIN is not set!");
+        let mock_email = format!("{}+{}@{}",
+            &(oauth_response.id).to_string(),
+            oauth_response.login.clone(),
+            email_domain
+        );
+        oauth_response.email = Some(mock_email);
+    }
+
+    let oauth_user = GithubOauthUser {
+        id: oauth_response.id,
+        login: oauth_response.login,
+        email: oauth_response.email.unwrap(),
+    };
+
+    let user = Account::register_from_github(&oauth_user, pool).await?;
+    Account::update_last_login(user.id, pool).await?;
+    
+    Ok(user)
+}
+
+#[cfg(test)]
+mod tests {
+    use jelly::forms::{EmailField, PasswordField};
+
+    use super::*;
+    use crate::{test::{DatabaseTestContext, DB_POOL}, accounts::forms::NewAccountForm};
+
+    #[actix_rt::test]
+    async fn link_github_to_movey_account_return_none_if_not_signed_in_with_movey_account() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        let oauth_stub = GithubOauthResponse {
+            id: 143_543,
+            login: "a_gh_username".to_string(),
+            email: Some("a_email@github.com".to_string()),
+        };
+
+        let result = link_github_to_movey_account(
+            User::default(), &oauth_stub, &DB_POOL
+        ).await;
+
+        assert!(result.is_ok());
+        assert!(result.unwrap().is_none());
+    }
+
+    #[actix_rt::test]
+    async fn link_github_to_movey_account_return_user_if_movey_user_link_to_github_for_the_first_time() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        
+        let oauth_stub = GithubOauthResponse {
+            id: 143_543,
+            login: "a_gh_username".to_string(),
+            email: Some("a_email@github.com".to_string()),
+        };
+
+        let form = NewAccountForm {
+            email: EmailField {
+                value: "email@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        };
+        let uid = Account::register(&form, &DB_POOL).await.unwrap();
+        let account = Account::get(uid, &DB_POOL).await.unwrap();
+
+        assert!(account.github_id.is_none());
+        assert!(account.github_login.is_none());
+
+        let user = User {
+            id: account.id,
+            name: account.name,
+            is_admin: account.is_admin,
+            is_anonymous: false,
+        };
+
+        let result = link_github_to_movey_account(
+            user, &oauth_stub, &DB_POOL
+        ).await;
+        assert!(result.is_ok());
+        assert!(result.as_ref().unwrap().is_some());
+        assert_eq!(result.unwrap().unwrap().id, account.id);
+        
+        let account = Account::get(uid, &DB_POOL).await.unwrap();
+        assert_eq!(account.github_id, Some(143_543));
+        assert_eq!(account.github_login, Some("a_gh_username".to_string()));
+    }
+
+    #[actix_rt::test]
+    async fn link_github_to_movey_account_return_user_if_movey_user_merge_with_existing_github_account() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+
+        let existing_gh_account = Account::register_from_github(&GithubOauthUser {
+            id: 143_543,
+            login: "a_gh_username".to_string(),
+            email: "a_email@github.com".to_string(),
+        }, &DB_POOL).await.unwrap();
+
+        assert_eq!(existing_gh_account.name, "");
+
+        let uid = Account::register(&NewAccountForm {
+            email: EmailField {
+                value: "email@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        }, &DB_POOL).await.unwrap();
+        let account = Account::get(uid, &DB_POOL).await.unwrap();
+
+        assert!(account.github_id.is_none());
+        assert!(account.github_login.is_none());
+
+        let user = User {
+            id: account.id,
+            name: account.name.clone(),
+            is_admin: account.is_admin,
+            is_anonymous: false,
+        };
+        let oauth_stub = GithubOauthResponse {
+            id: 143_543,
+            login: "a_gh_username".to_string(),
+            email: Some("a_email@github.com".to_string()),
+        };
+        let result = link_github_to_movey_account(
+            user, &oauth_stub, &DB_POOL
+        ).await;
+        assert!(result.is_ok());
+        assert!(result.as_ref().unwrap().is_some());
+        assert_eq!(result.unwrap().unwrap().id, account.id);
+
+        let account = Account::get(uid, &DB_POOL).await.unwrap();
+        assert_eq!(account.name, "email".to_string());
+        assert_eq!(account.email, "email@host.com".to_string());
+        assert_eq!(account.github_id, Some(143_543));
+        assert_eq!(account.github_login, Some("a_gh_username".to_string()));
+    }
+
+    #[actix_rt::test]
+    async fn link_github_to_movey_account_return_none_if_movey_user_already_linked_to_github_account() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        
+        let oauth_stub = GithubOauthResponse {
+            id: 143_543,
+            login: "a_gh_username".to_string(),
+            email: Some("a_email@github.com".to_string()),
+        };
+
+        let form = NewAccountForm {
+            email: EmailField {
+                value: "email@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        };
+        let uid = Account::register(&form, &DB_POOL).await.unwrap();
+        let account = Account::get(uid, &DB_POOL).await.unwrap();
+
+        assert!(account.github_id.is_none());
+        assert!(account.github_login.is_none());
+
+        let user = User {
+            id: account.id,
+            name: account.name.clone(),
+            is_admin: account.is_admin,
+            is_anonymous: false,
+        };
+        let result = link_github_to_movey_account(
+            user, &oauth_stub, &DB_POOL
+        ).await;
+        assert!(result.is_ok());
+        assert!(result.as_ref().unwrap().is_some());
+        assert_eq!(result.unwrap().unwrap().id, account.id);
+
+        let user = User {
+            id: account.id,
+            name: account.name,
+            is_admin: account.is_admin,
+            is_anonymous: false,
+        };
+        let result = link_github_to_movey_account(
+            user, &oauth_stub, &DB_POOL
+        ).await;
+        assert!(result.is_err());
+        if let Err(Error::Generic(message)) = result {
+            assert_eq!(message, "This user has already linked to Github account.".to_string());
+        }
+    }
+
+    #[actix_rt::test]
+    async fn link_github_to_movey_account_return_none_if_github_account_already_linked_to_another_movey_account() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        
+        let oauth_stub = GithubOauthResponse {
+            id: 143_543,
+            login: "a_gh_username".to_string(),
+            email: Some("a_email@github.com".to_string()),
+        };
+
+        let form = NewAccountForm {
+            email: EmailField {
+                value: "email@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        };
+        let uid = Account::register(&form, &DB_POOL).await.unwrap();
+        let account = Account::get(uid, &DB_POOL).await.unwrap();
+
+        assert!(account.github_id.is_none());
+        assert!(account.github_login.is_none());
+
+        let user = User {
+            id: account.id,
+            name: account.name.clone(),
+            is_admin: account.is_admin,
+            is_anonymous: false,
+        };
+        let result = link_github_to_movey_account(
+            user, &oauth_stub, &DB_POOL
+        ).await;
+        assert!(result.is_ok());
+        assert!(result.as_ref().unwrap().is_some());
+        assert_eq!(result.unwrap().unwrap().id, account.id);
+
+        let form = NewAccountForm {
+            email: EmailField {
+                value: "email@thief.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        };
+        let uid = Account::register(&form, &DB_POOL).await.unwrap();
+        let account = Account::get(uid, &DB_POOL).await.unwrap();
+        let user = User {
+            id: account.id,
+            name: account.name,
+            is_admin: account.is_admin,
+            is_anonymous: false,
+        };
+        let result = link_github_to_movey_account(
+            user, &oauth_stub, &DB_POOL
+        ).await;
+        assert!(result.is_err());
+        if let Err(Error::Generic(message)) = result {
+            assert_eq!(message, "This Github account has already been linked to a Movey account.".to_string());
+        }
+    }
+
+
+    #[actix_rt::test]
+    async fn create_default_account_for_github_user_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        let oauth_stub = GithubOauthResponse {
+            id: 143_543,
+            login: "a_gh_username".to_string(),
+            email: Some("a_email@github.com".to_string()),
+        };
+
+        let result = create_default_account_for_github_user(
+            oauth_stub, &DB_POOL
+        ).await;
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().name, "".to_string());
+
+        let account = Account::get_by_github_id(143_543, &DB_POOL).await.unwrap();
+        assert_eq!(account.name, "".to_string());
+        assert_eq!(account.email, "a_email@github.com".to_string());
+        assert_eq!(account.github_login, Some("a_gh_username".to_string()));
+    }
+
+    #[actix_rt::test]
+    async fn create_default_account_for_github_user_will_create_default_email_if_github_email_is_private() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        let oauth_stub = GithubOauthResponse {
+            id: 143_543,
+            login: "a_gh_username".to_string(),
+            email: None,
+        };
+
+        let result = create_default_account_for_github_user(
+            oauth_stub, &DB_POOL
+        ).await;
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().name, "".to_string());
+
+        let account = Account::get_by_github_id(143_543, &DB_POOL).await.unwrap();
+        let domain = std::env::var("NO_REPLY_EMAIL_DOMAIN").unwrap();
+        assert_eq!(account.name, "".to_string());
+        assert_eq!(account.email, "143543+a_gh_username@".to_string() + &domain);
+        assert_eq!(account.github_login, Some("a_gh_username".to_string()));
+    }
 }
