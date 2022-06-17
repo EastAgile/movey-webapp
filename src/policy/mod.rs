@@ -11,6 +11,14 @@ pub async fn policy_(request: HttpRequest) -> Result<HttpResponse> {
     request.render(200, "policy/policy.html", Context::new())
 }
 
+pub async fn contact(request: HttpRequest) -> Result<HttpResponse> {
+    request.render(200, "policy/contact.html", Context::new())
+}
+
+pub async fn about(request: HttpRequest) -> Result<HttpResponse> {
+    request.render(200, "policy/about.html", Context::new())
+}
+
 pub fn configure(config: &mut ServiceConfig) {
     config.service(
         scope("/")
@@ -19,6 +27,12 @@ pub fn configure(config: &mut ServiceConfig) {
             )
             .service(
                 resource("/policy").to(policy_),
+            )
+            .service(
+                resource("/contact").to(contact),
+            )
+            .service(
+                resource("/about").to(about),
             )
     );
 }

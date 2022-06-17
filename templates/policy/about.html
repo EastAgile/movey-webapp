@@ -1,0 +1,44 @@
+
+{% extends "layout.html" %}
+
+{% block title %}About Us{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"/>
+    <link href="/static/css/contact.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block javascript %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.0.3/showdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.6.7/jquery.timeago.min.js"></script>
+    
+{% endblock %}
+
+{% block content %}
+    <div class="contact-container">
+        <h1 class = "page_name">About Movey</h1>
+        <div class="contact-line"></div>
+         <div class ="contact-content">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+        
+            <div class="page-h2"><span>Movey</span> is lots of things.</div>
+                <ul class="">
+                    <li>Movey is the package manager for move. It was created in duis aute irure dulor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</li>
+                    <li>The movey registry is a public collection of packages of open-source code for Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</li>
+                    <li>Movey is the quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. </li>
+                </ul>
+             </div>
+        </div>
+        
+                
+    </div>
+
+    <script>
+        this.sortElement = $("select[name='packages-sort']");
+        this.sortElement.select2({
+            minimumResultsForSearch: -1,
+            dropdownCssClass: 'packages-sort-dropdown',
+            placeholder: "Select a category",
+        });
+    </script>
+{% endblock %}
+

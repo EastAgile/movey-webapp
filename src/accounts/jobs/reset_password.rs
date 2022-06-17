@@ -89,3 +89,5 @@ impl Job for SendPasswordWasResetEmail {
         })
     }
 }
+
+

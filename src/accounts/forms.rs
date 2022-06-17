@@ -108,6 +108,14 @@ impl Validation for ChangePasswordForm {
     }
 }
 
+#[derive(Default, Debug, Deserialize, Serialize)]
+pub struct ContactForm {
+    pub email: Option<String>,
+    pub name: Option<String>,
+    pub description: Option<String>
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;

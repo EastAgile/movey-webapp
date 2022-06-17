@@ -10,6 +10,7 @@ pub mod register;
 pub mod reset_password;
 pub mod utils;
 pub mod verify;
+pub mod contact;
 
 pub async fn logout(request: HttpRequest) -> Result<HttpResponse> {
     request.get_session().clear();

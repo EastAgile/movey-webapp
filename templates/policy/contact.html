@@ -1,0 +1,69 @@
+
+{% extends "layout.html" %}
+
+{% block title %}Contact Us{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"/>
+    <link href="/static/css/contact.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block javascript %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.0.3/showdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.6.7/jquery.timeago.min.js"></script>
+    
+{% endblock %}
+
+{% block content %}
+    <div class="contact-container">
+        <h1 class = "page_name">Contact Us</h1>
+         <div class ="contact-content">If you need assistance with the movey packages or your movey account, if you have security concerns about a npm product, or if you need to report malicious or abusive conduct in a package in the registry, please contact us.</div>
+        
+         <div class="contact-line"></div>
+        <div class="form-cta"> Submit a request </div>
+
+        <form class="package-search-sort">
+            <!-- <label for="packages-sort">Sort by</label> -->
+            <select name="packages-sort"
+                    class="packages-sort"
+                    data-sort=""
+                    data-url="/packages/"
+                    placeholder="Select category"
+            >
+                <option value="" disabled  selected></option>
+                <option value="name"> Account</option>
+                <option value="name"> Password/Login issues</option>
+                <option value="name"> Usage/Lisence query</option>
+                <option value="name"> Contributor</option>
+                <option value="name"> Report a security issue</option>
+                <option value="name"> Others</option>
+            </select>
+            <div class="packages-sort-chevron"></div>
+
+            <label class="contact-label" for="fname">Name</label>
+            <input type="text"  name="name" >
+
+            <label class="contact-label" for="fname">Email</label>
+            <input type="text"  name="email" >
+            
+            <div class="contact-instruction">Please, enter the email address where you wish to receive our answer. If you are a registered user of Movey, please include the email address you used when you registered if possible to help us locate your account as soon as possible.</div>
+
+            <label class="contact-label" for="fname">How can we help?</label>
+            <textarea name="description">Write us a message</textarea>
+
+            <button type="submit" class="contact-btn">
+                Submit
+            </button>
+        </form>
+    </div>
+
+    <script>
+        this.sortElement = $("select[name='packages-sort']");
+        this.sortElement.select2({
+            minimumResultsForSearch: -1,
+            dropdownCssClass: 'packages-sort-dropdown',
+            placeholder: "Select a category",
+        });
+    </script>
+{% endblock %}
+
