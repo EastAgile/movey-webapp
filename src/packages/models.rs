@@ -184,7 +184,7 @@ impl Package {
         service: &GithubService,
         pool: &DieselPgPool,
     ) -> Result<i32, Error> {
-        let github_data = service.fetch_repo_data(&repo_url)?;
+        let github_data = service.fetch_repo_data(&repo_url, None)?;
 
         Package::create_from_crawled_data(
             repo_url,
@@ -230,7 +230,7 @@ impl Package {
         };
 
         // Only creates new version if same user with package owner
-        if record.account_id == account_id_ {
+        if record.account_id == account_id_ || record.account_id.is_none() {
             if let Err(_) = record.get_version(&github_data.version, &pool).await {
                 PackageVersion::create(
                     record.id,
@@ -344,7 +344,7 @@ impl Package {
                     Ok(_) => (),
                     Err(NotFound) => {
                         // Package is found but version is not, creating shadow version
-                        let github_data = service.fetch_repo_data(&https_url)?;
+                        let github_data = service.fetch_repo_data(&https_url, None)?;
                         PackageVersion::create(
                             package_id_,
                             github_data.name,
