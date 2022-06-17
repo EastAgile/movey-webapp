@@ -13,7 +13,10 @@
 {% block settings_content %}
 
 <div class="settings-tokens-container">
-  <div class="tokens-banner">Movey uses a new authentication token format. We encourage you to reset tokens to take advantage of this format.</div>
+  <div class="tokens-banner">
+    <div>You can use the tokens on this page to run <span class="special"><a href="https://github.com/move-language/move/tree/main/language/tools/move-cli">move-cli</a></span> commands that communicate with <span class="special"><a href="https://www.movey.net/">Movey</a></span>. If you want to publish your own packages then this is required.</div>
+    <div>Run <span class="special">move login</span> on the command line to save the token and use it for subsequent operations.</div>
+  </div>
 
   <div class="tokens-list-header">
     <div class="token-list-title">Access Tokens</div>
