@@ -100,10 +100,20 @@ pub async fn callback_github(
                     request.set_user(user)?;
                     request.redirect("/settings/profile")
                 }
-                Err(_) => request.redirect("/accounts/register/"),
+                Err(e) => {
+                    error!("Error getting information from Github: {:?}", e);
+                    request.redirect("/accounts/register/")
+                },
             }
-        }
-        _ => request.redirect("/accounts/register/"),
+        },
+        Ok(_) => {
+            error!("Unable to get oauth state.");
+            request.redirect("/accounts/register/")
+        },
+        Err(e) => {
+            error!("Invalid Github callback: {:?}", e);
+            request.redirect("/accounts/register/")
+        },
     };
 }
 
@@ -112,10 +122,12 @@ async fn link_github_to_movey_account(
     oauth_response: &GithubOauthResponse,
     pool: &DieselPgPool
 ) -> Result<Option<Account>> {
-
     // If id == 0, user is not signed in
-    if current_user.id == 0 {
-        return Ok(None);
+    if current_user.is_anonymous || current_user.id == 0 {
+        let existing_account = Account::get_by_github_id(oauth_response.id, pool).await;
+        if let Ok(account) = existing_account {
+            return Ok(Some(account));
+        }
     }
 
     let movey_account = match Account::get(current_user.id, pool).await {
@@ -449,6 +461,60 @@ mod tests {
         }
     }
 
+    #[actix_rt::test]
+    async fn link_github_to_movey_account_return_user_if_sign_in_with_github() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        
+        let oauth_stub = GithubOauthResponse {
+            id: 143_543,
+            login: "a_gh_username".to_string(),
+            email: Some("a_email@github.com".to_string()),
+        };
+
+        let form = NewAccountForm {
+            email: EmailField {
+                value: "email@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        };
+        let uid = Account::register(&form, &DB_POOL).await.unwrap();
+        let account = Account::get(uid, &DB_POOL).await.unwrap();
+
+        assert!(account.github_id.is_none());
+        assert!(account.github_login.is_none());
+
+        let user = User {
+            id: account.id,
+            name: account.name.clone(),
+            is_admin: account.is_admin,
+            is_anonymous: false,
+        };
+        let result = link_github_to_movey_account(
+            user, &oauth_stub, &DB_POOL
+        ).await;
+        assert!(result.is_ok());
+        assert!(result.as_ref().unwrap().is_some());
+        assert_eq!(result.unwrap().unwrap().id, account.id);
+
+        let user = User {
+            id: 0,
+            is_anonymous: true,
+            name: "a_gh_username".to_string(),
+            is_admin: false,
+        };
+        let result = link_github_to_movey_account(
+            user, &oauth_stub, &DB_POOL
+        ).await;
+        assert!(result.is_ok());
+        assert!(result.as_ref().unwrap().is_some());
+        assert_eq!(result.unwrap().unwrap().id, account.id);
+    }
 
     #[actix_rt::test]
     async fn create_default_account_for_github_user_works() {
