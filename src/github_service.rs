@@ -196,7 +196,7 @@ fn call_deep_ai_api(content: String) -> Result<Option<String>, Error> {
             if response.output == "" {
                 return Ok(None);
             }
-            Ok(Some(response.output))
+            Ok(Some(format!("[Generated from README]\n{}", response.output)))
         }
         Err(error) => {
             error!("Error getting response from deepai.org. error: {}", error);
