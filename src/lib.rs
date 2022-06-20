@@ -47,8 +47,8 @@ pub async fn main() -> io::Result<()> {
         ..Default::default()
     }));
     let (server, pool) = start_server().await?;
-    let is_crawling = env::var("IS_CRAWLING").unwrap_or_else(|_| "".to_string());
-    if is_crawling == "true" {
+    let is_crawling = env::var("CRAWLING").unwrap_or_else(|_| "".to_string());
+    if is_crawling.to_lowercase() == "true" {
         actix_rt::spawn(async {
             let gh_crawler = jobs::GithubCrawler {
                 repo_urls: vec![],
