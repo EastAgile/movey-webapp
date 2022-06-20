@@ -70,6 +70,8 @@
     justify-content: flex-end;
     position: relative;
     margin-bottom: 40px;
+    max-width: 100%;
+    
     @include small-screen {
         margin: 0 0 25px 0;
     }
@@ -117,6 +119,7 @@
         margin-bottom: 0;
         color: #001F60;
         width: 100%;
+        max-width: 100%;
 
         @include large-screen {
             font-size: 24px;
@@ -163,8 +166,8 @@
         margin-bottom: 24px;
         font-style: normal;
         font-weight: 400;
-        font-size: 24px;
-        line-height: 32px;
+        font-size: 20px;
+        line-height: 26px;
         color: var(--gray-color);
     }
 

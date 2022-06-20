@@ -77,9 +77,10 @@ footer {
     .link-container {
       display: flex;
       flex-wrap: wrap;
-      justify-content: space-evenly;
+      justify-content: space-around;
       color: white;
-      padding: 0 120px;
+      max-width: 848px;
+      margin: auto;
 
       @include medium-screen {
         position: absolute;
@@ -98,7 +99,7 @@ footer {
         top: 27px;
         left: 0;
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
         grid-row-gap: 24px;
         width: 100%;
         margin: 0 auto;
@@ -116,15 +117,15 @@ footer {
           text-decoration: underline;
         }
 
-        &.terms {
-          text-align: right;
-          padding-right: 20px;
-        }
+        // &.terms {
+        //   text-align: right;
+        //   padding-right: 20px;
+        // }
 
-        &.policy {
-          text-align: left;
-          padding-left: 20px;
-        }
+        // &.policy {
+        //   text-align: left;
+        //   padding-left: 20px;
+        // }
       }
 
       span {

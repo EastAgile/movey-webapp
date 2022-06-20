@@ -1,13 +1,15 @@
 {% extends "email/layout.html" %}
 {% block content %}
-<p>Hi Admin,</p>
+<p>Hello Admin,</p>
 
+<h1> A message was sent from {{name}}</h1>
+<h2> Contact Email: {{email}} </h2>
+<h2>Contact for: {{category}}</h2>
 
-<p>Or copy the link below into your browser address bar:</p>
-<p class="sub">{{ action_url }}</p>
-
-<p>If you did not request this, please ignore this email</p>
+<h3>Description: {{description}}</h3>
 
 <p>Thanks,</p>
 <p><a href="mailto:{{ JELLY_SUPPORT_EMAIL }}">The Movey Team</a></p>
 {% endblock %}
+
+

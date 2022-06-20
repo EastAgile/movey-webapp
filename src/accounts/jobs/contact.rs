@@ -14,22 +14,40 @@ use jelly::tera::Context;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SendContactRequestEmail{
     pub to: String,
+    pub name: String,
+    pub email: String,
+    pub description: String,
+    pub category: String
 }
+
+// pub fn build_context(verify_url: &str) -> Context {
+//     let mut context = Context::new();
+//         context.insert("email", Self.email);
+//         context.insert("name", self.name);
+//         context.insert("description", self.description);
+//         context
+// }
 
 impl Job for SendContactRequestEmail {
     type State = JobState;
     type Future = Pin<Box<dyn Future<Output = Result<(), Error>> + Send>>;
 
-    const NAME: &'static str = "SendContactRequestEmail";
+    const NAME: &'static str = "SendContactRequestEmailJob";
     const QUEUE: &'static str = DEFAULT_QUEUE;
 
     fn run(self, state: JobState) -> Self::Future {
         Box::pin(async move {
+
             let email = Email::new(
                 "email/contact-request",
                 &[self.to],
                 "New Contact Request",
-                Context::new(),
+                {let mut context = Context::new();
+                            context.insert("email", &self.email);
+                            context.insert("name", &self.name);
+                            context.insert("category", &self.category);
+                            context.insert("description", &self.description);
+                            context},
                 state.templates,
             );
 

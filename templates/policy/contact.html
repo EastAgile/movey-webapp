@@ -22,29 +22,29 @@
          <div class="contact-line"></div>
         <div class="form-cta"> Submit a request </div>
 
-        <form class="package-search-sort">
+        <form action="/accounts/contact/" method="POST" class="package-search-sort">
             <!-- <label for="packages-sort">Sort by</label> -->
-            <select name="packages-sort"
+            <select name="category"
                     class="packages-sort"
                     data-sort=""
                     data-url="/packages/"
-                    placeholder="Select category"
+                    placeholder="Select category"      
             >
                 <option value="" disabled  selected></option>
-                <option value="name"> Account</option>
-                <option value="name"> Password/Login issues</option>
-                <option value="name"> Usage/Lisence query</option>
-                <option value="name"> Contributor</option>
-                <option value="name"> Report a security issue</option>
-                <option value="name"> Others</option>
+                <option name = "category"> Account</option>
+                <option name = "category"> Password/Login issues</option>
+                <option name = "category"> Usage/Lisence query</option>
+                <option name = "category"> Contributor</option>
+                <option name = "category"> Report a security issue</option>
+                <option name = "category"> Others</option>
             </select>
             <div class="packages-sort-chevron"></div>
 
-            <label class="contact-label" for="fname">Name</label>
-            <input type="text"  name="name" >
+            <label class="contact-label"  for="fname">Name</label>
+            <input type="text" placeholder="Khoa Tr" name="name" >
 
             <label class="contact-label" for="fname">Email</label>
-            <input type="text"  name="email" >
+            <input type="email" placeholder="KhoaTr@gmail.com" id="fname" name="email" >
             
             <div class="contact-instruction">Please, enter the email address where you wish to receive our answer. If you are a registered user of Movey, please include the email address you used when you registered if possible to help us locate your account as soon as possible.</div>
 
@@ -58,7 +58,7 @@
     </div>
 
     <script>
-        this.sortElement = $("select[name='packages-sort']");
+        this.sortElement = $("select[name='category']");
         this.sortElement.select2({
             minimumResultsForSearch: -1,
             dropdownCssClass: 'packages-sort-dropdown',

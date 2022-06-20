@@ -25,5 +25,6 @@ pub fn configure(config: WorkerConfig<JobState>) -> WorkerConfig<JobState> {
     config = config.register::<SendPasswordWasResetEmail>();
     config = config.register::<SendWelcomeAccountEmail>();
     config = config.register::<SendAccountOddRegisterAttemptEmail>();
+    config = config.register::<SendContactRequestEmail>();
     config.register::<SendVerifyAccountEmail>()
 }

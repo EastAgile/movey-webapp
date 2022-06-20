@@ -110,9 +110,10 @@ impl Validation for ChangePasswordForm {
 
 #[derive(Default, Debug, Deserialize, Serialize)]
 pub struct ContactForm {
-    pub email: Option<String>,
-    pub name: Option<String>,
-    pub description: Option<String>
+    pub category: String,
+    pub email: String,
+    pub name: String,
+    pub description: String
 }
 
 
