@@ -78,21 +78,20 @@ impl GithubService {
             Ok(content) => {
                 // generate description from readme if not existed
                 if github_info.description.is_none() {
-                    github_info.description = call_deep_ai_api(content.clone())?;
-                    if github_info.description.is_none() {
-                        let content_stripped = &content
+                    let mut description = call_deep_ai_api(content.clone())?;
+                    if description.is_empty() {
+                        description = content
                             .replace("\n", " ")
                             .replace("\r", "")
                             .replace("#", "");
-                        let mut description_from_readme =
-                            String::from("[Generated from README]\n") +
-                                content_stripped;
-                        if description_from_readme.len() > 100 {
-                            description_from_readme = description_from_readme[0..100].to_string();
-                            description_from_readme += "...";
-                        }
-                        github_info.description = Some(description_from_readme);
                     }
+                    description =
+                        String::from("[Generated from README]\n") + &description;
+                    if description.len() > 200 {
+                        description = description[0..200].to_string();
+                        description += "...";
+                    }
+                    github_info.description = Some(description);
                 }
                 readme_content = content
             }
@@ -168,7 +167,7 @@ fn call_github_api(url: &str) -> Result<Response, Error> {
     Ok(res)
 }
 
-fn call_deep_ai_api(content: String) -> Result<Option<String>, Error> {
+fn call_deep_ai_api(content: String) -> Result<String, Error> {
     let access_token = env::var("DEEP_AI_API_KEY")
         .expect("Unable to pull DEEP_AI_API_KEY");
     let client = reqwest::blocking::Client::builder()
@@ -183,7 +182,7 @@ fn call_deep_ai_api(content: String) -> Result<Option<String>, Error> {
         .send()
         .ok();
     if response.is_none() {
-        return Ok(None);
+        return Ok(String::new());
     };
 
     #[derive(Deserialize)]
@@ -194,13 +193,13 @@ fn call_deep_ai_api(content: String) -> Result<Option<String>, Error> {
     match response.unwrap().json::<DeepApiResponse>() {
         Ok(response) => {
             if response.output == "" {
-                return Ok(None);
+                return Ok(String::new());
             }
-            Ok(Some(format!("[Generated from README]\n{}", response.output)))
+            Ok(response.output)
         }
         Err(error) => {
             error!("Error getting response from deepai.org. error: {}", error);
-            Ok(None)
+            Ok(String::new())
         }
     }
 }

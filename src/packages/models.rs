@@ -544,9 +544,8 @@ impl PackageVersion {
 mod tests {
     use super::*;
     use crate::test::{DatabaseTestContext, DB_POOL};
-    use mockall::predicate::*;
 
-    use crate::github_service::{GithubRepoData, GithubRepoInfo};
+    use crate::github_service::GithubRepoData;
 
     async fn setup() -> Result<(), Error> {
         let pool = &DB_POOL;
