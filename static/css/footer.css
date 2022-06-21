@@ -76,9 +76,10 @@ footer {
 .footer-container .footer-center .link-container {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-evenly;
+  justify-content: space-around;
   color: white;
-  padding: 0 120px;
+  max-width: 848px;
+  margin: auto;
 }
 @media screen and (min-width: 844px) and (max-width: 1280px) {
   .footer-container .footer-center .link-container {
@@ -99,7 +100,7 @@ footer {
     top: 27px;
     left: 0;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     grid-row-gap: 24px;
     width: 100%;
     margin: 0 auto;
@@ -116,14 +117,6 @@ footer {
 }
 .footer-container .footer-center .link-container a:link {
   text-decoration: underline;
-}
-.footer-container .footer-center .link-container a.terms {
-  text-align: right;
-  padding-right: 20px;
-}
-.footer-container .footer-center .link-container a.policy {
-  text-align: left;
-  padding-left: 20px;
 }
 @media screen and (max-width: 1280px) {
   .footer-container .footer-center .link-container span {
