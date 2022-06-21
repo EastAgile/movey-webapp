@@ -184,7 +184,7 @@ impl Package {
         service: &GithubService,
         pool: &DieselPgPool,
     ) -> Result<i32, Error> {
-        let github_data = service.fetch_repo_data(&repo_url)?;
+        let github_data = service.fetch_repo_data(&repo_url, None)?;
 
         Package::create_from_crawled_data(
             repo_url,
@@ -230,7 +230,7 @@ impl Package {
         };
 
         // Only creates new version if same user with package owner
-        if record.account_id == account_id_ {
+        if record.account_id == account_id_ || record.account_id.is_none() {
             if let Err(_) = record.get_version(&github_data.version, &pool).await {
                 PackageVersion::create(
                     record.id,
@@ -288,7 +288,7 @@ impl Package {
     pub async fn get_downloads(owner_id: i32, pool: &DieselPgPool) -> Result<i64, Error>{
         let connection = pool.get()?;
         let result = packages
-            .select(sum(packages::total_downloads_count))
+            .select(sum(total_downloads_count))
             .filter(account_id.eq(owner_id))
             .first::<Option<i64>>(&connection)?;
 
@@ -344,7 +344,7 @@ impl Package {
                     Ok(_) => (),
                     Err(NotFound) => {
                         // Package is found but version is not, creating shadow version
-                        let github_data = service.fetch_repo_data(&https_url)?;
+                        let github_data = service.fetch_repo_data(&https_url, None)?;
                         PackageVersion::create(
                             package_id_,
                             github_data.name,
@@ -544,9 +544,8 @@ impl PackageVersion {
 mod tests {
     use super::*;
     use crate::test::{DatabaseTestContext, DB_POOL};
-    use mockall::predicate::*;
 
-    use crate::github_service::{GithubRepoData, GithubRepoInfo};
+    use crate::github_service::GithubRepoData;
 
     async fn setup() -> Result<(), Error> {
         let pool = &DB_POOL;
@@ -713,13 +712,14 @@ mod tests {
         let mut mock_github_service = GithubService::new();
         mock_github_service
             .expect_fetch_repo_data()
-            .with(eq("repo_url".to_string()))
-            .returning(|_| {
+            .withf(|x: &String, y: &Option<String>| x == &"repo_url".to_string() && y.is_none())
+            .returning(|_, _| {
                 Ok(GithubRepoData {
                     name: "name".to_string(),
                     version: "version".to_string(),
                     readme_content: "readme_content".to_string(),
-                    info: GithubRepoInfo { description: None, size: 0 },
+                    description: "".to_string(),
+                    size: 0,
                     url: "".to_string(),
                     rev: "".to_string()
                 })
@@ -760,13 +760,14 @@ mod tests {
         let mut mock_github_service_2 = GithubService::new();
         mock_github_service_2
             .expect_fetch_repo_data()
-            .with(eq("repo_url".to_string()))
-            .returning(|_| {
+            .withf(|x: &String, y: &Option<String>| x == &"repo_url".to_string() && y.is_none())
+            .returning(|_, _| {
                 Ok(GithubRepoData {
                     name: "name".to_string(),
                     version: "version_2".to_string(),
                     readme_content: "readme_content".to_string(),
-                    info: GithubRepoInfo { description: None, size: 0 },
+                    description: "".to_string(),
+                    size: 0,
                     url: "".to_string(),
                     rev: "".to_string()
                 })
@@ -799,12 +800,13 @@ mod tests {
         let _ctx = DatabaseTestContext::new();
 
         let mut mock_github_service = GithubService::new();
-        mock_github_service.expect_fetch_repo_data().returning(|_| {
+        mock_github_service.expect_fetch_repo_data().returning(|_, _| {
             Ok(GithubRepoData {
                 name: "name".to_string(),
                 version: "first_version".to_string(),
                 readme_content: "first_readme_content".to_string(),
-                info: GithubRepoInfo { description: None, size: 0 },
+                description: "".to_string(),
+                size: 0,
                 url: "".to_string(),
                 rev: "".to_string()
             })
@@ -849,12 +851,13 @@ mod tests {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
         let mut mock_github_service = GithubService::new();
-        mock_github_service.expect_fetch_repo_data().returning(|_| {
+        mock_github_service.expect_fetch_repo_data().returning(|_, _| {
             Ok(GithubRepoData {
                 name: "name".to_string(),
                 version: "first_version".to_string(),
                 readme_content: "first_readme_content".to_string(),
-                info: GithubRepoInfo { description: None, size: 0 },
+                description: "".to_string(),
+                size: 0,
                 url: "".to_string(),
                 rev: "".to_string()
             })
@@ -899,12 +902,13 @@ mod tests {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
         let mut mock_github_service = GithubService::new();
-        mock_github_service.expect_fetch_repo_data().returning(|_| {
+        mock_github_service.expect_fetch_repo_data().returning(|_, _| {
             Ok(GithubRepoData {
                 name: "name".to_string(),
                 version: "first_version".to_string(),
                 readme_content: "first_readme_content".to_string(),
-                info: GithubRepoInfo { description: None, size: 0 },
+                description: "".to_string(),
+                size: 0,
                 url: "".to_string(),
                 rev: "".to_string()
             })
@@ -1005,12 +1009,13 @@ mod tests {
 
         let mut mock_github_service = GithubService::new();
 
-        mock_github_service.expect_fetch_repo_data().returning(|_| {
+        mock_github_service.expect_fetch_repo_data().returning(|_, _| {
             Ok(GithubRepoData {
                 name: "name".to_string(),
                 version: "first_version".to_string(),
                 readme_content: "first_readme_content".to_string(),
-                info: GithubRepoInfo { description: None, size: 0 },
+                description: "".to_string(),
+                size: 0,
                 url: "".to_string(),
                 rev: "".to_string()
             })
@@ -1053,12 +1058,13 @@ mod tests {
         let rev_ = &"30d4792b29330cf701af04b493a38a82102ed4fd".to_string();
 
         let mut mock_github_service = GithubService::new();
-        mock_github_service.expect_fetch_repo_data().returning(|_| {
+        mock_github_service.expect_fetch_repo_data().returning(|_, _| {
             Ok(GithubRepoData {
                 name: "name".to_string(),
                 version: "first_version".to_string(),
                 readme_content: "first_readme_content".to_string(),
-                info: GithubRepoInfo { description: None, size: 0 },
+                description: "".to_string(),
+                size: 0,
                 url: "".to_string(),
                 rev: "".to_string()
             })
@@ -1143,12 +1149,13 @@ mod tests {
 
         let mut mock_github_service = GithubService::new();
 
-        mock_github_service.expect_fetch_repo_data().returning(|_| {
+        mock_github_service.expect_fetch_repo_data().returning(|_, _| {
             Ok(GithubRepoData {
                 name: "name".to_string(),
                 version: "first_version".to_string(),
                 readme_content: "first_readme_content".to_string(),
-                info: GithubRepoInfo { description: None, size: 0 },
+                description: "".to_string(),
+                size: 0,
                 url: "".to_string(),
                 rev: "".to_string()
             })

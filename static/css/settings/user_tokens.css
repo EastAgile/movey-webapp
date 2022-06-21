@@ -11,6 +11,13 @@
   margin: 50px 0;
   color: var(--dark-blue-color);
 }
+.settings-tokens-container .tokens-banner > div:first-child {
+  margin-bottom: 10px;
+}
+.settings-tokens-container .tokens-banner .special, .settings-tokens-container .tokens-banner .special a {
+  font-weight: 700;
+  color: var(--blue-color);
+}
 @media screen and (max-width: 640px) {
   .settings-tokens-container .tokens-banner {
     margin: 40px 0 25px;
