@@ -1,9 +1,7 @@
-use std::env;
 use std::future::Future;
 use std::pin::Pin;
 
-use jelly::accounts::OneTimeUseTokenGenerator;
-use jelly::anyhow::{anyhow, Error};
+use jelly::anyhow::{ Error};
 use jelly::email::Email;
 use jelly::jobs::{Job, JobState, DEFAULT_QUEUE};
 use jelly::serde::{Deserialize, Serialize};

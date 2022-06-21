@@ -1,6 +1,5 @@
 Hello Admin,
 
-Hello Admin,
 
 A message was sent from {{name}}
 Contact Email: {{email}}

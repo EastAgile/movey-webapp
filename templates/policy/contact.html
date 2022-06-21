@@ -23,7 +23,6 @@
         <div class="form-cta"> Submit a request </div>
 
         <form action="/accounts/contact/" method="POST" class="package-search-sort">
-            <!-- <label for="packages-sort">Sort by</label> -->
             <select name="category"
                     class="packages-sort"
                     data-sort=""
@@ -40,16 +39,16 @@
             </select>
             <div class="packages-sort-chevron"></div>
 
-            <label class="contact-label"  for="fname">Name</label>
-            <input type="text" placeholder="Khoa Tr" name="name" >
+            <label class="contact-label"  for="name">Name</label>
+            <input type="text" placeholder="John Doe" name="name" >
 
-            <label class="contact-label" for="fname">Email</label>
-            <input type="email" placeholder="KhoaTr@gmail.com" id="fname" name="email" >
+            <label class="contact-label" for="email">Email</label>
+            <input type="email" placeholder="movey@eastagile.com" id="email" name="email" >
             
             <div class="contact-instruction">Please, enter the email address where you wish to receive our answer. If you are a registered user of Movey, please include the email address you used when you registered if possible to help us locate your account as soon as possible.</div>
 
-            <label class="contact-label" for="fname">How can we help?</label>
-            <textarea name="description">Write us a message</textarea>
+            <label class="contact-label" for="descr">How can we help?</label>
+            <textarea name="description" required minlength="6">Write us a message</textarea>
 
             <button type="submit" class="contact-btn">
                 Submit
