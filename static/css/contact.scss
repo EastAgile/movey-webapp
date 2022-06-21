@@ -13,13 +13,13 @@
     
     .contact-line {
         margin-top: 24px;
-        border-top: 1px solid #808FB0;
+        border-top: 1px solid var(--gray-color);
         margin-bottom: 50px;
         opacity: 0.5;
         border-radius: 20px;
     }
     .page_name {
-        font-family: 'Syncopate';
+        font-family: var(--sub-title-font);
         font-style: normal;
         font-weight: 700;
         font-size: 48px;

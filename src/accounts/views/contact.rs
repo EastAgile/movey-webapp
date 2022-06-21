@@ -15,19 +15,12 @@ pub async fn send_contact(request: HttpRequest, form: Form<ContactForm>) -> Resu
 
     request.queue(SendContactRequestEmail{
         to: "movey@eastagile.com".to_string(),
-        name: form.name.clone(),
-        email: form.email.clone(),
-        category: form.category.clone(),
-        description: form.description.clone()
+        name: form.name,
+        email: form.email,
+        category: form.category,
+        description: form.description
     })?;
     
     
-    request.render(200, "accounts/contactSuccess.html", {
-        let mut context = Context::new();
-        context.insert("category",&form.category);
-        context.insert("email", &form.email);
-        context.insert("name", &form.name);
-        context.insert("description", &form.description);
-        context
-    })
+    request.render(200, "accounts/contact_success.html",Context::new())
 }

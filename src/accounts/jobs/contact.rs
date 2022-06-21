@@ -18,14 +18,6 @@ pub struct SendContactRequestEmail{
     pub category: String
 }
 
-// pub fn build_context(verify_url: &str) -> Context {
-//     let mut context = Context::new();
-//         context.insert("email", Self.email);
-//         context.insert("name", self.name);
-//         context.insert("description", self.description);
-//         context
-// }
-
 impl Job for SendContactRequestEmail {
     type State = JobState;
     type Future = Pin<Box<dyn Future<Output = Result<(), Error>> + Send>>;
