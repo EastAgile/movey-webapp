@@ -101,6 +101,7 @@
   line-clamp: 2;
 }
 .home-container .search-container #suggestions > div .package-description:not(:empty) {
+  overflow-y: hidden;
   padding-top: 8px;
 }
 .home-container .search-container #suggestions > div .package-version {

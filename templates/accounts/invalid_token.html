@@ -1,7 +1,24 @@
-{% extends "layout.html" %}
+{% extends "accounts/layout.html" %}
 
 {% block title %}Invalid or Expired{% endblock %}
 
+{% block css %}
+<link rel="stylesheet" href="/static/css/verify/verify.css">
+{% endblock %}
+
 {% block content %}
-<h1>Invalid or Expired</h1>
+<div class="verify-container">
+    <a href="/" class="movey-logo-container">
+        <span class="movey-logo"></span>
+    </a>
+    <div class="verify-card-container">
+        <div class="verify-card">
+            <h1 class="verify-card-title">Invalid or Expired</h1>
+            
+            <p class="verify-card-content">
+                The URL that led you here is invalid or expired. Please try registering <a href="/accounts/register/">here</a>.
+            </p>
+        </div>
+    </div>
+</div>
 {% endblock %}
