@@ -78,17 +78,24 @@ impl GithubService {
             Ok(content) => {
                 // generate description from readme if not existed
                 if github_info.description.is_none() {
-                    let mut description = call_deep_ai_api(content.clone())?;
+                    let mut no_deep_api_call = 0;
+                    let mut description;
+                    loop {
+                        no_deep_api_call += 1;
+                        description = call_deep_ai_api(content.clone())?;
+                        if description.len() > 300 && no_deep_api_call < 2 {
+                            continue;
+                        }
+                        break;
+                    }
                     if description.is_empty() {
                         description = content
                             .replace("\n", " ")
                             .replace("\r", "")
                             .replace("#", "");
                     }
-                    description =
-                        String::from("[Generated from README]\n") + &description;
-                    if description.len() > 200 {
-                        description = description[0..200].to_string();
+                    if description.len() > 300 {
+                        description = description[0..300].to_string();
                         description += "...";
                     }
                     github_info.description = Some(description);
