@@ -78,16 +78,7 @@ impl GithubService {
             Ok(content) => {
                 // generate description from readme if not existed
                 if github_info.description.is_none() {
-                    let mut no_deep_api_call = 0;
-                    let mut description;
-                    loop {
-                        no_deep_api_call += 1;
-                        description = call_deep_ai_api(content.clone())?;
-                        if description.len() > 300 && no_deep_api_call < 2 {
-                            continue;
-                        }
-                        break;
-                    }
+                    let mut description = call_deep_ai_api(content.clone())?;
                     if description.is_empty() {
                         description = content
                             .replace("\n", " ")
