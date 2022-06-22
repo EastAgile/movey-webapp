@@ -75,7 +75,7 @@ async fn submit_search_form(world: &mut TestWorld) {
 async fn see_search_results(world: &mut TestWorld) {
     assert_eq!(
         world.driver.title().await.unwrap().as_str(),
-        "Search results for rand"
+        "Search results for rand | Movey"
     );
     let package_count = world
         .driver
@@ -101,7 +101,7 @@ async fn search_by_text(world: &mut TestWorld) {
         .unwrap();
     assert_eq!(
         world.driver.title().await.unwrap().as_str(),
-        "Search results for rand"
+        "Search results for rand | Movey"
     );
     let package_count = world
         .driver

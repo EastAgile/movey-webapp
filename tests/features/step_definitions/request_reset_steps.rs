@@ -91,7 +91,7 @@ async fn see_confirm_request_page(world: &mut TestWorld) {
         world.driver.current_url().await.unwrap(),
         format!("{}accounts/reset/", world.root_url).as_str()
     );
-    assert_eq!(world.driver.title().await.unwrap(), "Confirm Request");
+    assert_eq!(world.driver.title().await.unwrap(), "Confirm Request | Movey");
 
     let title = world.driver.find_element(By::Tag("h1")).await.unwrap();
     assert_eq!(title.text().await.unwrap(), "Thank You");
