@@ -143,12 +143,14 @@
   height: 60px;
   border: 1px solid #D9DDE7;
   border-radius: 2px;
+  padding-left: 20px;
 }
 .package-search-sort textarea {
   height: 60px;
   border: 1px solid #D9DDE7;
   border-radius: 2px;
   min-height: 242px;
+  padding-left: 20px;
 }
 .package-search-sort select {
   line-height: 30px;
