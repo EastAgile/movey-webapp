@@ -7,6 +7,7 @@
     position: relative;
     padding: 16px;
     max-width: 1062px;
+
     @include small-screen {
         width: 80%;
     }
@@ -25,6 +26,18 @@
         font-size: 48px;
         line-height: 72px;
         color: var(--dark-blue-color);
+        margin-top:40px;
+        margin-bottom: 16px;
+
+        @include medium-screen {
+            font-size: 32px;
+            line-height: 48px;
+        }
+
+        @include small-screen {
+            font-size: 28px;
+            line-height: 42px;
+        }
     }
 
     .contact-content {
@@ -36,8 +49,26 @@
         padding-bottom: 24px;
         text-align: justify;
 
+        @include medium-screen {
+            font-size: 20px;
+            line-height: 28px;
+        }
+        
+        @include small-screen {
+            font-size: 16px;
+            line-height: 24px;
+        }
+
         .page-h2 {
             margin: 54px auto;
+
+            @include medium-screen {
+                margin: 36px auto;
+            }
+
+            @include small-screen {
+                margin: 24px auto;
+            }
         }
         ul {
             margin-top: 10px;
@@ -58,6 +89,14 @@
         font-size: 32px;
         line-height: 54px;
         color: var(--dark-blue-color);
+
+        @include large-screen {
+            margin: 32px auto;
+        }
+
+        @include medium-small-screen {
+            margin: 28px auto;
+        }
     }
 
 }
@@ -93,10 +132,12 @@
         
         @include large-screen {
             font-size: 24px;
+            margin-top: 24px;
         }
 
         @include medium-small-screen {
             font-size: 16px;
+            margin-top: 16px;
         }
     }
 
