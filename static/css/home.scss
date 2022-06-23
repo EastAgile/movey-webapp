@@ -102,6 +102,7 @@
         line-clamp: 2;
 
         &:not(:empty) {
+          overflow-y: hidden;
           padding-top: 8px;
         }
       }
