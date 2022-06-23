@@ -32,7 +32,8 @@ pub struct Account {
     pub last_login: Option<DateTime<Utc>>,
     pub created: DateTime<Utc>,
     pub updated: DateTime<Utc>,
-    pub github_login: Option<String>
+    pub github_login: Option<String>,
+    pub github_id: Option<i64>,
 }
 
 impl Account {
@@ -169,13 +170,19 @@ impl Account {
         Ok(())
     }
 
-    pub async fn register_from_github(oauth_user: &GithubOauthUser, pool: &DieselPgPool) -> Result<User, Error> {
+    pub async fn register_from_github(
+        oauth_user: &GithubOauthUser, 
+        pool: &DieselPgPool) 
+    -> Result<User, Error> {
         let connection = pool.get()?;
 
         let account = if let Ok(record) = Account::get_by_email(&oauth_user.email, pool).await {
             // if there already is an account with this email, update it with git info then return
             diesel::update(accounts.filter(id.eq(record.id)))
-            .set((name.eq(oauth_user.name.clone()), github_login.eq(oauth_user.login.clone())))
+            .set((
+                github_login.eq(oauth_user.login.clone()), 
+                github_id.eq(oauth_user.id),
+                has_verified_email.eq(true)))
             .execute(&connection)?;
 
             record
@@ -194,6 +201,55 @@ impl Account {
             is_admin: account.is_admin,
             is_anonymous: false,
         })
+    }
+
+    pub async fn get_by_github_id(gid: i64, pool: &DieselPgPool) -> Result<Self, Error> {
+        let connection = pool.get()?;
+        let result = accounts
+            .filter(github_id.eq(gid))
+            .first::<Account>(&connection)?;
+
+        Ok(result)
+    }
+
+    pub async fn merge_github_account_and_movey_account(
+        movey_id: i32,
+        gh_id: i64,
+        gh_login: String,
+        pool: &DieselPgPool,
+    ) -> Result<(), Error> {
+        let conn = pool.get()?;
+        conn.build_transaction()
+            .run::<_, _, _>(|| {
+                diesel::delete(accounts.filter(github_id.eq(gh_id)))
+                    .execute(&conn)?;
+
+                diesel::update(accounts.filter(id.eq(movey_id)))
+                    .set((
+                        github_id.eq(gh_id),
+                        github_login.eq(gh_login),
+                    ))
+                    .execute(&conn)?;
+
+                Ok(())
+            })
+    }
+
+    pub async fn update_movey_account_with_github_info(
+        movey_id: i32,
+        gh_id: i64,
+        gh_login: String,
+        pool: &DieselPgPool,
+    ) -> Result<(), Error> {
+        let conn = pool.get()?;
+        diesel::update(accounts.filter(id.eq(movey_id)))
+            .set((
+                github_id.eq(gh_id),
+                github_login.eq(gh_login),
+            ))
+            .execute(&conn)?;
+        
+        Ok(())
     }
 }
 
@@ -222,8 +278,11 @@ pub struct NewAccount {
 
 impl NewAccount {
     fn from_form(form: &NewAccountForm) -> Self {
+        let email_ = form.email.value.clone();
+        let name_from_email = email_
+            .split('@').next().unwrap();
         return NewAccount {
-            name: "".to_string(),
+            name: String::from(name_from_email),
             email: form.email.value.clone(),
             password: "".to_string(),
         };
@@ -236,20 +295,24 @@ pub struct NewGithubAccount {
     pub name: String,
     pub email: String,
     pub github_login: String,
-    pub password: String
+    pub password: String,
+    pub has_verified_email: bool,
+    pub github_id: i64,
 }
 
 impl NewGithubAccount {
     fn from_oauth_user(oauth_user: &GithubOauthUser) -> Self {
         return NewGithubAccount {
-            name: oauth_user.name.clone(),
+            name: "".to_string(),
             email: oauth_user.email.clone(),
             github_login: oauth_user.login.clone(),
             password: {
                 // Give it a dummy password because postgres complains
                 let plaintext = crate::utils::token::generate_secure_alphanumeric_string(32);
                 make_password(&plaintext)
-            }
+            },
+            has_verified_email: true,
+            github_id: oauth_user.id,
         };
     }
 }
@@ -331,6 +394,7 @@ mod tests {
             _ => panic!(),
         }
     }
+    
     #[actix_rt::test]
     async fn authenticate_with_wrong_password_return_err() {
         crate::test::init();
@@ -379,6 +443,7 @@ mod tests {
         let account = Account::get(uid, &DB_POOL).await.unwrap();
         assert_eq!(account.email, "email@host.com");
     }
+    
     #[actix_rt::test]
     async fn register_with_empty_email_throws_exception() {
         crate::test::init();
@@ -402,6 +467,7 @@ mod tests {
             _ => panic!(),
         }
     }
+    
     #[actix_rt::test]
     async fn register_with_duplicate_email_throws_exception() {
         crate::test::init();
@@ -457,14 +523,16 @@ mod tests {
         let oauth_user = GithubOauthUser {
             email: "a@b.com".to_string(),
             login: "git".to_string(),
-            name: "git_username".to_string()
+            id: 100_103,
         };
         Account::register_from_github(&oauth_user, &DB_POOL).await.unwrap();
 
         let account = Account::get_by_email(&oauth_user.email, &DB_POOL).await.unwrap();
-        assert_eq!(account.name, "git_username");
+        assert_eq!(account.name, "");
         assert_eq!(account.email, "a@b.com");
         assert_eq!(account.github_login.unwrap(), "git");
+        assert_eq!(account.github_id, Some(100_103));
+        assert_eq!(account.has_verified_email, true);
     }
 
     #[actix_rt::test]
@@ -475,13 +543,166 @@ mod tests {
         let oauth_user = GithubOauthUser {
             email: "email@host.com".to_string(),
             login: "git".to_string(),
-            name: "git_username".to_string()
+            id: 100_103,
         };
         Account::register_from_github(&oauth_user, &DB_POOL).await.unwrap();
 
         let account = Account::get_by_email(&oauth_user.email, &DB_POOL).await.unwrap();
-        assert_eq!(account.name, "git_username");
+        assert_eq!(account.name, "email");
         assert_eq!(account.email, "email@host.com");
         assert_eq!(account.github_login.unwrap(), "git");
+        assert_eq!(account.github_id, Some(100_103));
+        assert_eq!(account.has_verified_email, true);
+    }
+
+    #[actix_rt::test]
+    async fn new_account_from_form_works() {
+        let user_email = String::from("a_user_name@a_domain.com");
+        let new_account = NewAccount::from_form(&NewAccountForm { 
+            email: EmailField { value: user_email, errors: vec![] }, 
+            password: PasswordField { value: String::from("a_password"), errors: vec![], hints: vec![] }
+        });
+
+        assert_eq!(new_account.name, String::from("a_user_name"));
+        assert_eq!(new_account.password, String::from(""));
+    }
+
+    #[actix_rt::test]
+    async fn register_should_populate_name_for_new_account() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        let form = NewAccountForm {
+            email: EmailField {
+                value: "email@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        };
+        let uid = Account::register(&form, &DB_POOL).await.unwrap();
+        let new_account = Account::get(uid, &DB_POOL).await.unwrap();
+
+        assert_eq!(new_account.name, String::from("email"));
+        assert_eq!(new_account.github_login, None);
+        assert_eq!(new_account.github_id, None);
+    }
+
+    #[actix_rt::test]
+    async fn get_by_github_id_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+
+        let non_existent_account = 
+            Account::get_by_github_id(132, &DB_POOL).await;
+        if let Err(Error::Database(DBError::NotFound)) = non_existent_account {
+        } else {
+            panic!()
+        }
+
+        let github_user = Account::register_from_github(& GithubOauthUser {
+            id: 132,
+            login: "github_name".to_string(),
+            email: "email@domain.com".to_string(),
+        }, &DB_POOL).await.unwrap();
+        let account = 
+            Account::get_by_github_id(132, &DB_POOL).await.unwrap();
+    
+        assert_eq!(account.github_id, Some(132));
+        assert_eq!(account.github_login, Some("github_name".to_string()));
+        assert_eq!(account.email, "email@domain.com".to_string());
+    }
+
+    #[actix_rt::test]
+    async fn merge_github_account_and_movey_account_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+
+        // Information of the github account that signed in via OAuth
+        let github_user = Account::register_from_github(& GithubOauthUser {
+            id: 132,
+            login: "github_name".to_string(),
+            email: "email@github.com".to_string(),
+        }, &DB_POOL).await.unwrap();
+
+        // Account that has already been in the database
+        let github_account = 
+            Account::get_by_github_id(132, &DB_POOL).await.unwrap();
+
+        let uid = Account::register(&NewAccountForm {
+            email: EmailField {
+                value: "email@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        }, &DB_POOL).await.unwrap();
+
+        let movey_account = Account::get(uid, &DB_POOL).await.unwrap();
+        assert_eq!(movey_account.name, "email".to_string());
+        assert_eq!(movey_account.email, "email@host.com".to_string());
+        assert_eq!(movey_account.github_id, None);
+        assert_eq!(movey_account.github_login, None);
+        assert_ne!(uid as i64, github_account.github_id.unwrap());
+
+        Account::merge_github_account_and_movey_account(
+            uid, 
+            github_account.github_id.unwrap(), 
+            github_account.github_login.as_ref().unwrap().to_string(), 
+            &DB_POOL
+        ).await.unwrap();
+        let movey_account = Account::get(uid, &DB_POOL).await.unwrap();
+
+        assert_eq!(movey_account.name, "email".to_string());
+        assert_eq!(movey_account.email, "email@host.com".to_string());
+        assert_eq!(movey_account.github_id, github_account.github_id);
+        assert_eq!(movey_account.github_login, github_account.github_login);
+
+        let old_github_account = Account::get(github_account.id, &DB_POOL).await;
+        if let Err(Error::Database(DBError::NotFound)) = old_github_account {
+        } else {
+            panic!()
+        }
+    }
+
+    #[actix_rt::test]
+    async fn update_movey_account_with_github_info_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+
+        let uid = Account::register(&NewAccountForm {
+            email: EmailField {
+                value: "email@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        }, &DB_POOL).await.unwrap();
+
+        let movey_account = Account::get(uid, &DB_POOL).await.unwrap();
+        assert_eq!(movey_account.name, "email".to_string());
+        assert_eq!(movey_account.email, "email@host.com".to_string());
+        assert_eq!(movey_account.github_id, None);
+        assert_eq!(movey_account.github_login, None);
+
+        Account::update_movey_account_with_github_info(
+            uid, 
+            142_432_554, 
+            "a_string".to_string(), 
+            &DB_POOL
+        ).await.unwrap();
+        let movey_account = Account::get(uid, &DB_POOL).await.unwrap();
+        assert_eq!(movey_account.name, "email".to_string());
+        assert_eq!(movey_account.email, "email@host.com".to_string());
+        assert_eq!(movey_account.github_id, Some(142_432_554));
+        assert_eq!(movey_account.github_login, Some("a_string".to_string()));
     }
 }

@@ -77,7 +77,6 @@ pub fn configure(config: &mut ServiceConfig) {
             )
             .service(resource("/verify/").route(get().to(views::verify::verify)))
             .service(resource("/github/callback").route(get().to(views::verify::callback_github)))
-            .service(resource("/google/callback").route(get().to(views::verify::callback_google)))
             .service(resource("/logout/").route(post().to(views::logout)))
             .service(resource("/oauth").route(get().to(views::login::oauth)))
             .service(

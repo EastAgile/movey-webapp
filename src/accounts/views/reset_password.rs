@@ -106,6 +106,8 @@ pub async fn reset(
 
         let pool = request.db_pool()?;
         Account::update_password_and_last_login(account.id, &form.password, pool).await?;
+        // If they has come this far, assume they have verified their email (or else they won't be able to get to this page at all)
+        Account::mark_verified(account.id, pool).await?;
 
         request.queue(SendPasswordWasResetEmail {
             to: account.email.clone(),

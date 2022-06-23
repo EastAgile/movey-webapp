@@ -1,0 +1,21 @@
+{% extends "layout_dark.html" %}
+
+{% block title %}Github connect{% endblock %}
+
+{% block css %}
+<link href="/static/css/misc.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+<div class="github-missing-email-container">
+    <div class="github-missing-email">
+        <div class="missing-email-message">Please update your github account with a public email address to continue. You can follow the steps <a href="https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-email-preferences/changing-your-primary-email-address" target="_blank">here</a>.</div>
+
+        <div class="action-bar">
+            <a href="/accounts/oauth">
+                <div class="action-retry">I have updated my github account</div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

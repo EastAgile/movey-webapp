@@ -1,0 +1,59 @@
+.github-missing-email-container {
+  min-height: calc(100vh - 350px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--dark-blue-color);
+}
+.github-missing-email-container .github-missing-email {
+  padding: 50px;
+  max-width: 1200px;
+}
+.github-missing-email-container .github-missing-email .missing-email-message {
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 40px;
+  text-align: center;
+  letter-spacing: -0.02em;
+  margin-bottom: 30px;
+}
+.github-missing-email-container .github-missing-email .action-bar {
+  display: flex;
+  justify-content: center;
+  max-width: 700px;
+  margin: 0 auto;
+}
+.github-missing-email-container .github-missing-email .action-bar .action-retry, .github-missing-email-container .github-missing-email .action-bar .action-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 26px;
+  color: #EB5757;
+  background-color: rgba(235, 87, 87, 0.15);
+  border-radius: 4px;
+  margin: 0 auto;
+  cursor: pointer;
+}
+.github-missing-email-container .github-missing-email .action-bar .action-retry {
+  color: var(--blue-color);
+  background-color: #E3F1FB;
+}
+@media screen and (max-width: 640px) {
+  .github-missing-email-container .github-missing-email .action-bar {
+    display: block;
+  }
+  .github-missing-email-container .github-missing-email .action-bar .action-retry {
+    margin-bottom: 25px;
+  }
+}
+@media screen and (max-width: 640px) {
+  .github-missing-email-container .github-missing-email {
+    padding: 25px;
+  }
+}
+
+/*# sourceMappingURL=misc.css.map */
