@@ -1,24 +1,30 @@
 {% extends "accounts/layout.html" %}
 
 {% block title %}Password Changed{% endblock %}
+
 {% block css %}
-<link href="/static/css/reset_password.css" rel="stylesheet"/>
+<link href="/static/css/accounts/reset_password.css" rel="stylesheet"/>
 {% endblock %}
+
 {% block content %}
-<div class="logo"></div>
-<div class="form-wrapper">
-    <div class="email-form">
-        <h1>Password Changed!</h1>
-        <div id="description">
-            <p class="dark">
-                Your password has been changed successfully.
-            </p>
+<div class="reset-password-wrapper">
+    <a href="/" class="logo-wrapper">
+        <div class="logo"></div>
+    </a>
+    <div class="form-wrapper">
+        <div class="email-form">
+            <h1>Password Changed</h1>
+            <div id="description">
+                <p class="dark">
+                    Your password has been changed successfully.
+                </p>
+            </div>
+            <a href="/">
+                <button type="submit" class="submit-btn">
+                    Back to home
+                </button>
+            </a>
         </div>
-        <a href="/">
-            <button type="submit" class="submit-btn">
-                Back to home
-            </button>
-        </a>
     </div>
 </div>
 {% endblock %}

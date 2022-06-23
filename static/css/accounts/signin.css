@@ -1,26 +1,25 @@
 .login-container {
   font-family: "Mulish", serif;
-  width: 100vw;
   height: 100vh;
   height: max(100vh, 688px);
   background: var(--cool-gray) url(/static/img/Map.png);
   background-position-y: -200px;
 }
-.login-container .movey-logo {
-  content: url(/static/resources/movey_logo.svg);
+.login-container .movey-logo-container {
   top: 0;
+  display: flex;
+  align-items: center;
   position: sticky;
+  height: 100px;
   padding: 30px;
 }
-@media screen and (min-width: 844px) and (max-width: 1280px) {
-  .login-container .movey-logo {
-    padding: 34.5px 100px;
-  }
-}
 @media screen and (max-width: 843px) {
-  .login-container .movey-logo {
+  .login-container .movey-logo-container {
     padding: 38px calc((100vw - 236px) / 2) 46px;
   }
+}
+.login-container .movey-logo-container .movey-logo {
+  content: url(/static/resources/movey_logo.svg);
 }
 .login-container .login-card-container {
   margin-top: max(0px, (max(100vh, 688px) - 588px) / 2 - 100px);

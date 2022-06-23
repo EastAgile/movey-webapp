@@ -7,24 +7,25 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height) / 2 - $navbar-hei
 
 .verify-container {
   font-family: 'Mulish', serif;
-  width: 100vw;
   height: 100vh;
   height: $page-height;
   background: var(--cool-gray) url(/static/img/Map.png);
   background-position-y: -200px;
 
-  .movey-logo {
-    content: url(/static/resources/movey_logo.svg);
+  .movey-logo-container {
     top: 0;
+    display: flex;
+    align-items: center;
     position: sticky;
+    height: 100px;
     padding: 30px;
-
-    @include medium-screen {
-      padding: calc(($navbar-height - 31px) / 2) $navbar-height;
-    }
 
     @include small-screen {
       padding: 38px calc((100vw - 236px) / 2) 46px;
+    }
+
+    .movey-logo {
+      content: url(/static/resources/movey_logo.svg);
     }
   }
 

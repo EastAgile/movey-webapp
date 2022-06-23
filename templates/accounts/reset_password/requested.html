@@ -1,24 +1,30 @@
 {% extends "accounts/layout.html" %}
 
 {% block title %}Confirm Request{% endblock %}
+
 {% block css %}
-<link href="/static/css/reset_password.css" rel="stylesheet"/>
+<link href="/static/css/accounts/reset_password.css" rel="stylesheet"/>
 {% endblock %}
+
 {% block content %}
-<div class="logo"></div>
-<div class="form-wrapper">
-    <div class="email-form">
-        <h1>Thank You</h1>
-        <div id="description">
-            <p class="dark">
-                We have sent password reset instructions to {{ censored_email }}. If no email is received within ten minutes, check that the sent address is correct.
-            </p>
+<div class="reset-password-wrapper">
+    <a href="/" class="logo-wrapper">
+        <div class="logo"></div>
+    </a>
+    <div class="form-wrapper">
+        <div class="email-form">
+            <h1>Thank You</h1>
+            <div id="description">
+                <p class="dark">
+                    We have sent password reset instructions to {{ censored_email }}. If no email is received within ten minutes, check that the sent address is correct.
+                </p>
+            </div>
+            <a href="/accounts/login/">
+                <button type="submit" class="submit-btn">
+                    Back to sign in
+                </button>
+            </a>
         </div>
-        <a href="/accounts/login/">
-            <button type="submit" class="submit-btn">
-                Back to sign in
-            </button>
-        </a>
     </div>
 </div>
 {% endblock %}
