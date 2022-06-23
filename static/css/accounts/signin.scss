@@ -88,48 +88,6 @@ $from-nav-to-card: max(0px, calc(($page-height - $card-height-max) / 2 - $navbar
           margin-bottom: 24px;
         }
 
-        .g-signin2 {
-          transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-
-          &:hover {
-            box-shadow: 0 0 5px var(--blue-color);
-          }
-
-          .abcRioButton,
-          .abcRioButtonLightBlue {
-            width: 100% !important;
-            border-radius: 4px;
-            border: 1px solid var(--cool-gray);
-            box-shadow: 0 0 1px 1px rgba(0, 0, 0, .1);
-
-            @include medium-screen {
-              width: 176px !important;
-            }
-
-            @include small-screen {
-              width: 100% !important;
-            }
-
-            .abcRioButtonContentWrapper {
-              @include small-screen {
-                display: flex;
-                justify-content: center;
-                padding-left: 18px;
-                height: 36px;
-              }
-            }
-
-            .abcRioButtonContentWrapper .abcRioButtonContents {
-              span {
-                font-family: 'Mulish', serif;
-                font-size: 14px;
-                font-weight: 500;
-                color: var(--cool-gray-700) !important;
-              }
-            }
-          }
-        }
-
         .github-btn-wrapper {
           text-decoration: none;
 
