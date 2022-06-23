@@ -45,6 +45,7 @@ pub async fn post_package(
         res.total_size,
         Some(account_id),
         &service,
+        None,
         &db,
     )
     .await?;
@@ -59,14 +60,13 @@ pub struct DownloadInfo {
     subdir: String,
 }
 
-pub async fn increment_download(request: HttpRequest, query: web::Query<DownloadInfo>) -> Result<HttpResponse> {
+pub async fn increase_download_count(request: HttpRequest, form: web::Form<DownloadInfo>) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     let service = GithubService::new();
-    let query = query.into_inner();
-    let url = query.url;
-    let rev_ = query.rev;
-
-    if let Ok(res) = Package::increase_download_count(&url, &rev_, &service, &db).await {
+    let form = form.into_inner();
+    if let Ok(res) = Package::increase_download_count(
+        &form.url, &form.rev, &form.subdir, &service, &db
+    ).await {
         Ok(HttpResponse::Ok().body(res.to_string()))
     }
     else {
