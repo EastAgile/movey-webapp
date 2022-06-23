@@ -83,13 +83,15 @@ impl Server {
                 .secure(false)
                 .path("/");
 
+            let is_secure_cookie = env::var("IS_SECURE_COOKIE")
+                .unwrap_or_else(|_| "".to_string());
             #[cfg(feature = "production")]
             let session_storage = CookieSession::signed(key.as_bytes())
                 .name("sessionid")
                 .path("/")
                 .same_site(actix_web::cookie::SameSite::Lax)
                 .domain(&domain)
-                .secure(true);
+                .secure(is_secure_cookie.to_lowercase() == "true");
 
             let should_redirect_https = env::var("REDIRECT_HTTPS")
                 .unwrap_or_else(|_| "false".to_string()) != "false";
