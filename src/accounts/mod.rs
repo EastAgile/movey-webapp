@@ -45,8 +45,6 @@ fn oauth_client() -> BasicClient {
 }
 
 pub fn configure(config: &mut ServiceConfig) {
-    var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID not set!");
-
     let client = web::Data::new(oauth_client());
     config.service(
         scope("/accounts/")

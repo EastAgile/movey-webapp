@@ -25,10 +25,7 @@ pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
     }
     request.render(200, "accounts/login.html", {
         let mut ctx = Context::new();
-        let google_client_id =
-            std::env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID not set!");
         ctx.insert("form", &LoginForm::default());
-        ctx.insert("client_id", &google_client_id);
         let flash = request.cookie("flash");
         if let Some(message) = flash {
             ctx.insert("flash", message.value());
@@ -47,11 +44,8 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
     if !form.is_valid() {
         return request.render(400, "accounts/login.html", {
             let mut context = Context::new();
-            let google_client_id =
-                std::env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID not set!");
             context.insert("error", "Invalid email or password! Try again.");
             context.insert("form", &form);
-            context.insert("client_id", &google_client_id);
             context
         });
     }
@@ -103,11 +97,8 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
 
     request.render(400, "accounts/login.html", {
         let mut context = Context::new();
-        let google_client_id =
-            std::env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID not set!");
         context.insert("error", error_message.as_str());
         context.insert("form", &form);
-        context.insert("client_id", &google_client_id);
         context
     })
 }
