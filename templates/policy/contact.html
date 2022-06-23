@@ -30,12 +30,9 @@
                     placeholder="Select category"      
             >
                 <option value="" disabled  selected></option>
-                <option name = "category"> Account</option>
-                <option name = "category"> Password/Login issues</option>
-                <option name = "category"> Usage/Lisence query</option>
-                <option name = "category"> Contributor</option>
-                <option name = "category"> Report a security issue</option>
-                <option name = "category"> Others</option>
+                {% for category in categories %}
+                    <option name = "category"> {{category}}</option>
+                {% endfor %}
             </select>
             <div class="packages-sort-chevron"></div>
 
