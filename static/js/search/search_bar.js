@@ -1,34 +1,41 @@
 class SearchBar {
     constructor() {
         this.searchBtn = $('.search-btn');
+        this.searchBtnIcon = $('#search-btn-icon');
+        this.searchBar = $('#search-bar');
         this.searchForm = $('#search-bar form');
         this.searchField = $('#search-field');
         this.init();
     }
 
-    init() {
-        this.searchBtn.on('click', function(e) {
-            let $searchBtn = $(e.currentTarget);
-            let $searchBtnIcon = $('#search-btn-icon');
-            let $searchBar = $('#search-bar');
+    openSearchModal() {
+        this.searchBtnIcon.addClass("fa-close");
+        this.searchBtnIcon.removeClass("fa-search");
+        this.searchBtn.data("active", true);
+        this.searchBar.css("background", "rgba(2, 20, 58, 0.8)");
+        this.searchBar.ready(() => { 
+            this.searchField.focus();
+        })
 
-            if ($searchBtn.data('active')) {
-                $searchBtnIcon.addClass("fa-search");
-                $searchBtnIcon.removeClass("fa-close");
-                $searchBtn.data("active", false);
-                $searchBar.css("background", "none");
-            }
-            else {
-                $searchBtnIcon.addClass("fa-close");
-                $searchBtnIcon.removeClass("fa-search");
-                $searchBtn.data("active", true);
-                $searchBar.css("background", "rgba(2, 20, 58, 0.8)");
-                $searchBar.ready(() => { 
-                    $('#search-field').focus();
-                })
-            }
-            $searchBtn.toggleClass("search-btn-active");
-            $searchBar.toggle();
+        this.searchBtn.toggleClass("search-btn-active");
+        this.searchBar.toggle();
+    }
+
+    closeSearchModal() {
+        this.searchBtnIcon.addClass("fa-search");
+        this.searchBtnIcon.removeClass("fa-close");
+        this.searchBtn.data("active", false);
+        this.searchBar.css("background", "none");
+    
+        this.searchBtn.toggleClass("search-btn-active");
+        this.searchBar.toggle();
+    }
+
+    init() {
+        this.searchBtn.on('click', (e) => {
+            $(e.currentTarget).data('active') 
+                ? this.closeSearchModal()
+                : this.openSearchModal();
         });
 
         this.searchForm.on('click', (e) => {
@@ -37,6 +44,12 @@ class SearchBar {
 
         $('.fa-times-circle').first().on('click', function(e) {
             $('#search-field').val("");
+        });
+
+        $(document).mouseup((e) => {
+            if (e.target.id === "search-bar" || e.target.tagName === "NAV") {
+                this.closeSearchModal();
+            }
         });
     }
 }

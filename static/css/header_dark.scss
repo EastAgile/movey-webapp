@@ -255,6 +255,10 @@ header {
           cursor: pointer;
           height: 100%;
 
+          &.log {
+            margin-right: 40px;
+          }
+
           #search-btn-icon {
             height: 24px;
             width: 24px;
@@ -273,7 +277,7 @@ header {
           cursor: pointer;
 
           &.log {
-            right: 140px;
+            right: 100px;
           }
 
           @include medium-small-screen {
@@ -285,7 +289,7 @@ header {
             background: none;
 
             &.log {
-              right: 68px;
+              right: 55px;
             }
           }
         }
