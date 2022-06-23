@@ -65,11 +65,10 @@ pub async fn show_package_versions(
     Path(package_name): Path<String>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    let package = Package::get_by_name(&package_name, &db).await.unwrap();
+    let package = Package::get_by_name(&package_name, &db).await?;
     let package_latest_version =
         &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db)
-            .await
-            .unwrap()[0];
+            .await?[0];
 
     let params = Query::<VersionParams>::from_query(request.query_string()).unwrap();
     let default_sort: String = String::from("latest");
@@ -81,8 +80,7 @@ pub async fn show_package_versions(
         _ => PackageVersionSort::Latest,
     };
     let package_versions = PackageVersion::from_package_id(package.id, &sort_type, &db)
-        .await
-        .unwrap();
+        .await?;
 
     return request.render(200, "packages/versions.html", {
         let mut ctx = Context::new();
@@ -122,10 +120,12 @@ pub async fn show_search_results(
         None,
         &db,
     )
-    .await
-    .unwrap();
+    .await?;
 
     let current_page = search.page.unwrap_or_else(|| 1);
+    if current_page < 1 {
+        return Err(Error::Generic(String::from("Invalid page number.")));
+    }
     let field_name = match &search.field {
         Some(f) => f.to_string(),
         None => "".to_string(),
@@ -146,7 +146,7 @@ pub async fn show_search_results(
 pub async fn show_owned_packages(request: HttpRequest) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
-        let packages = Package::get_by_account(user.id, &db).await.unwrap();
+        let packages = Package::get_by_account(user.id, &db).await?;
 
         request.render(200, "search/search_results.html", {
             let mut ctx = Context::new();
@@ -187,10 +187,12 @@ pub async fn packages_index(
         None,
         &db,
     )
-    .await
-    .unwrap();
+    .await?;
 
     let current_page = params.page.unwrap_or_else(|| 1);
+    if current_page < 1 {
+        return Err(Error::Generic(String::from("Invalid page number.")));
+    }
     let field_name = match &params.field {
         Some(f) => f.to_string(),
         None => "".to_string(),

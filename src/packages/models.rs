@@ -434,6 +434,9 @@ impl Package {
 
         let page = page.unwrap_or_else(|| 1);
         let per_page = per_page.unwrap_or_else(|| PACKAGES_PER_PAGE);
+        if page < 1 || per_page < 1 {
+            return Err(Error::Generic(String::from("Invalid page number.")));
+        }
 
         let result: (Vec<PackageSearchResult>, i64, i64) = packages::table
             .inner_join(package_versions::table)
@@ -468,6 +471,9 @@ impl Package {
 
         let page = page.unwrap_or_else(|| 1);
         let per_page = per_page.unwrap_or_else(|| PACKAGES_PER_PAGE);
+        if page < 1 || per_page < 1 {
+            return Err(Error::Generic(String::from("Invalid page number.")));
+        }
 
         let result: (Vec<PackageSearchResult>, i64, i64) = packages::table
             .inner_join(package_versions::table)
