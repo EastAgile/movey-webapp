@@ -12,7 +12,7 @@ async fn go_to_package_list_page(world: &mut TestWorld) {
         .unwrap();
     assert_eq!(
         world.driver.title().await.unwrap().as_str(),
-        "All Movey Packages"
+        "All Packages | Movey"
     );
     let package_count = world
         .driver

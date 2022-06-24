@@ -74,7 +74,7 @@ async fn access_reset_link(world: &mut TestWorld) {
 
 #[then("I should see the Reset Password page")]
 async fn see_reset_password_page(world: &mut TestWorld) {
-    assert_eq!(world.driver.title().await.unwrap(), "Reset Password");
+    assert_eq!(world.driver.title().await.unwrap(), "Reset Password | Movey");
 }
 
 #[when("I fill in a valid password and repeat the password correctly")]
@@ -105,7 +105,7 @@ async fn submit_reset_form(world: &mut TestWorld) {
 
 #[then("I should see the Password Changed page")]
 async fn see_password_changed(world: &mut TestWorld) {
-    assert_eq!(world.driver.title().await.unwrap(), "Password Changed");
+    assert_eq!(world.driver.title().await.unwrap(), "Password Changed | Movey");
 }
 
 #[then("I should receive an email that confirms password has changed")]

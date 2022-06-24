@@ -8,7 +8,5 @@ Contact for: {{category}}
 Description: {{description}}
 
 
-If you have any questions, feel free to email our support team: {{ JELLY_SUPPORT_EMAIL }}
-
 Thanks,
 - The Team
