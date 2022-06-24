@@ -108,6 +108,7 @@
 }
 .package-show-container .package-content-container .package-content-tabs .content-tab > a {
   display: flex;
+  align-items: center;
 }
 @media screen and (min-width: 844px) and (max-width: 1280px) {
   .package-show-container .package-content-container .package-content-tabs .content-tab {
@@ -121,23 +122,22 @@
   }
 }
 .package-show-container .package-content-container .package-content-tabs .content-tab .tab-icon {
-  width: 34px;
-  height: 36px;
+  width: 24px;
+  height: 24px;
   background-repeat: no-repeat;
   margin-right: 8px;
-  margin-top: 2px;
 }
 .package-show-container .package-content-container .package-content-tabs .content-tab .tab-icon.tab-icon-profile {
-  background-image: url("/static/resources/profile-icon.png");
+  content: url("/static/resources/profile-icon.svg");
 }
 .package-show-container .package-content-container .package-content-tabs .content-tab .tab-icon.tab-icon-packages {
-  background-image: url("/static/resources/blocks-icon.png");
+  content: url("/static/resources/blocks-icon.svg");
 }
 .package-show-container .package-content-container .package-content-tabs .content-tab .tab-icon.tab-icon-downloads {
-  background-image: url("/static/resources/download-icon.png");
+  content: url("/static/resources/download-icon.svg");
 }
 .package-show-container .package-content-container .package-content-tabs .content-tab .tab-icon.tab-icon-tokens {
-  background-image: url("/static/resources/token-icon.png");
+  content: url("/static/resources/token-icon.svg");
 }
 .package-show-container .package-content-container .package-content-tabs .content-tab.tab-readme {
   border-bottom-color: #A34C00;
