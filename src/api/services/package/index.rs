@@ -13,10 +13,8 @@ use crate::github_service::GithubService;
 #[derive(Serialize, Deserialize)]
 pub struct PackageRequest {
     github_repo_url: String,
-    description: String,
     rev: String,
     total_files: i32,
-    total_size: i32,
     token: String,
 }
 
@@ -30,25 +28,23 @@ pub async fn post_package(
     res: web::Json<PackageRequest>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    let service = GithubService::new();
     if let Err(_) = ApiToken::get(&res.token, db).await {
         return Ok(HttpResponse::BadRequest().body("Invalid Api Token"));
     }
 
     let account_id = ApiToken::associated_account(&res.token, &db).await?.id;
-
-    Package::create(
+    let service = GithubService::new();
+    let github_data = service.fetch_repo_data(&res.github_repo_url, None)?;
+    Package::create_from_crawled_data(
         &res.github_repo_url,
-        &res.description,
+        &github_data.description.clone(),
         &res.rev,
         res.total_files,
-        res.total_size,
+        github_data.size,
         Some(account_id),
-        &service,
-        None,
+        github_data,
         &db,
-    )
-    .await?;
+    ).await?;
 
     Ok(HttpResponse::Ok().body(""))
 }
