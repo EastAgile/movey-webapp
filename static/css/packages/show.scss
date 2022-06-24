@@ -446,6 +446,7 @@
                                 background-repeat: no-repeat;
                                 background-image: url("/static/resources/packages/github_icon.svg");
                                 margin-right: 10px;
+                                flex-shrink: 0;
                             }
 
                             .package-repo-url a {

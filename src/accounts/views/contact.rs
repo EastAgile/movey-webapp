@@ -1,6 +1,6 @@
 
 use jelly::actix_web::{
-    web::{Form, Path},
+    web::Form,
     HttpRequest,
 };
 use jelly::prelude::*;

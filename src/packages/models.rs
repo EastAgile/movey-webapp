@@ -182,9 +182,10 @@ impl Package {
         version_size: i32,
         account_id_: Option<i32>,
         service: &GithubService,
+        subdir: Option<String>,
         pool: &DieselPgPool,
     ) -> Result<i32, Error> {
-        let github_data = service.fetch_repo_data(&repo_url, None)?;
+        let github_data = service.fetch_repo_data(&repo_url, subdir)?;
 
         Package::create_from_crawled_data(
             repo_url,
@@ -314,6 +315,7 @@ impl Package {
     pub async fn increase_download_count(
         url: &String,
         rev_: &String,
+        subdir: &String,
         service: &GithubService,
         pool: &DieselPgPool,
     ) -> Result<usize, Error> {
@@ -326,6 +328,9 @@ impl Package {
                 .replace("git@", "https://")
                 .replace(".git", "")
                 .to_owned();
+        }
+        if https_url.ends_with(".git") {
+            https_url = https_url[0..https_url.len() - 4].to_string();
         }
 
         let package_id_ = packages
@@ -365,17 +370,16 @@ impl Package {
             }
             Err(NotFound) => {
                 // Package is not found, creating shadow package and package version
-                Package::create(
-                    &https_url,
-                    &String::from(""),
-                    &rev_,
-                    -1,
-                    -1,
-                    None,
-                    service,
-                    &pool,
-                )
-                .await?
+                let github_data =
+                    if subdir.is_empty() {
+                        service.fetch_repo_data(&https_url, None)?
+                    } else {
+                        let subdir_with_toml = format!("{}/Move.toml", subdir);
+                        service.fetch_repo_data(&https_url, Some(subdir_with_toml))?
+                    };
+                Package::create_from_crawled_data(&https_url, &github_data.description.clone(),
+                                                  &rev_, -1, github_data.size, None,
+                                                  github_data, &pool).await?
             }
             Err(e) => {
                 return Err(Error::Database(e));
@@ -739,6 +743,7 @@ mod tests {
             100,
             Some(1),
             &mock_github_service,
+            None,
             &DB_POOL,
         )
         .await
@@ -787,6 +792,7 @@ mod tests {
             100,
             Some(2),
             &mock_github_service_2,
+            None,
             &DB_POOL,
         )
         .await
@@ -826,6 +832,7 @@ mod tests {
             100,
             None,
             &mock_github_service,
+            None,
             &DB_POOL,
         )
         .await
@@ -877,6 +884,7 @@ mod tests {
             3,
             None,
             &mock_github_service,
+            None,
             &DB_POOL,
         )
         .await
@@ -928,6 +936,7 @@ mod tests {
             3,
             None,
             &mock_github_service,
+            None,
             &DB_POOL,
         )
         .await
@@ -996,7 +1005,7 @@ mod tests {
             &"Test package".to_string(),
             url,
             &"".to_string(),
-            &"".to_string(),
+            &"1.0.0".to_string(),
             &"".to_string(),
             rev_,
             20,
@@ -1018,7 +1027,7 @@ mod tests {
         mock_github_service.expect_fetch_repo_data().returning(|_, _| {
             Ok(GithubRepoData {
                 name: "name".to_string(),
-                version: "first_version".to_string(),
+                version: "1.0.0".to_string(),
                 readme_content: "first_readme_content".to_string(),
                 description: "".to_string(),
                 size: 0,
@@ -1027,10 +1036,12 @@ mod tests {
             })
         });
 
-        Package::increase_download_count(url, rev_, &mock_github_service, &DB_POOL)
+        Package::increase_download_count(url, rev_,  &String::new(),
+                                         &mock_github_service, &DB_POOL)
             .await
             .unwrap();
-        Package::increase_download_count(url, rev_, &mock_github_service, &DB_POOL)
+        Package::increase_download_count(url, rev_,  &String::new(),
+                                         &mock_github_service, &DB_POOL)
             .await
             .unwrap();
         let package_versions_after =
@@ -1043,6 +1054,7 @@ mod tests {
         let _ = Package::increase_download_count(
             &"git@github.com:eadungn/taohe.git".to_string(),
             rev_,
+            &String::new(),
             &mock_github_service,
             &DB_POOL,
         )
@@ -1094,10 +1106,12 @@ mod tests {
         assert_eq!(package_before, 0);
         assert_eq!(package_version_before, 0);
 
-        Package::increase_download_count(url, rev_, &mock_github_service, &DB_POOL)
+        Package::increase_download_count(url, rev_, &String::new(),
+                                         &mock_github_service, &DB_POOL)
             .await
             .unwrap();
-        Package::increase_download_count(url, rev_, &mock_github_service, &DB_POOL)
+        Package::increase_download_count(url, rev_, &String::new(),
+                                         &mock_github_service, &DB_POOL)
             .await
             .unwrap();
 
@@ -1132,7 +1146,7 @@ mod tests {
             &"Test package".to_string(),
             &url,
             &"".to_string(),
-            &"".to_string(),
+            &"1.0.0".to_string(),
             &"".to_string(),
             &rev1,
             20,
@@ -1143,7 +1157,7 @@ mod tests {
         .unwrap();
         PackageVersion::create(
             package_id_,
-            String::from(""),
+            String::from("1.0.0"),
             String::from(""),
             rev2.clone(),
             40,
@@ -1158,7 +1172,7 @@ mod tests {
         mock_github_service.expect_fetch_repo_data().returning(|_, _| {
             Ok(GithubRepoData {
                 name: "name".to_string(),
-                version: "first_version".to_string(),
+                version: "1.0.0".to_string(),
                 readme_content: "first_readme_content".to_string(),
                 description: "".to_string(),
                 size: 0,
@@ -1174,10 +1188,12 @@ mod tests {
         for package_version_before in package_versions_before {
             assert_eq!(package_version_before.downloads_count, 0);
         }
-        Package::increase_download_count(&url, &rev1, &mock_github_service, &DB_POOL)
+        Package::increase_download_count(&url, &rev1, &String::new(),
+                                         &mock_github_service, &DB_POOL)
             .await
             .unwrap();
-        Package::increase_download_count(&url, &rev2, &mock_github_service, &DB_POOL)
+        Package::increase_download_count(&url, &rev2,  &String::new(),
+                                         &mock_github_service, &DB_POOL)
             .await
             .unwrap();
         let package_versions_after =
@@ -1196,6 +1212,7 @@ mod tests {
         Package::increase_download_count(
             &"git@github.com:eadungn/taohe.git".to_string(),
             &rev2,
+            &String::new(),
             &mock_github_service,
             &DB_POOL,
         )

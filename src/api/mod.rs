@@ -15,7 +15,7 @@ pub fn configure(config: &mut ServiceConfig) {
                     .route(post().to(services::package::index::search_package)),
             ).service(
 				resource("/download")
-					.route(get().to(services::package::index::increment_download))
+					.route(post().to(services::package::index::increase_download_count))
             )
             .service(
                 resource("/tokens/{token_id}")

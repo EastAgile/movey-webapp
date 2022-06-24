@@ -399,6 +399,7 @@
   background-repeat: no-repeat;
   background-image: url("/static/resources/packages/github_icon.svg");
   margin-right: 10px;
+  flex-shrink: 0;
 }
 .package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-install .package-repo .package-repo-url a {
   color: #27AE60;
