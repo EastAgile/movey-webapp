@@ -32,5 +32,5 @@ async fn main() {
                 block_on(w.close_browser());
             }
             ready(TestDatabaseHelper::cleanup_test_database()).boxed_local()
-        }).run_and_exit("tests/features/").await;
+        }).run_and_exit("tests/features/accounts/reset.feature").await;
 }

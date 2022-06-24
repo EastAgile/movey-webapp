@@ -39,8 +39,8 @@ pub fn configure(config: &mut ServiceConfig) {
             .service(
                 resource("/contact").to(contact),
             )
-            .service(
-                resource("/about").to(about),
-            )
+            // .service(
+            //     resource("/about").to(about),
+            // )
     );
 }
