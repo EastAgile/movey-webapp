@@ -5,6 +5,7 @@ class Tokens {
     this.newTokenInput = this.modal.find('input')
     this.newTokenItemTemplate = $('.token-item-template .token-item')
     this.tokensList = $('.tokens-list')
+    this.revokeModal = $('#revoke_token_modal')
     this.init()
   }
 
@@ -23,6 +24,14 @@ class Tokens {
       this.newTokenInput.val('')
     })
 
+    this.newTokenInput.on('keypress', (e) => {
+      if (e.key == "Enter") {
+        this.modal.foundation('close')
+        this.submitNewToken()
+        this.newTokenInput.val('')
+      }
+    })
+
     $('body').on('click', '.copy-token-icon-btn, .copy-token-btn', (e) => {
       const tokenTextElement = $(e.currentTarget).closest('.token-item').find('.token-plaintext')
       navigator.clipboard.writeText(tokenTextElement.text())
@@ -31,10 +40,15 @@ class Tokens {
     })
 
     $('body').on('click', '.revoke-token-btn', (e) => {
-      if(confirm('Revoke this token?')) {
-        const tokenId = $(e.currentTarget).closest('.token-item').data('id')
+      const tokenId = $(e.currentTarget).closest('.token-item').data('id')
+      this.revokeModal.foundation('open')
+      this.revokeModal.find('.revoke-token-confirm').on('click', () => {
         this.revokeToken(tokenId)
-      }
+      })
+    })
+    
+    this.revokeModal.find('.revoke-token-cancel').on('click', () => {
+      this.revokeModal.foundation('close')
     })
   }
 
