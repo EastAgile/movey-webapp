@@ -237,7 +237,7 @@ header .header-container #right-wrapper li .search-btn {
   height: 100%;
 }
 header .header-container #right-wrapper li .search-btn.log {
-  margin-right: 40px;
+  margin-right: 33px;
 }
 header .header-container #right-wrapper li .search-btn #search-btn-icon {
   height: 24px;
@@ -255,7 +255,7 @@ header .header-container #right-wrapper li .search-btn-active {
   cursor: pointer;
 }
 header .header-container #right-wrapper li .search-btn-active.log {
-  right: 100px;
+  right: 105px;
 }
 @media screen and (max-width: 1280px) {
   header .header-container #right-wrapper li .search-btn-active {
