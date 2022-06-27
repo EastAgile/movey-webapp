@@ -119,7 +119,7 @@
 @media screen and (min-width: 240px) and (max-width: 768px) {
   .content-wrapper #package-list-container .package-list .package-list-item .left-wrapper {
     width: 100%;
-    height: 100px;
+    height: 92px;
   }
 }
 .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper {
