@@ -25,7 +25,7 @@ use crate::schema::packages;
 use crate::schema::packages::dsl::*;
 use crate::utils::paginate::LoadPaginated;
 
-pub const PACKAGES_PER_PAGE: i64 = 10;
+pub const PACKAGES_PER_PAGE: i64 = 2;
 
 #[derive(
     Debug,

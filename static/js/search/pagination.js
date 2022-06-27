@@ -33,7 +33,6 @@ class Pagination {
             let currPageIdx = displayPageNums[i];
 
             if (currPageIdx != prevPageIdx + 1) {
-                console.log(currPageIdx, prevPageIdx);
                 let ellipsis = ellipsisTemplate.clone();
                 paginationPage.after(ellipsis);
                 paginationPage = ellipsis;
