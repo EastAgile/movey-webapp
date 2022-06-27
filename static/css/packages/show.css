@@ -405,6 +405,7 @@
   color: #27AE60;
   font-size: 18px;
   line-height: 24px;
+  overflow-wrap: anywhere;
 }
 .package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-metadata {
   display: flex;

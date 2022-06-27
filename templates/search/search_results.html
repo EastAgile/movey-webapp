@@ -3,6 +3,7 @@
 {% block title %}Search results for {{ query }} | Movey{% endblock %}
 {% block content %}
 <div class="content-wrapper">
+    {% if total_count > 0 %}
     <div class="setting-bar">
         <p>{{ total_count }} result{{ total_count | pluralize }} for <b>'{{ query }}'</b></p>
         <div class="package-search-sort">
@@ -71,6 +72,13 @@
         </div>
         {% endif %}
     </div>
+    {% else %}
+    <div class="no-result-container">
+        <div class="no-result-illustration"></div>
+        <h1>Sorry, we couldn't find any matches for <b>'{{ query }}'</b></h1>
+        <p>Please try searching with another term.</p>
+    </div>
+    {% endif %}
 </div>
 
 <script>
