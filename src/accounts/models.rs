@@ -18,6 +18,14 @@ use super::forms::{LoginForm, NewAccountForm};
 use super::views::verify::GithubOauthUser;
 use crate::schema::accounts;
 use crate::schema::accounts::dsl::*;
+use crate::schema::packages::dsl::{
+    packages, 
+    account_id as packages_account_id
+};
+use crate::schema::api_tokens::dsl::{
+    api_tokens, 
+    account_id as api_tokens_account_id
+};
 
 /// A user Account.
 #[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset)]
@@ -221,6 +229,19 @@ impl Account {
         let conn = pool.get()?;
         conn.build_transaction()
             .run::<_, _, _>(|| {
+                let github_account = accounts
+                    .filter(github_id.eq(gh_id))
+                    .first::<Account>(&conn)?;
+
+                diesel::update(packages.filter(packages_account_id.eq(github_account.id)))
+                    .set(packages_account_id.eq(movey_id))
+                    .execute(&conn)?;
+
+                // TODO: Figure out what to do when two accounts merging exceeds number of allowed tokens
+                diesel::update(api_tokens.filter(api_tokens_account_id.eq(github_account.id)))
+                    .set(api_tokens_account_id.eq(movey_id))
+                    .execute(&conn)?;
+
                 diesel::delete(accounts.filter(github_id.eq(gh_id)))
                     .execute(&conn)?;
 
@@ -320,7 +341,7 @@ impl NewGithubAccount {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::test::{DatabaseTestContext, DB_POOL};
+    use crate::{test::{DatabaseTestContext, DB_POOL}, settings::models::token::ApiToken};
     use diesel::result::DatabaseErrorKind;
     use diesel::result::Error::DatabaseError;
     use jelly::forms::{EmailField, PasswordField};
@@ -668,6 +689,60 @@ mod tests {
         } else {
             panic!()
         }
+    }
+
+    #[actix_rt::test]
+    async fn merge_github_account_and_movey_account_should_migrate_api_tokens() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+
+        let github_user = Account::register_from_github(& GithubOauthUser {
+            id: 132,
+            login: "github_name".to_string(),
+            email: "email@github.com".to_string(),
+        }, &DB_POOL).await.unwrap();
+
+        let github_account = 
+            Account::get_by_github_id(132, &DB_POOL).await.unwrap();
+
+        ApiToken::insert(&github_account, "old_gh_account_token_1", &DB_POOL).await.unwrap();
+        ApiToken::insert(&github_account, "old_gh_account_token_2", &DB_POOL).await.unwrap();
+
+        let uid = setup_user().await;
+        let movey_account = Account::get(uid, &DB_POOL).await.unwrap();
+        assert_eq!(movey_account.github_id, None);
+        assert_eq!(movey_account.github_login, None);
+
+        let movey_account_api_tokens = ApiToken::get_by_account(movey_account.id, &DB_POOL).await.unwrap();
+        assert_eq!(movey_account_api_tokens.len(), 0);
+
+        Account::merge_github_account_and_movey_account(
+            uid, 
+            github_account.github_id.unwrap(), 
+            github_account.github_login.as_ref().unwrap().to_string(), 
+            &DB_POOL
+        ).await.unwrap();
+        let movey_account = Account::get(uid, &DB_POOL).await.unwrap();
+        assert_eq!(movey_account.github_id, github_account.github_id);
+        assert_eq!(movey_account.github_login, github_account.github_login);
+
+        let movey_account_api_tokens = ApiToken::get_by_account(movey_account.id, &DB_POOL).await.unwrap();
+        assert_eq!(movey_account_api_tokens.len(), 2);
+        assert!(movey_account_api_tokens[0].name == "old_gh_account_token_1" || 
+            movey_account_api_tokens[0].name == "old_gh_account_token_2");
+        assert!(movey_account_api_tokens[1].name == "old_gh_account_token_1" || 
+            movey_account_api_tokens[1].name == "old_gh_account_token_2");
+
+        let old_github_account = Account::get(github_account.id, &DB_POOL).await;
+        if let Err(Error::Database(DBError::NotFound)) = old_github_account {
+        } else {
+            panic!()
+        }
+    }
+
+    #[actix_rt::test]
+    async fn merge_github_account_and_movey_account_should_migrate_packages_ownership() {
+        // TODO
     }
 
     #[actix_rt::test]
