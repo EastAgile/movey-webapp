@@ -208,7 +208,6 @@
   margin: 0 20px 0 0;
   max-width: 60%;
   white-space: nowrap;
-  overflow-x: hidden;
 }
 @media screen and (min-width: 769px) {
   .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title h1, .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title h1 a {

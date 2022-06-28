@@ -224,8 +224,6 @@
                         margin: 0 20px 0 0;
                         max-width: 60%;
                         white-space: nowrap;
-                        // overflow-x: clip;
-                        overflow-x: hidden;
 
                         @include large-screen {
                             font-size: 32px;
