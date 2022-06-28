@@ -404,6 +404,8 @@ body {
   justify-content: flex-end;
   margin-left: auto;
   position: relative;
+  width: 100%;
+  max-width: 100%;
 }
 @media screen and (max-width: 480px) {
   .package-search-sort {

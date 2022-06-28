@@ -402,7 +402,9 @@ body {
     justify-content: flex-end;
     margin-left: auto;
     position: relative;
-
+    width: 100%;
+    max-width: 100%;
+    
     @include small-screen {
         margin: 0 0 25px 0;
     }
