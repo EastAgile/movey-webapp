@@ -270,6 +270,11 @@ header .header-container #right-wrapper li .search-btn-active.log {
     right: 55px;
   }
 }
+@media screen and (max-width: 843px) {
+  header .header-container #right-wrapper li .search-btn-active {
+    right: 85px;
+  }
+}
 
 #search-bar {
   display: none;

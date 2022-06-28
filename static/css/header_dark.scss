@@ -292,6 +292,10 @@ header {
               right: 55px;
             }
           }
+
+          @include small-screen {
+            right: 85px;
+          }
         }
       }
     }
