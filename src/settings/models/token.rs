@@ -4,7 +4,6 @@ use crate::schema::accounts::dsl::*;
 use crate::schema::api_tokens;
 use crate::schema::api_tokens::dsl::*;
 use crate::utils::token::SecureToken;
-use diesel::dsl::count;
 use diesel::prelude::*;
 use diesel::{Associations, ExpressionMethods, Identifiable, Queryable, RunQueryDsl};
 use jelly::chrono::NaiveDateTime;

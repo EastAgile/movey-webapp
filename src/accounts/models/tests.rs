@@ -1,5 +1,5 @@
 use super::*;
-use crate::{test::{DatabaseTestContext, DB_POOL}, settings::models::token::ApiToken};
+use crate::{test::{DatabaseTestContext, DB_POOL}, settings::models::token::ApiToken, packages::models::Package};
 use diesel::result::DatabaseErrorKind;
 use diesel::result::Error::DatabaseError;
 use jelly::forms::{EmailField, PasswordField};
@@ -33,6 +33,32 @@ async fn setup_user() -> i32 {
         },
     };
     Account::register(&form, &DB_POOL).await.unwrap()
+}
+
+async fn setup_github_account() -> Account {
+    Account::register_from_github(& GithubOauthUser {
+        id: 132,
+        login: "github_name".to_string(),
+        email: "email@domain.com".to_string(),
+    }, &DB_POOL).await.unwrap();
+    Account::get_by_github_id(132, &DB_POOL).await.unwrap()
+}
+
+async fn create_stub_packages(account_id: i32, num_of_packages: i32) {
+    for idx in 0..num_of_packages {
+        Package::create_test_package(
+            &format!("package_{}_{}", idx, account_id),
+            &"repo_url".to_string(),
+            &"package_description".to_string(),
+            &"0.0.0".to_string(),
+            &"".to_string(),
+            &"".to_string(),
+            10,
+            200,
+            Some(account_id),
+            &DB_POOL)
+            .await.unwrap();
+    }
 }
 
 #[actix_rt::test]
@@ -281,13 +307,7 @@ async fn get_by_github_id_works() {
         panic!()
     }
 
-    let github_user = Account::register_from_github(& GithubOauthUser {
-        id: 132,
-        login: "github_name".to_string(),
-        email: "email@domain.com".to_string(),
-    }, &DB_POOL).await.unwrap();
-    let account = 
-        Account::get_by_github_id(132, &DB_POOL).await.unwrap();
+    let account = setup_github_account().await;
 
     assert_eq!(account.github_id, Some(132));
     assert_eq!(account.github_login, Some("github_name".to_string()));
@@ -300,7 +320,7 @@ async fn merge_github_account_and_movey_account_works() {
     let _ctx = DatabaseTestContext::new();
 
     // Information of the github account that signed in via OAuth
-    let github_user = Account::register_from_github(& GithubOauthUser {
+    let _ = Account::register_from_github(& GithubOauthUser {
         id: 132,
         login: "github_name".to_string(),
         email: "email@github.com".to_string(),
@@ -355,18 +375,7 @@ async fn merge_github_account_and_movey_account_should_migrate_api_tokens() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let max_token: i32 = std::env::var("MAX_TOKEN")
-        .unwrap_or_else(|_| "5".to_string()).parse().unwrap();
-
-    let _ = Account::register_from_github(& GithubOauthUser {
-        id: 132,
-        login: "github_name".to_string(),
-        email: "email@github.com".to_string(),
-    }, &DB_POOL).await.unwrap();
-
-    let github_account = 
-        Account::get_by_github_id(132, &DB_POOL).await.unwrap();
-
+    let github_account = setup_github_account().await;
     ApiToken::insert(&github_account, "old_gh_account_token_1", &DB_POOL).await.unwrap();
     ApiToken::insert(&github_account, "old_gh_account_token_2", &DB_POOL).await.unwrap();
 
@@ -408,15 +417,7 @@ async fn merge_github_account_and_movey_account_when_total_number_of_tokens_exce
     let max_token: i32 = std::env::var("MAX_TOKEN")
         .unwrap_or_else(|_| "5".to_string()).parse().unwrap();
 
-    let _ = Account::register_from_github(& GithubOauthUser {
-        id: 132,
-        login: "github_name".to_string(),
-        email: "email@github.com".to_string(),
-    }, &DB_POOL).await.unwrap();
-
-    let github_account = 
-        Account::get_by_github_id(132, &DB_POOL).await.unwrap();
-
+    let github_account = setup_github_account().await;
     ApiToken::insert(&github_account, "old_gh_account_token_1", &DB_POOL).await.unwrap();
     ApiToken::insert(&github_account, "old_gh_account_token_2", &DB_POOL).await.unwrap();
 
@@ -458,7 +459,35 @@ async fn merge_github_account_and_movey_account_when_total_number_of_tokens_exce
 
 #[actix_rt::test]
 async fn merge_github_account_and_movey_account_should_migrate_packages_ownership() {
-    // TODO
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    let github_account = setup_github_account().await;
+    create_stub_packages(github_account.id, 3).await;
+    let github_account_packages = Package::get_by_account(github_account.id, &DB_POOL).await.unwrap();
+    assert_eq!(github_account_packages.len(), 3);
+
+    let uid = setup_user().await;
+    let movey_account = Account::get(uid, &DB_POOL).await.unwrap();
+    create_stub_packages(movey_account.id, 7).await;
+    let movey_account_packages = Package::get_by_account(movey_account.id, &DB_POOL).await.unwrap();
+    assert_eq!(movey_account_packages.len(), 7);
+
+    Account::merge_github_account_and_movey_account(
+        github_account.id,
+        uid,
+        github_account.github_id.unwrap(), 
+        github_account.github_login.as_ref().unwrap().to_string(), 
+        &DB_POOL
+    ).await.unwrap();
+    let movey_account_packages = Package::get_by_account(movey_account.id, &DB_POOL).await.unwrap();
+    assert_eq!(movey_account_packages.len(), 10);
+
+    let old_github_account = Account::get(github_account.id, &DB_POOL).await;
+    if let Err(Error::Database(DBError::NotFound)) = old_github_account {
+    } else {
+        panic!()
+    }
 }
 
 #[actix_rt::test]

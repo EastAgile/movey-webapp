@@ -552,7 +552,9 @@ impl PackageVersion {
 
 #[cfg(test)]
 mod tests {
+    use jelly::forms::{EmailField, PasswordField};
     use super::*;
+    use crate::accounts::forms::NewAccountForm;
     use crate::test::{DatabaseTestContext, DB_POOL};
 
     use crate::github_service::GithubRepoData;
@@ -568,6 +570,7 @@ mod tests {
             &"".to_string(),
             0,
             0,
+            None,
             &pool,
         )
         .await?;
@@ -580,6 +583,7 @@ mod tests {
             &"".to_string(),
             0,
             0,
+            None,
             &pool,
         )
         .await?;
@@ -592,6 +596,7 @@ mod tests {
             &"".to_string(),
             0,
             0,
+            None,
             &pool,
         )
         .await?;
@@ -719,6 +724,19 @@ mod tests {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
 
+        let form = NewAccountForm {
+            email: EmailField {
+                value: "email@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        };
+        let uid = Account::register(&form, &DB_POOL).await.unwrap();
+
         let mut mock_github_service = GithubService::new();
         mock_github_service
             .expect_fetch_repo_data()
@@ -741,7 +759,7 @@ mod tests {
             &"1".to_string(),
             2,
             100,
-            Some(1),
+            Some(uid),
             &mock_github_service,
             None,
             &DB_POOL,
@@ -790,7 +808,7 @@ mod tests {
             &"1".to_string(),
             2,
             100,
-            Some(2),
+            None,
             &mock_github_service_2,
             None,
             &DB_POOL,
@@ -1010,6 +1028,7 @@ mod tests {
             rev_,
             20,
             100,
+            None,
             &DB_POOL,
         )
         .await
@@ -1151,6 +1170,7 @@ mod tests {
             &rev1,
             20,
             100,
+            None,
             &DB_POOL,
         )
         .await
@@ -1256,6 +1276,7 @@ impl Package {
         version_rev: &String,
         version_files: i32,
         version_size: i32,
+        account_id_: Option<i32>,
         pool: &DieselPgPool,
     ) -> Result<i32, Error> {
         let connection = pool.get()?;
@@ -1264,7 +1285,7 @@ impl Package {
             name: package_name.to_string(),
             description: package_description.to_string(),
             repository_url: repo_url.to_string(),
-            account_id: None,
+            account_id: account_id_,
         };
 
         let record = diesel::insert_into(packages::table)
