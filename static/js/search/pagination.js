@@ -17,7 +17,6 @@ class Pagination {
         let pageTemplate = $(".paginationjs-page");
         let ellipsisTemplate = $(".paginationjs-ellipsis");
         let paginationPage = pageTemplate;
-        let totalPages = this.totalPages;
         let prevPageIdx = 0;
 
         // display at most 7 pages
@@ -25,8 +24,8 @@ class Pagination {
             1, 2,
             this.currentPage - 1, this.currentPage, this.currentPage + 1,
             this.totalPages - 1, this.totalPages
-        ].filter(function(value, index, self) {
-            return self.indexOf(value) === index && value >= 1 && value <= totalPages
+        ].filter((value, index, self) => {
+            return self.indexOf(value) === index && value >= 1 && value <= this.totalPages
         });
 
         for (let i=0; i<displayPageNums.length; i++) {
