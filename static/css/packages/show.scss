@@ -594,6 +594,7 @@
                     align-items: center;
                     justify-content: flex-end;
                     position: relative;
+                    max-width: 100%;
 
                     label {
                         flex-shrink: 0;
@@ -619,6 +620,7 @@
                         .select2-selection {
                             border: none;
                             height: 50px;
+                            width: 174px;
 
                             .select2-selection__rendered {
                                 height: 50px;
@@ -658,6 +660,7 @@
                         .select2-container {
                             .select2-selection {
                                 height: 40px;
+                                width: 140px;
 
                                 .select2-selection__rendered {
                                     height: 40px;

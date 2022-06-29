@@ -7,6 +7,7 @@ class SearchPage {
 
     init() {
         this.sortElement.select2({
+            width: '100%',
             minimumResultsForSearch: -1,
             dropdownCssClass: 'packages-sort-dropdown'
         });
