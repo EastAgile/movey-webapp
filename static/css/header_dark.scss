@@ -257,7 +257,7 @@ header {
           height: 100%;
 
           &.log {
-            margin-right: 40px;
+            margin-right: 33px;
           }
 
           #search-btn-icon {
@@ -271,14 +271,14 @@ header {
           font-size: 32px;
           position: absolute;
           top: 0px;
-          right: 280px;
+          right: 275px;
           width: 100px;
           height: 100px;
           background-color: white;
           cursor: pointer;
 
           &.log {
-            right: 100px;
+            right: 105px;
           }
 
           @include medium-small-screen {
@@ -292,6 +292,10 @@ header {
             &.log {
               right: 55px;
             }
+          }
+
+          @include small-screen {
+            right: 85px;
           }
         }
       }
