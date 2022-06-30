@@ -238,7 +238,7 @@ header .header-container #right-wrapper li .search-btn {
   height: 100%;
 }
 header .header-container #right-wrapper li .search-btn.log {
-  margin-right: 40px;
+  margin-right: 33px;
 }
 header .header-container #right-wrapper li .search-btn #search-btn-icon {
   height: 24px;
@@ -249,14 +249,14 @@ header .header-container #right-wrapper li .search-btn-active {
   font-size: 32px;
   position: absolute;
   top: 0px;
-  right: 280px;
+  right: 275px;
   width: 100px;
   height: 100px;
   background-color: white;
   cursor: pointer;
 }
 header .header-container #right-wrapper li .search-btn-active.log {
-  right: 100px;
+  right: 105px;
 }
 @media screen and (max-width: 1280px) {
   header .header-container #right-wrapper li .search-btn-active {
@@ -269,6 +269,11 @@ header .header-container #right-wrapper li .search-btn-active.log {
   }
   header .header-container #right-wrapper li .search-btn-active.log {
     right: 55px;
+  }
+}
+@media screen and (max-width: 843px) {
+  header .header-container #right-wrapper li .search-btn-active {
+    right: 85px;
   }
 }
 

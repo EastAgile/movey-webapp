@@ -109,7 +109,12 @@ pub async fn revoke_existing_token(world: &mut TestWorld) {
         .unwrap();
     token_revoke_button.click().await.unwrap();
 
-    let _ = &world.driver.switch_to().alert().accept().await.unwrap();
+    let token_revoke_confirm = &world
+        .driver
+        .find_element(By::ClassName("revoke-token-confirm"))
+        .await
+        .unwrap();
+    token_revoke_confirm.click().await.unwrap();
     thread::sleep(Duration::from_millis(1000));
 }
 
@@ -141,7 +146,12 @@ pub async fn revoke_new_token(world: &mut TestWorld) {
         .unwrap();
     token_revoke_button.click().await.unwrap();
 
-    let _ = &world.driver.switch_to().alert().accept().await.unwrap();
+    let token_revoke_confirm = &world
+        .driver
+        .find_element(By::ClassName("revoke-token-confirm"))
+        .await
+        .unwrap();
+    token_revoke_confirm.click().await.unwrap();
     thread::sleep(Duration::from_millis(1000));
 }
 
