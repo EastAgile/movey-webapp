@@ -98,9 +98,11 @@ footer {
         padding: 0;
         top: 27px;
         left: 0;
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-        grid-row-gap: 24px;
+        display: flex;
+        justify-content: space-evenly;
+        // Update in future
+        // grid-template-columns: 1fr 1fr 1fr 1fr;
+        // grid-row-gap: 24px;
         width: 100%;
         margin: 0 auto;
         font-size: 12px;
