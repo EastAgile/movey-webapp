@@ -24,7 +24,7 @@ body {
     box-shadow: 0px 4px 8px rgba(2, 20, 58, 0.1);
   }
 }
-@media screen and (min-width: 320px) and (max-width: 480px) {
+@media screen and (max-width: 480px) {
   .content-wrapper .setting-bar {
     flex-direction: column;
     align-items: flex-start;
@@ -41,7 +41,7 @@ body {
     font-size: 16px;
   }
 }
-@media screen and (min-width: 320px) and (max-width: 480px) {
+@media screen and (max-width: 480px) {
   .content-wrapper .setting-bar p {
     margin: 33px 0 13px 0;
   }
@@ -105,7 +105,7 @@ body {
     flex-direction: column;
   }
 }
-@media screen and (min-width: 320px) and (max-width: 480px) {
+@media screen and (max-width: 480px) {
   .content-wrapper #package-list-container .package-list .package-list-item {
     padding-right: 0;
   }
@@ -124,7 +124,7 @@ body {
 @media screen and (min-width: 320px) and (max-width: 768px) {
   .content-wrapper #package-list-container .package-list .package-list-item .left-wrapper {
     width: 100%;
-    height: 172px;
+    height: 92px;
   }
 }
 .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper {
@@ -310,6 +310,7 @@ body {
 @media screen and (min-width: 320px) and (max-width: 768px) {
   .content-wrapper #package-list-container .package-list .left-wrapper .package-summary {
     font-size: 16px;
+    height: 48px;
   }
 }
 .content-wrapper #package-list-container .paginationjs {
@@ -403,8 +404,10 @@ body {
   justify-content: flex-end;
   margin-left: auto;
   position: relative;
+  width: 100%;
+  max-width: 100%;
 }
-@media screen and (min-width: 320px) and (max-width: 480px) {
+@media screen and (max-width: 480px) {
   .package-search-sort {
     margin: 0 0 25px 0;
   }
@@ -450,6 +453,7 @@ body {
 }
 .package-search-sort .select2-container .select2-selection {
   border: none;
+  width: 100%;
   height: 50px;
 }
 .package-search-sort .select2-container .select2-selection .select2-selection__rendered {

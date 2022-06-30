@@ -150,6 +150,7 @@ header .header-container nav a.sign-up {
 @media screen and (max-width: 843px) {
   header .header-container nav a.sign-up {
     font-weight: 700;
+    width: 120px;
   }
 }
 header .header-container nav #account-dropdown {

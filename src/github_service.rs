@@ -51,6 +51,7 @@ pub static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CAR
 
 #[cfg(test)]
 use mockall::{automock, predicate::*};
+use oauth2::http::StatusCode;
 
 pub struct GithubService {}
 
@@ -63,8 +64,7 @@ impl GithubService {
 #[cfg_attr(test, automock)]
 impl GithubService {
     pub fn fetch_repo_data(&self, repo_url: &String, path: Option<String>) -> Result<GithubRepoData, Error> {
-        let mut github_info = get_repo_description_and_size(repo_url)?;
-
+        let mut github_info = get_repo_description_and_size(&repo_url)?;
         if github_info.default_branch.is_empty() {
             github_info.default_branch = "master".to_string();
         }
@@ -74,39 +74,34 @@ impl GithubService {
             github_info.default_branch
         );
         let mut readme_content = "".to_string();
-        match call_github_api(&readme_url)?.text() {
-            Ok(content) => {
-                // generate description from readme if not existed
-                if github_info.description.is_none() {
-                    let mut no_deep_api_call = 0;
-                    let mut description;
-                    loop {
-                        no_deep_api_call += 1;
-                        description = call_deep_ai_api(content.clone())?;
-                        if description.len() > 300 && no_deep_api_call < 2 {
-                            continue;
+        let response = call_github_api(&readme_url)?;
+        if response.status() != StatusCode::NOT_FOUND {
+            match call_github_api(&readme_url)?.text() {
+                Ok(content) => {
+                    // generate description from readme if not existed
+                    if github_info.description.is_none() {
+                        let mut description = call_deep_ai_api(content.clone())?;
+                        if description.len() > 400 {
+                            let deepai_summary = call_deep_ai_api(description.clone())?;
+                            if deepai_summary.len() > 0 {
+                                description = deepai_summary;
+                            }
                         }
-                        break;
+                        description = strip_markdown::strip_markdown(&description);
+
+                        if description.is_empty() {
+                            description = strip_markdown::strip_markdown(&content);
+                        }
+                        if description.len() > 400 {
+                            description = description[0..400].to_string();
+                        }
+                        github_info.description = Some(description);
                     }
-                    if description.is_empty() {
-                        description = content
-                            .replace("\n", " ")
-                            .replace("\r", "")
-                            .replace("#", "");
-                    }
-                    if description.len() > 300 {
-                        description = description[0..300].to_string();
-                        description += "...";
-                    }
-                    github_info.description = Some(description);
+                    readme_content = content
                 }
-                readme_content = content
-            }
-            Err(error) => {
-                error!(
-                        "Error getting README.md content. url: {:?}, error: {}",
-                        readme_url, error
-                    );
+                _ => {
+                    warn!("Error getting README.md content. url: {}", readme_url);
+                }
             }
         }
 
@@ -118,6 +113,7 @@ impl GithubService {
                 readme_url.replace("README.md", "Move.toml")
             }
         };
+
         let mut move_toml_content = "".to_string();
         match call_github_api(&move_url)?.text() {
             Ok(content) => {
@@ -170,7 +166,6 @@ fn call_github_api(url: &str) -> Result<Response, Error> {
         .get(url)
         .header(header::AUTHORIZATION, format!("token {}", &access_token))
         .send()?;
-
     Ok(res)
 }
 

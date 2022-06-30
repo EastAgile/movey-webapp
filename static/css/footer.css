@@ -99,9 +99,8 @@ footer {
     padding: 0;
     top: 27px;
     left: 0;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-row-gap: 24px;
+    display: flex;
+    justify-content: space-evenly;
     width: 100%;
     margin: 0 auto;
     font-size: 12px;
@@ -111,8 +110,8 @@ footer {
 }
 .footer-container .footer-center .link-container a {
   color: white;
-  flex-grow: 1;
   flex-basis: 0;
+  min-width: fit-content;
   text-align: center;
 }
 .footer-container .footer-center .link-container a:link {

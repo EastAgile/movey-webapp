@@ -1,7 +1,7 @@
 
 {% extends "layout.html" %}
 
-{% block title %}Contact Us{% endblock %}
+{% block title %}Contact Us | Movey{% endblock %}
 {% block css %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"/>
     <link href="/static/css/contact.css" rel="stylesheet"/>
@@ -17,7 +17,7 @@
 {% block content %}
     <div class="contact-container">
         <h1 class = "page_name">Contact Us</h1>
-         <div class ="contact-content">If you need assistance with the movey packages or your movey account, if you have security concerns about a npm product, or if you need to report malicious or abusive conduct in a package in the registry, please contact us.</div>
+         <div class ="contact-content">Need to get support? Fill in the form and we will reach to you shortly. Thank you in advance.</div>
         
          <div class="contact-line"></div>
         <div class="form-cta"> Submit a request </div>
@@ -30,12 +30,9 @@
                     placeholder="Select category"      
             >
                 <option value="" disabled  selected></option>
-                <option name = "category"> Account</option>
-                <option name = "category"> Password/Login issues</option>
-                <option name = "category"> Usage/Lisence query</option>
-                <option name = "category"> Contributor</option>
-                <option name = "category"> Report a security issue</option>
-                <option name = "category"> Others</option>
+                {% for category in categories %}
+                    <option name = "category"> {{category}}</option>
+                {% endfor %}
             </select>
             <div class="packages-sort-chevron"></div>
 

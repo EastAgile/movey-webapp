@@ -13,10 +13,8 @@ use crate::github_service::GithubService;
 #[derive(Serialize, Deserialize)]
 pub struct PackageRequest {
     github_repo_url: String,
-    description: String,
     rev: String,
     total_files: i32,
-    total_size: i32,
     token: String,
 }
 
@@ -30,24 +28,23 @@ pub async fn post_package(
     res: web::Json<PackageRequest>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    let service = GithubService::new();
     if let Err(_) = ApiToken::get(&res.token, db).await {
         return Ok(HttpResponse::BadRequest().body("Invalid Api Token"));
     }
 
     let account_id = ApiToken::associated_account(&res.token, &db).await?.id;
-
-    Package::create(
+    let service = GithubService::new();
+    let github_data = service.fetch_repo_data(&res.github_repo_url, None)?;
+    Package::create_from_crawled_data(
         &res.github_repo_url,
-        &res.description,
+        &github_data.description.clone(),
         &res.rev,
         res.total_files,
-        res.total_size,
+        github_data.size,
         Some(account_id),
-        &service,
+        github_data,
         &db,
-    )
-    .await?;
+    ).await?;
 
     Ok(HttpResponse::Ok().body(""))
 }
@@ -59,14 +56,13 @@ pub struct DownloadInfo {
     subdir: String,
 }
 
-pub async fn increment_download(request: HttpRequest, query: web::Query<DownloadInfo>) -> Result<HttpResponse> {
+pub async fn increase_download_count(request: HttpRequest, form: web::Form<DownloadInfo>) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     let service = GithubService::new();
-    let query = query.into_inner();
-    let url = query.url;
-    let rev_ = query.rev;
-
-    if let Ok(res) = Package::increase_download_count(&url, &rev_, &service, &db).await {
+    let form = form.into_inner();
+    if let Ok(res) = Package::increase_download_count(
+        &form.url, &form.rev, &form.subdir, &service, &db
+    ).await {
         Ok(HttpResponse::Ok().body(res.to_string()))
     }
     else {
