@@ -6,7 +6,6 @@ use diesel::prelude::*;
 use diesel::result::Error as DBError;
 use diesel::{AsChangeset, Identifiable, Insertable, Queryable};
 
-use futures::executor::block_on;
 use jelly::accounts::{OneTimeUseTokenGenerator, User};
 use jelly::chrono::{offset, DateTime, Utc};
 use jelly::djangohashers::{check_password, make_password};
@@ -24,10 +23,10 @@ use crate::schema::packages::dsl::{
     account_id as packages_account_id
 };
 use crate::schema::api_tokens::dsl::{
-    api_tokens, 
+    api_tokens,
+    name as api_tokens_name,
     account_id as api_tokens_account_id
 };
-use crate::settings::models::token::ApiToken;
 
 #[cfg(test)]
 mod tests;
@@ -236,16 +235,19 @@ impl Account {
 
         conn.build_transaction()
             .run::<_, _, _>(|| {
-                // Revoke all Movey account's existing tokens since most users that want to 
-                // link by Github would want to use the existing tokens over on that account
-                block_on(ApiToken::revoke_by_id(movey_account_id, pool))?;
-
                 diesel::update(packages.filter(packages_account_id.eq(gh_account_id)))
                     .set(packages_account_id.eq(movey_account_id))
                     .execute(&conn)?;
 
+                    diesel::update(api_tokens.filter(api_tokens_account_id.eq(movey_account_id)))
+                    .set(api_tokens_name.eq(api_tokens_name.concat("__movey")))
+                    .execute(&conn)?;
+
                 diesel::update(api_tokens.filter(api_tokens_account_id.eq(gh_account_id)))
-                    .set(api_tokens_account_id.eq(movey_account_id))
+                    .set((
+                        api_tokens_account_id.eq(movey_account_id),
+                        api_tokens_name.eq(api_tokens_name.concat("__github"))
+                    ))
                     .execute(&conn)?;
 
                 diesel::delete(accounts.filter(github_id.eq(gh_id)))

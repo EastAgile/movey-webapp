@@ -3,6 +3,7 @@ use crate::{test::{DatabaseTestContext, DB_POOL}, settings::models::token::ApiTo
 use diesel::result::DatabaseErrorKind;
 use diesel::result::Error::DatabaseError;
 use jelly::forms::{EmailField, PasswordField};
+use std::{collections::HashSet, iter::FromIterator};
 
 fn login_form() -> LoginForm {
     LoginForm {
@@ -397,10 +398,15 @@ async fn merge_github_account_and_movey_account_should_migrate_api_tokens() {
 
     let movey_account_api_tokens = ApiToken::get_by_account(movey_account.id, &DB_POOL).await.unwrap();
     assert_eq!(movey_account_api_tokens.len(), 2);
-    assert!(movey_account_api_tokens[0].name == "old_gh_account_token_1" || 
-            movey_account_api_tokens[0].name == "old_gh_account_token_2");
-    assert!(movey_account_api_tokens[1].name == "old_gh_account_token_1" || 
-            movey_account_api_tokens[1].name == "old_gh_account_token_2");
+
+    let movey_account_token_names = movey_account_api_tokens
+        .iter().map(|token| token.name.clone()).collect::<HashSet<String>>();
+    assert_eq!(
+        movey_account_token_names, 
+        HashSet::from_iter([
+            "old_gh_account_token_1__github".to_string(), "old_gh_account_token_2__github".to_string(),
+        ]));
+
 
     let old_github_account = Account::get(github_account.id, &DB_POOL).await;
     if let Err(Error::Database(DBError::NotFound)) = old_github_account {
@@ -410,27 +416,22 @@ async fn merge_github_account_and_movey_account_should_migrate_api_tokens() {
 }
 
 #[actix_rt::test]
-async fn merge_github_account_and_movey_account_when_total_number_of_tokens_exceeds_allowed_limit() {
+async fn merge_github_account_and_movey_account_should_aggregate_api_tokens() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let max_token: i32 = std::env::var("MAX_TOKEN")
-        .unwrap_or_else(|_| "5".to_string()).parse().unwrap();
-
     let github_account = setup_github_account().await;
-    ApiToken::insert(&github_account, "old_gh_account_token_1", &DB_POOL).await.unwrap();
-    ApiToken::insert(&github_account, "old_gh_account_token_2", &DB_POOL).await.unwrap();
+    ApiToken::insert(&github_account, "token_1", &DB_POOL).await.unwrap();
+    ApiToken::insert(&github_account, "token_2", &DB_POOL).await.unwrap();
 
     let uid = setup_user().await;
     let movey_account = Account::get(uid, &DB_POOL).await.unwrap();
-    assert_eq!(movey_account.github_id, None);
-    assert_eq!(movey_account.github_login, None);
+    ApiToken::insert(&movey_account, "token_1", &DB_POOL).await.unwrap();
+    ApiToken::insert(&movey_account, "token_2", &DB_POOL).await.unwrap();
+    ApiToken::insert(&movey_account, "token_3", &DB_POOL).await.unwrap();
     
-    for idx in 0..max_token {
-        ApiToken::insert(&movey_account, &format!("movey_account_token_{}", idx), &DB_POOL).await.unwrap();
-    }
     let movey_account_api_tokens = ApiToken::get_by_account(movey_account.id, &DB_POOL).await.unwrap();
-    assert_eq!(movey_account_api_tokens.len(), max_token as usize);
+    assert_eq!(movey_account_api_tokens.len(), 3);
 
     Account::merge_github_account_and_movey_account(
         github_account.id,
@@ -444,11 +445,16 @@ async fn merge_github_account_and_movey_account_when_total_number_of_tokens_exce
     assert_eq!(movey_account.github_login, github_account.github_login);
 
     let movey_account_api_tokens = ApiToken::get_by_account(movey_account.id, &DB_POOL).await.unwrap();
-    assert_eq!(movey_account_api_tokens.len(), 2);
-    assert!(movey_account_api_tokens[0].name == "old_gh_account_token_1" || 
-            movey_account_api_tokens[0].name == "old_gh_account_token_2");
-    assert!(movey_account_api_tokens[1].name == "old_gh_account_token_1" || 
-            movey_account_api_tokens[1].name == "old_gh_account_token_2");
+    assert_eq!(movey_account_api_tokens.len(), 5);
+
+    let movey_account_token_names = movey_account_api_tokens
+        .iter().map(|token| token.name.clone()).collect::<HashSet<String>>();
+    assert_eq!(
+        movey_account_token_names, 
+        HashSet::from_iter([
+            "token_1__movey".to_string(), "token_2__movey".to_string(), "token_3__movey".to_string(),
+            "token_1__github".to_string(), "token_2__github".to_string()
+        ]));
 
     let old_github_account = Account::get(github_account.id, &DB_POOL).await;
     if let Err(Error::Database(DBError::NotFound)) = old_github_account {
