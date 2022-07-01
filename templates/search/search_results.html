@@ -50,23 +50,19 @@
         <div class="paginationjs">
             <div class="paginationjs-pages">
                 <ul>
-                    {% if current_page != 1 %}
                     <li class="paginationjs-prev J-paginationjs-prev">
                         <i class='fa fa-chevron-left'></i>
                     </li>
-                    {% endif %}
-
-                    {% for i in range(end=total_pages) %}
-                    <li class="paginationjs-page J-paginationjs-page {% if i + 1 == current_page %}active{% endif %}" data-url="/packages/search?query={{ query }}&field={{ sort_type }}" data-page="{{ i + 1 }}">
-                        <a>{{ i + 1 }}</a>
+                    
+                    <li class="paginationjs-page J-paginationjs-page" data-url="/packages/search?query={{ query }}&field={{ sort_type }}"></li>
+                    
+                    <li class="paginationjs-ellipsis J-paginationjs-ellipsis">
+                        <i class="fa fa-ellipsis-h"></i>
                     </li>
-                    {% endfor %}
 
-                    {% if current_page != total_pages %}
-                        <li class="paginationjs-next J-paginationjs-next">
-                            <i class='fa fa-chevron-right'></i>
-                        </li>
-                    {% endif %}
+                    <li class="paginationjs-next J-paginationjs-next">
+                        <i class='fa fa-chevron-right'></i>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -84,6 +80,7 @@
 <script>
     $(document).ready(function() {
         new SearchPage();
+        new Pagination({{ current_page }}, {{ total_pages }});
     })
 </script>
 {% endblock %}
