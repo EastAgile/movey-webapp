@@ -6,12 +6,12 @@ pub mod services;
 
 pub fn configure(config: &mut ServiceConfig) {
     config.service(
-        scope("/api/v1/")
+        scope("/api/v1")
             .service(
-                resource("/post_package/").route(post().to(services::package::index::post_package)),
+                resource("/post_package").route(post().to(services::package::index::post_package)),
             )
             .service(
-                resource("/search_package/")
+                resource("/search_package")
                     .route(post().to(services::package::index::search_package)),
             ).service(
 				resource("/download")
