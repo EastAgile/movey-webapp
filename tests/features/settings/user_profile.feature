@@ -6,7 +6,6 @@ Feature: View user profile
         And I visit the Profile page
         Then I should see the Profile page
 
-    @wip
     Scenario: User changes password successfully
         When I enter my current password into 'Current password' textbox
         And I enter new valid password into 'New password' textbox
