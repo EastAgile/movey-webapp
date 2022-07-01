@@ -102,11 +102,31 @@
                 display: flex;
                 justify-content: space-between;
                 margin-bottom: 20px;
+                margin: 0px auto 20px auto;
                 border-bottom: 1px solid rgba(128, 143, 176, .5);
+                height: 164px;
+                padding: 12px;
+                cursor: pointer;
 
                 @include large-screen {
                     height: 135px;
                     padding-bottom: 20px;
+
+                    &:hover {
+                        background-color: #FBFBFB;
+                        background: rgba(68, 161, 231, 0.1);
+
+                        .left-wrapper {
+                            .package-list-item-title {
+                                .package-title {
+                                    a {
+                                        transition: color 100ms;
+                                        color: #44A1E7;
+                                    }
+                                }
+                            }
+                        }
+                    }                    
                 }
 
                 @include medium-small-screen {
@@ -123,7 +143,6 @@
                     display: flex;
                     flex-direction: column;
                     justify-content: space-between;
-                    
 
                     @include large-screen {
                         width: 70%;
@@ -218,7 +237,7 @@
                         height: 36px;
                     }
 
-                    h1, h1 a {
+                    .package-title, .package-title a {
                         font-weight: bold;
                         color: var(--dark-blue-color);
                         margin: 0 20px 0 0;
