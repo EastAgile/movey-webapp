@@ -457,6 +457,7 @@
 .package-search-sort .select2-container {
   border: 3px solid rgba(68, 161, 231, 0.3);
   border-radius: 4px;
+  max-width: 315px;
 }
 .package-search-sort .select2-container .select2-selection {
   border: none;
