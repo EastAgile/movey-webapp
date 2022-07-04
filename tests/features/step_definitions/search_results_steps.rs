@@ -155,8 +155,7 @@ async fn see_sorted_items(world: &mut TestWorld, field: String) {
         .unwrap();
     assert_ne!(package_items.len(), 0);
     let expected_names = match field.as_str() {
-        "name" => vec!["random_derive", "rand_derive2", "rand", "faker_rand"],
-        "description" => vec!["rand", "random_derive", "rand_derive2", "faker_rand"],
+        "name" => vec!["faker_rand", "rand", "rand_derive2", "random_derive"],
         "most_downloads" => vec!["random_derive", "faker_rand", "rand", "rand_derive2"],
         "newly_added" => vec!["rand_derive2", "faker_rand", "random_derive", "rand"],
         _ => vec![],

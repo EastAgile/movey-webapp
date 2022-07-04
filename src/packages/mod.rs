@@ -7,7 +7,7 @@ pub use models::{Package, PackageVersion, PackageVersionSort, NewPackage, NewPac
 
 pub fn configure(config: &mut ServiceConfig) {
     config.service(
-        scope("/packages/")
+        scope("/packages")
             .service(
                 resource("/{package_name}/versions")
                     .route(get().to(views::controller::show_package_versions)),
