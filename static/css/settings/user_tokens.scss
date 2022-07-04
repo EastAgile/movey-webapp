@@ -325,6 +325,10 @@
     color: var(--dark-blue-color);
     padding: 40px;
 
+    &:focus-visible {
+        outline: none;
+    }
+
     @media screen and (max-width: 39.99875em) {
         top: 50% !important;
         transform: translateY(-50%);
