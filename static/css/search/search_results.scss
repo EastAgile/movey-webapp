@@ -205,7 +205,6 @@ body {
                         margin: 0 20px 0 0;
                         max-width: 60%;
                         white-space: nowrap;
-                        overflow-x: clip;
 
                         @include large-screen {
                             font-size: 32px;
@@ -237,7 +236,6 @@ body {
                         color: var(--dark-blue-color);
                         margin-bottom: auto;
                         max-width: 30%;
-                        overflow-x: clip;
                         text-overflow: ellipsis;
 
                         @include large-screen {
@@ -454,7 +452,7 @@ body {
     max-width: 100%;
     
     @include small-screen {
-        margin: 0 0 25px 0;
+        margin: 24px 0 24px 0;
     }
 
     label {
