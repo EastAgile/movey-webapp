@@ -7,7 +7,8 @@ use thirtyfour::prelude::*;
 #[derive(Debug, std::default::Default)]
 pub struct AccountInformation {
     pub email: String,
-    pub password: String
+    pub password: String,
+    pub id: i32,
 }
 // `World` is your shared, likely mutable state.
 #[derive(Debug, WorldInit)]

@@ -1,4 +1,4 @@
-use cucumber::{then, when};
+use cucumber::when;
 use thirtyfour::prelude::*;
 
 use super::super::world::TestWorld;
