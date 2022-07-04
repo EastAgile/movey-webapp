@@ -192,13 +192,3 @@ pub async fn should_see_token_error_name_taken(world: &mut TestWorld) {
         .unwrap();
     assert_eq!(error_element.text().await.unwrap(), "That name has already been taken.");
 }
-
-#[then("I should see the token error that maximum token is reached")]
-pub async fn should_see_token_error_maximum_reached(world: &mut TestWorld) {
-    let error_element = &world
-        .driver
-        .find_element(By::Css(".tokens-error"))
-        .await
-        .unwrap();
-    assert_eq!(error_element.text().await.unwrap(), "Too many tokens created.");
-}

@@ -349,14 +349,26 @@ impl Package {
                     Ok(_) => (),
                     Err(NotFound) => {
                         // Package is found but version is not, creating shadow version
-                        let github_data = service.fetch_repo_data(&https_url, None)?;
+                        let github_data =
+                            if subdir.is_empty() {
+                                service.fetch_repo_data(&https_url, None)?
+                            } else {
+                                let subdir_with_toml = format!("{}/Move.toml", subdir);
+                                service.fetch_repo_data(&https_url, Some(subdir_with_toml))?
+                            };
+
+                        if github_data.rev.ne(rev_) {
+                            error!("Error: rev submitted by user does not match one on Github.");
+                            return Err(Error::Generic(String::from("Error: rev submitted by user does not match one on Github.")))
+                        }
+
                         PackageVersion::create(
                             package_id_,
-                            github_data.name,
+                            github_data.version,
                             github_data.readme_content,
                             rev_.clone(),
                             -1,
-                            -1,
+                            github_data.size,
                             pool,
                         )
                         .await?;
@@ -552,7 +564,9 @@ impl PackageVersion {
 
 #[cfg(test)]
 mod tests {
+    use jelly::forms::{EmailField, PasswordField};
     use super::*;
+    use crate::accounts::forms::NewAccountForm;
     use crate::test::{DatabaseTestContext, DB_POOL};
 
     use crate::github_service::GithubRepoData;
@@ -568,6 +582,7 @@ mod tests {
             &"".to_string(),
             0,
             0,
+            None,
             &pool,
         )
         .await?;
@@ -580,6 +595,7 @@ mod tests {
             &"".to_string(),
             0,
             0,
+            None,
             &pool,
         )
         .await?;
@@ -592,6 +608,7 @@ mod tests {
             &"".to_string(),
             0,
             0,
+            None,
             &pool,
         )
         .await?;
@@ -719,6 +736,19 @@ mod tests {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
 
+        let form = NewAccountForm {
+            email: EmailField {
+                value: "email@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        };
+        let uid = Account::register(&form, &DB_POOL).await.unwrap();
+
         let mut mock_github_service = GithubService::new();
         mock_github_service
             .expect_fetch_repo_data()
@@ -741,7 +771,7 @@ mod tests {
             &"1".to_string(),
             2,
             100,
-            Some(1),
+            Some(uid),
             &mock_github_service,
             None,
             &DB_POOL,
@@ -790,7 +820,7 @@ mod tests {
             &"1".to_string(),
             2,
             100,
-            Some(2),
+            None,
             &mock_github_service_2,
             None,
             &DB_POOL,
@@ -1010,6 +1040,7 @@ mod tests {
             rev_,
             20,
             100,
+            None,
             &DB_POOL,
         )
         .await
@@ -1135,7 +1166,7 @@ mod tests {
     }
 
     #[actix_rt::test]
-    async fn increment_download_for_multiple_versions() {
+    async fn increase_download_count_for_multiple_versions() {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
 
@@ -1151,6 +1182,7 @@ mod tests {
             &rev1,
             20,
             100,
+            None,
             &DB_POOL,
         )
         .await
@@ -1232,6 +1264,62 @@ mod tests {
             .total_downloads_count;
         assert_eq!(package_total_downloads, 3);
     }
+
+    #[actix_rt::test]
+    async fn increase_download_count_fails_if_rev_mismatch() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+
+        let url = &"https://github.com/eadungn/taohe".to_string();
+        let rev_ = &"30d4792b29330cf701af04b493a38a82102ed4fd".to_string();
+        let package_id_ = Package::create_test_package(
+            &"Test package".to_string(),
+            url,
+            &"".to_string(),
+            &"0.9.3".to_string(),
+            &"".to_string(),
+            rev_,
+            20,
+            100,
+            None,
+            &DB_POOL,
+        )
+        .await
+        .unwrap();
+
+        let package_versions_before =
+            PackageVersion::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
+                .await
+                .unwrap();
+        let package_version_before = package_versions_before.first().unwrap();
+        assert_eq!(package_version_before.downloads_count, 0);
+
+        let mut mock_github_service = GithubService::new();
+
+        mock_github_service.expect_fetch_repo_data().returning(|_, _| {
+            Ok(GithubRepoData {
+                name: "name".to_string(),
+                version: "1.0.0".to_string(),
+                readme_content: "New version new README".to_string(),
+                description: "".to_string(),
+                size: 0,
+                url: "".to_string(),
+                rev: "94c0ad37020d985fb507f269dad6dda2f1f5c7b6".to_string()
+            })
+        });
+
+        let result = Package::increase_download_count(
+            url, &"this_is_not_the_rev_you_are_looking_for_".to_string(), &String::new(),
+            &mock_github_service, &DB_POOL)
+            .await;
+
+        assert!(result.is_err());
+        match result {
+            Err(Error::Generic(msg)) 
+                => assert_eq!(msg, "Error: rev submitted by user does not match one on Github."),
+            _ => panic!()
+        }
+    }
 }
 
 // Helpers for integration tests only. Wondering why cfg(test) below doesn't work... (commented out for now)
@@ -1256,6 +1344,7 @@ impl Package {
         version_rev: &String,
         version_files: i32,
         version_size: i32,
+        account_id_: Option<i32>,
         pool: &DieselPgPool,
     ) -> Result<i32, Error> {
         let connection = pool.get()?;
@@ -1264,7 +1353,7 @@ impl Package {
             name: package_name.to_string(),
             description: package_description.to_string(),
             repository_url: repo_url.to_string(),
-            account_id: None,
+            account_id: account_id_,
         };
 
         let record = diesel::insert_into(packages::table)

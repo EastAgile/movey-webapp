@@ -212,7 +212,6 @@ body {
   margin: 0 20px 0 0;
   max-width: 60%;
   white-space: nowrap;
-  overflow-x: clip;
 }
 @media screen and (min-width: 769px) {
   .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title h1, .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title h1 a {
@@ -246,7 +245,6 @@ body {
   color: var(--dark-blue-color);
   margin-bottom: auto;
   max-width: 30%;
-  overflow-x: clip;
   text-overflow: ellipsis;
 }
 @media screen and (min-width: 769px) {
@@ -457,7 +455,7 @@ body {
 }
 @media screen and (max-width: 480px) {
   .package-search-sort {
-    margin: 0 0 25px 0;
+    margin: 24px 0 24px 0;
   }
 }
 .package-search-sort label {
