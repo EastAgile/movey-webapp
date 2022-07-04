@@ -1,16 +1,16 @@
 use std::env;
 use std::sync::Arc;
 
+use crate::email::{Configurable, Email};
+use crate::jobs::{JobState, DEFAULT_QUEUE};
+use crate::{database, DieselPgPool};
 use actix_session::CookieSession;
 use actix_web::web::ServiceConfig;
 use actix_web::{dev, middleware, web, App, HttpResponse, HttpServer};
 use actix_web_middleware_redirect_scheme::RedirectSchemeBuilder;
 use background_jobs::memory_storage::Storage;
 use background_jobs::{create_server, WorkerConfig};
-
-use crate::email::{Configurable, Email};
-use crate::{database, DieselPgPool};
-use crate::jobs::{JobState, DEFAULT_QUEUE};
+use middleware::normalize::TrailingSlash;
 
 /// This struct provides a slightly simpler way to write `main.rs` in
 /// the root project, and forces more coupling to app-specific modules.
@@ -83,8 +83,7 @@ impl Server {
                 .secure(false)
                 .path("/");
 
-            let is_secure_cookie = env::var("IS_SECURE_COOKIE")
-                .unwrap_or_else(|_| "".to_string());
+            let is_secure_cookie = env::var("IS_SECURE_COOKIE").unwrap_or_else(|_| "".to_string());
             #[cfg(feature = "production")]
             let session_storage = CookieSession::signed(key.as_bytes())
                 .name("sessionid")
@@ -93,15 +92,20 @@ impl Server {
                 .domain(&domain)
                 .secure(is_secure_cookie.to_lowercase() == "true");
 
-            let should_redirect_https = env::var("REDIRECT_HTTPS")
-                .unwrap_or_else(|_| "false".to_string()) != "false";
+            let should_redirect_https =
+                env::var("REDIRECT_HTTPS").unwrap_or_else(|_| "false".to_string()) != "false";
 
             let mut app = App::new()
                 .app_data(pool.clone())
                 .app_data(templates.clone())
                 .wrap(middleware::Logger::default())
-                .wrap(RedirectSchemeBuilder::new().enable(should_redirect_https).build())
+                .wrap(
+                    RedirectSchemeBuilder::new()
+                        .enable(should_redirect_https)
+                        .build(),
+                )
                 .wrap(session_storage)
+                .wrap(middleware::NormalizePath::new(TrailingSlash::Trim))
                 // Depending on your CORS needs, you may opt to change this
                 // block. Up to you.
                 .default_service(
