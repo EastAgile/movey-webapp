@@ -47,38 +47,38 @@ fn oauth_client() -> BasicClient {
 pub fn configure(config: &mut ServiceConfig) {
     let client = web::Data::new(oauth_client());
     config.service(
-        scope("/accounts/")
+        scope("/accounts")
             .app_data(client.clone())
             .service(
-                resource("/register/")
+                resource("/register")
                     .route(get().to(views::register::form))
                     .route(post().to(views::register::create_account)),
             )
             .service(
-                resource("/reset/{uidb64}-{ts}-{token}/")
+                resource("/reset/{uidb64}-{ts}-{token}")
                     .route(get().to(views::reset_password::with_token))
                     .route(post().to(views::reset_password::reset)),
             )
             .service(
-                resource("/reset/")
+                resource("/reset")
                     .route(get().to(views::reset_password::form))
                     .route(post().to(views::reset_password::request_reset)),
             )
             .service(
-                resource("/login/")
+                resource("/login")
                     .route(get().to(views::login::form))
                     .route(post().to(views::login::authenticate))
             )
             .service(
-                resource("/verify/{uidb64}-{ts}-{token}/")
+                resource("/verify/{uidb64}-{ts}-{token}")
                     .route(get().to(views::verify::with_token)),
             )
-            .service(resource("/verify/").route(get().to(views::verify::verify)))
+            .service(resource("/verify").route(get().to(views::verify::verify)))
             .service(resource("/github/callback").route(get().to(views::verify::callback_github)))
-            .service(resource("/logout/").route(post().to(views::logout)))
+            .service(resource("/logout").route(post().to(views::logout)))
             .service(resource("/oauth").route(get().to(views::login::oauth)))
             .service(
-                resource("/contact/")
+                resource("/contact")
                     .route(post().to(views::contact::send_contact))
             ),
     );

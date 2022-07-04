@@ -110,7 +110,11 @@ pub async fn show_search_results(
         search.field = Some(PackageSortField::Name);
     }
     if let None = search.order {
-        search.order = Some(PackageSortOrder::Desc);
+        search.order = if let Some(PackageSortField::Name) = search.field {
+            Some(PackageSortOrder::Asc)
+        } else {
+            Some(PackageSortOrder::Desc)
+        }
     }
     let (packages, total_count, total_pages) = Package::search(
         &search.query.value,
