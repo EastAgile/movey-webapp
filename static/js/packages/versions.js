@@ -4,7 +4,7 @@ class PackageVersions {
         this.init();
     }
 
-    init() {
+    init() {    
         this.sortElement.select2({  
             minimumResultsForSearch: -1,
             dropdownCssClass: 'versions-sort-dropdown'
