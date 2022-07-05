@@ -17,6 +17,7 @@ extern crate log;
 
 #[macro_use]
 extern crate diesel_migrations;
+extern crate core;
 
 pub mod accounts;
 pub mod api;

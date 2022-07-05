@@ -17,10 +17,6 @@ pub fn configure(config: &mut ServiceConfig) {
                     .route(get().to(views::controller::show_search_results)),
             )
             .service(
-                resource("/owned")
-                .route(get().to(views::controller::show_owned_packages)),
-            )
-            .service(
                 resource("/{package_name}")
                 .route(get().to(views::controller::show_package)),
             )

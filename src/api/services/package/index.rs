@@ -4,7 +4,7 @@ use jelly::Result;
 use mockall_double::double;
 use serde::{Deserialize, Serialize};
 
-use crate::packages::Package;
+use crate::packages::models::Package;
 use crate::settings::models::token::ApiToken;
 
 #[double]

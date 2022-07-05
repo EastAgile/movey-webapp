@@ -1,7 +1,6 @@
 Feature: View owned package
 
-  @wip
-  Scenario: as
+  Scenario: View owned packages
     Given I am a user on Movey
     And I am signed in
     And I upload some packages
