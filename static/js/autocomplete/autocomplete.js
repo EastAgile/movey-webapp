@@ -117,6 +117,7 @@ class AutoComplete {
 
   getOptionValue(suggestion) {
     return typeof suggestion === "object" ? Object.values(suggestions) : suggestion;
+    // Recheck in future
     // return typeof suggestion === "object" ? suggestion?.option : suggestion;
   }
 
@@ -168,6 +169,7 @@ class AutoComplete {
     const currentChoice = this.getSuggestionNode(this.currentChoiceIndex);
     pChoice?.classList.remove("autocomplete-item-hover");
     currentChoice?.classList.add("autocomplete-item-hover");
+    currentChoice?.scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"})
   }
 
   bindListeners() {
