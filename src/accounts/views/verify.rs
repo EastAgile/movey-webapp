@@ -156,6 +156,7 @@ async fn link_github_to_movey_account(
             info!("Existing Github account: {:?}", current_github_account);
 
             Account::merge_github_account_and_movey_account(
+                current_github_account.id,
                 movey_account.id, 
                 oauth_response.id, 
                 oauth_response.login.clone(), 

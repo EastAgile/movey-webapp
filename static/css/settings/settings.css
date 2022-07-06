@@ -169,7 +169,7 @@ p {
   color: var(--dark-blue-color);
 }
 
-.aaaa {
+.profile-wrapper {
   display: flex;
   flex-direction: column;
 }

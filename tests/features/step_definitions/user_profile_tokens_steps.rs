@@ -109,7 +109,12 @@ pub async fn revoke_existing_token(world: &mut TestWorld) {
         .unwrap();
     token_revoke_button.click().await.unwrap();
 
-    let _ = &world.driver.switch_to().alert().accept().await.unwrap();
+    let token_revoke_confirm = &world
+        .driver
+        .find_element(By::ClassName("revoke-token-confirm"))
+        .await
+        .unwrap();
+    token_revoke_confirm.click().await.unwrap();
     thread::sleep(Duration::from_millis(1000));
 }
 
@@ -141,7 +146,12 @@ pub async fn revoke_new_token(world: &mut TestWorld) {
         .unwrap();
     token_revoke_button.click().await.unwrap();
 
-    let _ = &world.driver.switch_to().alert().accept().await.unwrap();
+    let token_revoke_confirm = &world
+        .driver
+        .find_element(By::ClassName("revoke-token-confirm"))
+        .await
+        .unwrap();
+    token_revoke_confirm.click().await.unwrap();
     thread::sleep(Duration::from_millis(1000));
 }
 
@@ -181,14 +191,4 @@ pub async fn should_see_token_error_name_taken(world: &mut TestWorld) {
         .await
         .unwrap();
     assert_eq!(error_element.text().await.unwrap(), "That name has already been taken.");
-}
-
-#[then("I should see the token error that maximum token is reached")]
-pub async fn should_see_token_error_maximum_reached(world: &mut TestWorld) {
-    let error_element = &world
-        .driver
-        .find_element(By::Css(".tokens-error"))
-        .await
-        .unwrap();
-    assert_eq!(error_element.text().await.unwrap(), "Too many tokens created.");
 }
