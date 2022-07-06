@@ -1,10 +1,14 @@
 class PackageVersions {
     constructor() {
         this.sortElement = $("select[name='versions-sort']");
+        this.packageDescription = $('.package-description');
         this.init();
     }
 
     init() {
+        var converter = new showdown.Converter();
+        this.packageDescription.html(converter.makeHtml(this.packageDescription.html()));
+
         this.sortElement.select2({
             width: '100%',
             minimumResultsForSearch: -1,
