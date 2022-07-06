@@ -58,6 +58,21 @@ async fn fill_in_invalid_password(world: &mut TestWorld, email: String, invalid_
     create_account_button.click().await.unwrap();
 }
 
+#[when("I click on the verification link")]
+async fn click_verification_link(world: &mut TestWorld) {
+    let path = std::fs::read_dir("./emails").unwrap().next();
+    let contents = std::fs::read_to_string(path.unwrap().unwrap().path()).unwrap();
+    let contents = contents.split("\n").collect::<Vec<&str>>();
+    for line in contents {
+        if line.contains("/accounts/verify/") {
+            let line_in_test = line
+                .replace("17001", "17002")
+                .replace("127.0.0.1", "localhost");
+            world.driver.get(line_in_test).await.unwrap();
+        }
+    }
+}
+
 #[then("I should see the sign up page")]
 async fn see_sign_up_page(world: &mut TestWorld) {
     assert_eq!(
@@ -66,7 +81,7 @@ async fn see_sign_up_page(world: &mut TestWorld) {
     );
 }
 
-#[then("I should see that my account has been created")]
+#[then("I should see the Verify Your Account page")]
 async fn see_my_account_created(world: &mut TestWorld) {
     let heading = world.driver.find_element(By::Tag("h1")).await.unwrap();
     let heading_text = heading.text().await.unwrap();
@@ -88,4 +103,12 @@ async fn receive_verification_email(_world: &mut TestWorld) {
     let contents = std::fs::read_to_string(path.unwrap().unwrap().path()).unwrap();
     assert!(contents.contains("email@host.com"));
     assert!(contents.contains("verify your account"));
+}
+
+#[then("I should receive an email warning that someone is trying to create an account with my email")]
+async fn receive_warning_email(_world: &mut TestWorld) {
+    let path = std::fs::read_dir("./emails").unwrap().next();
+    let contents = std::fs::read_to_string(path.unwrap().unwrap().path()).unwrap();
+    assert!(contents.contains("email@host.com"));
+    assert!(contents.contains("Someone just attempted to register for an account"));
 }
