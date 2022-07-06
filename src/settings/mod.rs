@@ -7,14 +7,6 @@ use jelly::Result;
 
 use crate::utils::new_auth;
 
-pub async fn show_packages(request: HttpRequest) -> Result<HttpResponse> {
-    request.render(200, "settings/user_packages.html", {
-        let context = Context::new();
-        context
-    })
-}
-
-
 pub fn configure(config: &mut ServiceConfig) {
     let guard = new_auth();
 

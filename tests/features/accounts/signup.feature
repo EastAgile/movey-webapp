@@ -1,6 +1,7 @@
 Feature: Sign up
 
-  Background:
+  Rule: Guest user
+    Background:
     Given I am a guest / unregistered user
     When I access the Movey website
     And I click on the Sign up button on the home page
@@ -22,3 +23,9 @@ Feature: Sign up
       | mailexample                | 'Password not strong enough'                       |
       | 12345                      | 'Password must contain at least 8 characters.'     |
 
+  Rule: Logged-in user
+
+  Scenario: it works
+    Given I am a user on Movey
+    And I am signed in
+    Then I should see the Profile page
