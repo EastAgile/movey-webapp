@@ -159,7 +159,7 @@ pub struct NewPackageVersion {
     pub total_size: i32,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub enum PackageVersionSort {
     Latest,
     Oldest,
@@ -331,9 +331,6 @@ impl Package {
                 .replace(".git", "")
                 .to_owned();
         }
-        if https_url.ends_with(".git") {
-            https_url = https_url[0..https_url.len() - 4].to_string();
-        }
 
         let package_id_ = packages
             .filter(repository_url.eq(&https_url))
@@ -358,11 +355,6 @@ impl Package {
                                 let subdir_with_toml = format!("{}/Move.toml", subdir);
                                 service.fetch_repo_data(&https_url, Some(subdir_with_toml))?
                             };
-
-                        if github_data.rev.ne(rev_) {
-                            error!("Error: rev submitted by user does not match one on Github.");
-                            return Err(Error::Generic(String::from("Error: rev submitted by user does not match one on Github.")))
-                        }
 
                         PackageVersion::create(
                             package_id_,
