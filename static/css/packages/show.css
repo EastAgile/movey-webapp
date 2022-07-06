@@ -406,6 +406,7 @@
   font-size: 18px;
   line-height: 24px;
   overflow-wrap: anywhere;
+  word-break: break-all;
 }
 .package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-metadata {
   display: flex;
@@ -544,6 +545,7 @@
   max-width: 315px;
   margin-bottom: 0;
   color: #001F60;
+  width: 315px;
 }
 .package-show-container .package-content-container .package-versions-container .package-version-header .package-version-sort .select2-container {
   border: 3px solid rgba(68, 161, 231, 0.3);

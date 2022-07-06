@@ -286,6 +286,9 @@
   color: var(--dark-blue-color);
   padding: 40px;
 }
+#revoke_token_modal:focus-visible {
+  outline: none;
+}
 @media screen and (max-width: 39.99875em) {
   #revoke_token_modal {
     top: 50% !important;

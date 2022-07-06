@@ -85,12 +85,24 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
+  margin: 0px auto 20px auto;
   border-bottom: 1px solid rgba(128, 143, 176, 0.5);
+  height: 164px;
+  padding: 12px;
+  cursor: pointer;
 }
 @media screen and (min-width: 769px) {
   .content-wrapper #package-list-container .package-list .package-list-item {
     height: 135px;
     padding-bottom: 20px;
+  }
+  .content-wrapper #package-list-container .package-list .package-list-item:hover {
+    background-color: #FBFBFB;
+    background: rgba(68, 161, 231, 0.1);
+  }
+  .content-wrapper #package-list-container .package-list .package-list-item:hover .left-wrapper .package-list-item-title .package-title a {
+    transition: color 100ms;
+    color: #44A1E7;
   }
 }
 @media screen and (min-width: 240px) and (max-width: 768px) {
@@ -202,7 +214,7 @@
     height: 36px;
   }
 }
-.content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title h1, .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title h1 a {
+.content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title .package-title, .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title .package-title a {
   font-weight: bold;
   color: var(--dark-blue-color);
   margin: 0 20px 0 0;
@@ -210,12 +222,12 @@
   white-space: nowrap;
 }
 @media screen and (min-width: 769px) {
-  .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title h1, .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title h1 a {
+  .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title .package-title, .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title .package-title a {
     font-size: 32px;
   }
 }
 @media screen and (min-width: 240px) and (max-width: 768px) {
-  .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title h1, .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title h1 a {
+  .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title .package-title, .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title .package-title a {
     font-size: 24px;
   }
 }
@@ -445,6 +457,7 @@
 .package-search-sort .select2-container {
   border: 3px solid rgba(68, 161, 231, 0.3);
   border-radius: 4px;
+  max-width: 315px;
 }
 .package-search-sort .select2-container .select2-selection {
   border: none;
