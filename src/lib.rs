@@ -1,11 +1,11 @@
 //! Your Service Description here, etc.
 
+use jelly::actix_web::dev;
 #[cfg(not(feature = "test"))]
 use std::env;
 use std::io;
 #[cfg(not(feature = "test"))]
 use std::sync::Mutex;
-use jelly::actix_web::dev;
 
 #[macro_use]
 extern crate diesel;
@@ -24,15 +24,15 @@ pub mod dashboard;
 pub mod github_service;
 pub mod packages;
 pub mod pages;
-pub mod settings;
 pub mod policy;
+pub mod settings;
 mod utils;
 
 pub mod schema;
 
+pub mod jobs;
 pub mod request;
 pub mod test;
-pub mod jobs;
 
 use jelly::{DieselPgPool, Server};
 
@@ -40,12 +40,17 @@ use jelly::{DieselPgPool, Server};
 pub async fn main() -> io::Result<()> {
     let stdout = io::stdout();
     let _lock = stdout.lock();
-	dotenv::dotenv().ok();
+    dotenv::dotenv().ok();
     let sentry_url = env::var("SENTRY_URL").unwrap_or_else(|_| "".to_string());
-    let _guard = sentry::init((sentry_url, sentry::ClientOptions {
-        release: sentry::release_name!(),
-        ..Default::default()
-    }));
+    let sentry_environment =
+        env::var("SENTRY_ALERT_ENVIRONMENT").unwrap_or_else(|_| "STAGING".to_string());
+    let _guard = sentry::init((
+        sentry_url,
+        sentry::ClientOptions {
+            environment: Some(sentry_environment),
+            ..Default::default()
+        },
+    ));
     let (server, pool) = start_server().await?;
     let is_crawling = env::var("CRAWLING").unwrap_or_else(|_| "".to_string());
     if is_crawling.to_lowercase() == "true" {
