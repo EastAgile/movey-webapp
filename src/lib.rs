@@ -41,7 +41,10 @@ pub async fn main() -> io::Result<()> {
     let stdout = io::stdout();
     let _lock = stdout.lock();
     dotenv::dotenv().ok();
-    let sentry_url = env::var("SENTRY_URL").unwrap_or_else(|_| "".to_string());
+    let sentry_url = env::var("SENTRY_URL").unwrap_or_else(|_| {
+        warning!("No sentry URL set, skipped");
+        "".to_string();
+    });
     let sentry_environment =
         env::var("SENTRY_ALERT_ENVIRONMENT").unwrap_or_else(|_| "STAGING".to_string());
     let _guard = sentry::init((
