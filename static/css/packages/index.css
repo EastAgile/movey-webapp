@@ -137,6 +137,7 @@
 .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper {
   display: flex;
   align-items: center;
+  margin-top: 8px;
 }
 @media screen and (min-width: 769px) {
   .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper {
@@ -147,8 +148,9 @@
 @media screen and (min-width: 240px) and (max-width: 768px) {
   .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper {
     width: 100%;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: space-around;
+    align-items: baseline;
   }
 }
 .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper .update-timestamp {
@@ -157,7 +159,7 @@
   align-items: center;
 }
 .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper .update-timestamp img {
-  margin-right: 5px;
+  margin-right: 8px;
 }
 .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper .download-count {
   color: var(--dark-blue-color);
@@ -166,12 +168,12 @@
   align-items: center;
 }
 .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper .download-count img {
-  margin-right: 5px;
+  margin-right: 8px;
 }
 @media screen and (min-width: 240px) and (max-width: 768px) {
   .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper .download-count {
     margin-right: 0;
-    margin-bottom: 8px;
+    margin-bottom: 0;
   }
 }
 @media screen and (min-width: 769px) {
@@ -306,6 +308,7 @@
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-height: fit-content;
 }
 @media screen and (min-width: 769px) {
   .content-wrapper #package-list-container .package-list .left-wrapper .package-summary {
@@ -315,9 +318,7 @@
 }
 @media screen and (min-width: 240px) and (max-width: 768px) {
   .content-wrapper #package-list-container .package-list .left-wrapper .package-summary {
-    overflow: hidden;
     font-size: 16px;
-    height: 48px;
   }
 }
 .content-wrapper #package-list-container .paginationjs {
