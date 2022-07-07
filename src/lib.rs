@@ -47,7 +47,7 @@ pub async fn main() -> io::Result<()> {
     let _guard = sentry::init((
         sentry_url,
         sentry::ClientOptions {
-            environment: Some(sentry_environment),
+            environment: Some(sentry_environment.into()),
             ..Default::default()
         },
     ));
