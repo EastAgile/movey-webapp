@@ -332,6 +332,7 @@
                     overflow: hidden;
                     text-overflow: ellipsis;
                     min-height: fit-content;
+                    height: 48px;
 
                     @include large-screen {
                         font-size: 24px;

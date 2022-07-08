@@ -309,6 +309,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   min-height: fit-content;
+  height: 48px;
 }
 @media screen and (min-width: 769px) {
   .content-wrapper #package-list-container .package-list .left-wrapper .package-summary {
