@@ -116,7 +116,9 @@ class AutoComplete {
   }
 
   getOptionValue(suggestion) {
-    return typeof suggestion === "object" ? suggestion?.option : suggestion;
+    return typeof suggestion === "object" ? Object.values(suggestions) : suggestion;
+    // Recheck in future
+    // return typeof suggestion === "object" ? suggestion?.option : suggestion;
   }
 
   getSuggestionNode(id) {
@@ -157,17 +159,17 @@ class AutoComplete {
     }
 
     event.preventDefault();
+
     if (this.currentChoiceIndex === -1) {
       input.value = this.inputValue;
     } else {
-      input.value = this.getOptionValue(
-        this.suggestions[this.currentChoiceIndex]
-      );
+      input.value = this.suggestions[this.currentChoiceIndex][0];
     }
 
     const currentChoice = this.getSuggestionNode(this.currentChoiceIndex);
     pChoice?.classList.remove("autocomplete-item-hover");
     currentChoice?.classList.add("autocomplete-item-hover");
+    currentChoice?.scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"})
   }
 
   bindListeners() {
