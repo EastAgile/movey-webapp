@@ -54,14 +54,15 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
     let error_message;
     match Account::authenticate(&form, db).await {
         Ok(user) => {
-            Account::update_last_login(user.id, db).await?;
+            let user_id = user.id;
+            Account::update_last_login(user_id, db).await?;
+            request.set_user(user)?;
 
             return if form.remember_me == "off" {
-                request.set_user(user)?;
                 request.redirect("/settings/profile")
             } else {
                 let key = std::env::var("SECRET_KEY").expect("SECRET_KEY not set!");
-                let value = user.id;
+                let value = user_id;
                 let max_age_days = std::env::var("MAX_REMEMBER_ME_DAYS")
                     .expect("MAX_REMEMBER_ME_DAYS not set!")
                     .parse::<i64>()

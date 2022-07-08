@@ -282,6 +282,17 @@ impl Account {
     }
 }
 
+#[cfg(any(test, feature = "test"))]
+impl Account {
+    pub async fn delete(account_id: i32, pool: &DieselPgPool) -> Result<(), Error> {
+        let conn = pool.get()?;
+        diesel::delete(accounts.filter(id.eq(account_id)))
+            .execute(&conn)?;
+        
+        Ok(())
+    }
+}
+
 impl OneTimeUseTokenGenerator for Account {
     fn hash_value(&self) -> String {
         format!(
