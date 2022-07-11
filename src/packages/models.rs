@@ -185,7 +185,7 @@ impl Package {
         subdir: Option<String>,
         pool: &DieselPgPool,
     ) -> Result<i32, Error> {
-        let github_data = service.fetch_repo_data(&repo_url, subdir)?;
+        let github_data = service.fetch_repo_data(&repo_url, subdir, None)?;
 
         Package::create_from_crawled_data(
             repo_url,
@@ -351,16 +351,11 @@ impl Package {
                         // Package is found but version is not, creating shadow version
                         let github_data =
                             if subdir.is_empty() {
-                                service.fetch_repo_data(&https_url, None)?
+                                service.fetch_repo_data(&https_url, None, Some(rev_.clone()))?
                             } else {
                                 let subdir_with_toml = format!("{}/Move.toml", subdir);
-                                service.fetch_repo_data(&https_url, Some(subdir_with_toml))?
+                                service.fetch_repo_data(&https_url, Some(subdir_with_toml), Some(rev_.clone()))?
                             };
-
-                        if github_data.rev.ne(rev_) {
-                            error!("Error: rev submitted by user does not match one on Github.");
-                            return Err(Error::Generic(String::from("Error: rev submitted by user does not match one on Github.")))
-                        }
 
                         PackageVersion::create(
                             package_id_,
@@ -384,11 +379,14 @@ impl Package {
                 // Package is not found, creating shadow package and package version
                 let github_data =
                     if subdir.is_empty() {
-                        service.fetch_repo_data(&https_url, None)?
+                        service.fetch_repo_data(&https_url, None, None)?
                     } else {
                         let subdir_with_toml = format!("{}/Move.toml", subdir);
-                        service.fetch_repo_data(&https_url, Some(subdir_with_toml))?
+                        service.fetch_repo_data(&https_url, Some(subdir_with_toml), None)?
                     };
+                if !subdir.is_empty() {
+                    https_url = format!("{}/blob/{}/{}",https_url, github_data.rev, subdir);
+                }
                 Package::create_from_crawled_data(&https_url, &github_data.description.clone(),
                                                   &rev_, -1, github_data.size, None,
                                                   github_data, &pool).await?
