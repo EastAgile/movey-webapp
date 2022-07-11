@@ -1,3 +1,6 @@
+#[cfg(test)]
+pub mod mock;
+
 use lazy_static::lazy_static;
 use std::sync::{Arc, Mutex};
 use std::env;
@@ -52,7 +55,7 @@ impl DatabaseTestContext {
 impl Drop for DatabaseTestContext {
     fn drop(&mut self) {
         let database_base_url = env::var("DATABASE_URL_TEST_BASE")
-        .expect("DATABASE_URL_TEST_BASE must be set");
+            .expect("DATABASE_URL_TEST_BASE must be set");
         let conn =
             PgConnection::establish(&database_base_url).expect("Cannot connect to test database.");
 
@@ -99,7 +102,7 @@ WHERE datname = '{}';",
 
     pub fn cleanup_test_database() {
         let database_base_url = env::var("DATABASE_URL_TEST_BASE")
-        .expect("DATABASE_URL_TEST_BASE must be set");
+            .expect("DATABASE_URL_TEST_BASE must be set");
         let conn =
             PgConnection::establish(&database_base_url).expect("Cannot connect to test database.");
 
