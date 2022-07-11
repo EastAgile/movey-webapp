@@ -457,7 +457,8 @@ impl Package {
         let result: (Vec<PackageSearchResult>, i64, i64) = packages::table
             .inner_join(package_versions::table)
             .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
-            .filter(tsv.matches(plainto_tsquery(search_query)))
+            .filter(name.ilike(format!("{}{}{}", "%", search_query, "%"))
+                .or(tsv.matches(plainto_tsquery(search_query))))
             .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
             .order(diesel::dsl::sql::<diesel::sql_types::Text>(&order_query))
             .load_with_pagination(&connection, Some(page), Some(per_page))?;
@@ -694,6 +695,53 @@ mod tests {
         .unwrap();
         assert_eq!(search_result.len(), 1);
         assert_eq!(search_result[0].name, "The first Diva");
+    }
+
+    #[actix_rt::test]
+    async fn search_by_partial_name_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        setup().await.unwrap();
+        let pool = &DB_POOL;
+        let search_query = "charl";
+        let (search_result, total_count, total_pages) = Package::search(
+            search_query,
+            &PackageSortField::Name,
+            &PackageSortOrder::Desc,
+            Some(1),
+            Some(2),
+            pool,
+        )
+        .await
+        .unwrap();
+        assert_eq!(total_count, 1);
+        assert_eq!(total_pages, 1);
+        assert_eq!(search_result.len(), 1);
+        assert_eq!(search_result[0].name, "Charles Diya");
+    }
+
+    #[actix_rt::test]
+    async fn search_by_partial_description_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        setup().await.unwrap();
+        let pool = &DB_POOL;
+        let search_query = "random pick";
+        let (search_result, total_count, total_pages) = Package::search(
+            search_query,
+            &PackageSortField::Name,
+            &PackageSortOrder::Asc,
+            Some(1),
+            Some(2),
+            pool,
+        )
+        .await
+        .unwrap();
+        assert_eq!(total_count, 2);
+        assert_eq!(total_pages, 1);
+        assert_eq!(search_result.len(), 2);
+        assert!(search_result[0].name == "Charles Diya");
+        assert!(search_result[1].name == "The first Diva");
     }
 
     #[actix_rt::test]
