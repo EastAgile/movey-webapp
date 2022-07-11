@@ -11,3 +11,4 @@ pub mod package_list_steps;
 pub mod user_profile;
 pub mod user_profile_tokens_steps;
 pub mod setting_profile_steps;
+pub mod setting_token_steps;
