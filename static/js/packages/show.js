@@ -9,8 +9,6 @@ class PackageShow {
     }
 
     init() {
-        Array.from(this.contentLinks).forEach( e => e.setAttribute('target','_blank') );
-
         var converter = new showdown.Converter();
         this.readmeElement.html(converter.makeHtml(this.readmeElement.html()));
         this.packageDescription.html(converter.makeHtml(this.packageDescription.html()));
@@ -21,7 +19,7 @@ class PackageShow {
                 $('.copy-tooltip').hide();
             }, 400);
         });
-
+        Array.from($(".package-readme-content a")).forEach( e => e.setAttribute('target','_blank') );
         this.packageSizeElement.text(this.niceBytes(this.packageSizeElement.data("value")));
     }
 
