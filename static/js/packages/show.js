@@ -3,11 +3,14 @@ class PackageShow {
         this.readmeElement = $('.package-readme-content');
         this.instructionElement = $('.package-install-instruction');
         this.packageSizeElement = $('.package-size');
-        this.packageDescription = $('.package-description')
+        this.packageDescription = $('.package-description');
+        this.contentLinks = $(".package-readme-content a");
         this.init();
     }
 
     init() {
+        Array.from(this.contentLinks).forEach( e => e.setAttribute('target','_blank') );
+
         var converter = new showdown.Converter();
         this.readmeElement.html(converter.makeHtml(this.readmeElement.html()));
         this.packageDescription.html(converter.makeHtml(this.packageDescription.html()));
