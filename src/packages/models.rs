@@ -750,8 +750,8 @@ mod tests {
         let mut mock_github_service = GithubService::new();
         mock_github_service
             .expect_fetch_repo_data()
-            .withf(|x: &String, y: &Option<String>| x == &"repo_url".to_string() && y.is_none())
-            .returning(|_, _| {
+            .withf(|x: &String, y: &Option<String>, _: Option<String>| x == &"repo_url".to_string() && y.is_none())
+            .returning(|_, _, _| {
                 Ok(GithubRepoData {
                     name: "name".to_string(),
                     version: "version".to_string(),
@@ -799,8 +799,8 @@ mod tests {
         let mut mock_github_service_2 = GithubService::new();
         mock_github_service_2
             .expect_fetch_repo_data()
-            .withf(|x: &String, y: &Option<String>| x == &"repo_url".to_string() && y.is_none())
-            .returning(|_, _| {
+            .withf(|x: &String, y: &Option<String>, _: Option<String>| x == &"repo_url".to_string() && y.is_none())
+            .returning(|_, _, _| {
                 Ok(GithubRepoData {
                     name: "name".to_string(),
                     version: "version_2".to_string(),
@@ -840,7 +840,7 @@ mod tests {
         let _ctx = DatabaseTestContext::new();
 
         let mut mock_github_service = GithubService::new();
-        mock_github_service.expect_fetch_repo_data().returning(|_, _| {
+        mock_github_service.expect_fetch_repo_data().returning(|_, _, _| {
             Ok(GithubRepoData {
                 name: "name".to_string(),
                 version: "first_version".to_string(),
@@ -892,7 +892,7 @@ mod tests {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
         let mut mock_github_service = GithubService::new();
-        mock_github_service.expect_fetch_repo_data().returning(|_, _| {
+        mock_github_service.expect_fetch_repo_data().returning(|_, _, _| {
             Ok(GithubRepoData {
                 name: "name".to_string(),
                 version: "first_version".to_string(),
@@ -944,7 +944,7 @@ mod tests {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
         let mut mock_github_service = GithubService::new();
-        mock_github_service.expect_fetch_repo_data().returning(|_, _| {
+        mock_github_service.expect_fetch_repo_data().returning(|_, _, _| {
             Ok(GithubRepoData {
                 name: "name".to_string(),
                 version: "first_version".to_string(),
@@ -1053,7 +1053,7 @@ mod tests {
 
         let mut mock_github_service = GithubService::new();
 
-        mock_github_service.expect_fetch_repo_data().returning(|_, _| {
+        mock_github_service.expect_fetch_repo_data().returning(|_, _, _| {
             Ok(GithubRepoData {
                 name: "name".to_string(),
                 version: "1.0.0".to_string(),
@@ -1105,7 +1105,7 @@ mod tests {
         let rev_ = &"30d4792b29330cf701af04b493a38a82102ed4fd".to_string();
 
         let mut mock_github_service = GithubService::new();
-        mock_github_service.expect_fetch_repo_data().returning(|_, _| {
+        mock_github_service.expect_fetch_repo_data().returning(|_, _, _| {
             Ok(GithubRepoData {
                 name: "name".to_string(),
                 version: "first_version".to_string(),
@@ -1199,7 +1199,7 @@ mod tests {
 
         let mut mock_github_service = GithubService::new();
 
-        mock_github_service.expect_fetch_repo_data().returning(|_, _| {
+        mock_github_service.expect_fetch_repo_data().returning(|_, _, _| {
             Ok(GithubRepoData {
                 name: "name".to_string(),
                 version: "1.0.0".to_string(),
@@ -1294,7 +1294,7 @@ mod tests {
 
         let mut mock_github_service = GithubService::new();
 
-        mock_github_service.expect_fetch_repo_data().returning(|_, _| {
+        mock_github_service.expect_fetch_repo_data().returning(|_, _, _| {
             Ok(GithubRepoData {
                 name: "name".to_string(),
                 version: "1.0.0".to_string(),
