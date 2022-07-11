@@ -1,0 +1,33 @@
+version: '3'
+x-backend: &backend
+  build: .
+  environment:
+    - DATABASE_URL=postgres://postgres:password@postgres:5432/jellyDB
+    - WEB_ALLOWED_ORIGINS=*
+  links:
+    - postgres
+  volumes:
+    # Mount the src/ directory so we don't have to rebuild the Docker image
+    # when we want to change some code
+    - .:/app
+    - cargo-cache:/usr/local/cargo/registry
+    - target-cache:/app/target
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - postgres-data:/var/lib/postgresql/data
+  backend:
+    <<: *backend
+    ports:
+      - 17001:17001
+    depends_on:
+      - postgres
+volumes:
+  postgres-data:
+  cargo-cache:
+  target-cache:
