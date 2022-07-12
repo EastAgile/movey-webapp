@@ -1,6 +1,6 @@
 use crate::accounts::Account;
 
-use diesel::dsl::{count, sum};
+use diesel::dsl::{count, now, sum};
 use diesel::prelude::*;
 use diesel::sql_types::{Integer, Text, Timestamptz};
 use diesel::{AsChangeset, Associations, Identifiable, Insertable, Queryable};
@@ -109,6 +109,8 @@ pub enum PackageSortField {
     MostDownloads,
     #[serde(alias = "newly_added")]
     NewlyAdded,
+    #[serde(alias = "recently_updated")]
+    RecentlyUpdated,
 }
 
 impl std::fmt::Display for PackageSortField {
@@ -116,8 +118,9 @@ impl std::fmt::Display for PackageSortField {
         let enum_name = match self {
             PackageSortField::Name => "name",
             PackageSortField::Description => "description",
-            PackageSortField::MostDownloads => "most_downloads",
-            PackageSortField::NewlyAdded => "newly_added",
+            PackageSortField::MostDownloads => "total_downloads_count",
+            PackageSortField::NewlyAdded => "created_at",
+            PackageSortField::RecentlyUpdated => "updated_at",
         };
         write!(f, "{}", enum_name)
     }
@@ -129,6 +132,16 @@ pub enum PackageSortOrder {
     Asc,
     #[serde(alias = "desc")]
     Desc,
+}
+
+impl std::fmt::Display for PackageSortOrder {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let enum_name = match self {
+            PackageSortOrder::Asc => "ASC",
+            PackageSortOrder::Desc => "DESC",
+        };
+        write!(f, "{}", enum_name)
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset, Clone)]
@@ -418,7 +431,7 @@ impl Package {
         let connection = pool.get()?;
         let result: Vec<(String, String, String)> = packages::table
             .inner_join(package_versions::table)
-            .filter(name.ilike(format!("{}{}{}", "%", search_query, "%")))
+            .filter(name.ilike(format!("%{}%", search_query)))
             .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at"))
             .select((packages::name, packages::description, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
             .load::<(String, String, String)>(&connection)?;
@@ -435,17 +448,9 @@ impl Package {
         pool: &DieselPgPool,
     ) -> Result<(Vec<PackageSearchResult>, i64, i64), Error> {
         let connection = pool.get()?;
-        let field = match sort_field {
-            PackageSortField::Name => "name",
-            PackageSortField::Description => "description",
-            PackageSortField::MostDownloads => "total_downloads_count",
-            PackageSortField::NewlyAdded => "packages.created_at",
-        };
-        let order = match sort_order {
-            PackageSortOrder::Asc => "ASC",
-            PackageSortOrder::Desc => "DESC",
-        };
-        let order_query = format!("{} {}", field, order);
+        let field = sort_field.to_string();
+        let order = sort_order.to_string();
+        let order_query = format!("packages.{} {}", field, order);
         let search_query: &str = &search_query.split(" ").collect::<Vec<&str>>().join(" & ");
 
         let page = page.unwrap_or_else(|| 1);
@@ -457,7 +462,7 @@ impl Package {
         let result: (Vec<PackageSearchResult>, i64, i64) = packages::table
             .inner_join(package_versions::table)
             .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
-            .filter(name.ilike(format!("{}{}{}", "%", search_query, "%"))
+            .filter(name.ilike(format!("%{}%", search_query))
                 .or(tsv.matches(plainto_tsquery(search_query))))
             .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
             .order(diesel::dsl::sql::<diesel::sql_types::Text>(&order_query))
@@ -474,17 +479,9 @@ impl Package {
         pool: &DieselPgPool,
     ) -> Result<(Vec<PackageSearchResult>, i64, i64), Error> {
         let connection = pool.get()?;
-        let field = match sort_field {
-            PackageSortField::Name => "name",
-            PackageSortField::Description => "description",
-            PackageSortField::MostDownloads => "total_downloads_count",
-            PackageSortField::NewlyAdded => "packages.created_at",
-        };
-        let order = match sort_order {
-            PackageSortOrder::Asc => "ASC",
-            PackageSortOrder::Desc => "DESC",
-        };
-        let order_query = format!("{} {}", field, order);
+        let field = sort_field.to_string();
+        let order = sort_order.to_string();
+        let order_query = format!("packages.{} {}", field, order);
 
         let page = page.unwrap_or_else(|| 1);
         let per_page = per_page.unwrap_or_else(|| PACKAGES_PER_PAGE);
@@ -512,6 +509,7 @@ impl PackageVersion {
 
         Ok(result)
     }
+
     pub async fn create(
         version_package_id: i32,
         version_name: String,
@@ -535,6 +533,10 @@ impl PackageVersion {
         let record = diesel::insert_into(package_versions::table)
             .values(new_package_version)
             .get_result::<PackageVersion>(&connection)?;
+
+        diesel::update(packages)
+            .set(packages::updated_at.eq(now))
+            .execute(&connection)?;
 
         Ok(record)
     }
@@ -745,6 +747,73 @@ mod tests {
     }
 
     #[actix_rt::test]
+    async fn search_by_created_at_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        setup().await.unwrap();
+        let pool = &DB_POOL;
+        let search_query = "random";
+        let (search_result, total_count, total_pages) = Package::search(
+            search_query,
+            &PackageSortField::NewlyAdded,
+            &PackageSortOrder::Desc,
+            Some(1),
+            Some(2),
+            pool,
+        )
+        .await
+        .unwrap();
+        assert_eq!(total_count, 2);
+        assert_eq!(total_pages, 1);
+        assert_eq!(search_result.len(), 2);
+        assert!(search_result[0].name == "Charles Diya");
+        assert!(search_result[1].name == "The first Diva");
+    }
+
+    #[actix_rt::test]
+    async fn search_by_updated_at_works() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        setup().await.unwrap();
+        let pool = &DB_POOL;
+
+        let package_diva = Package::get_by_name(&"The first Diva".to_string(), pool).await.unwrap();
+        assert!(package_diva.name.contains("The first Diva"));
+        assert!(package_diva.description.contains("randomly picked, and changes some"));
+
+        PackageVersion::create(
+            package_diva.id,
+            "second_version".to_string(),
+            "".to_string(),
+            "".to_string(),
+            25,
+            500,
+            pool
+        )
+        .await.unwrap();
+
+        let total_packages = Package::count(pool).await.unwrap();
+        assert_eq!(total_packages, 3);
+
+        let search_query = "random";
+        let (search_result, total_count, total_pages) = Package::search(
+            search_query,
+            &PackageSortField::RecentlyUpdated,
+            &PackageSortOrder::Desc,
+            Some(1),
+            Some(2),
+            pool,
+        )
+        .await
+        .unwrap();
+        assert_eq!(total_count, 2);
+        assert_eq!(total_pages, 1);
+        assert_eq!(search_result.len(), 2);
+        assert!(search_result[0].name == "The first Diva");
+        assert!(search_result[1].name == "Charles Diya");
+    }
+
+    #[actix_rt::test]
     async fn all_packages_with_pagination() {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
@@ -768,6 +837,41 @@ mod tests {
 
         let (search_result, _total_count, _total_pages) = Package::all_packages(
             &PackageSortField::Name,
+            &PackageSortOrder::Desc,
+            Some(2),
+            Some(2),
+            pool,
+        )
+        .await
+        .unwrap();
+        assert_eq!(search_result.len(), 1);
+        assert_eq!(search_result[0].name, "Charles Diya");
+    }
+
+    #[actix_rt::test]
+    async fn all_packages_with_pagination_and_sort_by_updated_at() {
+        crate::test::init();
+        let _ctx = DatabaseTestContext::new();
+        setup().await.unwrap();
+        let pool = &DB_POOL;
+        let (search_result, total_count, total_pages) = Package::all_packages(
+            &PackageSortField::RecentlyUpdated,
+            &PackageSortOrder::Desc,
+            Some(1),
+            Some(2),
+            pool,
+        )
+        .await
+        .unwrap();
+        assert_eq!(total_count, 3);
+        assert_eq!(total_pages, 2);
+
+        assert_eq!(search_result.len(), 2);
+        assert_eq!(search_result[0].name, "The first Diva");
+        assert_eq!(search_result[1].name, "The first package");
+
+        let (search_result, _total_count, _total_pages) = Package::all_packages(
+            &PackageSortField::RecentlyUpdated,
             &PackageSortOrder::Desc,
             Some(2),
             Some(2),
