@@ -1,5 +1,6 @@
 use crate::accounts::Account;
 use crate::api::services::setting::views::EncodableApiTokenWithToken;
+use crate::constants::Value;
 use crate::request;
 use crate::settings::models::token::ApiToken;
 use diesel::result::DatabaseErrorKind;
@@ -28,10 +29,7 @@ pub async fn create_token(
     if !request::is_authenticated(&request).await? {
         request.get_session().clear();
         return Ok(HttpResponse::Unauthorized()
-            .header(
-                header::SET_COOKIE,
-                "remember_me_token=\"\"; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT",
-            )
+            .header(header::SET_COOKIE, Value::RememberMeTokenInvalidate)
             .body(""));
     }
     let user = request.user()?;
@@ -58,10 +56,7 @@ pub async fn revoke_token(
     if !request::is_authenticated(&request).await? {
         request.get_session().clear();
         return Ok(HttpResponse::Unauthorized()
-            .header(
-                header::SET_COOKIE,
-                "remember_me_token=\"\"; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT",
-            )
+            .header(header::SET_COOKIE, Value::RememberMeTokenInvalidate)
             .body(""));
     }
     let user = request.user()?;

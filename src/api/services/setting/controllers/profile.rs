@@ -1,4 +1,5 @@
 use crate::accounts::Account;
+use crate::constants::Value;
 use crate::request;
 use jelly::actix_session::UserSession;
 use jelly::actix_web::http::header;
@@ -19,10 +20,7 @@ pub async fn get_logged_in_user(request: HttpRequest) -> Result<HttpResponse> {
         request.get_session().clear();
         return Ok(HttpResponse::Ok()
             .set(ContentType::json())
-            .header(
-                header::SET_COOKIE,
-                "remember_me_token=\"\"; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT",
-            )
+            .header(header::SET_COOKIE, Value::RememberMeTokenInvalidate)
             .body("{}"));
     }
     let user = request.user()?;
@@ -40,10 +38,7 @@ pub async fn get_logged_in_user(request: HttpRequest) -> Result<HttpResponse> {
         request.get_session().clear();
         Ok(HttpResponse::Ok()
             .set(ContentType::json())
-            .header(
-                header::SET_COOKIE,
-                "remember_me_token=\"\"; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT",
-            )
+            .header(header::SET_COOKIE, Value::RememberMeTokenInvalidate)
             .body("{}"))
     }
 }

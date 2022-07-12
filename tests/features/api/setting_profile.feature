@@ -11,12 +11,12 @@ Feature: Setting profile
       Then I should get information about my profile
 
     Scenario: Return nothing for deleted user
-      When my account is deleted but my browser is not signed out
+      When My account is deleted but my browser is not signed out
       And I use the api to get my profile
       Then I should get an empty response from the api
 
     Scenario: Display sign up button for deleted user
-      When my account is deleted but my browser is not signed out
+      When My account is deleted but my browser is not signed out
       And I access the Movey website
       Then I should see that my browser is signed out
       And I should see that sign up button is displayed
@@ -28,12 +28,12 @@ Feature: Setting profile
     And I am signed in with remember me option
 
   Scenario: Return nothing for deleted user
-    When my account is deleted but my browser is not signed out
+    When My account is deleted but my browser is not signed out
     And I use the api to get my profile
     Then I should get an empty response from the api
     
   Scenario: Clear remember me cookie for deleted user
-    When my account is deleted but my browser is not signed out
+    When My account is deleted but my browser is not signed out
     And I access the Movey website
     Then I should see that my browser is signed out
     And I should see that sign up button is displayed

@@ -18,15 +18,10 @@ use super::forms::{LoginForm, NewAccountForm};
 use super::views::verify::GithubOauthUser;
 use crate::schema::accounts;
 use crate::schema::accounts::dsl::*;
-use crate::schema::packages::dsl::{
-    packages, 
-    account_id as packages_account_id
-};
 use crate::schema::api_tokens::dsl::{
-    api_tokens,
-    name as api_tokens_name,
-    account_id as api_tokens_account_id
+    account_id as api_tokens_account_id, api_tokens, name as api_tokens_name,
 };
+use crate::schema::packages::dsl::{account_id as packages_account_id, packages};
 
 #[cfg(test)]
 mod tests;
@@ -183,19 +178,20 @@ impl Account {
     }
 
     pub async fn register_from_github(
-        oauth_user: &GithubOauthUser, 
-        pool: &DieselPgPool) 
-    -> Result<User, Error> {
+        oauth_user: &GithubOauthUser,
+        pool: &DieselPgPool,
+    ) -> Result<User, Error> {
         let connection = pool.get()?;
 
         let account = if let Ok(record) = Account::get_by_email(&oauth_user.email, pool).await {
             // if there already is an account with this email, update it with git info then return
             diesel::update(accounts.filter(id.eq(record.id)))
-            .set((
-                github_login.eq(oauth_user.login.clone()), 
-                github_id.eq(oauth_user.id),
-                has_verified_email.eq(true)))
-            .execute(&connection)?;
+                .set((
+                    github_login.eq(oauth_user.login.clone()),
+                    github_id.eq(oauth_user.id),
+                    has_verified_email.eq(true),
+                ))
+                .execute(&connection)?;
 
             record
         } else {
@@ -203,8 +199,8 @@ impl Account {
             let new_record = NewGithubAccount::from_oauth_user(oauth_user);
 
             diesel::insert_into(accounts::table)
-            .values(new_record)
-            .get_result::<Account>(&connection)?
+                .values(new_record)
+                .get_result::<Account>(&connection)?
         };
 
         Ok(User {
@@ -233,35 +229,30 @@ impl Account {
     ) -> Result<(), Error> {
         let conn = pool.get()?;
 
-        conn.build_transaction()
-            .run::<_, _, _>(|| {
-                diesel::update(packages.filter(packages_account_id.eq(gh_account_id)))
-                    .set(packages_account_id.eq(movey_account_id))
-                    .execute(&conn)?;
+        conn.build_transaction().run::<_, _, _>(|| {
+            diesel::update(packages.filter(packages_account_id.eq(gh_account_id)))
+                .set(packages_account_id.eq(movey_account_id))
+                .execute(&conn)?;
 
-                    diesel::update(api_tokens.filter(api_tokens_account_id.eq(movey_account_id)))
-                    .set(api_tokens_name.eq(api_tokens_name.concat("__movey")))
-                    .execute(&conn)?;
+            diesel::update(api_tokens.filter(api_tokens_account_id.eq(movey_account_id)))
+                .set(api_tokens_name.eq(api_tokens_name.concat("__movey")))
+                .execute(&conn)?;
 
-                diesel::update(api_tokens.filter(api_tokens_account_id.eq(gh_account_id)))
-                    .set((
-                        api_tokens_account_id.eq(movey_account_id),
-                        api_tokens_name.eq(api_tokens_name.concat("__github"))
-                    ))
-                    .execute(&conn)?;
+            diesel::update(api_tokens.filter(api_tokens_account_id.eq(gh_account_id)))
+                .set((
+                    api_tokens_account_id.eq(movey_account_id),
+                    api_tokens_name.eq(api_tokens_name.concat("__github")),
+                ))
+                .execute(&conn)?;
 
-                diesel::delete(accounts.filter(github_id.eq(gh_id)))
-                    .execute(&conn)?;
+            diesel::delete(accounts.filter(github_id.eq(gh_id))).execute(&conn)?;
 
-                diesel::update(accounts.filter(id.eq(movey_account_id)))
-                    .set((
-                        github_id.eq(gh_id),
-                        github_login.eq(gh_login),
-                    ))
-                    .execute(&conn)?;
+            diesel::update(accounts.filter(id.eq(movey_account_id)))
+                .set((github_id.eq(gh_id), github_login.eq(gh_login)))
+                .execute(&conn)?;
 
-                Ok(())
-            })
+            Ok(())
+        })
     }
 
     pub async fn update_movey_account_with_github_info(
@@ -272,23 +263,20 @@ impl Account {
     ) -> Result<(), Error> {
         let conn = pool.get()?;
         diesel::update(accounts.filter(id.eq(movey_id)))
-            .set((
-                github_id.eq(gh_id),
-                github_login.eq(gh_login),
-            ))
+            .set((github_id.eq(gh_id), github_login.eq(gh_login)))
             .execute(&conn)?;
-        
+
         Ok(())
     }
 }
 
 #[cfg(any(test, feature = "test"))]
 impl Account {
-    pub async fn delete(account_id: i32, pool: &DieselPgPool) -> Result<(), Error> {
+    pub async fn delete(account_id: i32) -> Result<(), Error> {
+        let pool = &crate::test::DB_POOL;
         let conn = pool.get()?;
-        diesel::delete(accounts.filter(id.eq(account_id)))
-            .execute(&conn)?;
-        
+        diesel::delete(accounts.filter(id.eq(account_id))).execute(&conn)?;
+
         Ok(())
     }
 }
@@ -319,8 +307,7 @@ pub struct NewAccount {
 impl NewAccount {
     fn from_form(form: &NewAccountForm) -> Self {
         let email_ = form.email.value.clone();
-        let name_from_email = email_
-            .split('@').next().unwrap();
+        let name_from_email = email_.split('@').next().unwrap();
         return NewAccount {
             name: String::from(name_from_email),
             email: form.email.value.clone(),

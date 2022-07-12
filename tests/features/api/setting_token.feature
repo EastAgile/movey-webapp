@@ -17,7 +17,7 @@ Feature: Cannot use settings token api
     Background:
       Given I am a user on Movey
       And I am signed in
-      When my account is deleted but my browser is not signed out
+      When My account is deleted but my browser is not signed out
       And I access the Movey website
 
     Scenario: Invalid user cannot use api to create token

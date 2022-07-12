@@ -52,13 +52,13 @@ Feature: Sign in
       Then I should be on the Dashboard page
 
     Scenario: Permanent session invalid
-      When my account is deleted but my browser is not signed out
+      When My account is deleted but my browser is not signed out
       And I close all browser tabs and reopen my browser
       And I access the Dashboard page
       Then I am signed out of my account and redirected to Sign in page
 
     Scenario: Permanent session expired
-      When my permanent session is expired
+      When My permanent session is expired
       And I access the Dashboard page
       Then I should see the sign in page
 
