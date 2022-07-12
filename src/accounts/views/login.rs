@@ -1,12 +1,9 @@
 use jelly::actix_session::UserSession;
-use jelly::actix_web::{web, web::Form, HttpRequest, HttpMessage};
+use jelly::actix_web::{web, web::Form, HttpMessage, HttpRequest};
 use jelly::prelude::*;
 use jelly::request::{Authentication, DatabasePool};
 use jelly::Result;
-use oauth2::{
-    basic::BasicClient,
-    CsrfToken, Scope,
-};
+use oauth2::{basic::BasicClient, CsrfToken, Scope};
 
 use crate::request;
 use jelly::actix_web::{
@@ -81,18 +78,15 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
                         header::SET_COOKIE,
                         jar.get("remember_me_token")
                             .expect("Getting key from cookie jar should not fail.")
-                            .encoded().to_string(),
+                            .encoded()
+                            .to_string(),
                     )
                     .header(header::LOCATION, "/settings/profile")
                     .finish())
             };
-        },
-        Err(Error::Generic(e)) => {
-            error_message = e
-        },
-        Err(_) => {
-            error_message = String::from("Invalid email or password! Try again.")
         }
+        Err(Error::Generic(e)) => error_message = e,
+        Err(_) => error_message = String::from("Invalid email or password! Try again."),
     }
 
     request.render(400, "accounts/login.html", {
@@ -107,6 +101,7 @@ pub async fn oauth(request: HttpRequest, client: web::Data<BasicClient>) -> Resu
     let (authorize_url, csrf_state) = client
         .authorize_url(CsrfToken::new_random)
         .add_scope(Scope::new("user:email".to_string()))
+        .add_extra_param("login", "")
         .url();
 
     request.get_session().set("oauth_state", &csrf_state)?;
