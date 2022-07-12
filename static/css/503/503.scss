@@ -2,7 +2,7 @@
 
 $header-and-footer-height: 350px;
 body {
-  background-color: #FFF2F2;
+  background-color: #E9F5FE;
   width: 100%;
 
   .not-found-wrapper {
@@ -37,7 +37,8 @@ body {
       font-weight: 300;
       font-size: 36px;
       line-height: 48px;
-      
+      width: fit-content;
+
       &.sub{
         font-weight: 300;
         font-size: 24px;
@@ -69,7 +70,7 @@ body {
     }
 
     .image {
-        background-image: url("/static/resources/404-page.svg");
+        background-image: url("/static/resources/503-page.svg");
         background-repeat: no-repeat;
         width: 975px;
         height: 415px;
@@ -94,22 +95,24 @@ body {
       cursor:pointer;
 
       .return-icon {
-        background-image: url("/static/resources/return-home-icon.svg");
+        background-image: url("/static/resources/refresh-icon.svg");
         background-repeat: no-repeat;
         width: 35px;
         height: 35px;
       }
-      a {
+      .links {
         color: var(--blue-color);
         font-weight: 400;
         font-size: 24px;
         line-height: 30px;
         text-transform: capitalize;
-
+        margin: 0;
+        
         &:hover {
           text-decoration: underline;
         }
       }
     }
   }
+  
 }

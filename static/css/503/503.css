@@ -1,5 +1,5 @@
 body {
-  background-color: #FFF2F2;
+  background-color: #E9F5FE;
   width: 100%;
 }
 body .not-found-wrapper {
@@ -35,6 +35,7 @@ body .not-found-wrapper .message {
   font-weight: 300;
   font-size: 36px;
   line-height: 48px;
+  width: fit-content;
 }
 body .not-found-wrapper .message.sub {
   font-weight: 300;
@@ -69,7 +70,7 @@ body .not-found-wrapper .message.sub {
   }
 }
 body .not-found-wrapper .image {
-  background-image: url("/static/resources/404-page.svg");
+  background-image: url("/static/resources/503-page.svg");
   background-repeat: no-repeat;
   width: 975px;
   height: 415px;
@@ -95,20 +96,21 @@ body .not-found-wrapper .return-home-wrapper {
   cursor: pointer;
 }
 body .not-found-wrapper .return-home-wrapper .return-icon {
-  background-image: url("/static/resources/return-home-icon.svg");
+  background-image: url("/static/resources/refresh-icon.svg");
   background-repeat: no-repeat;
   width: 35px;
   height: 35px;
 }
-body .not-found-wrapper .return-home-wrapper a {
+body .not-found-wrapper .return-home-wrapper .links {
   color: var(--blue-color);
   font-weight: 400;
   font-size: 24px;
   line-height: 30px;
   text-transform: capitalize;
+  margin: 0;
 }
-body .not-found-wrapper .return-home-wrapper a:hover {
+body .not-found-wrapper .return-home-wrapper .links:hover {
   text-decoration: underline;
 }
 
-/*# sourceMappingURL=404.css.map */
+/*# sourceMappingURL=503.css.map */

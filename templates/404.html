@@ -1,4 +1,4 @@
-{% extends "layout_dark.html" %}
+{% extends "layout_without_header.html" %}
 
 {% block title %}Not Found | Movey{% endblock %}
 
@@ -8,6 +8,13 @@
 
 {% block content %}
 <div class="not-found-wrapper">
-    <p>Uh oh! We couldn't find that page.</p>
+    <p class="title">Oops!</p>
+    <p class="message">Page not found...</p>
+    <div class="image"></div>
+    <p class="sub message">The page is missing or you assembled the link incorrectly.</p>
+    <div class="return-home-wrapper">
+        <div class="return-icon"></div>
+        <a href="/">go home</a>
+    </div>
 </div>
 {% endblock %}
