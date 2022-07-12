@@ -7,7 +7,6 @@ Feature: Sign up
     And I click on the Sign up button on the home page
     Then I should see the sign up page
 
-    @wip
     Scenario: it works
       When I fill in my email and password and submit the form on the sign up page
       Then I should see the Verify Your Account page
