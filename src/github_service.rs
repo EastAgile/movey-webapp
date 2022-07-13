@@ -4,6 +4,7 @@ use reqwest::header;
 use serde::Deserialize;
 use std::env;
 use std::hash::{Hash, Hasher};
+use jelly::error::Error::Generic;
 
 #[derive(Deserialize)]
 struct MoveToml {
@@ -63,15 +64,25 @@ impl GithubService {
 
 #[cfg_attr(test, automock)]
 impl GithubService {
-    pub fn fetch_repo_data(&self, repo_url: &String, path: Option<String>) -> Result<GithubRepoData, Error> {
+    pub fn fetch_repo_data(&self, repo_url: &String, path: Option<String>, mut rev: Option<String>) -> Result<GithubRepoData, Error> {
         let mut github_info = get_repo_description_and_size(&repo_url)?;
         if github_info.default_branch.is_empty() {
             github_info.default_branch = "master".to_string();
         }
+
+        if rev.is_none() {
+            if let Ok(sha) = get_repo_latest_commit_sha(&repo_url) {
+                rev = Some(sha)
+            } else {
+                rev = Some(github_info.default_branch);
+            }
+        }
+        let rev = rev.unwrap();
+
         let readme_url = format!(
             "{}/{}/README.md",
             repo_url.replace("https://github.com", "https://raw.githubusercontent.com"),
-            github_info.default_branch
+            rev
         );
         let mut readme_content = "".to_string();
         let response = call_github_api(&readme_url)?;
@@ -135,7 +146,7 @@ impl GithubService {
                 description: github_info.description.unwrap_or("".to_string()),
                 size: github_info.size,
                 url: String::from(""),
-                rev: "".to_string(),
+                rev,
             }),
             Err(error) => {
                 warn!(
@@ -149,7 +160,7 @@ impl GithubService {
                     description: github_info.description.unwrap_or("".to_string()),
                     size: github_info.size,
                     url: String::from(""),
-                    rev: "".to_string(),
+                    rev,
                 })
             }
         }
@@ -217,6 +228,33 @@ fn get_repo_description_and_size(repo_url: &str) -> Result<GithubRepoInfo, Error
                     url, error
                 );
             Ok(Default::default())
+        }
+    }
+}
+
+fn get_repo_latest_commit_sha(repo_url: &str) -> Result<String, Error> {
+    let mut url = repo_url.replace("https://github.com/", "https://api.github.com/repos/");
+    url.push_str("/commits");
+    let response = call_github_api(&url)?;
+    #[derive(Deserialize)]
+    pub struct GithubRepoCommit {
+        pub sha: String,
+    }
+    match response.json::<Vec<GithubRepoCommit>>() {
+        Ok(info) if !info.is_empty() => Ok(info.get(0).unwrap().sha.clone()),
+        Ok(_) => {
+            error!(
+                    "Error getting repo commit. url: {:?}, error: Empty response",
+                    url
+                );
+            Err(Generic(format!("Error getting repo commit. url: {:?}, error: Empty response", url)))
+        }
+        Err(error) => {
+            error!(
+                    "Error getting repo commit. url: {:?}, error: {}",
+                    url, error
+                );
+            Err(Generic(format!("Error getting repo commit. url: {:?}, error: {}", url, error)))
         }
     }
 }
