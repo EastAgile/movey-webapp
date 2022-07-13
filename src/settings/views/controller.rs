@@ -1,9 +1,9 @@
 use crate::accounts::forms::ChangePasswordForm;
 use crate::accounts::Account;
+use crate::constants;
 use crate::packages::Package;
 use crate::settings::models::token::ApiToken;
 
-use crate::constants::Value;
 use jelly::actix_session::UserSession;
 use jelly::actix_web::http::header;
 use jelly::actix_web::web::Form;
@@ -70,7 +70,7 @@ pub async fn change_password(
     if is_ok {
         request.get_session().clear();
         return Ok(HttpResponse::Found()
-            .header(header::SET_COOKIE, Value::RememberMeTokenInvalidate)
+            .header(header::SET_COOKIE, constants::REMEMBER_ME_TOKEN_INVALIDATE)
             .header(
                 header::SET_COOKIE,
                 format!("flash={}; path=/; Max-Age=10", message),

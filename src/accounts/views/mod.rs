@@ -1,6 +1,6 @@
 //!  Views for user auth.
 
-use crate::constants::Value;
+use crate::constants;
 use jelly::actix_session::UserSession;
 use jelly::actix_web::http::header;
 use jelly::prelude::*;
@@ -16,7 +16,7 @@ pub mod verify;
 pub async fn logout(request: HttpRequest) -> Result<HttpResponse> {
     request.get_session().clear();
     Ok(HttpResponse::Found()
-        .header(header::SET_COOKIE, Value::RememberMeTokenInvalidate)
+        .header(header::SET_COOKIE, constants::REMEMBER_ME_TOKEN_INVALIDATE)
         .header(header::LOCATION, "/accounts/login/")
         .finish())
 }
