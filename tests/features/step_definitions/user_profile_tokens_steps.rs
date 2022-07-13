@@ -17,6 +17,16 @@ pub async fn click_on_profile_tokens_tab(world: &mut TestWorld) {
     tokens_tab_element.click().await.unwrap();
 }
 
+#[when("I click on the downloads tab")]
+pub async fn click_on_profile_downloads_tab(world: &mut TestWorld) {
+    let tokens_tab_element = world
+        .driver
+        .find_element(By::ClassName("tab-versions"))
+        .await
+        .unwrap();
+    tokens_tab_element.click().await.unwrap();
+}
+
 #[then("I should see the profile tokens page")]
 pub async fn see_profile_tokens_page(world: &mut TestWorld) {
     let tokens_title = world

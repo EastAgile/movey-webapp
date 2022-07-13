@@ -1,5 +1,5 @@
 use crate::TestWorld;
-use cucumber::{given, when, then};
+use cucumber::{when, then};
 use thirtyfour::By;
 
 #[when("I access the Terms of use page")]
@@ -42,6 +42,31 @@ async fn see_policy_page(world: &mut TestWorld) {
         .find_element(By::ClassName("page_name"))
         .await.unwrap();
     assert_eq!(page_name.text().await.unwrap(), "Privacy Policy");
+}
+
+#[then("I should see my name and email filled in textbox")]
+async fn name_email_filled_in(world: &mut TestWorld) {
+    let name_field = world.driver
+        .find_element(By::Id("name"))
+        .await.unwrap();
+    assert_eq!(name_field.get_attribute("value").await.unwrap(), Some("email".to_string()));
+
+    let email_field = world.driver
+        .find_element(By::Id("email"))
+        .await.unwrap();
+    assert_eq!(email_field.get_attribute("value").await.unwrap(), Some(world.account.email.clone()));
+}
+
+#[then("I should see name field and email field are disabled")]
+async fn name_email_disabled(world: &mut TestWorld) {
+    let name_field = world.driver
+        .find_element(By::Id("name"))
+        .await.unwrap();
+    assert_eq!(name_field.get_attribute("readOnly").await.unwrap(), Some("true".to_string()));
+    let email_field = world.driver
+        .find_element(By::Id("email"))
+        .await.unwrap();
+    assert_eq!(email_field.get_attribute("readOnly").await.unwrap(), Some("true".to_string()));
 }
 
 #[when("I access the Contact us page")]

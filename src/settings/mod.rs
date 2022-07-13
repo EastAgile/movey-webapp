@@ -2,9 +2,6 @@ use jelly::actix_web::web::{get, post, resource, scope, ServiceConfig};
 pub mod views;
 pub mod models;
 
-use jelly::prelude::*;
-use jelly::Result;
-
 use crate::utils::new_auth;
 
 pub fn configure(config: &mut ServiceConfig) {

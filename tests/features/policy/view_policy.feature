@@ -25,14 +25,16 @@ Feature: Policy
       Then I should see the Policy page
 
   Rule: Contact us page
-    @wip
     Scenario: Guest views the Contact us page
       Given I am a guest / unregistered user
       When I access the Contact us page
       Then I should see the Contact us page
 
+    @wip
     Scenario: Guest views the Contact us page
       Given I am a user on Movey
       And I am signed in
       When I access the Contact us page
       Then I should see the Contact us page
+      And I should see my name and email filled in textbox
+      And I should see name field and email field are disabled
