@@ -4,7 +4,6 @@ class PackageShow {
         this.instructionElement = $('.package-install-instruction');
         this.packageSizeElement = $('.package-size');
         this.packageDescription = $('.package-description');
-        this.contentLinks = $(".package-readme-content a");
         this.init();
     }
 
@@ -19,7 +18,7 @@ class PackageShow {
                 $('.copy-tooltip').hide();
             }, 400);
         });
-        Array.from($(".package-readme-content a")).forEach( e => e.setAttribute('target','_blank') );
+        Array.from($(".package-readme-content a")).forEach( e => e.setAttribute('target', '_blank') );
         this.packageSizeElement.text(this.niceBytes(this.packageSizeElement.data("value")));
     }
 
