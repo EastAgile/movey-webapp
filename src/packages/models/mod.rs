@@ -159,7 +159,7 @@ pub struct NewPackageVersion {
     pub total_size: i32,
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub enum PackageVersionSort {
     Latest,
     Oldest,
@@ -187,7 +187,7 @@ impl Package {
         subdir: Option<String>,
         pool: &DieselPgPool,
     ) -> Result<i32, Error> {
-        let github_data = service.fetch_repo_data(&repo_url, subdir)?;
+        let github_data = service.fetch_repo_data(&repo_url, subdir, None)?;
 
         Package::create_from_crawled_data(
             repo_url,
@@ -288,7 +288,7 @@ impl Package {
         Ok(result)
     }
 
-    pub async fn get_downloads(owner_id: i32, pool: &DieselPgPool) -> Result<i64, Error>{
+    pub async fn get_downloads(owner_id: i32, pool: &DieselPgPool) -> Result<i64, Error> {
         let connection = pool.get()?;
         let result = packages
             .select(sum(total_downloads_count))
@@ -297,7 +297,7 @@ impl Package {
 
         match result {
             Some(result) => Ok(result),
-            None => Ok(0)
+            None => Ok(0),
         }
     }
 
@@ -331,6 +331,9 @@ impl Package {
                 .replace(".git", "")
                 .to_owned();
         }
+        if https_url.ends_with(".git") {
+            https_url = https_url[0..https_url.len() - 4].to_string();
+        }
 
         let package_id_ = packages
             .filter(repository_url.eq(&https_url))
@@ -348,13 +351,16 @@ impl Package {
                     Ok(_) => (),
                     Err(NotFound) => {
                         // Package is found but version is not, creating shadow version
-                        let github_data =
-                            if subdir.is_empty() {
-                                service.fetch_repo_data(&https_url, None)?
-                            } else {
-                                let subdir_with_toml = format!("{}/Move.toml", subdir);
-                                service.fetch_repo_data(&https_url, Some(subdir_with_toml))?
-                            };
+                        let github_data = if subdir.is_empty() {
+                            service.fetch_repo_data(&https_url, None, Some(rev_.clone()))?
+                        } else {
+                            let subdir_with_toml = format!("{}/Move.toml", subdir);
+                            service.fetch_repo_data(
+                                &https_url,
+                                Some(subdir_with_toml),
+                                Some(rev_.clone()),
+                            )?
+                        };
 
                         PackageVersion::create(
                             package_id_,
@@ -376,16 +382,26 @@ impl Package {
             }
             Err(NotFound) => {
                 // Package is not found, creating shadow package and package version
-                let github_data =
-                    if subdir.is_empty() {
-                        service.fetch_repo_data(&https_url, None)?
-                    } else {
-                        let subdir_with_toml = format!("{}/Move.toml", subdir);
-                        service.fetch_repo_data(&https_url, Some(subdir_with_toml))?
-                    };
-                Package::create_from_crawled_data(&https_url, &github_data.description.clone(),
-                                                  &rev_, -1, github_data.size, None,
-                                                  github_data, &pool).await?
+                let github_data = if subdir.is_empty() {
+                    service.fetch_repo_data(&https_url, None, None)?
+                } else {
+                    let subdir_with_toml = format!("{}/Move.toml", subdir);
+                    service.fetch_repo_data(&https_url, Some(subdir_with_toml), None)?
+                };
+                if !subdir.is_empty() {
+                    https_url = format!("{}/blob/{}/{}", https_url, github_data.rev, subdir);
+                }
+                Package::create_from_crawled_data(
+                    &https_url,
+                    &github_data.description.clone(),
+                    &rev_,
+                    -1,
+                    github_data.size,
+                    None,
+                    github_data,
+                    &pool,
+                )
+                .await?
             }
             Err(e) => {
                 return Err(Error::Database(e));
@@ -416,7 +432,7 @@ impl Package {
             .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at"))
             .select((packages::name, packages::description, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
             .load::<(String, String, String)>(&connection)?;
-        
+
         Ok(result)
     }
 

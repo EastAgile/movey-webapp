@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use crate::email::{Configurable, Email};
 use crate::jobs::{JobState, DEFAULT_QUEUE};
+use crate::request::Render;
 use crate::{database, DieselPgPool};
 use actix_session::CookieSession;
 use actix_web::web::ServiceConfig;
@@ -95,9 +96,18 @@ impl Server {
             let should_redirect_https =
                 env::var("REDIRECT_HTTPS").unwrap_or_else(|_| "false".to_string()) != "false";
 
+            let query_error_handler = web::QueryConfig::default()
+                .error_handler(|err, req| {
+                    actix_web::error::InternalError::from_response(
+                        err, 
+                        req.render(404, "404.html", tera::Context::new()).unwrap()
+                    ).into()
+                });
+
             let mut app = App::new()
                 .app_data(pool.clone())
                 .app_data(templates.clone())
+                .app_data(query_error_handler)
                 .wrap(middleware::Logger::default())
                 .wrap(
                     RedirectSchemeBuilder::new()

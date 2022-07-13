@@ -24,7 +24,7 @@
     <div id="package-list-container">
         <div class="package-list">
             {% for package in packages %}
-            <div class="package-list-item">
+            <div class="package-list-item" onclick="location.href='/packages/{{ package.name }}';">
                 <div class="left-wrapper">
                     <div class="package-list-item-title">
                         <h1>

@@ -89,15 +89,35 @@ WHERE datname = '{}';",
             TEST_DB_NAME
         );
 
-        diesel::sql_query(disconnect_users.as_str())
-            .execute(conn)
-            .unwrap();
-
-        let query = diesel::sql_query(format!("DROP DATABASE {}", TEST_DB_NAME).as_str());
-        match query.execute(conn) {
-            Ok(_) => {},
-            Err(_) => {}
-        };
+        loop {
+            diesel::sql_query(disconnect_users.as_str())
+                .execute(conn)
+                .unwrap();
+    
+            let query = diesel::sql_query(format!("DROP DATABASE {}", TEST_DB_NAME).as_str());
+            match query.execute(conn) {
+                Ok(_) => (),
+                Err(e) => {
+                    println!("Error dropping database: {:?}", e);
+                    break
+                }
+            };
+    
+            let query = diesel::sql_query(format!("SELECT 1 FROM pg_database WHERE datname='{}'", TEST_DB_NAME).as_str());
+            match query.execute(conn) {
+                Ok(num_of_test_database) => {
+                    if num_of_test_database > 0 {
+                        println!("Test database is not dropped. Retrying...");
+                    } else {
+                        break
+                    }
+                },
+                Err(e) => {
+                    println!("Error querying for test database: {:?}", e);
+                    break
+                }
+            };
+        }
     }
 
     pub fn cleanup_test_database() {

@@ -454,6 +454,7 @@
                                 font-size: 18px;
                                 line-height: 24px;
                                 overflow-wrap: anywhere;
+                                word-break: break-all;
                             }
                         }
                     }
@@ -612,6 +613,7 @@
                         max-width: 315px;
                         margin-bottom: 0;
                         color: #001F60;
+                        width: 315px;
                     }
 
                     .select2-container {
