@@ -28,6 +28,7 @@ pub mod policy;
 pub mod settings;
 mod utils;
 
+#[allow(unused_imports)]
 pub mod schema;
 
 pub mod jobs;
