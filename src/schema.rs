@@ -1,6 +1,6 @@
 table! {
     use diesel::sql_types::*;
-    use diesel_full_text_search::*;
+    use diesel_full_text_search::{TsVector as Tsvector};
 
     accounts (id) {
         id -> Int4,
@@ -20,7 +20,7 @@ table! {
 
 table! {
     use diesel::sql_types::*;
-    use diesel_full_text_search::*;
+    use diesel_full_text_search::{TsVector as Tsvector};
 
     api_tokens (id) {
         id -> Int4,
@@ -34,7 +34,7 @@ table! {
 
 table! {
     use diesel::sql_types::*;
-    use diesel_full_text_search::*;
+    use diesel_full_text_search::{TsVector as Tsvector};
 
     package_versions (id) {
         id -> Int4,
@@ -53,7 +53,7 @@ table! {
 
 table! {
     use diesel::sql_types::*;
-    use diesel_full_text_search::*;
+    use diesel_full_text_search::{TsVector as Tsvector};
 
     packages (id) {
         id -> Int4,
@@ -63,7 +63,7 @@ table! {
         total_downloads_count -> Int4,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
-        tsv -> TsVector,
+        tsv -> Tsvector,
         account_id -> Nullable<Int4>,
     }
 }
