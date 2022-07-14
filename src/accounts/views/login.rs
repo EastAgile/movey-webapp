@@ -1,9 +1,10 @@
 use jelly::actix_session::UserSession;
-use jelly::actix_web::{web, web::Form, HttpMessage, HttpRequest};
+use jelly::actix_web::{web, web::Form, web::Query, HttpMessage, HttpRequest};
 use jelly::prelude::*;
 use jelly::request::{Authentication, DatabasePool};
 use jelly::Result;
 use oauth2::{basic::BasicClient, CsrfToken, Scope};
+use serde::Deserialize;
 
 use crate::request;
 use jelly::actix_web::{
@@ -97,12 +98,23 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
     })
 }
 
-pub async fn oauth(request: HttpRequest, client: web::Data<BasicClient>) -> Result<HttpResponse> {
-    let (authorize_url, csrf_state) = client
+#[derive(Deserialize)]
+pub struct GithubAuthorizePrompt {
+    pub prompt: bool,
+}
+
+pub async fn oauth(
+    request: HttpRequest,
+    auth_prompt: Option<Query<GithubAuthorizePrompt>>,
+    client: web::Data<BasicClient>,
+) -> Result<HttpResponse> {
+    let mut oauth_request = client
         .authorize_url(CsrfToken::new_random)
-        .add_scope(Scope::new("user:email".to_string()))
-        .add_extra_param("login", "")
-        .url();
+        .add_scope(Scope::new("user:email".to_string()));
+    if auth_prompt.is_some() && auth_prompt.unwrap().prompt {
+        oauth_request = oauth_request.add_extra_param("login", "");
+    }
+    let (authorize_url, csrf_state) = oauth_request.url();
 
     request.get_session().set("oauth_state", &csrf_state)?;
     Ok(HttpResponse::Found()
