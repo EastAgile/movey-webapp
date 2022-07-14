@@ -1,4 +1,4 @@
-{% extends "layout_without_header.html" %}
+{% extends "layout_dark.html" %}
 
 {% block title %}Server Error | Movey{% endblock %}
 
@@ -8,11 +8,7 @@
 
 {% block content %}
 <div class="not-found-wrapper">
-    <p class="title">Oops!</p>
-    <p class="message">Something went wrong...</p>
-    <div class="image"></div>
-    <p class="sub message">We are working on fixing the problem.
-        Please try again.</p>
+    <p class="message">Something went wrong... Please try again</p>
     <div class="return-home-wrapper" onClick="window.location.reload()">
         <div class="return-icon"></div>
         <p class="links">Refresh Page</p>
