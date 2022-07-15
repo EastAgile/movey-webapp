@@ -79,6 +79,9 @@ impl TestDatabaseHelper {
     }
 
     pub fn drop_test_database(conn: &PgConnection) {
+        // Workaround for Postgres 12 and earlier, version 13 and above can force drop a database using `DROP DATABASE ... WITH (FORCE)`
+        let disable_connection = format!("UPDATE pg_database SET datallowconn = 'false' WHERE datname = '{}'", TEST_DB_NAME);
+
         let disconnect_users = format!(
             "SELECT pg_terminate_backend(pid)
 FROM pg_stat_activity
@@ -88,6 +91,10 @@ WHERE datname = '{}';",
 
         const NUM_OF_RETRY: u8 = 4;
         for _ in 0..NUM_OF_RETRY {
+            diesel::sql_query(disable_connection.as_str())
+                .execute(conn)
+                .unwrap();
+            
             diesel::sql_query(disconnect_users.as_str())
                 .execute(conn)
                 .unwrap();
@@ -95,7 +102,7 @@ WHERE datname = '{}';",
             let query = diesel::sql_query(format!("DROP DATABASE {}", TEST_DB_NAME).as_str());
             match query.execute(conn) {
                 Ok(_) => (),
-                Err(_) => ()
+                Err(_) => continue,
             };
     
             let query = diesel::sql_query(format!("SELECT 1 FROM pg_database WHERE datname='{}'", TEST_DB_NAME).as_str());
