@@ -3,9 +3,10 @@
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<title>{{ subject }}</title>
+        <title>{{ subject }}</title>
+
+        <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet"/>
+        {% block css %}{% endblock %}
     </head>
-    <body leftmargin="0" marginwidth="0" topmargin="0" marginheight="0" offset="0">
-    	{% block content %}{% endblock %}
-    </body>
+    {% block content %}{% endblock %}
 </html>
