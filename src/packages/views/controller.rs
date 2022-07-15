@@ -1,4 +1,5 @@
 use jelly::actix_web::{web::Path, web::Query, HttpRequest};
+use jelly::anyhow::anyhow;
 use jelly::forms::TextField;
 use jelly::prelude::*;
 use jelly::request::DatabasePool;
@@ -70,7 +71,11 @@ pub async fn show_package_versions(
         &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db)
             .await?[0];
 
-    let params = Query::<VersionParams>::from_query(request.query_string()).unwrap();
+    let params = Query::<VersionParams>::from_query(request.query_string())
+        .map_err(|e| {
+            error!("Error parsing params: {:?}", e);
+            anyhow!("Error parsing params: {:?}", e)
+        })?;
     let default_sort: String = String::from("latest");
     let sort_type_text: &str = params.sort_type.as_ref().unwrap_or(&default_sort);
 
