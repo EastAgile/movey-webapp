@@ -1,14 +1,22 @@
-use jelly::actix_web::{web, HttpRequest};
+use diesel::prelude::*;
+use diesel::{AsChangeset, Associations, Identifiable, Insertable, Queryable, RunQueryDsl};
+use jelly::actix_web::{web, web::Path, HttpRequest};
 use jelly::prelude::*;
+use jelly::DieselPgPool;
 use jelly::Result;
 use mockall_double::double;
 use serde::{Deserialize, Serialize};
 
-use crate::packages::Package;
+use crate::packages::models::PACKAGE_COLUMNS;
+use crate::schema::package_versions;
+use crate::schema::package_versions::dsl::*;
+use crate::schema::packages;
+use crate::schema::packages::dsl::*;
 use crate::settings::models::token::ApiToken;
 
 #[double]
 use crate::github_service::GithubService;
+use crate::packages::{Package, PackageVersion};
 
 #[derive(Serialize, Deserialize)]
 pub struct PackageRequest {
@@ -32,7 +40,7 @@ pub async fn post_package(
         return Ok(HttpResponse::BadRequest().body("Invalid Api Token"));
     }
 
-    let account_id = ApiToken::associated_account(&req.token, &db).await?.id;
+    let token_account_id = ApiToken::associated_account(&req.token, &db).await?.id;
     let service = GithubService::new();
     if req.subdir.ends_with("\n") {
         req.subdir.pop();
@@ -46,7 +54,10 @@ pub async fn post_package(
     };
     let github_data = service.fetch_repo_data(&req.github_repo_url, subdir, None)?;
     if !req.subdir.is_empty() {
-        req.github_repo_url = format!("{}/blob/{}/{}",req.github_repo_url, github_data.rev, req.subdir);
+        req.github_repo_url = format!(
+            "{}/blob/{}/{}",
+            req.github_repo_url, github_data.rev, req.subdir
+        );
     }
     Package::create_from_crawled_data(
         &req.github_repo_url,
@@ -54,10 +65,11 @@ pub async fn post_package(
         &github_data.rev.clone(),
         req.total_files,
         github_data.size,
-        Some(account_id),
+        Some(token_account_id),
         github_data,
         &db,
-    ).await?;
+    )
+    .await?;
 
     Ok(HttpResponse::Ok().body(""))
 }
@@ -69,16 +81,18 @@ pub struct DownloadInfo {
     subdir: String,
 }
 
-pub async fn increase_download_count(request: HttpRequest, form: web::Form<DownloadInfo>) -> Result<HttpResponse> {
+pub async fn increase_download_count(
+    request: HttpRequest,
+    form: web::Form<DownloadInfo>,
+) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     let service = GithubService::new();
     let form = form.into_inner();
-    if let Ok(res) = Package::increase_download_count(
-        &form.url, &form.rev, &form.subdir, &service, &db
-    ).await {
+    if let Ok(res) =
+        Package::increase_download_count(&form.url, &form.rev, &form.subdir, &service, &db).await
+    {
         Ok(HttpResponse::Ok().body(res.to_string()))
-    }
-    else {
+    } else {
         Ok(HttpResponse::NotFound().body("Cannot find url or rev"))
     }
 }
@@ -88,6 +102,21 @@ pub async fn search_package(
     res: web::Json<PackageSearch>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    let packages = Package::auto_complete_search(&res.search_query, &db).await?;
-    Ok(HttpResponse::Ok().json(packages))
+    let packages_result = Package::auto_complete_search(&res.search_query, &db).await?;
+    Ok(HttpResponse::Ok().json(packages_result))
+}
+
+pub async fn package_badge_info(
+    request: HttpRequest,
+    Path(pkg_name): Path<String>,
+) -> Result<HttpResponse> {
+    let connection = request.db_pool()?.get()?;
+    let package_and_version: Vec<(Package, PackageVersion)> = packages::table
+        .left_outer_join(package_versions::table)
+        .select((PACKAGE_COLUMNS, package_versions::all_columns.nullable()))
+        .filter(packages::name.eq(pkg_name))
+        .load(&connection)
+        .unwrap();
+
+    Ok(HttpResponse::Ok().json(package_and_version))
 }

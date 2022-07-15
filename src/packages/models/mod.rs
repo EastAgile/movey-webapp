@@ -63,7 +63,7 @@ type PackageColumns = (
     packages::account_id,
 );
 
-const PACKAGE_COLUMNS: PackageColumns = (
+pub const PACKAGE_COLUMNS: PackageColumns = (
     packages::id,
     packages::name,
     packages::description,
@@ -132,15 +132,13 @@ impl std::fmt::Display for PackageSortField {
 impl PackageSortField {
     // Convert to a value used in ORM
     pub fn to_column_name(&self) -> String {
-        String::from(
-            match self {
-                PackageSortField::Name => "name",
-                PackageSortField::Description => "description",
-                PackageSortField::MostDownloads => "total_downloads_count",
-                PackageSortField::NewlyAdded => "created_at",
-                PackageSortField::RecentlyUpdated => "updated_at",
-            }
-        )
+        String::from(match self {
+            PackageSortField::Name => "name",
+            PackageSortField::Description => "description",
+            PackageSortField::MostDownloads => "total_downloads_count",
+            PackageSortField::NewlyAdded => "created_at",
+            PackageSortField::RecentlyUpdated => "updated_at",
+        })
     }
 }
 
@@ -154,12 +152,10 @@ pub enum PackageSortOrder {
 
 impl PackageSortOrder {
     fn to_order_direction(&self) -> String {
-        String::from(
-            match self {
-                PackageSortOrder::Asc => "ASC",
-                PackageSortOrder::Desc => "DESC",
-            }
-        )
+        String::from(match self {
+            PackageSortOrder::Asc => "ASC",
+            PackageSortOrder::Desc => "DESC",
+        })
     }
 }
 
