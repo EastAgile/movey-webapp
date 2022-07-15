@@ -13,3 +13,4 @@ Feature: View package list
         | 'Name'             | name              |
         | 'Most Downloads'   | most_downloads    |
         | 'Newly Added'      | newly_added       |
+        | 'Recently Updated' | recently_updated  |
