@@ -1,15 +1,17 @@
 use crate::accounts::Account;
 use crate::api::services::setting::views::EncodableApiTokenWithToken;
+use crate::constants;
 use crate::request;
 use crate::settings::models::token::ApiToken;
 use diesel::result::DatabaseErrorKind;
 use diesel::result::Error::DatabaseError;
-use jelly::actix_web::http::header::ContentType;
+use jelly::actix_session::UserSession;
+use jelly::actix_web::http::header::{self, ContentType};
 use jelly::actix_web::{web, web::Path};
+use jelly::anyhow::anyhow;
 use jelly::forms::TextField;
 use jelly::prelude::*;
 use jelly::Result;
-use jelly::anyhow::anyhow;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -25,7 +27,10 @@ pub async fn create_token(
         return Ok(HttpResponse::BadRequest().body(&req.name.errors[0]));
     }
     if !request::is_authenticated(&request).await? {
-        return Ok(HttpResponse::Unauthorized().body(""));
+        request.get_session().clear();
+        return Ok(HttpResponse::Unauthorized()
+            .header(header::SET_COOKIE, constants::REMEMBER_ME_TOKEN_INVALIDATE)
+            .body(""));
     }
     let user = request.user()?;
     let db = request.db_pool()?;
@@ -49,7 +54,10 @@ pub async fn revoke_token(
     Path(token_id): Path<String>,
 ) -> Result<HttpResponse> {
     if !request::is_authenticated(&request).await? {
-        return Ok(HttpResponse::Unauthorized().body(""));
+        request.get_session().clear();
+        return Ok(HttpResponse::Unauthorized()
+            .header(header::SET_COOKIE, constants::REMEMBER_ME_TOKEN_INVALIDATE)
+            .body(""));
     }
     let user = request.user()?;
     let db = request.db_pool()?;
@@ -57,8 +65,9 @@ pub async fn revoke_token(
         token_id
             .parse::<i32>()
             .map_err(|e| anyhow!("Error parsing token id: {:?}", e))?,
-        &db)
-        .await?;
+        &db,
+    )
+    .await?;
 
     // checks if token belongs to account
     if token.account_id == user.id {

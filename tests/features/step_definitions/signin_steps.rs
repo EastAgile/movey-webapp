@@ -172,7 +172,7 @@ async fn clear_default_session(world: &mut TestWorld) {
         .await.unwrap()
 }
 
-#[when("my permanent session is expired")]
+#[when("My permanent session is expired")]
 async fn clear_permanent_session(world: &mut TestWorld) {
     world.driver
         .delete_cookie("sessionid")

@@ -31,6 +31,7 @@ mod utils;
 #[allow(unused_imports)]
 pub mod schema;
 
+mod constants;
 pub mod jobs;
 pub mod request;
 pub mod test;
