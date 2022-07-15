@@ -1,5 +1,9 @@
 #[cfg(test)]
 pub mod mock;
+#[cfg(test)]
+pub mod util;
+#[cfg(test)]
+pub mod stub;
 
 use lazy_static::lazy_static;
 use std::sync::{Arc, Mutex};

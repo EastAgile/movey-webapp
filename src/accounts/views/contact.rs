@@ -6,8 +6,8 @@ use jelly::actix_web::{
 use jelly::prelude::*;
 use jelly::Result;
 
-use crate::accounts::forms::{ ContactForm};
-use crate::accounts::jobs::{ SendContactRequestEmail};
+use crate::accounts::forms::{ContactForm};
+use crate::accounts::jobs::{SendContactRequestEmail};
 
 
 pub async fn send_contact(request: HttpRequest, form: Form<ContactForm>) -> Result<HttpResponse> {

@@ -1,7 +1,6 @@
 use jelly::accounts::User;
 use jelly::actix_web::{
     web::{Form, Path},
-    HttpRequest,
 };
 use jelly::prelude::*;
 use jelly::Result;
@@ -10,6 +9,10 @@ use crate::accounts::forms::{ChangePasswordViaEmailForm, EmailForm};
 use crate::accounts::jobs::{SendPasswordWasResetEmail, SendResetPasswordEmail};
 use crate::accounts::views::utils::validate_token;
 use crate::accounts::Account;
+#[cfg(test)]
+use crate::test::mock::MockHttpRequest as HttpRequest;
+#[cfg(not(test))]
+use jelly::actix_web::HttpRequest;
 
 /// Just renders a standard "Enter Your Email" password reset page.
 pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
@@ -126,4 +129,35 @@ pub async fn reset(
     request.render(200, "accounts/invalid_token.html", Context::new())
 }
 
+#[cfg(test)]
+mod tests {
+    use jelly::actix_web::HttpResponse;
+    use jelly::actix_web::web::Form;
+    use jelly::email::Context;
+    use jelly::forms::EmailField;
+    use crate::accounts::forms::EmailForm;
+    use crate::accounts::views::reset_password::request_reset;
+    use crate::test::{DB_POOL, mock};
+
+    #[actix_rt::test]
+    async fn request_reset_returns_error_with_invalid_email_form() {
+        let mut mock_http_request = mock::MockHttpRequest::new();
+        mock_http_request
+            .expect_db_pool()
+            .returning(|| Ok(&DB_POOL));
+        mock_http_request
+            .expect_render()
+            .withf(|code: &usize, template: &str, _context: &Context| {
+                code == &400 && template == "accounts/reset_password/index.html"
+            })
+            .returning(|_, _, _| Ok(HttpResponse::Ok().finish()));
+        let form = Form(EmailForm {
+            email: EmailField {
+                value: "invalid".to_string(),
+                errors: vec![]
+            }
+        });
+        request_reset(mock_http_request, form).await.unwrap();
+    }
+}
 

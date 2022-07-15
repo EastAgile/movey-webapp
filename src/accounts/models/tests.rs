@@ -5,6 +5,7 @@ use diesel::result::DatabaseErrorKind;
 use diesel::result::Error::DatabaseError;
 use jelly::forms::{EmailField, PasswordField};
 use std::{collections::HashSet, iter::FromIterator};
+use crate::test::util::{create_stub_packages, setup_user};
 
 fn login_form() -> LoginForm {
     LoginForm {
@@ -22,21 +23,6 @@ fn login_form() -> LoginForm {
     }
 }
 
-async fn setup_user() -> i32 {
-    let form = NewAccountForm {
-        email: EmailField {
-            value: "email@host.com".to_string(),
-            errors: vec![],
-        },
-        password: PasswordField {
-            value: "So$trongpas0word!".to_string(),
-            errors: vec![],
-            hints: vec![],
-        },
-    };
-    Account::register(&form, &DB_POOL).await.unwrap()
-}
-
 async fn setup_github_account() -> Account {
     Account::register_from_github(& GithubOauthUser {
         id: 132,
@@ -44,23 +30,6 @@ async fn setup_github_account() -> Account {
         email: "email@domain.com".to_string(),
     }, &DB_POOL).await.unwrap();
     Account::get_by_github_id(132, &DB_POOL).await.unwrap()
-}
-
-async fn create_stub_packages(account_id: i32, num_of_packages: i32) {
-    for idx in 0..num_of_packages {
-        Package::create_test_package(
-            &format!("package_{}_{}", idx, account_id),
-            &"repo_url".to_string(),
-            &"package_description".to_string(),
-            &"0.0.0".to_string(),
-            &"".to_string(),
-            &"".to_string(),
-            10,
-            200,
-            Some(account_id),
-            &DB_POOL)
-            .await.unwrap();
-    }
 }
 
 #[actix_rt::test]
@@ -149,8 +118,7 @@ async fn authenticate_with_wrong_email_return_err() {
 async fn authenticate_with_wrong_password_return_err() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    let uid = setup_user().await;
-    Account::mark_verified(uid, &DB_POOL).await.unwrap();
+    setup_user().await;
 
     let invalid_login_form = LoginForm {
         email: EmailField {
@@ -175,10 +143,21 @@ async fn authenticate_with_wrong_password_return_err() {
 async fn authenticate_with_unverified_account_return_err() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    setup_user().await;
+    let form = NewAccountForm {
+        email: EmailField {
+            value: "email@host.com".to_string(),
+            errors: vec![],
+        },
+        password: PasswordField {
+            value: "So$trongpas0word!".to_string(),
+            errors: vec![],
+            hints: vec![],
+        },
+    };
+    Account::register(&form, &DB_POOL).await.unwrap();
 
     match Account::authenticate(&login_form(), &DB_POOL).await {
-        Err(Error::Generic(e)) => {
+        Err(Generic(e)) => {
             assert_eq!(e, String::from("Your account has not been activated."))
         }
         _ => panic!(),
@@ -266,7 +245,6 @@ async fn change_password_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
     let uid = setup_user().await;
-    Account::mark_verified(uid, &DB_POOL).await.unwrap();
 
     let new_password = String::from("nEw$trongpas0word!");
     Account::change_password(

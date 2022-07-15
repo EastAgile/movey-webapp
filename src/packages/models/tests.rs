@@ -1,9 +1,8 @@
-use jelly::forms::{EmailField, PasswordField};
-use crate::accounts::forms::NewAccountForm;
 use crate::test::{DatabaseTestContext, DB_POOL};
 
 use crate::github_service::GithubRepoData;
 use crate::packages::models::*;
+use crate::test::util::{create_stub_packages, setup_user};
 
 async fn setup(account_id_: Option<i32>) -> Result<(), Error> {
     let pool = &DB_POOL;
@@ -49,21 +48,34 @@ async fn setup(account_id_: Option<i32>) -> Result<(), Error> {
     Ok(())
 }
 
-async fn setup_user() -> i32 {
-    let form = NewAccountForm {
-        email: EmailField {
-            value: "email@host.com".to_string(),
-            errors: vec![],
-        },
-        password: PasswordField {
-            value: "So$trongpas0word!".to_string(),
-            errors: vec![],
-            hints: vec![],
-        },
-    };
-    let uid = Account::register(&form, &DB_POOL).await.unwrap();
-    let _ = Account::mark_verified(uid, &DB_POOL).await;
-    uid
+#[actix_rt::test]
+async fn delete_package_version_by_package_id_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    let uid = setup_user().await;
+    create_stub_packages(uid, 1).await;
+    assert_eq!(1, Package::count(&DB_POOL).await.unwrap());
+    assert_eq!(1, PackageVersion::count(&DB_POOL).await.unwrap());
+    let package_ =
+        Package::get_by_account(uid, &DB_POOL).await.unwrap();
+    PackageVersion::delete_by_package_id(
+        package_.get(0).unwrap().id,
+        &DB_POOL
+    ).await.unwrap();
+    assert_eq!(0, PackageVersion::count(&DB_POOL).await.unwrap());
+}
+
+#[actix_rt::test]
+async fn delete_package_version_by_package_id_returns_error_if_not_existed() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    let result = PackageVersion::delete_by_package_id(
+        -1,
+        &DB_POOL
+    ).await.unwrap();
+    assert_eq!(0, result);
 }
 
 #[actix_rt::test]
@@ -192,8 +204,10 @@ async fn create_package_works() {
     let mut mock_github_service = GithubService::new();
     mock_github_service
         .expect_fetch_repo_data()
-        .withf(|x: &String, y: &Option<String>| x == &"repo_url".to_string() && y.is_none())
-        .returning(|_, _| {
+        .withf(|x: &String, y: &Option<String>, z: &Option<String>| {
+            x == &"repo_url".to_string() && y.is_none() && z.is_none()
+        })
+        .returning(|_, _, _| {
             Ok(GithubRepoData {
                 name: "name".to_string(),
                 version: "version".to_string(),
@@ -241,8 +255,10 @@ async fn create_package_works() {
     let mut mock_github_service_2 = GithubService::new();
     mock_github_service_2
         .expect_fetch_repo_data()
-        .withf(|x: &String, y: &Option<String>| x == &"repo_url".to_string() && y.is_none())
-        .returning(|_, _| {
+        .withf(|x: &String, y: &Option<String>, z: &Option<String>| {
+            x == &"repo_url".to_string() && y.is_none() && z.is_none()
+        })
+        .returning(|_, _, _| {
             Ok(GithubRepoData {
                 name: "name".to_string(),
                 version: "version_2".to_string(),
@@ -282,7 +298,7 @@ async fn get_versions_by_latest() {
     let _ctx = DatabaseTestContext::new();
 
     let mut mock_github_service = GithubService::new();
-    mock_github_service.expect_fetch_repo_data().returning(|_, _| {
+    mock_github_service.expect_fetch_repo_data().returning(|_, _, _| {
         Ok(GithubRepoData {
             name: "name".to_string(),
             version: "first_version".to_string(),
@@ -334,7 +350,7 @@ async fn get_versions_by_oldest() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
     let mut mock_github_service = GithubService::new();
-    mock_github_service.expect_fetch_repo_data().returning(|_, _| {
+    mock_github_service.expect_fetch_repo_data().returning(|_, _, _| {
         Ok(GithubRepoData {
             name: "name".to_string(),
             version: "first_version".to_string(),
@@ -386,7 +402,7 @@ async fn get_versions_by_most_downloads() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
     let mut mock_github_service = GithubService::new();
-    mock_github_service.expect_fetch_repo_data().returning(|_, _| {
+    mock_github_service.expect_fetch_repo_data().returning(|_, _, _| {
         Ok(GithubRepoData {
             name: "name".to_string(),
             version: "first_version".to_string(),
@@ -499,7 +515,7 @@ async fn increase_download_count_works() {
 
     let mut mock_github_service = GithubService::new();
 
-    mock_github_service.expect_fetch_repo_data().returning(|_, _| {
+    mock_github_service.expect_fetch_repo_data().returning(|_, _, _| {
         Ok(GithubRepoData {
             name: "name".to_string(),
             version: "1.0.0".to_string(),
@@ -559,7 +575,7 @@ async fn increase_download_count_for_nonexistent_package() {
     let rev_ = &"30d4792b29330cf701af04b493a38a82102ed4fd".to_string();
 
     let mut mock_github_service = GithubService::new();
-    mock_github_service.expect_fetch_repo_data().returning(|_, _| {
+    mock_github_service.expect_fetch_repo_data().returning(|_, _, _| {
         Ok(GithubRepoData {
             name: "name".to_string(),
             version: "first_version".to_string(),
@@ -653,7 +669,7 @@ async fn increase_download_count_for_multiple_versions() {
 
     let mut mock_github_service = GithubService::new();
 
-    mock_github_service.expect_fetch_repo_data().returning(|_, _| {
+    mock_github_service.expect_fetch_repo_data().returning(|_, _, _| {
         Ok(GithubRepoData {
             name: "name".to_string(),
             version: "1.0.0".to_string(),

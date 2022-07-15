@@ -1,10 +1,20 @@
 use jelly::error::Error;
-use reqwest::blocking::{multipart, Response};
+use reqwest::blocking::multipart;
 use reqwest::header;
 use serde::Deserialize;
 use std::env;
 use std::hash::{Hash, Hasher};
 use jelly::error::Error::Generic;
+
+#[cfg(test)]
+use crate::test::mock::Client;
+#[cfg(test)]
+use crate::test::mock::MockResponse as Response;
+
+#[cfg(not(test))]
+use reqwest::blocking::Client;
+#[cfg(not(test))]
+use reqwest::blocking::Response;
 
 #[derive(Deserialize)]
 struct MoveToml {
@@ -41,11 +51,16 @@ impl Hash for GithubRepoData {
     }
 }
 
-#[derive(Default, Deserialize)]
+#[derive(Clone, Default, Deserialize)]
 pub struct GithubRepoInfo {
     pub description: Option<String>,
     pub size: i32,
     pub default_branch: String,
+}
+
+#[derive(Deserialize)]
+pub struct GithubRepoCommit {
+    pub sha: String,
 }
 
 pub static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"), );
@@ -79,6 +94,8 @@ impl GithubService {
         }
         let rev = rev.unwrap();
 
+        // example readme url:
+        // https://raw.githubusercontent.com/move-language/move/main/README.md
         let readme_url = format!(
             "{}/{}/README.md",
             repo_url.replace("https://github.com", "https://raw.githubusercontent.com"),
@@ -117,10 +134,14 @@ impl GithubService {
         }
 
         let move_url = match path {
+            // example Move.toml url with subdir:
+            // https://raw.githubusercontent.com/move-language/move/main/language/evm/hardhat-examples/contracts/ABIStruct/Move.toml
             Some(path) => {
                 format!("{}/{}", readme_url.replace("/README.md", ""), path)
             }
             None => {
+                // Move.toml in top directory:
+                // https://raw.githubusercontent.com/taoheorg/taohe/master/Move.toml
                 readme_url.replace("README.md", "Move.toml")
             }
         };
@@ -170,7 +191,7 @@ impl GithubService {
 fn call_github_api(url: &str) -> Result<Response, Error> {
     let access_token = env::var("GITHUB_ACCESS_TOKEN")
         .expect("Unable to pull GITHUB_ACCESS_TOKEN");
-    let client = reqwest::blocking::Client::builder()
+    let client = Client::builder()
         .user_agent(APP_USER_AGENT)
         .build()?;
     let res = client
@@ -183,6 +204,8 @@ fn call_github_api(url: &str) -> Result<Response, Error> {
 fn call_deep_ai_api(content: String) -> Result<String, Error> {
     let access_token = env::var("DEEP_AI_API_KEY")
         .expect("Unable to pull DEEP_AI_API_KEY");
+    // not be able to mock both get and post func of Client at the moment,
+    // use full path to avoid using MockClient
     let client = reqwest::blocking::Client::builder()
         .user_agent(APP_USER_AGENT)
         .build()?;
@@ -220,7 +243,7 @@ fn call_deep_ai_api(content: String) -> Result<String, Error> {
 fn get_repo_description_and_size(repo_url: &str) -> Result<GithubRepoInfo, Error> {
     let url = repo_url.replace("https://github.com/", "https://api.github.com/repos/");
     let response = call_github_api(&url)?;
-    match response.json::<GithubRepoInfo>() {
+        match response.json::<GithubRepoInfo>() {
         Ok(info) => Ok(info),
         Err(error) => {
             error!(
@@ -236,10 +259,6 @@ fn get_repo_latest_commit_sha(repo_url: &str) -> Result<String, Error> {
     let mut url = repo_url.replace("https://github.com/", "https://api.github.com/repos/");
     url.push_str("/commits");
     let response = call_github_api(&url)?;
-    #[derive(Deserialize)]
-    pub struct GithubRepoCommit {
-        pub sha: String,
-    }
     match response.json::<Vec<GithubRepoCommit>>() {
         Ok(info) if !info.is_empty() => Ok(info.get(0).unwrap().sha.clone()),
         Ok(_) => {
@@ -256,5 +275,54 @@ fn get_repo_latest_commit_sha(repo_url: &str) -> Result<String, Error> {
                 );
             Err(Generic(format!("Error getting repo commit. url: {:?}, error: {}", url, error)))
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::github_service::{call_github_api, get_repo_description_and_size, get_repo_latest_commit_sha, GithubService};
+    use crate::test::stub::{GH_REPO_INFO_STUB, SHA_STUB};
+
+    #[actix_rt::test]
+    async fn fetch_repo_data_works() {
+        crate::test::init();
+        let gh_service = GithubService::new();
+        let gh_repo_info = gh_service.fetch_repo_data(
+            &"https://github.com/EastAgile/ea-movey".to_string(),
+            Some("/random-url".to_string()),
+            None
+        ).unwrap();
+
+        assert_eq!(gh_repo_info.name, "A".to_string());
+        assert_eq!(gh_repo_info.version, "0.0.0".to_string());
+        assert_eq!(gh_repo_info.readme_content,
+                   "[package]\nname=\"A\"\nversion=\"0.0.0\"".to_string());
+        assert_eq!(gh_repo_info.description, "description".to_string());
+        assert_eq!(gh_repo_info.size, 10);
+        assert_eq!(gh_repo_info.rev, "abcdef123456".to_string());
+    }
+
+    #[actix_rt::test]
+    async fn get_repo_description_and_size_mock_successfully() {
+        crate::test::init();
+
+        let gh_repo_info = get_repo_description_and_size("/random-url").unwrap();
+        let gh_repo_info_stub = GH_REPO_INFO_STUB.clone();
+        assert_eq!(gh_repo_info.description, gh_repo_info_stub.description);
+        assert_eq!(gh_repo_info.default_branch, gh_repo_info_stub.default_branch);
+        assert_eq!(gh_repo_info.size, gh_repo_info_stub.size);
+    }
+
+    #[actix_rt::test]
+    async fn get_repo_latest_commit_sha_mock_successfully() {
+        crate::test::init();
+        let sha = get_repo_latest_commit_sha("/random-url").unwrap();
+        assert_eq!(sha, SHA_STUB.to_string())
+    }
+
+    #[actix_rt::test]
+    async fn call_github_api_mock_successfully() {
+        crate::test::init();
+        call_github_api("/random-url").unwrap();
     }
 }
