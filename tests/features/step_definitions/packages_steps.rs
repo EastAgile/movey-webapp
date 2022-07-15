@@ -20,9 +20,7 @@ async fn package_in_system(world: &mut TestWorld) {
         100,
         Some(world.account.id),
         &DB_POOL,
-    )
-    .await
-    .unwrap();
+    ).await.unwrap();
     let uid2 = Package::create_test_package(
         &"rand".to_string(),
         &"https://github.com/Elements-Studio/rand".to_string(),
@@ -34,9 +32,7 @@ async fn package_in_system(world: &mut TestWorld) {
         100,
         None,
         &DB_POOL,
-    )
-    .await
-    .unwrap();
+    ).await.unwrap();
     let uid3 = Package::create_test_package(
         &"random_derive".to_string(),
         &"https://github.com/Elements-Studio/random_derive".to_string(),
@@ -48,9 +44,7 @@ async fn package_in_system(world: &mut TestWorld) {
         100,
         None,
         &DB_POOL,
-    )
-    .await
-    .unwrap();
+    ).await.unwrap();
     PackageVersion::create(
         uid,
         "second_version".to_string(),
@@ -59,9 +53,7 @@ async fn package_in_system(world: &mut TestWorld) {
         2,
         100,
         &DB_POOL,
-    )
-    .await
-    .unwrap();
+    ).await.unwrap();
     PackageVersion::create(
         uid2,
         "second_version".to_string(),
@@ -70,9 +62,7 @@ async fn package_in_system(world: &mut TestWorld) {
         2,
         100,
         &DB_POOL,
-    )
-    .await
-    .unwrap();
+    ).await.unwrap();
     PackageVersion::create(
         uid3,
         "second_version".to_string(),
@@ -81,9 +71,7 @@ async fn package_in_system(world: &mut TestWorld) {
         2,
         100,
         &DB_POOL,
-    )
-    .await
-    .unwrap();
+    ).await.unwrap();
 }
 
 #[when("I access the package details page")]
@@ -189,7 +177,7 @@ async fn not_see_owner_info(world: &mut TestWorld) {
     match package_info_title {
         Ok(_) => panic!(),
         Err(WebDriverError::NoSuchElement(_)) => {}
-        Err(e) => panic!()
+        Err(_) => panic!()
     }
     let package_owner_info = world
         .driver

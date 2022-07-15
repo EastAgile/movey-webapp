@@ -13,9 +13,7 @@ async fn package_in_db(_world: &mut TestWorld) {
         &"Random number generators and other randomness functionality.".to_string(),
         1000,
         &DB_POOL,
-    )
-    .await
-    .unwrap();
+    ).await.unwrap();
     Package::create_test_package_with_downloads(
         &"random_derive".to_string(),
         &"repo_url".to_string(),
@@ -23,18 +21,14 @@ async fn package_in_db(_world: &mut TestWorld) {
             .to_string(),
         5000,
         &DB_POOL,
-    )
-    .await
-    .unwrap();
+    ).await.unwrap();
     Package::create_test_package_with_downloads(
         &"faker_rand".to_string(),
         &"repo_url".to_string(),
         &"Fake data generators for lorem ipsum, names, emails, and more".to_string(),
         2500,
         &DB_POOL,
-    )
-    .await
-    .unwrap();
+    ).await.unwrap();
     Package::create_test_package_with_downloads(
         &"rand_derive2".to_string(),
         &"repo_url".to_string(),

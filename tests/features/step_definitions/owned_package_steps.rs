@@ -23,9 +23,7 @@ pub async fn upload_packages(world: &mut TestWorld) {
         100,
         Some(world.account.id),
         &DB_POOL,
-    )
-        .await
-        .unwrap();
+    ).await.unwrap();
     Package::create_test_package(
         &"test-package2".to_string(),
         &"https://github.com/Elements-Studio/rand".to_string(),
@@ -37,9 +35,7 @@ pub async fn upload_packages(world: &mut TestWorld) {
         100,
         Some(world.account.id),
         &DB_POOL,
-    )
-        .await
-        .unwrap();
+    ).await.unwrap();
 }
 
 #[then("I should see the My packages page")]

@@ -30,7 +30,6 @@ Feature: Policy
       When I access the Contact us page
       Then I should see the Contact us page
 
-    @wip
     Scenario: Guest views the Contact us page
       Given I am a user on Movey
       And I am signed in

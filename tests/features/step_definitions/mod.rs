@@ -12,4 +12,3 @@ pub mod user_profile;
 pub mod user_profile_tokens_steps;
 pub mod owned_package_steps;
 pub mod view_policy_steps;
-pub mod send_contact_request_steps;

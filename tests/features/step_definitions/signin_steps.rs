@@ -174,15 +174,15 @@ async fn clear_default_session(world: &mut TestWorld) {
         .await.unwrap()
 }
 
-#[when("my permanent session is expired")]
-async fn clear_permanent_session(world: &mut TestWorld) {
-    world.driver
-        .delete_cookie("sessionid")
-        .await.unwrap();
-    world.driver
-        .delete_cookie("remember_me_token")
-        .await.unwrap()
-}
+// #[when("my permanent session is expired")]
+// async fn clear_permanent_session(world: &mut TestWorld) {
+//     world.driver
+//         .delete_cookie("sessionid")
+//         .await.unwrap();
+//     world.driver
+//         .delete_cookie("remember_me_token")
+//         .await.unwrap()
+// }
 
 #[when("I sign in into my account")]
 async fn sign_in(world: &mut TestWorld) {
