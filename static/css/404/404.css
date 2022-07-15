@@ -25,28 +25,5 @@
     line-height: 48px;
   }
 }
-.not-found-wrapper .return-home-wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-top: 16px;
-  cursor: pointer;
-}
-.not-found-wrapper .return-home-wrapper .return-icon {
-  background-image: url("/static/resources/return-home-icon.svg");
-  background-repeat: no-repeat;
-  width: 35px;
-  height: 35px;
-}
-.not-found-wrapper .return-home-wrapper a {
-  color: var(--blue-color);
-  font-weight: 400;
-  font-size: 24px;
-  line-height: 30px;
-  text-transform: capitalize;
-}
-.not-found-wrapper .return-home-wrapper a:hover {
-  text-decoration: underline;
-}
 
 /*# sourceMappingURL=404.css.map */

@@ -27,31 +27,31 @@ $header-and-footer-height: 350px;
       line-height: 48px;
     }
   }
+  //Future update return icon if needs
+  // .return-home-wrapper {
+  //   display: flex;
+  //   flex-direction: row;
+  //   align-items: center;
+  //   margin-top: 16px;
+  //   cursor: pointer;
 
-  .return-home-wrapper {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-top: 16px;
-    cursor: pointer;
-
-    .return-icon {
-      background-image: url("/static/resources/return-home-icon.svg");
-      background-repeat: no-repeat;
-      width: 35px;
-      height: 35px;
-    }
+  //   .return-icon {
+  //     background-image: url("/static/resources/return-home-icon.svg");
+  //     background-repeat: no-repeat;
+  //     width: 35px;
+  //     height: 35px;
+  //   }
     
-    a {
-      color: var(--blue-color);
-      font-weight: 400;
-      font-size: 24px;
-      line-height: 30px;
-      text-transform: capitalize;
+  //   a {
+  //     color: var(--blue-color);
+  //     font-weight: 400;
+  //     font-size: 24px;
+  //     line-height: 30px;
+  //     text-transform: capitalize;
 
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-  }
+  //     &:hover {
+  //       text-decoration: underline;
+  //     }
+  //   }
+  // }
 }
