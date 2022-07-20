@@ -36,6 +36,19 @@ table! {
     use diesel::sql_types::*;
     use diesel_full_text_search::{TsVector as Tsvector};
 
+    package_collaborators (package_id, account_id) {
+        package_id -> Int4,
+        account_id -> Int4,
+        role -> Int4,
+        created_by -> Int4,
+        created_at -> Timestamptz,
+    }
+}
+
+table! {
+    use diesel::sql_types::*;
+    use diesel_full_text_search::{TsVector as Tsvector};
+
     package_versions (id) {
         id -> Int4,
         package_id -> Int4,
@@ -69,7 +82,14 @@ table! {
 }
 
 joinable!(api_tokens -> accounts (account_id));
+joinable!(package_collaborators -> packages (package_id));
 joinable!(package_versions -> packages (package_id));
 joinable!(packages -> accounts (account_id));
 
-allow_tables_to_appear_in_same_query!(accounts, api_tokens, package_versions, packages,);
+allow_tables_to_appear_in_same_query!(
+    accounts,
+    api_tokens,
+    package_collaborators,
+    package_versions,
+    packages,
+);
