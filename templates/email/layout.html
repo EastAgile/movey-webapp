@@ -6,7 +6,139 @@
         <title>{{ subject }}</title>
 
         <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet"/>
-        {% block css %}{% endblock %}
+        <style>
+            @media only screen and (max-width: 620px) {
+                table[class=body] h1 {
+                    font-size: 28px !important;
+                    margin-bottom: 10px !important;
+                }
+            
+                table[class=body] p,
+                table[class=body] ul,
+                table[class=body] ol,
+                table[class=body] td,
+                table[class=body] span,
+                table[class=body] a {
+                    font-size: 16px !important;
+                }
+            
+                table[class=body] .wrapper {
+                    padding: 10px !important;
+                }
+            
+                table[class=body] .content {
+                    padding: 0 !important;
+                }
+            
+                table[class=body] .container {
+                    padding: 0 !important;
+                    width: 100% !important;
+                }
+            
+                table[class=body] .main {
+                    border-left-width: 0 !important;
+                    border-radius: 0 !important;
+                    border-right-width: 0 !important;
+                }
+            
+                table[class=body] .btn table {
+                    width: 100% !important;
+                }
+            
+                table[class=body] .btn a {
+                    width: 100% !important;
+                }
+            }
+            @media all {
+                .ExternalClass {
+                    width: 100%;
+                }
+            
+                .ExternalClass,
+                .ExternalClass p,
+                .ExternalClass span,
+                .ExternalClass font,
+                .ExternalClass td,
+                .ExternalClass div {
+                    line-height: 100%;
+                }
+            
+                .btn-primary table td:hover {
+                background-color: #FFFFFF !important;
+                }
+            
+                .btn-primary a:hover {
+                background-color: #FFFFFF !important;
+                color: #44A1E7 !important;
+                }
+            
+                .btn-secondary table td:hover {
+                background-color: #44A1E7 !important;
+                }
+            
+                .btn-secondary a:hover {
+                background-color: #44A1E7 !important;
+                color: #FFFFFF !important;
+                }
+            }
+        </style>
     </head>
-    {% block content %}{% endblock %}
+    <body class style="background-color: #F2F2F2; font-family: 'Mulish', sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; background-color: #F2F2F2; width: 100%;" width="100%" bgcolor="#F2F2F2">
+            <tr>
+                <td style="font-family: 'Mulish', sans-serif; font-size: 14px; vertical-align: top;" valign="top">&nbsp;</td>
+                <td class="container" style="font-family: 'Mulish', sans-serif; font-size: 14px; vertical-align: top; display: block; max-width: 600px; padding: 10px; width: 600px; margin: 0 auto;" width="600" valign="top">
+                    <div class="header" style="height: 150px;">
+                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; width: 100%;" width="100%">
+                            <tr>
+                                <td class="align-center" style="font-family: 'Mulish', sans-serif; font-size: 14px; vertical-align: top; text-align: center; background: #001F60; border-radius: 8px 8px 0 0; padding: 60px 0;" valign="top" align="center">
+                                    <a href="https://{{ JELLY_DOMAIN | safe }}" target="_blank" style="color: #44A1E7; text-decoration: none;">
+                                        <img src="https://{{ JELLY_DOMAIN | safe }}/static/resources/logo_white.png" height="40" alt="Movey" style="border: none; -ms-interpolation-mode: bicubic; max-width: 100%;">
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="content" style="box-sizing: border-box; display: block; margin: 0 auto; max-width: 600px;">
+                        <table role="presentation" class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; background: #FFFFFF; border-radius: 3px; width: 100%;" width="100%">
+                            <tr>
+                                <td class="wrapper" style="font-family: 'Mulish', sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; padding: 20px 24px 0 24px; text-align: left; margin-top: 25px;" valign="top" align="left">
+                                    {% block content %}{% endblock %}
+                                    <hr style="border: 0; border-bottom: 1px solid #F3F3F3; margin: 35px 0 10px 0;">
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="footer" style="clear: both; text-align: center; width: 100%;">
+                            <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; width: 100%;" width="100%">
+                                <tr>
+                                    <td class="content-block" style="font-family: 'Mulish', sans-serif; vertical-align: top; padding-bottom: 25px; padding-top: 10px; background: #FFFFFF; border-radius: 0 0 8px 8px; color: #808FB0; font-size: 12px; text-align: center; margin-bottom: 15px;" valign="top" align="center">
+                                        <p style="font-family: 'Mulish', sans-serif; font-weight: normal; margin: 0; color: #808FB0; font-size: 12px; text-align: center; margin-bottom: 15px;">© {{ year }} East Agile Ltd. All rights reserved.</p>
+                                        <p style="font-family: 'Mulish', sans-serif; font-weight: normal; margin: 0; color: #808FB0; font-size: 12px; text-align: center; margin-bottom: 15px;">If you have any questions please contact us <a href="mailto:{{ JELLY_SUPPORT_EMAIL | safe }}" target="_blank" style="color: #44A1E7;">{{ JELLY_SUPPORT_EMAIL | safe }}</a>.</p>
+                                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="social-icons" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; width: 100%; table-layout: fixed;" width="100%">
+                                            <tr>
+                                                <td style="font-family: 'Mulish', sans-serif; vertical-align: top; background: #FFFFFF; border-radius: 0 0 8px 8px; color: #808FB0; font-size: 12px; text-align: center; margin-bottom: 15px; width: 50%;" width="50%" valign="top" align="center"></td>
+                                                <td class="social-icon" style="font-family: 'Mulish', sans-serif; vertical-align: top; background: #FFFFFF; color: #808FB0; font-size: 12px; text-align: center; margin-bottom: 15px; width: 24px; height: 24px; white-space: nowrap; border: 1px solid #44A1E7; border-radius: 50%;" width="24" height="24" valign="top" align="center">
+                                                    <a href="https://twitter.com/MoveyEastAgile" target="_blank" style="text-decoration: none; color: #808FB0; font-size: 12px; text-align: center; margin-bottom: 15px;">
+                                                        <img src="https://{{ JELLY_DOMAIN | safe }}/static/resources/twitter_small.png" alt="twitter" style="border: none; -ms-interpolation-mode: bicubic; max-width: 100%; width: 10px; height: 10px; margin: auto; margin-top: 7px;" width="10" height="10">
+                                                    </a>
+                                                </td>
+                                                <td style="font-family: 'Mulish', sans-serif; vertical-align: top; background: #FFFFFF; border-radius: 0 0 8px 8px; color: #808FB0; font-size: 12px; text-align: center; margin-bottom: 15px; width: 3%;" width="3%" valign="top" align="center"></td>
+                                                <td class="social-icon" style="font-family: 'Mulish', sans-serif; vertical-align: top; background: #FFFFFF; color: #808FB0; font-size: 12px; text-align: center; margin-bottom: 15px; width: 24px; height: 24px; white-space: nowrap; border: 1px solid #44A1E7; border-radius: 50%;" width="24" height="24" valign="top" align="center">
+                                                    <a href="https://github.com/ea-open-source" target="_blank" style="text-decoration: none; color: #808FB0; font-size: 12px; text-align: center; margin-bottom: 15px;">
+                                                        <img src="https://{{ JELLY_DOMAIN | safe }}/static/resources/github_small.png" alt="github" style="border: none; -ms-interpolation-mode: bicubic; max-width: 100%; width: 10px; height: 10px; margin: auto; margin-top: 7px;" width="10" height="10">
+                                                    </a>
+                                                </td>
+                                                <td style="font-family: 'Mulish', sans-serif; vertical-align: top; background: #FFFFFF; border-radius: 0 0 8px 8px; color: #808FB0; font-size: 12px; text-align: center; margin-bottom: 15px; width: 50%;" width="50%" valign="top" align="center"></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </td>
+                <td style="font-family: 'Mulish', sans-serif; font-size: 14px; vertical-align: top;" valign="top">&nbsp;</td>
+            </tr>
+        </table>
+    </body>
 </html>

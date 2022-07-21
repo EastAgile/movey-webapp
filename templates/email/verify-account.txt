@@ -1,13 +1,13 @@
 
-Hello!
+VERIFY YOUR ACCOUNT
 
 An account with this email was created just now. If this wasn't you, feel free
 to disregard, but if it was, please verify your account by using the link below.
 
-{{ action_url }}
+https://{{ action_url | safe }}
 
 If you have any questions, feel free to email our support team:
-{{ JELLY_SUPPORT_EMAIL }}.
+{{ JELLY_SUPPORT_EMAIL | safe }}.
 
-Thanks,
-- The Team
+Thank you,
+Movey Team
