@@ -12,3 +12,4 @@ pub mod user_profile;
 pub mod user_profile_tokens_steps;
 pub mod setting_profile_steps;
 pub mod setting_token_steps;
+pub mod contact_form_steps;

@@ -1,11 +1,6 @@
-Hello Admin,
+Hello there,
 
-
-A message was sent from {{name}}
-Contact Email: {{email}}
-Contact for: {{category}}
-
-Description: {{description}}
+We’ve received your request and will get back to you shortly. We appreciate your patience, and you should receive a response within 48 hours!
 
 
 Thanks,
