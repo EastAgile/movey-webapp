@@ -1,3 +1,4 @@
+use crate::sql::lower;
 use crate::accounts::Account;
 
 use diesel::dsl::{count, now, sum};
@@ -294,6 +295,27 @@ impl Package {
             .filter(name.eq(package_name))
             .select(PACKAGE_COLUMNS)
             .first::<Package>(&connection)?;
+
+        Ok(result)
+    }
+
+    pub async fn get_badge_info(package_name: &str, pool: &DieselPgPool)
+        -> Result<Vec<(String, i32, String, i32)>, Error> {
+        let connection = pool.get()?;
+
+        let result: Vec<(String, i32, String, i32)> = packages::table
+            .inner_join(package_versions::table)
+            .filter(lower(packages::name).eq(package_name.to_lowercase()))
+            .filter(diesel::dsl::sql(
+                "TRUE GROUP BY packages.name, packages.total_downloads_count, package_versions.version, package_versions.downloads_count",
+            ))
+            .select((
+                packages::name,
+                packages::total_downloads_count,
+                package_versions::version,
+                package_versions::downloads_count,
+            ))
+            .load::<(String, i32, String, i32)>(&connection)?;
 
         Ok(result)
     }

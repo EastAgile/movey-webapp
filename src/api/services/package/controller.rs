@@ -1,23 +1,14 @@
-use diesel::prelude::*;
-use diesel::{AsChangeset, Associations, Identifiable, Insertable, Queryable, RunQueryDsl};
 use jelly::actix_web::{web, web::Path, HttpRequest};
 use jelly::prelude::*;
-use jelly::DieselPgPool;
 use jelly::Result;
 use mockall_double::double;
 use serde::{Deserialize, Serialize};
 
-use crate::api::services::package::model::PackageBadgeRespond;
+use crate::api::services::package::view::PackageBadgeRespond;
 #[double]
 use crate::github_service::GithubService;
-use crate::packages::models::PACKAGE_COLUMNS;
-use crate::packages::{Package, PackageVersion};
-use crate::schema::package_versions;
-use crate::schema::package_versions::dsl::*;
-use crate::schema::packages;
-use crate::schema::packages::dsl::*;
+use crate::packages::Package;
 use crate::settings::models::token::ApiToken;
-
 #[derive(Serialize, Deserialize)]
 pub struct PackageRequest {
     github_repo_url: String,
@@ -40,9 +31,9 @@ pub async fn post_package(
         return Ok(HttpResponse::BadRequest().body("Invalid Api Token"));
     }
 
-    let token_account_id = ApiToken::associated_account(&req.token, &db).await?.id;
+    let token_account_id = ApiToken::associated_account(&req.token, db).await?.id;
     let service = GithubService::new();
-    if req.subdir.ends_with("\n") {
+    if req.subdir.ends_with('\n') {
         req.subdir.pop();
     };
     let subdir = if req.subdir.is_empty() {
@@ -67,7 +58,7 @@ pub async fn post_package(
         github_data.size,
         Some(token_account_id),
         github_data,
-        &db,
+        db,
     )
     .await?;
 
@@ -89,7 +80,7 @@ pub async fn increase_download_count(
     let service = GithubService::new();
     let form = form.into_inner();
     if let Ok(res) =
-        Package::increase_download_count(&form.url, &form.rev, &form.subdir, &service, &db).await
+        Package::increase_download_count(&form.url, &form.rev, &form.subdir, &service, db).await
     {
         Ok(HttpResponse::Ok().body(res.to_string()))
     } else {
@@ -102,7 +93,7 @@ pub async fn search_package(
     res: web::Json<PackageSearch>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    let packages_result = Package::auto_complete_search(&res.search_query, &db).await?;
+    let packages_result = Package::auto_complete_search(&res.search_query, db).await?;
     Ok(HttpResponse::Ok().json(packages_result))
 }
 
@@ -110,21 +101,9 @@ pub async fn package_badge_info(
     request: HttpRequest,
     Path(pkg_name): Path<String>,
 ) -> Result<HttpResponse> {
-    let connection = request.db_pool()?.get()?;
-    let result: Vec<(String, i32, String, i32)> = packages::table
-        .inner_join(package_versions::table)
-        .filter(packages::name.eq(pkg_name))
-        .filter(diesel::dsl::sql(
-            "TRUE GROUP BY packages.name, packages.total_downloads_count, package_versions.version, package_versions.downloads_count",
-        ))
-        .select((
-            packages::name,
-            packages::total_downloads_count,
-            package_versions::version,
-            package_versions::downloads_count,
-        ))
-        .load::<(String, i32, String, i32)>(&connection)?;
-    if result.len() > 0 {
+    let db = request.db_pool()?;
+    let result = Package::get_badge_info(&pkg_name, db).await?;
+    if !result.is_empty() {
         let respond = PackageBadgeRespond::from(result);
         return Ok(HttpResponse::Ok().json(respond));
     }
