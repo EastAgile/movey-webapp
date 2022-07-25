@@ -2,7 +2,7 @@ use crate::accounts::Account;
 
 use diesel::dsl::{count, now, sum};
 use diesel::prelude::*;
-use diesel::sql_types::{Integer, Nullable, Text, Timestamptz};
+use diesel::sql_types::{Integer, Text, Timestamptz};
 use diesel::{AsChangeset, Associations, Identifiable, Insertable, Queryable};
 
 use diesel_full_text_search::{plainto_tsquery, TsVectorExtensions};

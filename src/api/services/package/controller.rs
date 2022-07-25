@@ -7,16 +7,16 @@ use jelly::Result;
 use mockall_double::double;
 use serde::{Deserialize, Serialize};
 
+use crate::api::services::package::model::PackageBadgeRespond;
+#[double]
+use crate::github_service::GithubService;
 use crate::packages::models::PACKAGE_COLUMNS;
+use crate::packages::{Package, PackageVersion};
 use crate::schema::package_versions;
 use crate::schema::package_versions::dsl::*;
 use crate::schema::packages;
 use crate::schema::packages::dsl::*;
 use crate::settings::models::token::ApiToken;
-
-#[double]
-use crate::github_service::GithubService;
-use crate::packages::{Package, PackageVersion};
 
 #[derive(Serialize, Deserialize)]
 pub struct PackageRequest {
@@ -111,12 +111,22 @@ pub async fn package_badge_info(
     Path(pkg_name): Path<String>,
 ) -> Result<HttpResponse> {
     let connection = request.db_pool()?.get()?;
-    let package_and_version: Vec<(Package, PackageVersion)> = packages::table
-        .left_outer_join(package_versions::table)
-        .select((PACKAGE_COLUMNS, package_versions::all_columns.nullable()))
+    let result: Vec<(String, i32, String, i32)> = packages::table
+        .inner_join(package_versions::table)
         .filter(packages::name.eq(pkg_name))
-        .load(&connection)
-        .unwrap();
-
-    Ok(HttpResponse::Ok().json(package_and_version))
+        .filter(diesel::dsl::sql(
+            "TRUE GROUP BY packages.name, packages.total_downloads_count, package_versions.version, package_versions.downloads_count",
+        ))
+        .select((
+            packages::name,
+            packages::total_downloads_count,
+            package_versions::version,
+            package_versions::downloads_count,
+        ))
+        .load::<(String, i32, String, i32)>(&connection)?;
+    if result.len() > 0 {
+        let respond = PackageBadgeRespond::from(result);
+        return Ok(HttpResponse::Ok().json(respond));
+    }
+    Ok(HttpResponse::NotFound().finish())
 }
