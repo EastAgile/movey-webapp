@@ -1,8 +1,8 @@
 // Credits to https://cloudmaker.dev/pagination/ and https://dev.to/werner/practical-rust-web-development-pagination-3nb
 // Also references https://github.com/diesel-rs/diesel/issues/210 and https://github.com/diesel-rs/diesel/issues/1781
 
-use diesel::prelude::*;
 use diesel::pg::Pg;
+use diesel::prelude::*;
 use diesel::query_builder::*;
 use diesel::query_dsl::methods::LoadQuery;
 use diesel::sql_types::{BigInt, HasSqlType};
@@ -70,8 +70,15 @@ impl<T> Paginated<T> {
     }
 }
 
-pub trait LoadPaginated<U>: Query + QueryId + QueryFragment<Pg> + LoadQuery<PgConnection, U> {
-    fn load_with_pagination(self, conn: &PgConnection, page: Option<i64>, page_size: Option<i64>) -> QueryResult<(Vec<U>, i64, i64)>;
+pub trait LoadPaginated<U>:
+    Query + QueryId + QueryFragment<Pg> + LoadQuery<PgConnection, U>
+{
+    fn load_with_pagination(
+        self,
+        conn: &PgConnection,
+        page: Option<i64>,
+        page_size: Option<i64>,
+    ) -> QueryResult<(Vec<U>, i64, i64)>;
 }
 
 impl<T, U> LoadPaginated<U> for T
@@ -80,7 +87,12 @@ where
     U: Queryable<Self::SqlType, Pg>,
     Pg: HasSqlType<Self::SqlType>,
 {
-    fn load_with_pagination(self, conn: &PgConnection, page: Option<i64>, page_size: Option<i64>) -> QueryResult<(Vec<U>, i64, i64)> {
+    fn load_with_pagination(
+        self,
+        conn: &PgConnection,
+        page: Option<i64>,
+        page_size: Option<i64>,
+    ) -> QueryResult<(Vec<U>, i64, i64)> {
         let (records, total, total_pages) = match page {
             Some(page) => {
                 let mut query = self.paginate(page);
@@ -89,7 +101,7 @@ where
                 }
 
                 query.load_and_count_pages::<U>(conn)?
-            },
+            }
             None => {
                 let mut query = self.paginate(1);
                 if let Some(page_size) = page_size {

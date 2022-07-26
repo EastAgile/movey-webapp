@@ -15,10 +15,9 @@ pub async fn contact(request: HttpRequest) -> Result<HttpResponse> {
     let categories_s = env::var("CATEGORIES").unwrap();
     let categories: Vec<String> = serde_json::from_str(categories_s.as_str()).unwrap();
 
-
     request.render(200, "policy/contact.html", {
         let mut ctx = Context::new();
-        ctx.insert("categories",&categories);
+        ctx.insert("categories", &categories);
         ctx
     })
 }
@@ -30,17 +29,10 @@ pub async fn about(request: HttpRequest) -> Result<HttpResponse> {
 pub fn configure(config: &mut ServiceConfig) {
     config.service(
         scope("/")
-            .service(
-                resource("/terms-of-use").to(term_),
-            )
-            .service(
-                resource("/policy").to(policy_),
-            )
-            .service(
-                resource("/contact").to(contact),
-            )
-            // .service(
-            //     resource("/about").to(about),
-            // )
+            .service(resource("/terms-of-use").to(term_))
+            .service(resource("/policy").to(policy_))
+            .service(resource("/contact").to(contact)), // .service(
+                                                        //     resource("/about").to(about),
+                                                        // )
     );
 }

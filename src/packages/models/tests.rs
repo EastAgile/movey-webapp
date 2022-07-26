@@ -17,7 +17,7 @@ async fn setup() -> Result<(), Error> {
         0,
         0,
         None,
-        &pool,
+        pool,
     )
     .await?;
     Package::create_test_package(
@@ -30,7 +30,7 @@ async fn setup() -> Result<(), Error> {
         0,
         0,
         None,
-        &pool,
+        pool,
     )
     .await?;
     Package::create_test_package(
@@ -43,7 +43,7 @@ async fn setup() -> Result<(), Error> {
         0,
         0,
         None,
-        &pool,
+        pool,
     )
     .await?;
     Ok(())
@@ -208,7 +208,9 @@ async fn search_sorted_by_recently_updated_works() {
     setup().await.unwrap();
     let pool = &DB_POOL;
 
-    let the_first_package = Package::get_by_name(&"The first package".to_string(), pool).await.unwrap();
+    let the_first_package = Package::get_by_name(&"The first package".to_string(), pool)
+        .await
+        .unwrap();
     assert!(the_first_package.name.contains("The first package"));
     assert!(the_first_package.description.contains("description 1"));
 
@@ -219,9 +221,10 @@ async fn search_sorted_by_recently_updated_works() {
         "".to_string(),
         25,
         500,
-        pool
+        pool,
     )
-    .await.unwrap();
+    .await
+    .unwrap();
     let total_packages = Package::count(pool).await.unwrap();
     assert_eq!(total_packages, 3);
     let total_versions = PackageVersion::count(pool).await.unwrap();
@@ -287,7 +290,9 @@ async fn all_packages_with_pagination_and_sort_by_recently_updated() {
     setup().await.unwrap();
     let pool = &DB_POOL;
 
-    let the_first_package = Package::get_by_name(&"The first package".to_string(), pool).await.unwrap();
+    let the_first_package = Package::get_by_name(&"The first package".to_string(), pool)
+        .await
+        .unwrap();
     assert!(the_first_package.name.contains("The first package"));
     assert!(the_first_package.description.contains("description 1"));
 
@@ -298,9 +303,10 @@ async fn all_packages_with_pagination_and_sort_by_recently_updated() {
         "".to_string(),
         25,
         500,
-        pool
+        pool,
     )
-    .await.unwrap();
+    .await
+    .unwrap();
     let total_packages = Package::count(pool).await.unwrap();
     assert_eq!(total_packages, 3);
     let total_versions = PackageVersion::count(pool).await.unwrap();
@@ -391,8 +397,8 @@ async fn create_package_works() {
     let mut mock_github_service = GithubService::new();
     mock_github_service
         .expect_fetch_repo_data()
-        .withf(|x: &String, y: &Option<String>, z: &Option<String>| {
-            x == &"repo_url".to_string() && y.is_none() && z.is_none()
+        .withf(|x: &str, y: &Option<String>, z: &Option<String>| {
+            x == "repo_url" && y.is_none() && z.is_none()
         })
         .returning(|_, _, _| {
             Ok(GithubRepoData {
@@ -407,9 +413,9 @@ async fn create_package_works() {
         });
 
     let uid = Package::create(
-        &"repo_url".to_string(),
-        &"package_description".to_string(),
-        &"1".to_string(),
+        "repo_url",
+        "package_description",
+        "1",
         2,
         100,
         Some(uid),
@@ -442,8 +448,8 @@ async fn create_package_works() {
     let mut mock_github_service_2 = GithubService::new();
     mock_github_service_2
         .expect_fetch_repo_data()
-        .withf(|x: &String, y: &Option<String>, z: &Option<String>| {
-            x == &"repo_url".to_string() && y.is_none() && z.is_none()
+        .withf(|x: &str, y: &Option<String>, z: &Option<String>| {
+            x == "repo_url" && y.is_none() && z.is_none()
         })
         .returning(|_, _, _| {
             Ok(GithubRepoData {
@@ -458,9 +464,9 @@ async fn create_package_works() {
         });
 
     let uid = Package::create(
-        &"repo_url".to_string(),
-        &"package_description".to_string(),
-        &"1".to_string(),
+        "repo_url",
+        "package_description",
+        "1",
         2,
         100,
         None,
@@ -500,9 +506,9 @@ async fn get_versions_by_latest() {
         });
 
     let uid = Package::create(
-        &"repo_url".to_string(),
-        &"package_description".to_string(),
-        &"1".to_string(),
+        "repo_url",
+        "package_description",
+        "1",
         2,
         100,
         None,
@@ -554,9 +560,9 @@ async fn get_versions_by_oldest() {
         });
 
     let uid = Package::create(
-        &"repo_url".to_string(),
-        &"package_description".to_string(),
-        &"1".to_string(),
+        "repo_url",
+        "package_description",
+        "1",
         2,
         3,
         None,
@@ -608,9 +614,9 @@ async fn get_versions_by_most_downloads() {
         });
 
     let uid = Package::create(
-        &"repo_url".to_string(),
-        &"package_description".to_string(),
-        &"1".to_string(),
+        "repo_url",
+        "package_description",
+        "1",
         2,
         3,
         None,

@@ -7,7 +7,7 @@ use thirtyfour::prelude::*;
 #[derive(Debug, std::default::Default)]
 pub struct AccountInformation {
     pub email: String,
-    pub password: String
+    pub password: String,
 }
 #[derive(Debug)]
 pub struct TestResponse {

@@ -19,7 +19,6 @@ pub use odd_registration_attempt::SendAccountOddRegisterAttemptEmail;
 mod contact;
 pub use contact::SendContactRequestEmail;
 
-
 pub fn configure(config: WorkerConfig<JobState>) -> WorkerConfig<JobState> {
     let mut config = config.register::<SendResetPasswordEmail>();
     config = config.register::<SendPasswordWasResetEmail>();

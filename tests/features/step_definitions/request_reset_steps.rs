@@ -1,11 +1,11 @@
 use cucumber::{given, then, when};
+use jelly::forms::{EmailField, PasswordField};
+use mainlib::accounts::forms::NewAccountForm;
+use mainlib::accounts::Account;
+use mainlib::test::DB_POOL;
 use std::fs;
 use std::path::Path;
-use jelly::forms::{EmailField, PasswordField};
 use thirtyfour::prelude::*;
-use mainlib::accounts::Account;
-use mainlib::accounts::forms::NewAccountForm;
-use mainlib::test::DB_POOL;
 
 use super::super::world::TestWorld;
 
@@ -55,7 +55,7 @@ async fn see_forgot_password_page(world: &mut TestWorld) {
 
 #[given("I have registered an email")]
 async fn register_email(_world: &mut TestWorld) {
-    fs::remove_dir_all("./emails").unwrap_or_else(|_| ());
+    fs::remove_dir_all("./emails").unwrap_or(());
     let form = NewAccountForm {
         email: EmailField {
             value: "test@email.com".to_string(),
@@ -72,7 +72,7 @@ async fn register_email(_world: &mut TestWorld) {
 
 #[when("I fill in a registered email and submit the form on Forgot Password page")]
 async fn fill_in_registered_email(world: &mut TestWorld) {
-    fs::remove_dir_all("./emails").unwrap_or_else(|_| ());
+    fs::remove_dir_all("./emails").unwrap_or(());
 
     let email_field = world.driver.find_element(By::Name("email")).await.unwrap();
     email_field.send_keys("test@email.com").await.unwrap();
@@ -91,7 +91,10 @@ async fn see_confirm_request_page(world: &mut TestWorld) {
         world.driver.current_url().await.unwrap(),
         format!("{}accounts/reset/", world.root_url).as_str()
     );
-    assert_eq!(world.driver.title().await.unwrap(), "Confirm Request | Movey");
+    assert_eq!(
+        world.driver.title().await.unwrap(),
+        "Confirm Request | Movey"
+    );
 
     let title = world.driver.find_element(By::Tag("h1")).await.unwrap();
     assert_eq!(title.text().await.unwrap(), "Thank You");
@@ -107,7 +110,7 @@ async fn receive_verification_email(_world: &mut TestWorld) {
 
 #[when("I fill in an unregistered email and submit the form on Forgot Password page")]
 async fn fill_in_unregistered_email(world: &mut TestWorld) {
-    fs::remove_dir_all("./emails").unwrap_or_else(|_| ());
+    fs::remove_dir_all("./emails").unwrap_or(());
 
     let email_field = world.driver.find_element(By::Name("email")).await.unwrap();
     email_field
