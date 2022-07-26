@@ -113,7 +113,8 @@ pub struct ContactForm {
     pub category: String,
     pub email: String,
     pub name: String,
-    pub description: String
+    pub description: String,
+    pub token: String
 }
 
 
