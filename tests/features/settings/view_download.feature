@@ -6,4 +6,4 @@ Feature: View download
     And I am signed in
     And I visit the Profile page
     When I click on the downloads tab
-    Then I should see the profile tokens page
+    Then I should see the profile downloads page
