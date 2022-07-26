@@ -49,8 +49,7 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
     }
 
     let db = request.db_pool()?;
-    let error_message;
-    match Account::authenticate(&form, db).await {
+    let error_message = match Account::authenticate(&form, db).await {
         Ok(user) => {
             let user_id = user.id;
             Account::update_last_login(user_id, db).await?;
@@ -87,9 +86,9 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
                     .finish())
             };
         }
-        Err(Error::Generic(e)) => error_message = e,
-        Err(_) => error_message = String::from("Invalid email or password! Try again."),
-    }
+        Err(Error::Generic(e)) => e,
+        Err(_) => String::from("Invalid email or password! Try again."),
+    };
 
     request.render(400, "accounts/login.html", {
         let mut context = Context::new();

@@ -72,9 +72,4 @@ joinable!(api_tokens -> accounts (account_id));
 joinable!(package_versions -> packages (package_id));
 joinable!(packages -> accounts (account_id));
 
-allow_tables_to_appear_in_same_query!(
-    accounts,
-    api_tokens,
-    package_versions,
-    packages,
-);
+allow_tables_to_appear_in_same_query!(accounts, api_tokens, package_versions, packages,);

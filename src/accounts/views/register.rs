@@ -1,6 +1,6 @@
 use jelly::actix_web::{web::Form, HttpRequest};
 use jelly::prelude::*;
-use jelly::request::{DatabasePool};
+use jelly::request::DatabasePool;
 use jelly::Result;
 
 use crate::accounts::forms::NewAccountForm;

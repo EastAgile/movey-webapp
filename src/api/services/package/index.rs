@@ -28,13 +28,13 @@ pub async fn post_package(
     mut req: web::Json<PackageRequest>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    if let Err(_) = ApiToken::get(&req.token, db).await {
+    if ApiToken::get(&req.token, db).await.is_err() {
         return Ok(HttpResponse::BadRequest().body("Invalid Api Token"));
     }
 
-    let account_id = ApiToken::associated_account(&req.token, &db).await?.id;
+    let account_id = ApiToken::associated_account(&req.token, db).await?.id;
     let service = GithubService::new();
-    if req.subdir.ends_with("\n") {
+    if req.subdir.ends_with('\n') {
         req.subdir.pop();
     };
     let subdir = if req.subdir.is_empty() {
@@ -46,7 +46,10 @@ pub async fn post_package(
     };
     let github_data = service.fetch_repo_data(&req.github_repo_url, subdir, None)?;
     if !req.subdir.is_empty() {
-        req.github_repo_url = format!("{}/blob/{}/{}",req.github_repo_url, github_data.rev, req.subdir);
+        req.github_repo_url = format!(
+            "{}/blob/{}/{}",
+            req.github_repo_url, github_data.rev, req.subdir
+        );
     }
     Package::create_from_crawled_data(
         &req.github_repo_url,
@@ -56,8 +59,9 @@ pub async fn post_package(
         github_data.size,
         Some(account_id),
         github_data,
-        &db,
-    ).await?;
+        db,
+    )
+    .await?;
 
     Ok(HttpResponse::Ok().body(""))
 }
@@ -69,16 +73,18 @@ pub struct DownloadInfo {
     subdir: String,
 }
 
-pub async fn increase_download_count(request: HttpRequest, form: web::Form<DownloadInfo>) -> Result<HttpResponse> {
+pub async fn increase_download_count(
+    request: HttpRequest,
+    form: web::Form<DownloadInfo>,
+) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     let service = GithubService::new();
     let form = form.into_inner();
-    if let Ok(res) = Package::increase_download_count(
-        &form.url, &form.rev, &form.subdir, &service, &db
-    ).await {
+    if let Ok(res) =
+        Package::increase_download_count(&form.url, &form.rev, &form.subdir, &service, db).await
+    {
         Ok(HttpResponse::Ok().body(res.to_string()))
-    }
-    else {
+    } else {
         Ok(HttpResponse::NotFound().body("Cannot find url or rev"))
     }
 }
@@ -88,6 +94,6 @@ pub async fn search_package(
     res: web::Json<PackageSearch>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    let packages = Package::auto_complete_search(&res.search_query, &db).await?;
+    let packages = Package::auto_complete_search(&res.search_query, db).await?;
     Ok(HttpResponse::Ok().json(packages))
 }
