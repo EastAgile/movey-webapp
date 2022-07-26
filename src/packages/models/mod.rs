@@ -1,6 +1,6 @@
 use crate::accounts::Account;
 
-use diesel::dsl::{count, sum};
+use diesel::dsl::{count, now, sum};
 use diesel::prelude::*;
 use diesel::sql_types::{Integer, Text, Timestamptz};
 use diesel::{AsChangeset, Associations, Identifiable, Insertable, Queryable};
@@ -19,7 +19,6 @@ use mockall_double::double;
 #[cfg(test)]
 mod tests;
 
-// use super::forms::{LoginForm, NewAccountForm};
 #[double]
 use crate::github_service::GithubService;
 use crate::schema::package_versions;
@@ -112,8 +111,11 @@ pub enum PackageSortField {
     MostDownloads,
     #[serde(alias = "newly_added")]
     NewlyAdded,
+    #[serde(alias = "recently_updated")]
+    RecentlyUpdated,
 }
 
+// Convert to a value used in view template
 impl std::fmt::Display for PackageSortField {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let enum_name = match self {
@@ -121,8 +123,24 @@ impl std::fmt::Display for PackageSortField {
             PackageSortField::Description => "description",
             PackageSortField::MostDownloads => "most_downloads",
             PackageSortField::NewlyAdded => "newly_added",
+            PackageSortField::RecentlyUpdated => "recently_updated",
         };
         write!(f, "{}", enum_name)
+    }
+}
+
+impl PackageSortField {
+    // Convert to a value used in ORM
+    pub fn to_column_name(&self) -> String {
+        String::from(
+            match self {
+                PackageSortField::Name => "name",
+                PackageSortField::Description => "description",
+                PackageSortField::MostDownloads => "total_downloads_count",
+                PackageSortField::NewlyAdded => "created_at",
+                PackageSortField::RecentlyUpdated => "updated_at",
+            }
+        )
     }
 }
 
@@ -132,6 +150,17 @@ pub enum PackageSortOrder {
     Asc,
     #[serde(alias = "desc")]
     Desc,
+}
+
+impl PackageSortOrder {
+    fn to_order_direction(&self) -> String {
+        String::from(
+            match self {
+                PackageSortOrder::Asc => "ASC",
+                PackageSortOrder::Desc => "DESC",
+            }
+        )
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset, Clone)]
@@ -429,7 +458,7 @@ impl Package {
         let connection = pool.get()?;
         let result: Vec<(String, String, String)> = packages::table
             .inner_join(package_versions::table)
-            .filter(name.ilike(format!("{}{}{}", "%", search_query, "%")))
+            .filter(name.ilike(format!("%{}%", search_query)))
             .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at"))
             .select((packages::name, packages::description, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
             .load::<(String, String, String)>(&connection)?;
@@ -446,17 +475,9 @@ impl Package {
         pool: &DieselPgPool,
     ) -> Result<(Vec<PackageSearchResult>, i64, i64), Error> {
         let connection = pool.get()?;
-        let field = match sort_field {
-            PackageSortField::Name => "name",
-            PackageSortField::Description => "description",
-            PackageSortField::MostDownloads => "total_downloads_count",
-            PackageSortField::NewlyAdded => "packages.created_at",
-        };
-        let order = match sort_order {
-            PackageSortOrder::Asc => "ASC",
-            PackageSortOrder::Desc => "DESC",
-        };
-        let order_query = format!("{} {}", field, order);
+        let field = sort_field.to_column_name();
+        let order = sort_order.to_order_direction();
+        let order_query = format!("packages.{} {}", field, order);
         let search_query: &str = &search_query.split(" ").collect::<Vec<&str>>().join(" & ");
 
         let page = page.unwrap_or_else(|| 1);
@@ -468,7 +489,8 @@ impl Package {
         let result: (Vec<PackageSearchResult>, i64, i64) = packages::table
             .inner_join(package_versions::table)
             .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
-            .filter(tsv.matches(plainto_tsquery(search_query)))
+            .filter(name.ilike(format!("%{}%", search_query))
+                .or(tsv.matches(plainto_tsquery(search_query))))
             .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
             .order(diesel::dsl::sql::<diesel::sql_types::Text>(&order_query))
             .load_with_pagination(&connection, Some(page), Some(per_page))?;
@@ -484,17 +506,9 @@ impl Package {
         pool: &DieselPgPool,
     ) -> Result<(Vec<PackageSearchResult>, i64, i64), Error> {
         let connection = pool.get()?;
-        let field = match sort_field {
-            PackageSortField::Name => "name",
-            PackageSortField::Description => "description",
-            PackageSortField::MostDownloads => "total_downloads_count",
-            PackageSortField::NewlyAdded => "packages.created_at",
-        };
-        let order = match sort_order {
-            PackageSortOrder::Asc => "ASC",
-            PackageSortOrder::Desc => "DESC",
-        };
-        let order_query = format!("{} {}", field, order);
+        let field = sort_field.to_column_name();
+        let order = sort_order.to_order_direction();
+        let order_query = format!("packages.{} {}", field, order);
 
         let page = page.unwrap_or_else(|| 1);
         let per_page = per_page.unwrap_or_else(|| PACKAGES_PER_PAGE);
@@ -522,6 +536,7 @@ impl PackageVersion {
 
         Ok(result)
     }
+
     pub async fn create(
         version_package_id: i32,
         version_name: String,
@@ -545,6 +560,11 @@ impl PackageVersion {
         let record = diesel::insert_into(package_versions::table)
             .values(new_package_version)
             .get_result::<PackageVersion>(&connection)?;
+
+        diesel::update(packages)
+            .filter(packages::id.eq(version_package_id))
+            .set(packages::updated_at.eq(now))
+            .execute(&connection)?;
 
         Ok(record)
     }
