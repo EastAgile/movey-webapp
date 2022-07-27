@@ -1,5 +1,6 @@
 use crate::accounts::forms::ChangePasswordForm;
 use crate::accounts::Account;
+use crate::constants;
 use crate::packages::Package;
 use crate::settings::models::token::ApiToken;
 
@@ -18,7 +19,7 @@ pub async fn profile(request: HttpRequest) -> Result<HttpResponse> {
     request.render(200, "settings/profile.html", {
         let mut context = Context::new();
         context.insert("account", &account);
-        context.insert("profile_tab","profile");
+        context.insert("profile_tab", "profile");
         context
     })
 }
@@ -40,7 +41,7 @@ pub async fn change_password(
             context.insert("form", &form);
             context.insert("is_ok", &false);
             context.insert("account", &account);
-            context.insert("profile_tab","profile");
+            context.insert("profile_tab", "profile");
             context
         });
     }
@@ -69,10 +70,7 @@ pub async fn change_password(
     if is_ok {
         request.get_session().clear();
         return Ok(HttpResponse::Found()
-            .header(
-                header::SET_COOKIE,
-                "remember_me_token=\"\"; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT",
-            )
+            .header(header::SET_COOKIE, constants::REMEMBER_ME_TOKEN_INVALIDATE)
             .header(
                 header::SET_COOKIE,
                 format!("flash={}; path=/; Max-Age=10", message),
@@ -85,22 +83,20 @@ pub async fn change_password(
         context.insert("error", message);
         context.insert("account", &account);
         context.insert("connect-status", &account.email);
-        context.insert("profile_tab","profile");
+        context.insert("profile_tab", "profile");
         context
     })
 }
 
-pub async fn show_packages(
-    request: HttpRequest
-) -> Result<HttpResponse> {
+pub async fn show_packages(request: HttpRequest) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
-        let packages = Package::get_by_account(user.id, &db).await?;
+        let packages = Package::get_by_account(user.id, db).await?;
 
         request.render(200, "settings/user_packages.html", {
             let mut ctx = Context::new();
             ctx.insert("packages", &packages);
-            ctx.insert("profile_tab","packages");
+            ctx.insert("profile_tab", "packages");
             ctx
         })
     } else {
@@ -108,17 +104,15 @@ pub async fn show_packages(
     }
 }
 
-pub async fn show_downloads(
-    request: HttpRequest
-) -> Result<HttpResponse> {
+pub async fn show_downloads(request: HttpRequest) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
-        let download = Package::get_downloads(user.id,&db).await?;
+        let download = Package::get_downloads(user.id, db).await?;
 
         request.render(200, "settings/downloads.html", {
             let mut ctx = Context::new();
-            ctx.insert("profile_tab","downloads");
-            ctx.insert("total_downloads",&download);
+            ctx.insert("profile_tab", "downloads");
+            ctx.insert("total_downloads", &download);
             ctx
         })
     } else {
@@ -126,17 +120,15 @@ pub async fn show_downloads(
     }
 }
 
-pub async fn show_tokens(
-    request: HttpRequest
-) -> Result<HttpResponse> {
+pub async fn show_tokens(request: HttpRequest) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
-        let tokens = ApiToken::get_by_account(user.id, &db).await?;
+        let tokens = ApiToken::get_by_account(user.id, db).await?;
 
         request.render(200, "settings/tokens.html", {
             let mut ctx = Context::new();
             ctx.insert("tokens", &tokens);
-            ctx.insert("profile_tab","tokens");
+            ctx.insert("profile_tab", "tokens");
             ctx
         })
     } else {

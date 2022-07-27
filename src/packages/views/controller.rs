@@ -1,4 +1,5 @@
 use jelly::actix_web::{web::Path, web::Query, HttpRequest};
+use jelly::anyhow::anyhow;
 use jelly::forms::TextField;
 use jelly::prelude::*;
 use jelly::request::DatabasePool;
@@ -18,7 +19,7 @@ pub async fn show_package(
     Path(package_name): Path<String>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    let package = Package::get_by_name(&package_name, &db).await?;
+    let package = Package::get_by_name(&package_name, db).await?;
 
     let default_version: String = String::from("");
     let params = Query::<PackageShowParams>::from_query(request.query_string())
@@ -27,16 +28,17 @@ pub async fn show_package(
 
     let package_version: PackageVersion;
 
-    if version == "" {
-        let versions = PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db).await?;
+    if version.is_empty() {
+        let versions =
+            PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, db).await?;
         package_version = versions[0].clone();
     } else {
-        package_version = package.get_version(version, &db).await?.clone()
+        package_version = package.get_version(version, db).await?
     }
 
-    let account_name =  if let Some(uid) =  package.account_id {
-        let account = Account::get(uid, &db).await?;
-        if account.name == "" {
+    let account_name = if let Some(uid) = package.account_id {
+        let account = Account::get(uid, db).await?;
+        if account.name.is_empty() {
             account.email
         } else {
             account.name
@@ -45,14 +47,14 @@ pub async fn show_package(
         "".to_string()
     };
 
-    return request.render(200, "packages/show.html", {
+    request.render(200, "packages/show.html", {
         let mut ctx = Context::new();
         ctx.insert("package", &package);
         ctx.insert("package_version", &package_version);
         ctx.insert("account_name", &account_name);
         ctx.insert("package_tab", "readme");
         ctx
-    });
+    })
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -65,12 +67,14 @@ pub async fn show_package_versions(
     Path(package_name): Path<String>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    let package = Package::get_by_name(&package_name, &db).await?;
+    let package = Package::get_by_name(&package_name, db).await?;
     let package_latest_version =
-        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db)
-            .await?[0];
+        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, db).await?[0];
 
-    let params = Query::<VersionParams>::from_query(request.query_string()).unwrap();
+    let params = Query::<VersionParams>::from_query(request.query_string()).map_err(|e| {
+        error!("Error parsing params: {:?}", e);
+        anyhow!("Error parsing params: {:?}", e)
+    })?;
     let default_sort: String = String::from("latest");
     let sort_type_text: &str = params.sort_type.as_ref().unwrap_or(&default_sort);
 
@@ -79,10 +83,9 @@ pub async fn show_package_versions(
         "most_downloads" => PackageVersionSort::MostDownloads,
         _ => PackageVersionSort::Latest,
     };
-    let package_versions = PackageVersion::from_package_id(package.id, &sort_type, &db)
-        .await?;
+    let package_versions = PackageVersion::from_package_id(package.id, &sort_type, db).await?;
 
-    return request.render(200, "packages/versions.html", {
+    request.render(200, "packages/versions.html", {
         let mut ctx = Context::new();
         ctx.insert("package", &package);
         ctx.insert("package_version", &package_latest_version);
@@ -90,7 +93,7 @@ pub async fn show_package_versions(
         ctx.insert("package_tab", "versions");
         ctx.insert("sort_type", &sort_type_text);
         ctx
-    });
+    })
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -106,10 +109,10 @@ pub async fn show_search_results(
     mut search: Query<PackageSearchParams>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    if let None = search.field {
+    if search.field.is_none() {
         search.field = Some(PackageSortField::Name);
     }
-    if let None = search.order {
+    if search.order.is_none() {
         search.order = if let Some(PackageSortField::Name) = search.field {
             Some(PackageSortOrder::Asc)
         } else {
@@ -118,15 +121,15 @@ pub async fn show_search_results(
     }
     let (packages, total_count, total_pages) = Package::search(
         &search.query.value,
-        &search.field.as_ref().unwrap(),
-        &search.order.as_ref().unwrap(),
+        search.field.as_ref().unwrap(),
+        search.order.as_ref().unwrap(),
         search.page,
         None,
-        &db,
+        db,
     )
     .await?;
 
-    let current_page = search.page.unwrap_or_else(|| 1);
+    let current_page = search.page.unwrap_or(1);
     if current_page < 1 {
         return Err(Error::Generic(String::from("Invalid page number.")));
     }
@@ -147,6 +150,21 @@ pub async fn show_search_results(
     })
 }
 
+pub async fn show_owned_packages(request: HttpRequest) -> Result<HttpResponse> {
+    let db = request.db_pool()?;
+    if let Ok(user) = request.user() {
+        let packages = Package::get_by_account(user.id, db).await?;
+
+        request.render(200, "search/search_results.html", {
+            let mut ctx = Context::new();
+            ctx.insert("packages", &packages);
+            ctx
+        })
+    } else {
+        Ok(HttpResponse::NotFound().body("Cannot find user"))
+    }
+}
+
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct PackageIndexParams {
     pub field: Option<PackageSortField>,
@@ -159,10 +177,10 @@ pub async fn packages_index(
     mut params: Query<PackageIndexParams>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    if let None = params.field {
+    if params.field.is_none() {
         params.field = Some(PackageSortField::Name);
     }
-    if let None = params.order {
+    if params.order.is_none() {
         params.order = if let Some(PackageSortField::Name) = params.field {
             Some(PackageSortOrder::Asc)
         } else {
@@ -170,15 +188,15 @@ pub async fn packages_index(
         }
     }
     let (packages, total_count, total_pages) = Package::all_packages(
-        &params.field.as_ref().unwrap(),
-        &params.order.as_ref().unwrap(),
+        params.field.as_ref().unwrap(),
+        params.order.as_ref().unwrap(),
         params.page,
         None,
-        &db,
+        db,
     )
     .await?;
 
-    let current_page = params.page.unwrap_or_else(|| 1);
+    let current_page = params.page.unwrap_or(1);
     if current_page < 1 {
         return Err(Error::Generic(String::from("Invalid page number.")));
     }

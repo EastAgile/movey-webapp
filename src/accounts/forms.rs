@@ -76,7 +76,7 @@ impl Validation for ChangePasswordViaEmailForm {
         }
 
         self.password
-            .validate_with(&[&self.name.as_ref().unwrap(), &self.email.as_ref().unwrap()])
+            .validate_with(&[self.name.as_ref().unwrap(), self.email.as_ref().unwrap()])
     }
 }
 
@@ -92,7 +92,10 @@ pub struct ChangePasswordForm {
 
 impl Validation for ChangePasswordForm {
     fn is_valid(&mut self) -> bool {
-        if !self.current_password.is_valid() || !self.new_password.is_valid() || !self.password_confirm.is_valid() {
+        if !self.current_password.is_valid()
+            || !self.new_password.is_valid()
+            || !self.password_confirm.is_valid()
+        {
             return false;
         }
 
@@ -104,7 +107,7 @@ impl Validation for ChangePasswordForm {
         }
 
         self.new_password
-            .validate_with(&[&self.name.as_ref().unwrap(), &self.email.as_ref().unwrap()])
+            .validate_with(&[self.name.as_ref().unwrap(), self.email.as_ref().unwrap()])
     }
 }
 
@@ -113,9 +116,8 @@ pub struct ContactForm {
     pub category: String,
     pub email: String,
     pub name: String,
-    pub description: String
+    pub description: String,
 }
-
 
 #[cfg(test)]
 mod tests {

@@ -15,6 +15,7 @@ pub trait Configurable {
 }
 
 /// Check that environment variable exists and is not empty else panic.
+#[allow(dead_code)]
 pub fn env_exists_and_not_empty(env: &str) {
     if var(env).expect(&format!("{} not set!", env)).is_empty() {
         panic!("{} is empty", env)

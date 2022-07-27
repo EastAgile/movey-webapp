@@ -29,12 +29,13 @@ pub mod policy;
 pub mod settings;
 mod utils;
 
+#[allow(unused_imports)]
 pub mod schema;
 
+pub mod constants;
 pub mod jobs;
 pub mod request;
 pub mod test;
-pub mod constants;
 
 use jelly::{DieselPgPool, Server};
 

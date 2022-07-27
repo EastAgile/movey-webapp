@@ -160,6 +160,124 @@ async fn search_return_multiple_result() {
 }
 
 #[actix_rt::test]
+async fn search_by_partial_name_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+    setup(None).await.unwrap();
+    let pool = &DB_POOL;
+    let search_query = "charl";
+    let (search_result, total_count, total_pages) = Package::search(
+        search_query,
+        &PackageSortField::Name,
+        &PackageSortOrder::Desc,
+        Some(1),
+        Some(2),
+        pool,
+    )
+    .await
+    .unwrap();
+    assert_eq!(total_count, 1);
+    assert_eq!(total_pages, 1);
+    assert_eq!(search_result.len(), 1);
+    assert_eq!(search_result[0].name, "Charles Diya");
+}
+
+#[actix_rt::test]
+async fn search_by_partial_description_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+    setup(None).await.unwrap();
+    let pool = &DB_POOL;
+    let search_query = "random pick";
+    let (search_result, total_count, total_pages) = Package::search(
+        search_query,
+        &PackageSortField::Name,
+        &PackageSortOrder::Asc,
+        Some(1),
+        Some(2),
+        pool,
+    )
+    .await
+    .unwrap();
+    assert_eq!(total_count, 2);
+    assert_eq!(total_pages, 1);
+    assert_eq!(search_result.len(), 2);
+    assert!(search_result[0].name == "Charles Diya");
+    assert!(search_result[1].name == "The first Diva");
+}
+
+#[actix_rt::test]
+async fn search_sorted_by_newly_added_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+    setup(None).await.unwrap();
+    let pool = &DB_POOL;
+    let search_query = "random";
+    let (search_result, total_count, total_pages) = Package::search(
+        search_query,
+        &PackageSortField::NewlyAdded,
+        &PackageSortOrder::Desc,
+        Some(1),
+        Some(2),
+        pool,
+    )
+    .await
+    .unwrap();
+    assert_eq!(total_count, 2);
+    assert_eq!(total_pages, 1);
+    assert_eq!(search_result.len(), 2);
+    assert!(search_result[0].name == "Charles Diya");
+    assert!(search_result[1].name == "The first Diva");
+}
+
+#[actix_rt::test]
+async fn search_sorted_by_recently_updated_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+    setup(None).await.unwrap();
+    let pool = &DB_POOL;
+
+    let the_first_package = Package::get_by_name(&"The first package".to_string(), pool)
+        .await
+        .unwrap();
+    assert!(the_first_package.name.contains("The first package"));
+    assert!(the_first_package.description.contains("description 1"));
+
+    PackageVersion::create(
+        the_first_package.id,
+        "second_version".to_string(),
+        "".to_string(),
+        "".to_string(),
+        25,
+        500,
+        pool,
+    )
+    .await
+    .unwrap();
+    let total_packages = Package::count(pool).await.unwrap();
+    assert_eq!(total_packages, 3);
+    let total_versions = PackageVersion::count(pool).await.unwrap();
+    assert_eq!(total_versions, 4);
+
+    let search_query = "first";
+    let (search_result, total_count, total_pages) = Package::search(
+        search_query,
+        &PackageSortField::RecentlyUpdated,
+        &PackageSortOrder::Desc,
+        Some(1),
+        Some(2),
+        pool,
+    )
+    .await
+    .unwrap();
+    assert_eq!(total_count, 2);
+    assert_eq!(total_pages, 1);
+    assert_eq!(search_result.len(), 2);
+    assert_eq!(search_result[0].name, "The first package");
+    assert_eq!(search_result[1].name, "The first Diva");
+}
+
+#[actix_rt::test]
 async fn all_packages_with_pagination() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
@@ -195,6 +313,99 @@ async fn all_packages_with_pagination() {
 }
 
 #[actix_rt::test]
+async fn all_packages_with_pagination_and_sort_by_recently_updated() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+    setup(None).await.unwrap();
+    let pool = &DB_POOL;
+
+    let the_first_package = Package::get_by_name(&"The first package".to_string(), pool)
+        .await
+        .unwrap();
+    assert!(the_first_package.name.contains("The first package"));
+    assert!(the_first_package.description.contains("description 1"));
+
+    PackageVersion::create(
+        the_first_package.id,
+        "second_version".to_string(),
+        "".to_string(),
+        "".to_string(),
+        25,
+        500,
+        pool,
+    )
+    .await
+    .unwrap();
+    let total_packages = Package::count(pool).await.unwrap();
+    assert_eq!(total_packages, 3);
+    let total_versions = PackageVersion::count(pool).await.unwrap();
+    assert_eq!(total_versions, 4);
+
+    let (search_result, total_count, total_pages) = Package::all_packages(
+        &PackageSortField::RecentlyUpdated,
+        &PackageSortOrder::Desc,
+        Some(1),
+        Some(2),
+        pool,
+    )
+    .await
+    .unwrap();
+    assert_eq!(total_count, 3);
+    assert_eq!(total_pages, 2);
+    assert_eq!(search_result.len(), 2);
+    assert_eq!(search_result[0].name, "The first package");
+    assert_eq!(search_result[1].name, "Charles Diya");
+
+    let (search_result, _total_count, _total_pages) = Package::all_packages(
+        &PackageSortField::RecentlyUpdated,
+        &PackageSortOrder::Desc,
+        Some(2),
+        Some(2),
+        pool,
+    )
+    .await
+    .unwrap();
+    assert_eq!(search_result.len(), 1);
+    assert_eq!(search_result[0].name, "The first Diva");
+}
+
+#[actix_rt::test]
+async fn all_packages_with_pagination_and_sort_by_newly_added() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+    setup(None).await.unwrap();
+    let pool = &DB_POOL;
+
+    let (search_result, total_count, total_pages) = Package::all_packages(
+        &PackageSortField::NewlyAdded,
+        &PackageSortOrder::Desc,
+        Some(1),
+        Some(2),
+        pool,
+    )
+    .await
+    .unwrap();
+    assert_eq!(total_count, 3);
+    assert_eq!(total_pages, 2);
+
+    assert_eq!(search_result.len(), 2);
+    assert_eq!(search_result[0].name, "Charles Diya");
+    assert_eq!(search_result[1].name, "The first Diva");
+
+    let (search_result, _total_count, _total_pages) = Package::all_packages(
+        &PackageSortField::NewlyAdded,
+        &PackageSortOrder::Desc,
+        Some(2),
+        Some(2),
+        pool,
+    )
+    .await
+    .unwrap();
+    assert_eq!(search_result.len(), 1);
+    assert_eq!(search_result[0].name, "The first package");
+}
+
+#[actix_rt::test]
 async fn create_package_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
@@ -204,8 +415,8 @@ async fn create_package_works() {
     let mut mock_github_service = GithubService::new();
     mock_github_service
         .expect_fetch_repo_data()
-        .withf(|x: &String, y: &Option<String>, z: &Option<String>| {
-            x == &"repo_url".to_string() && y.is_none() && z.is_none()
+        .withf(|x: &str, y: &Option<String>, z: &Option<String>| {
+            x == "repo_url" && y.is_none() && z.is_none()
         })
         .returning(|_, _, _| {
             Ok(GithubRepoData {
@@ -220,9 +431,9 @@ async fn create_package_works() {
         });
 
     let uid = Package::create(
-        &"repo_url".to_string(),
-        &"package_description".to_string(),
-        &"1".to_string(),
+        "repo_url",
+        "package_description",
+        "1",
         2,
         100,
         Some(uid),
@@ -255,8 +466,8 @@ async fn create_package_works() {
     let mut mock_github_service_2 = GithubService::new();
     mock_github_service_2
         .expect_fetch_repo_data()
-        .withf(|x: &String, y: &Option<String>, z: &Option<String>| {
-            x == &"repo_url".to_string() && y.is_none() && z.is_none()
+        .withf(|x: &str, y: &Option<String>, z: &Option<String>| {
+            x == "repo_url" && y.is_none() && z.is_none()
         })
         .returning(|_, _, _| {
             Ok(GithubRepoData {
@@ -271,9 +482,9 @@ async fn create_package_works() {
         });
 
     let uid = Package::create(
-        &"repo_url".to_string(),
-        &"package_description".to_string(),
-        &"1".to_string(),
+        "repo_url",
+        "package_description",
+        "1",
         2,
         100,
         None,
@@ -311,9 +522,9 @@ async fn get_versions_by_latest() {
     });
 
     let uid = Package::create(
-        &"repo_url".to_string(),
-        &"package_description".to_string(),
-        &"1".to_string(),
+        "repo_url",
+        "package_description",
+        "1",
         2,
         100,
         None,
@@ -363,9 +574,9 @@ async fn get_versions_by_oldest() {
     });
 
     let uid = Package::create(
-        &"repo_url".to_string(),
-        &"package_description".to_string(),
-        &"1".to_string(),
+        "repo_url",
+        "package_description",
+        "1",
         2,
         3,
         None,
@@ -415,9 +626,9 @@ async fn get_versions_by_most_downloads() {
     });
 
     let uid = Package::create(
-        &"repo_url".to_string(),
-        &"package_description".to_string(),
-        &"1".to_string(),
+        "repo_url",
+        "package_description",
+        "1",
         2,
         3,
         None,

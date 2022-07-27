@@ -1,11 +1,11 @@
 use crate::TestWorld;
+use cucumber::{given, then, when};
 use mainlib::accounts::Account;
 use mainlib::settings::models::token::ApiToken;
 use mainlib::test::DB_POOL;
 use std::thread;
 use std::time::Duration;
 use thirtyfour::prelude::*;
-use cucumber::{given, when, then};
 
 #[when("I click on the tokens tab")]
 pub async fn click_on_profile_tokens_tab(world: &mut TestWorld) {
@@ -50,13 +50,19 @@ pub async fn see_profile_downloads_page(world: &mut TestWorld) {
 #[given("I have an existing api token")]
 pub async fn have_existing_api_token(_world: &mut TestWorld) {
     let account = Account::get(1, &DB_POOL).await.unwrap();
-    ApiToken::insert(&account, "token 1", &DB_POOL).await.unwrap();
+    ApiToken::insert(&account, "token 1", &DB_POOL)
+        .await
+        .unwrap();
 }
 
 #[given("I visit the profile tokens page")]
 pub async fn visit_profile_tokens_page(world: &mut TestWorld) {
     world.go_to_root_url().await;
-    world.driver.get("http://localhost:17002/settings/tokens").await.unwrap();
+    world
+        .driver
+        .get("http://localhost:17002/settings/tokens")
+        .await
+        .unwrap();
 }
 
 #[then("I should see my existing api token")]
@@ -121,7 +127,7 @@ pub async fn revoke_existing_token(world: &mut TestWorld) {
         .driver
         .find_elements(By::ClassName("token-item"))
         .await
-    .unwrap()[0];
+        .unwrap()[0];
 
     let token_revoke_button = token_item
         .find_element(By::ClassName("revoke-token-btn"))
@@ -158,7 +164,7 @@ pub async fn revoke_new_token(world: &mut TestWorld) {
         .driver
         .find_elements(By::ClassName("token-item"))
         .await
-    .unwrap()[0];
+        .unwrap()[0];
 
     let token_revoke_button = token_item
         .find_element(By::ClassName("revoke-token-btn"))
@@ -210,5 +216,8 @@ pub async fn should_see_token_error_name_taken(world: &mut TestWorld) {
         .find_element(By::Css(".tokens-error"))
         .await
         .unwrap();
-    assert_eq!(error_element.text().await.unwrap(), "That name has already been taken.");
+    assert_eq!(
+        error_element.text().await.unwrap(),
+        "That name has already been taken."
+    );
 }
