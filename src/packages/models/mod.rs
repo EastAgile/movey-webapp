@@ -1,5 +1,5 @@
-use crate::sql::lower;
 use crate::accounts::Account;
+use crate::sql::lower;
 
 use diesel::dsl::{count, now, sum};
 use diesel::prelude::*;
@@ -184,6 +184,7 @@ pub struct NewPackageVersion {
     pub rev: String,
     pub total_files: i32,
     pub total_size: i32,
+    pub downloads_count: i32,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -269,6 +270,7 @@ impl Package {
                     version_rev.to_string(),
                     version_files,
                     version_size,
+                    None,
                     pool,
                 )
                 .await?;
@@ -299,8 +301,10 @@ impl Package {
         Ok(result)
     }
 
-    pub async fn get_badge_info(package_name: &str, pool: &DieselPgPool)
-        -> Result<Vec<(String, i32, String, i32)>, Error> {
+    pub async fn get_badge_info(
+        package_name: &str,
+        pool: &DieselPgPool,
+    ) -> Result<Vec<(String, i32, String, i32)>, Error> {
         let connection = pool.get()?;
 
         let result: Vec<(String, i32, String, i32)> = packages::table
@@ -417,6 +421,7 @@ impl Package {
                             rev_.clone(),
                             -1,
                             github_data.size,
+                            None,
                             pool,
                         )
                         .await?;
@@ -562,6 +567,7 @@ impl PackageVersion {
         version_rev: String,
         version_files: i32,
         version_size: i32,
+        version_download: Option<i32>,
         pool: &DieselPgPool,
     ) -> Result<PackageVersion, Error> {
         let connection = pool.get()?;
@@ -573,6 +579,7 @@ impl PackageVersion {
             rev: version_rev,
             total_files: version_files,
             total_size: version_size,
+            downloads_count: version_download.unwrap_or(0),
         };
 
         let record = diesel::insert_into(package_versions::table)
@@ -657,6 +664,7 @@ impl Package {
             version_rev.to_string(),
             version_files,
             version_size,
+            None,
             pool,
         )
         .await
@@ -692,11 +700,61 @@ impl Package {
             String::from("rev"),
             5,
             500,
+            None,
             pool,
         )
         .await
         .unwrap();
 
+        Ok(record.id)
+    }
+
+    pub async fn create_test_package_with_multiple_versions(
+        package_name: &String,
+        repo_url: &String,
+        package_description: &String,
+        package_downloads_count: i32,
+        pool: &DieselPgPool,
+    ) -> Result<i32, Error> {
+        let connection = pool.get()?;
+
+        let new_package = NewTestPackage {
+            name: package_name.to_string(),
+            description: package_description.to_string(),
+            repository_url: repo_url.to_string(),
+            total_downloads_count: package_downloads_count,
+        };
+
+        let record = diesel::insert_into(packages::table)
+            .values(new_package)
+            .returning(PACKAGE_COLUMNS)
+            .get_result::<Package>(&connection)?;
+
+        PackageVersion::create(
+            record.id,
+            String::from("0.0.1"),
+            String::from("readme"),
+            String::from("rev"),
+            5,
+            500,
+            Some(500),
+            pool,
+        )
+        .await
+        .unwrap();
+
+        PackageVersion::create(
+            record.id,
+            String::from("0.0.2"),
+            String::from("readme"),
+            String::from("rev"),
+            5,
+            1000,
+            Some(1000),
+            pool,
+        )
+        .await
+        .unwrap();
         Ok(record.id)
     }
 }
