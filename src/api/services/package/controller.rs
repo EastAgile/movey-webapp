@@ -27,7 +27,7 @@ pub async fn post_package(
     mut req: web::Json<PackageRequest>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    if let Err(_) = ApiToken::get(&req.token, db).await {
+    if ApiToken::get(&req.token, db).await.is_err() {
         return Ok(HttpResponse::BadRequest().body("Invalid Api Token"));
     }
 

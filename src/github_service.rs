@@ -1,10 +1,10 @@
 use jelly::error::Error;
+use jelly::error::Error::Generic;
 use reqwest::blocking::{multipart, Response};
 use reqwest::header;
 use serde::Deserialize;
 use std::env;
 use std::hash::{Hash, Hasher};
-use jelly::error::Error::Generic;
 
 #[derive(Deserialize)]
 struct MoveToml {
@@ -48,7 +48,7 @@ pub struct GithubRepoInfo {
     pub default_branch: String,
 }
 
-pub static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"), );
+pub static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"),);
 
 #[cfg(test)]
 use mockall::{automock, predicate::*};
@@ -64,14 +64,19 @@ impl GithubService {
 
 #[cfg_attr(test, automock)]
 impl GithubService {
-    pub fn fetch_repo_data(&self, repo_url: &String, path: Option<String>, mut rev: Option<String>) -> Result<GithubRepoData, Error> {
-        let mut github_info = get_repo_description_and_size(&repo_url)?;
+    pub fn fetch_repo_data(
+        &self,
+        repo_url: &str,
+        path: Option<String>,
+        mut rev: Option<String>,
+    ) -> Result<GithubRepoData, Error> {
+        let mut github_info = get_repo_description_and_size(repo_url)?;
         if github_info.default_branch.is_empty() {
             github_info.default_branch = "master".to_string();
         }
 
         if rev.is_none() {
-            if let Ok(sha) = get_repo_latest_commit_sha(&repo_url) {
+            if let Ok(sha) = get_repo_latest_commit_sha(repo_url) {
                 rev = Some(sha)
             } else {
                 rev = Some(github_info.default_branch);
@@ -94,7 +99,7 @@ impl GithubService {
                         let mut description = call_deep_ai_api(content.clone())?;
                         if description.len() > 400 {
                             let deepai_summary = call_deep_ai_api(description.clone())?;
-                            if deepai_summary.len() > 0 {
+                            if !deepai_summary.is_empty() {
                                 description = deepai_summary;
                             }
                         }
@@ -120,21 +125,17 @@ impl GithubService {
             Some(path) => {
                 format!("{}/{}", readme_url.replace("/README.md", ""), path)
             }
-            None => {
-                readme_url.replace("README.md", "Move.toml")
-            }
+            None => readme_url.replace("README.md", "Move.toml"),
         };
 
         let mut move_toml_content = "".to_string();
         match call_github_api(&move_url)?.text() {
-            Ok(content) => {
-                move_toml_content = content
-            }
+            Ok(content) => move_toml_content = content,
             Err(error) => {
                 error!(
-                        "Error getting Move.toml content. url: {:?}, error: {}",
-                        move_url, error
-                    );
+                    "Error getting Move.toml content. url: {:?}, error: {}",
+                    move_url, error
+                );
             }
         };
 
@@ -143,7 +144,7 @@ impl GithubService {
                 name: move_toml.package.name,
                 version: move_toml.package.version,
                 readme_content,
-                description: github_info.description.unwrap_or("".to_string()),
+                description: github_info.description.unwrap_or_else(|| "".to_string()),
                 size: github_info.size,
                 url: String::from(""),
                 rev,
@@ -157,7 +158,7 @@ impl GithubService {
                     name: String::from(""),
                     version: String::from(""),
                     readme_content,
-                    description: github_info.description.unwrap_or("".to_string()),
+                    description: github_info.description.unwrap_or_else(|| "".to_string()),
                     size: github_info.size,
                     url: String::from(""),
                     rev,
@@ -168,8 +169,7 @@ impl GithubService {
 }
 
 fn call_github_api(url: &str) -> Result<Response, Error> {
-    let access_token = env::var("GITHUB_ACCESS_TOKEN")
-        .expect("Unable to pull GITHUB_ACCESS_TOKEN");
+    let access_token = env::var("GITHUB_ACCESS_TOKEN").expect("Unable to pull GITHUB_ACCESS_TOKEN");
     let client = reqwest::blocking::Client::builder()
         .user_agent(APP_USER_AGENT)
         .build()?;
@@ -181,13 +181,11 @@ fn call_github_api(url: &str) -> Result<Response, Error> {
 }
 
 fn call_deep_ai_api(content: String) -> Result<String, Error> {
-    let access_token = env::var("DEEP_AI_API_KEY")
-        .expect("Unable to pull DEEP_AI_API_KEY");
+    let access_token = env::var("DEEP_AI_API_KEY").expect("Unable to pull DEEP_AI_API_KEY");
     let client = reqwest::blocking::Client::builder()
         .user_agent(APP_USER_AGENT)
         .build()?;
-    let form = multipart::Form::new()
-        .text("text", content);
+    let form = multipart::Form::new().text("text", content);
     let response = client
         .post("https://api.deepai.org/api/summarization")
         .header("api-key", access_token)
@@ -205,7 +203,7 @@ fn call_deep_ai_api(content: String) -> Result<String, Error> {
 
     match response.unwrap().json::<DeepApiResponse>() {
         Ok(response) => {
-            if response.output == "" {
+            if response.output.is_empty() {
                 return Ok(String::new());
             }
             Ok(response.output)
@@ -224,9 +222,9 @@ fn get_repo_description_and_size(repo_url: &str) -> Result<GithubRepoInfo, Error
         Ok(info) => Ok(info),
         Err(error) => {
             error!(
-                    "Error getting repo description and size. url: {:?}, error: {}",
-                    url, error
-                );
+                "Error getting repo description and size. url: {:?}, error: {}",
+                url, error
+            );
             Ok(Default::default())
         }
     }
@@ -244,17 +242,23 @@ fn get_repo_latest_commit_sha(repo_url: &str) -> Result<String, Error> {
         Ok(info) if !info.is_empty() => Ok(info.get(0).unwrap().sha.clone()),
         Ok(_) => {
             error!(
-                    "Error getting repo commit. url: {:?}, error: Empty response",
-                    url
-                );
-            Err(Generic(format!("Error getting repo commit. url: {:?}, error: Empty response", url)))
+                "Error getting repo commit. url: {:?}, error: Empty response",
+                url
+            );
+            Err(Generic(format!(
+                "Error getting repo commit. url: {:?}, error: Empty response",
+                url
+            )))
         }
         Err(error) => {
             error!(
-                    "Error getting repo commit. url: {:?}, error: {}",
-                    url, error
-                );
-            Err(Generic(format!("Error getting repo commit. url: {:?}, error: {}", url, error)))
+                "Error getting repo commit. url: {:?}, error: {}",
+                url, error
+            );
+            Err(Generic(format!(
+                "Error getting repo commit. url: {:?}, error: {}",
+                url, error
+            )))
         }
     }
 }

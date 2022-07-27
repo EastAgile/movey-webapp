@@ -14,12 +14,12 @@ pub async fn is_authenticated(request: &HttpRequest) -> Result<bool> {
 }
 
 pub async fn renew_token(request: &HttpRequest) -> Result<bool> {
-    if let None = request.get_session().get::<User>("sku")? {
+    if request.get_session().get::<User>("sku")?.is_none() {
         if let Some(cookie) = request.cookie("remember_me_token") {
             let cookie = cookie.value();
             let index = cookie
-                .find("=")
-                .ok_or(anyhow!("Error parsing cookie: Should be key=value."))?;
+                .find('=')
+                .ok_or_else(|| anyhow!("Error parsing cookie: Should be key=value."))?;
             let uid = &cookie[index + 1..]
                 .parse::<i32>()
                 .map_err(|e| anyhow!("Error parsing user id from cookie: {:?}", e))?;

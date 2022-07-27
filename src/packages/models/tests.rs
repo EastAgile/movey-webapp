@@ -17,7 +17,7 @@ async fn setup() -> Result<(), Error> {
         0,
         0,
         None,
-        &pool,
+        pool,
     )
     .await?;
     Package::create_test_package(
@@ -30,7 +30,7 @@ async fn setup() -> Result<(), Error> {
         0,
         0,
         None,
-        &pool,
+        pool,
     )
     .await?;
     Package::create_test_package(
@@ -43,7 +43,7 @@ async fn setup() -> Result<(), Error> {
         0,
         0,
         None,
-        &pool,
+        pool,
     )
     .await?;
     Ok(())
@@ -399,8 +399,8 @@ async fn create_package_works() {
     let mut mock_github_service = GithubService::new();
     mock_github_service
         .expect_fetch_repo_data()
-        .withf(|x: &String, y: &Option<String>, z: &Option<String>| {
-            x == &"repo_url".to_string() && y.is_none() && z.is_none()
+        .withf(|x: &str, y: &Option<String>, z: &Option<String>| {
+            x == "repo_url" && y.is_none() && z.is_none()
         })
         .returning(|_, _, _| {
             Ok(GithubRepoData {
@@ -415,9 +415,9 @@ async fn create_package_works() {
         });
 
     let uid = Package::create(
-        &"repo_url".to_string(),
-        &"package_description".to_string(),
-        &"1".to_string(),
+        "repo_url",
+        "package_description",
+        "1",
         2,
         100,
         Some(uid),
@@ -450,8 +450,8 @@ async fn create_package_works() {
     let mut mock_github_service_2 = GithubService::new();
     mock_github_service_2
         .expect_fetch_repo_data()
-        .withf(|x: &String, y: &Option<String>, z: &Option<String>| {
-            x == &"repo_url".to_string() && y.is_none() && z.is_none()
+        .withf(|x: &str, y: &Option<String>, z: &Option<String>| {
+            x == "repo_url" && y.is_none() && z.is_none()
         })
         .returning(|_, _, _| {
             Ok(GithubRepoData {
@@ -466,9 +466,9 @@ async fn create_package_works() {
         });
 
     let uid = Package::create(
-        &"repo_url".to_string(),
-        &"package_description".to_string(),
-        &"1".to_string(),
+        "repo_url",
+        "package_description",
+        "1",
         2,
         100,
         None,
@@ -508,9 +508,9 @@ async fn get_versions_by_latest() {
         });
 
     let uid = Package::create(
-        &"repo_url".to_string(),
-        &"package_description".to_string(),
-        &"1".to_string(),
+        "repo_url",
+        "package_description",
+        "1",
         2,
         100,
         None,
@@ -563,9 +563,9 @@ async fn get_versions_by_oldest() {
         });
 
     let uid = Package::create(
-        &"repo_url".to_string(),
-        &"package_description".to_string(),
-        &"1".to_string(),
+        "repo_url",
+        "package_description",
+        "1",
         2,
         3,
         None,
@@ -618,9 +618,9 @@ async fn get_versions_by_most_downloads() {
         });
 
     let uid = Package::create(
-        &"repo_url".to_string(),
-        &"package_description".to_string(),
-        &"1".to_string(),
+        "repo_url",
+        "package_description",
+        "1",
         2,
         3,
         None,
