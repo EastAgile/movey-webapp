@@ -56,6 +56,7 @@ async fn package_in_system(_world: &mut TestWorld) {
         "rev_2".to_string(),
         2,
         100,
+        None,
         &DB_POOL,
     )
     .await
@@ -67,6 +68,7 @@ async fn package_in_system(_world: &mut TestWorld) {
         "rev_2".to_string(),
         2,
         100,
+        None,
         &DB_POOL,
     )
     .await
@@ -78,6 +80,7 @@ async fn package_in_system(_world: &mut TestWorld) {
         "rev_2".to_string(),
         2,
         100,
+        None,
         &DB_POOL,
     )
     .await

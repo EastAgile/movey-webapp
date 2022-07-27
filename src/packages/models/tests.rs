@@ -221,6 +221,7 @@ async fn search_sorted_by_recently_updated_works() {
         "".to_string(),
         25,
         500,
+        None,
         pool,
     )
     .await
@@ -303,6 +304,7 @@ async fn all_packages_with_pagination_and_sort_by_recently_updated() {
         "".to_string(),
         25,
         500,
+        None,
         pool,
     )
     .await
@@ -526,6 +528,7 @@ async fn get_versions_by_latest() {
         "1".to_string(),
         2,
         100,
+        None,
         &DB_POOL,
     )
     .await
@@ -580,6 +583,7 @@ async fn get_versions_by_oldest() {
         "1".to_string(),
         2,
         3,
+        None,
         &DB_POOL,
     )
     .await
@@ -634,6 +638,7 @@ async fn get_versions_by_most_downloads() {
         "5".to_string(),
         2,
         3,
+        None,
         &DB_POOL,
     )
     .await
@@ -672,6 +677,7 @@ async fn count_package_works() {
         "rev_2".to_string(),
         2,
         100,
+        None,
         &DB_POOL,
     )
     .await
@@ -849,6 +855,7 @@ async fn increase_download_count_for_multiple_versions() {
         rev2.clone(),
         40,
         200,
+        None,
         &DB_POOL,
     )
     .await
@@ -918,4 +925,38 @@ async fn increase_download_count_for_multiple_versions() {
         .unwrap()
         .total_downloads_count;
     assert_eq!(package_total_downloads, 3);
+}
+
+#[actix_rt::test]
+async fn get_badge_info() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    let pool = &DB_POOL;
+    let search_query = "The first package";
+    Package::create_test_package_with_multiple_versions(
+        &"The first package".to_string(),
+        &"".to_string(),
+        &"description 1".to_string(),
+        1500,
+        pool,
+    )
+    .await
+    .unwrap();
+    let mut expected: Vec<(String, i32, String, i32)> = vec![];
+    expected.push((
+        "The first package".to_string(),
+        1500,
+        "0.0.1".to_string(),
+        500,
+    ));
+    expected.push((
+        "The first package".to_string(),
+        1500,
+        "0.0.2".to_string(),
+        1000,
+    ));
+    let result = Package::get_badge_info(search_query, pool).await.unwrap();
+    assert_eq!(result.len(), 2);
+    assert_eq!(result, expected);
 }
