@@ -1,27 +1,19 @@
 use jelly::error::Error;
 use reqwest::blocking::multipart;
 use reqwest::header;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::env;
 use std::hash::{Hash, Hasher};
 use jelly::error::Error::Generic;
-
-#[cfg(test)]
-use crate::test::mock::Client;
-#[cfg(test)]
-use crate::test::mock::MockResponse as Response;
-
-#[cfg(not(test))]
 use reqwest::blocking::Client;
-#[cfg(not(test))]
 use reqwest::blocking::Response;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 struct MoveToml {
     package: PackageToml,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 struct PackageToml {
     name: String,
     version: String,
@@ -68,6 +60,7 @@ pub static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CAR
 #[cfg(test)]
 use mockall::{automock, predicate::*};
 use oauth2::http::StatusCode;
+use crate::constants::DEEP_AI_URL;
 
 pub struct GithubService {}
 
@@ -104,13 +97,13 @@ impl GithubService {
         let mut readme_content = "".to_string();
         let response = call_github_api(&readme_url)?;
         if response.status() != StatusCode::NOT_FOUND {
-            match call_github_api(&readme_url)?.text() {
+            match response.text() {
                 Ok(content) => {
                     // generate description from readme if not existed
                     if github_info.description.is_none() {
-                        let mut description = call_deep_ai_api(content.clone())?;
+                        let mut description = call_deep_ai_api(content.clone(), None)?;
                         if description.len() > 400 {
-                            let deepai_summary = call_deep_ai_api(description.clone())?;
+                            let deepai_summary = call_deep_ai_api(description.clone(), None)?;
                             if deepai_summary.len() > 0 {
                                 description = deepai_summary;
                             }
@@ -201,7 +194,8 @@ fn call_github_api(url: &str) -> Result<Response, Error> {
     Ok(res)
 }
 
-fn call_deep_ai_api(content: String) -> Result<String, Error> {
+// url param is only used in testing
+fn call_deep_ai_api(content: String, url: Option<&str>) -> Result<String, Error> {
     let access_token = env::var("DEEP_AI_API_KEY")
         .expect("Unable to pull DEEP_AI_API_KEY");
     // not be able to mock both get and post func of Client at the moment,
@@ -211,8 +205,9 @@ fn call_deep_ai_api(content: String) -> Result<String, Error> {
         .build()?;
     let form = multipart::Form::new()
         .text("text", content);
+    let url = url.unwrap_or(DEEP_AI_URL);
     let response = client
-        .post("https://api.deepai.org/api/summarization")
+        .post(url)
         .header("api-key", access_token)
         .multipart(form)
         .send()
@@ -280,49 +275,233 @@ fn get_repo_latest_commit_sha(repo_url: &str) -> Result<String, Error> {
 
 #[cfg(test)]
 mod tests {
-    use crate::github_service::{call_github_api, get_repo_description_and_size, get_repo_latest_commit_sha, GithubService};
-    use crate::test::stub::{GH_REPO_INFO_STUB, SHA_STUB};
+    use std::env;
+    use httpmock::MockServer;
+    use httpmock::prelude::*;
+    use serde_json::json;
 
-    #[actix_rt::test]
-    async fn fetch_repo_data_works() {
+    use super::*;
+
+    #[test]
+    fn get_repo_description_and_size_works() {
         crate::test::init();
+
+        let access_token = env::var("GITHUB_ACCESS_TOKEN").unwrap();
+        let server = MockServer::start();
+        let server_mock = server.mock(|when, then| {
+            when.method(GET)
+                .header("User-Agent", APP_USER_AGENT)
+                .header("authorization", format!("token {}", &access_token));
+            then.status(200).json_body(json!({
+                "description": "test description",
+                "size": 1,
+                "default_branch": "test branch",
+            }));
+        });
+
+        let result = get_repo_description_and_size(&server.base_url()).unwrap();
+        server_mock.assert();
+        assert_eq!(result.description, Some("test description".to_string()));
+        assert_eq!(result.size, 1);
+        assert_eq!(result.default_branch, "test branch");
+    }
+
+    #[test]
+    fn get_repo_description_and_size_returns_default_value_if_response_body_is_empty() {
+        crate::test::init();
+
+        let access_token = env::var("GITHUB_ACCESS_TOKEN").unwrap();
+        let server = MockServer::start();
+        let server_mock = server.mock(|when, then| {
+            when.method(GET)
+                .header("User-Agent", APP_USER_AGENT)
+                .header("authorization", format!("token {}", &access_token));
+            then.status(200);
+        });
+
+        let result = get_repo_description_and_size(&server.base_url()).unwrap();
+        server_mock.assert();
+
+        assert_eq!(result.description, None);
+        assert_eq!(result.size, 0);
+        assert_eq!(result.default_branch, "");
+    }
+
+    #[test]
+    fn get_repo_latest_commit_sha_works() {
+        crate::test::init();
+
+        let access_token = env::var("GITHUB_ACCESS_TOKEN").unwrap();
+        let server = MockServer::start();
+        let server_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path("/commits")
+                .header("User-Agent", APP_USER_AGENT)
+                .header("authorization", format!("token {}", &access_token));
+            then.status(200).json_body(json!([
+                { "sha": "test sha" }
+            ]));
+        });
+
+        let result = get_repo_latest_commit_sha(&server.base_url());
+        server_mock.assert();
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "test sha");
+    }
+
+    #[test]
+    fn get_repo_latest_commit_sha_returns_err_if_response_body_is_empty() {
+        crate::test::init();
+
+        let access_token = env::var("GITHUB_ACCESS_TOKEN").unwrap();
+        let server = MockServer::start();
+        let server_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path("/commits")
+                .header("User-Agent", APP_USER_AGENT)
+                .header("authorization", format!("token {}", &access_token));
+            then.status(200);
+        });
+
+        let result = get_repo_latest_commit_sha(&server.base_url());
+        server_mock.assert();
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn call_deep_ai_api_works() {
+        crate::test::init();
+
+        let access_token = env::var("DEEP_AI_API_KEY")
+            .expect("Unable to pull DEEP_AI_API_KEY");
+        let server = MockServer::start();
+        // TODO: check if the request content type is multipart
+        // https://github.com/alexliesenfeld/httpmock/tree/master/tests/examples
+        let server_mock = server.mock(|when, then| {
+            when.method(POST)
+                .path("/api/summarization")
+                .header("User-Agent", APP_USER_AGENT)
+                .header("api-key", access_token);
+            then.status(200).json_body(json!({ "output":"summarized text" }));
+        });
+
+        let result = call_deep_ai_api(
+            "original text".to_string(),
+            Some(&format!("{}/api/summarization", &server.base_url()))
+        );
+        server_mock.assert();
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "summarized text");
+    }
+
+    #[test]
+    fn call_deep_ai_api_returns_empty_string_if_deep_ai_response_body_is_empty() {
+        crate::test::init();
+
+        let access_token = env::var("DEEP_AI_API_KEY")
+            .expect("Unable to pull DEEP_AI_API_KEY");
+        let server = MockServer::start();
+        // TODO: check if the request content type is multipart
+        let server_mock = server.mock(|when, then| {
+            when.method(POST)
+                .path("/api/summarization")
+                .header("User-Agent", APP_USER_AGENT)
+                .header("api-key", access_token);
+            then.status(200).json_body(json!({ "output":"" }));
+        });
+
+        let result = call_deep_ai_api(
+            "original text".to_string(),
+            Some(&format!("{}/api/summarization", &server.base_url()))
+        );
+        server_mock.assert();
+        assert!(result.is_ok());
+        assert!(result.unwrap().is_empty());
+    }
+
+    #[test]
+    fn call_deep_ai_api_returns_empty_string_if_out_of_free_credit() {
+        crate::test::init();
+
+        let access_token = env::var("DEEP_AI_API_KEY")
+            .expect("Unable to pull DEEP_AI_API_KEY");
+        let server = MockServer::start();
+        // TODO: check if the request content type is multipart
+        let server_mock = server.mock(|when, then| {
+            when.method(POST)
+                .path("/api/summarization")
+                .header("User-Agent", APP_USER_AGENT)
+                .header("api-key", access_token);
+            then.status(401).json_body(json!({
+                "status":"Out of free credits \
+                    - please enter payment info in your dashboard: https://deepai.org/dashboard"
+            }));
+        });
+
+        let result = call_deep_ai_api(
+            "original text".to_string(),
+            Some(&format!("{}/api/summarization", &server.base_url()))
+        );
+        server_mock.assert();
+        assert!(result.is_ok());
+        assert!(result.unwrap().is_empty());
+    }
+
+    #[test]
+    fn fetch_repo_data_works() {
+        crate::test::init();
+
+        let access_token = env::var("GITHUB_ACCESS_TOKEN").unwrap();
+        let server = MockServer::start();
+        let description_and_size_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path("/EastAgile/ea-movey")
+                .header("User-Agent", APP_USER_AGENT)
+                .header("authorization", format!("token {}", &access_token));
+            then.status(200).json_body(json!({
+                "description": "test description",
+                "size": 10,
+                "default_branch": "test-default-branch",
+            }));
+        });
+        let readme_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path("/EastAgile/ea-movey/rev/README.md")
+                .header("User-Agent", APP_USER_AGENT)
+                .header("authorization", format!("token {}", &access_token));
+            then.status(200).body("test readme content");
+        });
+
+        let move_toml = MoveToml {
+            package: PackageToml {
+                name: "test package name".to_string(),
+                version: "0.0.0".to_string(),
+            }
+        };
+        let move_toml_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path("/EastAgile/ea-movey/rev/Move.toml")
+                .header("User-Agent", APP_USER_AGENT)
+                .header("authorization", format!("token {}", &access_token));
+            then.status(200).body(toml::to_string(&move_toml).unwrap());
+        });
+
         let gh_service = GithubService::new();
-        let gh_repo_info = gh_service.fetch_repo_data(
-            &"https://github.com/EastAgile/ea-movey".to_string(),
-            Some("/random-url".to_string()),
-            None
+        let gh_repo_data = gh_service.fetch_repo_data(
+            &format!("{}/EastAgile/ea-movey", server.base_url()),
+            None,
+            Some("rev".to_string())
         ).unwrap();
 
-        assert_eq!(gh_repo_info.name, "A".to_string());
-        assert_eq!(gh_repo_info.version, "0.0.0".to_string());
-        assert_eq!(gh_repo_info.readme_content,
-                   "[package]\nname=\"A\"\nversion=\"0.0.0\"".to_string());
-        assert_eq!(gh_repo_info.description, "description".to_string());
-        assert_eq!(gh_repo_info.size, 10);
-        assert_eq!(gh_repo_info.rev, "abcdef123456".to_string());
-    }
-
-    #[actix_rt::test]
-    async fn get_repo_description_and_size_mock_successfully() {
-        crate::test::init();
-
-        let gh_repo_info = get_repo_description_and_size("/random-url").unwrap();
-        let gh_repo_info_stub = GH_REPO_INFO_STUB.clone();
-        assert_eq!(gh_repo_info.description, gh_repo_info_stub.description);
-        assert_eq!(gh_repo_info.default_branch, gh_repo_info_stub.default_branch);
-        assert_eq!(gh_repo_info.size, gh_repo_info_stub.size);
-    }
-
-    #[actix_rt::test]
-    async fn get_repo_latest_commit_sha_mock_successfully() {
-        crate::test::init();
-        let sha = get_repo_latest_commit_sha("/random-url").unwrap();
-        assert_eq!(sha, SHA_STUB.to_string())
-    }
-
-    #[actix_rt::test]
-    async fn call_github_api_mock_successfully() {
-        crate::test::init();
-        call_github_api("/random-url").unwrap();
+        description_and_size_mock.assert();
+        readme_mock.assert();
+        move_toml_mock.assert();
+        assert_eq!(gh_repo_data.name, "test package name");
+        assert_eq!(gh_repo_data.version, "0.0.0");
+        assert_eq!(gh_repo_data.readme_content, "test readme content");
+        assert_eq!(gh_repo_data.description, "test description");
+        assert_eq!(gh_repo_data.size, 10);
+        assert_eq!(gh_repo_data.url, "");
+        assert_eq!(gh_repo_data.rev, "rev");
     }
 }
