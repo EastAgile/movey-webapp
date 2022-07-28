@@ -31,17 +31,11 @@ pub async fn contact(request: HttpRequest) -> Result<HttpResponse> {
     request.render(200, "policy/contact.html", ctx)
 }
 
-pub async fn about(request: HttpRequest) -> Result<HttpResponse> {
-    request.render(200, "policy/about.html", Context::new())
-}
-
 pub fn configure(config: &mut ServiceConfig) {
     config.service(
         scope("/")
             .service(resource("/terms-of-use").to(term_))
             .service(resource("/policy").to(policy_))
-            .service(resource("/contact").to(contact)), // .service(
-                                                        //     resource("/about").to(about),
-                                                        // )
+            .service(resource("/contact").to(contact))
     );
 }
