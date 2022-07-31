@@ -1,2 +1,16 @@
 pub mod models;
-pub use models::PackageCollaborator;
+pub mod views;
+
+use jelly::actix_web::{post, web};
+use jelly::actix_web::web::{get, resource, scope, ServiceConfig};
+pub use models::package_collaborator;
+
+pub fn configure(config: &mut ServiceConfig) {
+    config.service(
+        scope("/owner_invitations")
+            .service(
+                resource("/accept/{token}")
+                    .route(get().to(views::invitation::handle_invite_with_token)),
+            )
+    );
+}

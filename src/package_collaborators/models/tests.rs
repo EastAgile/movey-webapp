@@ -3,23 +3,9 @@ use crate::{
     accounts::forms::NewAccountForm,
     test::{DatabaseTestContext, DB_POOL},
 };
-use diesel::dsl::count;
-use jelly::forms::{EmailField, PasswordField};
-
-async fn setup_user() -> i32 {
-    let form = NewAccountForm {
-        email: EmailField {
-            value: "email@host.com".to_string(),
-            errors: vec![],
-        },
-        password: PasswordField {
-            value: "So$trongpas0word!".to_string(),
-            errors: vec![],
-            hints: vec![],
-        },
-    };
-    Account::register(&form, &DB_POOL).await.unwrap()
-}
+use crate::package_collaborators::package_collaborator::PackageCollaborator;
+use crate::packages::Package;
+use crate::utils::tests::setup_user;
 
 #[actix_rt::test]
 async fn new_collaborator_works() {
@@ -42,11 +28,11 @@ async fn new_collaborator_works() {
     .await
     .unwrap();
 
-    PackageCollaborator::new_collaborator(pid, uid, uid, &DB_POOL)
+    PackageCollaborator::new_collaborator(pid, uid, uid, &DB_POOL.get().unwrap())
         .await
         .unwrap();
 
-    let rel = PackageCollaborator::get(pid, uid, &DB_POOL).await;
+    let rel = PackageCollaborator::get(pid, uid, &DB_POOL.get().unwrap()).await;
     assert!(rel.is_ok());
     assert_eq!(rel.as_ref().unwrap().package_id, pid);
     assert_eq!(rel.unwrap().account_id, uid);
