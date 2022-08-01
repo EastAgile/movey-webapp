@@ -1,6 +1,4 @@
-use super::*;
 use crate::{
-    accounts::forms::NewAccountForm,
     test::{DatabaseTestContext, DB_POOL},
 };
 use crate::package_collaborators::package_collaborator::PackageCollaborator;
@@ -12,7 +10,7 @@ async fn new_collaborator_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     let pid = Package::create_test_package(
         &"package1".to_string(),
         &"".to_string(),
