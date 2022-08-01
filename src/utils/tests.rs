@@ -1,7 +1,7 @@
-use jelly::forms::{EmailField, PasswordField};
-use crate::accounts::Account;
 use crate::accounts::forms::NewAccountForm;
+use crate::accounts::Account;
 use crate::test::DB_POOL;
+use jelly::forms::{EmailField, PasswordField};
 
 pub async fn setup_user(email: Option<String>, password: Option<String>) -> i32 {
     let form = NewAccountForm {

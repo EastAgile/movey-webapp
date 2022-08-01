@@ -1,8 +1,6 @@
-use crate::{
-    test::{DatabaseTestContext, DB_POOL},
-};
 use crate::package_collaborators::package_collaborator::PackageCollaborator;
 use crate::packages::Package;
+use crate::test::{DatabaseTestContext, DB_POOL};
 use crate::utils::tests::setup_user;
 
 #[actix_rt::test]

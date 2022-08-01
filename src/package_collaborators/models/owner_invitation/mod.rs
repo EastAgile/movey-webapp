@@ -1,16 +1,16 @@
 #[cfg(test)]
 mod tests;
 
-use std::env;
+use crate::package_collaborators::package_collaborator::PackageCollaborator;
+use crate::schema::owner_invitations;
+use crate::utils::token::{generate_secure_alphanumeric_string, TOKEN_LENGTH};
 use diesel::prelude::*;
 use diesel::{Identifiable, Insertable, Queryable};
 use futures::executor::block_on;
 use jelly::chrono::{NaiveDateTime, Utc};
-use jelly::{chrono, DieselPgConnection};
 use jelly::Result;
-use crate::package_collaborators::package_collaborator::PackageCollaborator;
-use crate::schema::owner_invitations;
-use crate::utils::token::{generate_secure_alphanumeric_string, TOKEN_LENGTH};
+use jelly::{chrono, DieselPgConnection};
+use std::env;
 
 #[derive(Clone, Debug, PartialEq, Eq, Identifiable, Queryable)]
 #[primary_key(invited_user_id, package_id)]
@@ -36,7 +36,7 @@ impl OwnerInvitation {
         invited_user_id: i32,
         invited_by_user_id: i32,
         package_id: i32,
-        conn: &DieselPgConnection
+        conn: &DieselPgConnection,
     ) -> Result<Self> {
         // Before actually creating the invite, check if an expired invitation already exists
         // and delete it from the database. This allows obtaining a new invite if the old one
@@ -63,7 +63,7 @@ impl OwnerInvitation {
                 invited_user_id,
                 invited_by_user_id,
                 package_id,
-                token: generate_secure_alphanumeric_string(TOKEN_LENGTH)
+                token: generate_secure_alphanumeric_string(TOKEN_LENGTH),
             })
             // The ON CONFLICT DO NOTHING clause results in not creating the invite if another one
             // already exists. This does not cause problems with expired invitation as those are
@@ -80,7 +80,11 @@ impl OwnerInvitation {
             .first::<Self>(conn)?)
     }
 
-    pub fn find_by_id(invited_user_id: i32, package_id: i32, conn: &DieselPgConnection) -> Result<Self> {
+    pub fn find_by_id(
+        invited_user_id: i32,
+        package_id: i32,
+        conn: &DieselPgConnection,
+    ) -> Result<Self> {
         Ok(owner_invitations::table
             .find((invited_user_id, package_id))
             .first::<Self>(conn)?)
@@ -91,13 +95,13 @@ impl OwnerInvitation {
         Ok(())
     }
 
-    pub fn accept(&self, conn: &DieselPgConnection) -> Result<()>{
+    pub fn accept(&self, conn: &DieselPgConnection) -> Result<()> {
         conn.transaction(|| -> Result<()> {
             block_on(PackageCollaborator::new_collaborator(
                 self.package_id,
                 self.invited_user_id,
                 self.invited_by_user_id,
-                &conn
+                &conn,
             ))?;
             block_on(self.delete(&conn))?;
             Ok(())
@@ -111,8 +115,11 @@ impl OwnerInvitation {
     fn expires_at(&self) -> NaiveDateTime {
         let expiration_days = env::var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS")
             .expect("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS not set!");
-        let days = chrono::Duration::days(expiration_days.parse::<i64>()
-            .expect("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS is not an integer!"));
+        let days = chrono::Duration::days(
+            expiration_days
+                .parse::<i64>()
+                .expect("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS is not an integer!"),
+        );
         self.created_at + days
     }
 }
