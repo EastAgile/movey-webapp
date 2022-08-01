@@ -1,6 +1,5 @@
 use diesel::prelude::*;
-use diesel::{Associations, Identifiable, Insertable, Queryable};
-use diesel::associations::HasTable;
+use diesel::{Associations, Insertable, Queryable};
 use jelly::chrono::{DateTime, Utc};
 use jelly::error::Error;
 use jelly::serde::{Deserialize, Serialize};
@@ -9,6 +8,9 @@ use jelly::DieselPgConnection;
 use crate::accounts::Account;
 use crate::packages::Package;
 use crate::schema::package_collaborators;
+
+#[cfg(test)]
+mod tests;
 
 #[derive(Serialize, Deserialize, Queryable, Insertable, Associations)]
 #[table_name = "package_collaborators"]

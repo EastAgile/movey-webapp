@@ -1,9 +1,12 @@
+#[cfg(test)]
+mod tests;
+
 use std::env;
 use diesel::prelude::*;
 use diesel::{Identifiable, Insertable, Queryable};
 use futures::executor::block_on;
 use jelly::chrono::{NaiveDateTime, Utc};
-use jelly::{chrono, DieselPgConnection, DieselPgPool};
+use jelly::{chrono, DieselPgConnection};
 use jelly::Result;
 use crate::package_collaborators::package_collaborator::PackageCollaborator;
 use crate::schema::owner_invitations;
@@ -34,7 +37,7 @@ impl OwnerInvitation {
         invited_by_user_id: i32,
         package_id: i32,
         conn: &DieselPgConnection
-    ) -> Result<String> {
+    ) -> Result<Self> {
         // Before actually creating the invite, check if an expired invitation already exists
         // and delete it from the database. This allows obtaining a new invite if the old one
         // expired, instead of returning "already exists".
@@ -68,7 +71,7 @@ impl OwnerInvitation {
             .on_conflict_do_nothing()
             .get_result(conn)?;
 
-        Ok(res.token)
+        Ok(res)
     }
 
     pub fn find_by_token(token: &str, conn: &DieselPgConnection) -> Result<Self> {
@@ -83,17 +86,17 @@ impl OwnerInvitation {
             .first::<Self>(conn)?)
     }
 
-    pub async fn delete(self, conn: &DieselPgConnection) -> Result<()> {
-        diesel::delete(&self).execute(conn)?;
+    pub async fn delete(&self, conn: &DieselPgConnection) -> Result<()> {
+        diesel::delete(self).execute(conn)?;
         Ok(())
     }
 
     pub fn accept(&self, conn: &DieselPgConnection) -> Result<()>{
         conn.transaction(|| -> Result<()> {
             block_on(PackageCollaborator::new_collaborator(
-                invitation.package_id,
-                invitation.invited_user_id,
-                invitation.invited_by_user_id,
+                self.package_id,
+                self.invited_user_id,
+                self.invited_by_user_id,
                 &conn
             ))?;
             block_on(self.delete(&conn))?;

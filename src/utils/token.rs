@@ -1,7 +1,7 @@
 use rand::{distributions::Uniform, rngs::OsRng, Rng};
 use sha2::{Digest, Sha256};
 
-const TOKEN_LENGTH: usize = 32;
+pub const TOKEN_LENGTH: usize = 32;
 
 pub struct SecureToken {
     pub sha256: String,
