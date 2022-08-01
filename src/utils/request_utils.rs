@@ -6,11 +6,20 @@ use jelly::anyhow::anyhow;
 use jelly::error::Error;
 use jelly::prelude::*;
 use jelly::Result;
+use jelly::actix_web::http::header;
 
 use crate::accounts::Account;
+use crate::constants;
 
 pub async fn is_authenticated(request: &HttpRequest) -> Result<bool> {
     Ok(request.is_authenticated()? && renew_token(request).await?)
+}
+
+pub fn clear_cookie(request: &HttpRequest) -> HttpResponse {
+    request.get_session().clear();
+    HttpResponse::Unauthorized()
+        .header(header::SET_COOKIE, constants::REMEMBER_ME_TOKEN_INVALIDATE)
+        .body("")
 }
 
 pub async fn renew_token(request: &HttpRequest) -> Result<bool> {

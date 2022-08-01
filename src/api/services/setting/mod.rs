@@ -1,2 +1,2 @@
 pub mod controllers;
-mod views;
+pub mod views;

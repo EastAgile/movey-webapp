@@ -8,6 +8,7 @@ use diesel::result::DatabaseErrorKind;
 use diesel::result::Error::DatabaseError;
 use jelly::forms::{EmailField, PasswordField};
 use std::{collections::HashSet, iter::FromIterator};
+use crate::utils::tests::setup_user;
 
 fn login_form() -> LoginForm {
     LoginForm {
@@ -23,21 +24,6 @@ fn login_form() -> LoginForm {
         remember_me: "off".to_string(),
         redirect: "".to_string(),
     }
-}
-
-async fn setup_user() -> i32 {
-    let form = NewAccountForm {
-        email: EmailField {
-            value: "email@host.com".to_string(),
-            errors: vec![],
-        },
-        password: PasswordField {
-            value: "So$trongpas0word!".to_string(),
-            errors: vec![],
-            hints: vec![],
-        },
-    };
-    Account::register(&form, &DB_POOL).await.unwrap()
 }
 
 async fn setup_github_account() -> Account {
@@ -77,7 +63,7 @@ async fn create_stub_packages(account_id: i32, num_of_packages: i32) {
 async fn authenticate_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     Account::mark_verified(uid, &DB_POOL).await.unwrap();
 
     let user = Account::authenticate(&login_form(), &DB_POOL)
@@ -90,7 +76,7 @@ async fn authenticate_works() {
 async fn authenticate_with_wrong_email_return_err() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     Account::mark_verified(uid, &DB_POOL).await.unwrap();
 
     let invalid_login_form = LoginForm {
@@ -116,7 +102,7 @@ async fn authenticate_with_wrong_email_return_err() {
 async fn authenticate_with_wrong_password_return_err() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     Account::mark_verified(uid, &DB_POOL).await.unwrap();
 
     let invalid_login_form = LoginForm {
@@ -142,7 +128,7 @@ async fn authenticate_with_wrong_password_return_err() {
 async fn authenticate_with_unverified_account_return_err() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    setup_user().await;
+    setup_user(None, None).await;
 
     match Account::authenticate(&login_form(), &DB_POOL).await {
         Err(Error::Generic(e)) => {
@@ -156,7 +142,7 @@ async fn authenticate_with_unverified_account_return_err() {
 async fn register_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     let account = Account::get(uid, &DB_POOL).await.unwrap();
     assert_eq!(account.email, "email@host.com");
 }
@@ -213,7 +199,7 @@ async fn register_with_duplicate_email_throws_exception() {
 async fn change_password_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     Account::mark_verified(uid, &DB_POOL).await.unwrap();
 
     let new_password = String::from("nEw$trongpas0word!");
@@ -260,7 +246,7 @@ async fn register_with_github_new_account_works() {
 async fn register_with_github_existing_account_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    setup_user().await;
+    setup_user(None, None).await;
     let oauth_user = GithubOauthUser {
         email: "email@host.com".to_string(),
         login: "git".to_string(),
@@ -420,7 +406,7 @@ async fn merge_github_account_and_movey_account_should_migrate_api_tokens() {
         .await
         .unwrap();
 
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     let movey_account = Account::get(uid, &DB_POOL).await.unwrap();
     assert_eq!(movey_account.github_id, None);
     assert_eq!(movey_account.github_login, None);
@@ -475,7 +461,7 @@ async fn merge_github_account_and_movey_account_should_aggregate_api_tokens() {
         .await
         .unwrap();
 
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     let movey_account = Account::get(uid, &DB_POOL).await.unwrap();
     ApiToken::insert(&movey_account, "token_1", &DB_POOL)
         .await
@@ -544,7 +530,7 @@ async fn merge_github_account_and_movey_account_should_migrate_packages_ownershi
         .unwrap();
     assert_eq!(github_account_packages.len(), 3);
 
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     let movey_account = Account::get(uid, &DB_POOL).await.unwrap();
     create_stub_packages(movey_account.id, 7).await;
     let movey_account_packages = Package::get_by_account(movey_account.id, &DB_POOL)

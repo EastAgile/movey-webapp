@@ -292,7 +292,7 @@ impl Package {
         Ok(result)
     }
 
-    pub async fn get_by_name(package_name: &String, pool: &DieselPgPool) -> Result<Self, Error> {
+    pub async fn get_by_name(package_name: &str, pool: &DieselPgPool) -> Result<Self, Error> {
         let connection = pool.get()?;
 
         let result = packages
