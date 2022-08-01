@@ -12,10 +12,11 @@ use crate::schema::package_collaborators;
 #[cfg(test)]
 mod tests;
 
-#[derive(Serialize, Deserialize, Queryable, Insertable, Associations)]
+#[derive(Serialize, Deserialize, Queryable, Insertable, Associations, Identifiable)]
 #[table_name = "package_collaborators"]
 #[belongs_to(Account)]
 #[belongs_to(Package)]
+#[primary_key(account_id, package_id)]
 pub struct PackageCollaborator {
     pub package_id: i32,
     pub account_id: i32,
@@ -40,7 +41,7 @@ pub struct NewCollaborator {
 }
 
 impl PackageCollaborator {
-    pub async fn new_collaborator(
+    pub fn new_collaborator(
         package_id_: i32,
         account_id_: i32,
         created_by_: i32,
@@ -58,7 +59,7 @@ impl PackageCollaborator {
         Ok(())
     }
 
-    pub async fn get(
+    pub fn get(
         package_id_: i32,
         account_id_: i32,
         conn: &DieselPgConnection,
