@@ -151,3 +151,22 @@ async fn fill_in_invalid_password(world: &mut TestWorld, invalid_password: Strin
     password.send_keys(invalid_password.clone()).await.unwrap();
     confirm_password.send_keys(invalid_password).await.unwrap();
 }
+
+#[when("I access an invalid reset password link")]
+async fn access_invalid_reset_link(world: &mut TestWorld) {
+    let mut invalid_link = world.reset_token.clone();
+    invalid_link.remove(0);
+    world
+        .driver
+        .get(format!(
+            "{}accounts/reset/{}",
+            world.root_url, invalid_link
+        ))
+        .await
+        .unwrap();
+}
+
+#[then("I should see the Invalid or Expired page")]
+async fn see_invalid_or_expired(world: &mut TestWorld) {
+    assert_eq!(world.driver.title().await.unwrap(), "Invalid or Expired | Movey");
+}

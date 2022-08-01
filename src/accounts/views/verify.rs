@@ -2,15 +2,19 @@ use crate::accounts::views::utils::validate_token;
 use crate::accounts::Account;
 use diesel::result::Error as DBError;
 use jelly::accounts::User;
-use jelly::actix_session::UserSession;
 use jelly::actix_web::web::Query;
-use jelly::actix_web::{web, web::Path, HttpRequest};
+use jelly::actix_web::{web, web::Path};
 use jelly::request::DatabasePool;
 use jelly::Result;
 use jelly::{prelude::*, DieselPgPool};
 use oauth2::basic::BasicClient;
 use oauth2::reqwest::http_client;
 use oauth2::{AuthorizationCode, TokenResponse};
+use jelly::actix_session::UserSession;
+#[cfg(test)]
+use crate::test::mock::MockHttpRequest as HttpRequest;
+#[cfg(not(test))]
+use jelly::actix_web::HttpRequest;
 
 #[derive(serde::Deserialize)]
 pub struct AuthRequest {

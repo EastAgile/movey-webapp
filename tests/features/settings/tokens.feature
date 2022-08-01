@@ -1,4 +1,5 @@
 Feature: View user api tokens
+
     Scenario: User views token page
         Given I am a user on Movey
         And I am signed in

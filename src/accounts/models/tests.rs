@@ -8,6 +8,7 @@ use diesel::result::DatabaseErrorKind;
 use diesel::result::Error::DatabaseError;
 use jelly::forms::{EmailField, PasswordField};
 use std::{collections::HashSet, iter::FromIterator};
+use crate::test::util::{create_stub_packages, setup_user};
 
 fn login_form() -> LoginForm {
     LoginForm {
@@ -25,21 +26,6 @@ fn login_form() -> LoginForm {
     }
 }
 
-async fn setup_user() -> i32 {
-    let form = NewAccountForm {
-        email: EmailField {
-            value: "email@host.com".to_string(),
-            errors: vec![],
-        },
-        password: PasswordField {
-            value: "So$trongpas0word!".to_string(),
-            errors: vec![],
-            hints: vec![],
-        },
-    };
-    Account::register(&form, &DB_POOL).await.unwrap()
-}
-
 async fn setup_github_account() -> Account {
     Account::register_from_github(
         &GithubOauthUser {
@@ -54,23 +40,47 @@ async fn setup_github_account() -> Account {
     Account::get_by_github_id(132, &DB_POOL).await.unwrap()
 }
 
-async fn create_stub_packages(account_id: i32, num_of_packages: i32) {
-    for idx in 0..num_of_packages {
-        Package::create_test_package(
-            &format!("package_{}_{}", idx, account_id),
-            &"repo_url".to_string(),
-            &"package_description".to_string(),
-            &"0.0.0".to_string(),
-            &"".to_string(),
-            &"".to_string(),
-            10,
-            200,
-            Some(account_id),
-            &DB_POOL,
-        )
-        .await
-        .unwrap();
-    }
+#[actix_rt::test]
+#[should_panic(expected = "Database(NotFound)")]
+async fn fetch_name_from_email_returns_error_with_non_existent_email() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    Account::fetch_name_from_email(&"non-existent@mail.com", &DB_POOL).await.unwrap();
+}
+
+#[actix_rt::test]
+async fn fetch_name_from_email_returns_correct_name() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    let uid = setup_user().await;
+    let account_email = Account::get(uid, &DB_POOL).await.unwrap();
+    let account_name =
+        Account::fetch_name_from_email(&account_email.email, &DB_POOL).await.unwrap();
+    assert_eq!(account_name, account_email.name);
+}
+
+#[actix_rt::test]
+async fn fetch_email_returns_correct_email() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    let uid = setup_user().await;
+    let (name_, email_) = Account::fetch_email(uid, &DB_POOL).await.unwrap();
+    let account_email = Account::get(uid, &DB_POOL).await.unwrap();
+
+    assert_eq!(name_, account_email.name);
+    assert_eq!(email_, account_email.email);
+}
+
+#[actix_rt::test]
+#[should_panic(expected = "Database(NotFound)")]
+async fn fetch_email_returns_error_with_non_existent_uid() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    Account::fetch_email(10, &DB_POOL).await.unwrap();
 }
 
 #[actix_rt::test]
@@ -116,8 +126,7 @@ async fn authenticate_with_wrong_email_return_err() {
 async fn authenticate_with_wrong_password_return_err() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    let uid = setup_user().await;
-    Account::mark_verified(uid, &DB_POOL).await.unwrap();
+    setup_user().await;
 
     let invalid_login_form = LoginForm {
         email: EmailField {
@@ -142,10 +151,21 @@ async fn authenticate_with_wrong_password_return_err() {
 async fn authenticate_with_unverified_account_return_err() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    setup_user().await;
+    let form = NewAccountForm {
+        email: EmailField {
+            value: "email@host.com".to_string(),
+            errors: vec![],
+        },
+        password: PasswordField {
+            value: "So$trongpas0word!".to_string(),
+            errors: vec![],
+            hints: vec![],
+        },
+    };
+    Account::register(&form, &DB_POOL).await.unwrap();
 
     match Account::authenticate(&login_form(), &DB_POOL).await {
-        Err(Error::Generic(e)) => {
+        Err(Generic(e)) => {
             assert_eq!(e, String::from("Your account has not been activated."))
         }
         _ => panic!(),
@@ -210,11 +230,29 @@ async fn register_with_duplicate_email_throws_exception() {
 }
 
 #[actix_rt::test]
-async fn change_password_works() {
+#[should_panic(expected = "InvalidPassword")]
+async fn change_password_returns_error_if_wrong_current_password() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
     let uid = setup_user().await;
     Account::mark_verified(uid, &DB_POOL).await.unwrap();
+
+    let new_password = String::from("nEw$trongpas0word!");
+    Account::change_password(
+        uid,
+        String::from("wrong-password!"),
+        new_password.clone(),
+        &DB_POOL,
+    )
+        .await
+        .unwrap();
+}
+
+#[actix_rt::test]
+async fn change_password_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+    let uid = setup_user().await;
 
     let new_password = String::from("nEw$trongpas0word!");
     Account::change_password(

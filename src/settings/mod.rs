@@ -1,15 +1,9 @@
 use jelly::actix_web::web::{get, post, resource, scope, ServiceConfig};
+
 pub mod models;
 pub mod views;
 
-use jelly::prelude::*;
-use jelly::Result;
-
 use crate::utils::new_auth;
-
-pub async fn show_packages(request: HttpRequest) -> Result<HttpResponse> {
-    request.render(200, "settings/user_packages.html", Context::new())
-}
 
 pub fn configure(config: &mut ServiceConfig) {
     let guard = new_auth();

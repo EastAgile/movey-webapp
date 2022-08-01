@@ -17,10 +17,11 @@ extern crate log;
 
 #[macro_use]
 extern crate diesel_migrations;
+extern crate core;
 
 pub mod accounts;
 pub mod api;
-pub mod dashboard;
+// pub mod dashboard;
 pub mod github_service;
 pub mod packages;
 pub mod pages;
@@ -31,7 +32,7 @@ mod utils;
 #[allow(unused_imports)]
 pub mod schema;
 
-mod constants;
+pub mod constants;
 pub mod jobs;
 pub mod request;
 pub mod test;
@@ -84,7 +85,7 @@ async fn start_server() -> io::Result<(dev::Server, DieselPgPool)> {
         .register_service(accounts::configure)
         .register_jobs(accounts::jobs::configure)
         .register_service(packages::configure)
-        .register_service(dashboard::configure)
+        // .register_service(dashboard::configure)
         .register_service(api::configure)
         .register_service(settings::configure)
         .register_service(policy::configure)
