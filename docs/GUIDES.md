@@ -1,9 +1,11 @@
 # Developer's guide
 
+Documentation for developers working on Movey. For Move developers, please check out [`MOVE_DEVELOPER.md`](./MOVE_DEVELOPER.md).
+
 ## Getting Started
 
 - This project is an extension of [Jelly](https://github.com/secretkeysio/jelly-actix-web-starter), which itself is an extension of [actix-web](https://actix.rs/), so you should see that some features are built around what is already available in Jelly (check out [JELLY_FEATURES.md](./docs/JELLY_FEATURES.md) for more details).
-- To get started, clone this repository and change into the repository's directory from your terminal (currently this is our proprietary repo, we can change this later when this goes opensource)
+- To get started, clone this repository and change into the repository's directory from your terminal (currently this is our proprietary repo, we can change this later when this goes opensource).
 
 ```
 git clone https://github.com/EastAgile/ea-movey.git
@@ -18,7 +20,11 @@ Our frontend is rendered on the server with basic stack:
 - Css, compiled from Scss
 - JavaScript, with the help of jQuery and other libraries
 
-Once you get the backend running, the fronend should not require any seperate operations other than having a scss compiler running in the background.
+Once you get the backend running, the frontend should not require any seperate operations other than having a scss compiler running in the background. You can keep the scss compiler running using `cargo-watch`.
+
+```
+cargo-watch -d 2.5 -s "sass --load-path . static/css"
+```
 
 ### Working on the Backend
 
@@ -71,7 +77,7 @@ cargo test --lib --package=movey_app --features=test -- <insert test name or nam
 
 to run specific tests.
 
-For integration tests, we use [Cucumber]() and a [Selenium](https://github.com/stevepryde/thirtyfour) library for Rust. To run integration tests, you must have [`chromedriver`](https://chromedriver.chromium.org/) installed. Then you can run
+For integration tests, we use [Cucumber](https://github.com/cucumber-rs/cucumber) and a [Selenium](https://github.com/stevepryde/thirtyfour) library for Rust. To run integration tests, you must have [`chromedriver`](https://chromedriver.chromium.org/) installed. Then you can run
 
 ```
 chromedriver --port=4444
@@ -93,7 +99,7 @@ to run tests that has a `@wip` tag preceeding them.
 
 ## Staging
 
-To deploy to [our staging website](https://movey-app-staging.herokuapp.com), first:
+To deploy to [our staging website](https://movey-app-staging.herokuapp.com), please follow this procedure:
 
 - Login to Heroku and set up `staging` to track https://git.heroku.com/movey-app-staging.git
 - Checkout to the latest `development` branch
@@ -105,6 +111,12 @@ To deploy to [our staging website](https://movey-app-staging.herokuapp.com), fir
 git push staging development:master
 ```
 
+## Crawling
+
+We have an environment variable called `CRAWLING` to control if we want to continue crawling for new packages. The crawler will begin to run whenever the server restarts.
+
+Currently we are using Github Search API to find new packages, and we haven't got any way to crawl packages that are located on a specific chain.
+
 ## Credentials
 
-Credentials to our website can be found on [our internal Slack channel]().
+Please [contact us](https://www.movey.net/contact) or email us directly at `movey@eastagile.com` for our project credentials.
