@@ -16,7 +16,7 @@ mod contact;
 mod invite_collaborator;
 
 pub use contact::SendContactRequestEmail;
-pub use invite_collaborator::SendCollaboratorInvitationEmail;
+pub use invite_collaborator::{SendCollaboratorInvitationEmail, SendRegisterToCollabEmail};
 
 pub fn configure(config: WorkerConfig<JobState>) -> WorkerConfig<JobState> {
     let mut config = config.register::<SendResetPasswordEmail>();
@@ -24,6 +24,7 @@ pub fn configure(config: WorkerConfig<JobState>) -> WorkerConfig<JobState> {
     config = config.register::<SendAccountOddRegisterAttemptEmail>();
     config = config.register::<SendContactRequestEmail>();
     config = config.register::<SendCollaboratorInvitationEmail>();
+    config = config.register::<SendRegisterToCollabEmail>();
     config = config.register::<SendContactEmail>();
     config.register::<SendVerifyAccountEmail>()
 }

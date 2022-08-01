@@ -94,11 +94,26 @@ table! {
     }
 }
 
+table! {
+    use diesel::sql_types::*;
+    use diesel_full_text_search::{TsVector as Tsvector};
+
+    pending_invitations (pending_user_email, package_id) {
+        pending_user_email -> Text,
+        invited_by_user_id -> Int4,
+        package_id -> Int4,
+        token -> Text,
+        created_at -> Timestamp,
+    }
+}
+
 joinable!(api_tokens -> accounts (account_id));
 joinable!(owner_invitations -> packages (package_id));
 joinable!(package_collaborators -> packages (package_id));
 joinable!(package_versions -> packages (package_id));
 joinable!(packages -> accounts (account_id));
+joinable!(pending_invitations -> accounts (invited_by_user_id));
+joinable!(pending_invitations -> packages (package_id));
 
 allow_tables_to_appear_in_same_query!(
     accounts,
@@ -107,4 +122,5 @@ allow_tables_to_appear_in_same_query!(
     package_collaborators,
     package_versions,
     packages,
+    pending_invitations,
 );

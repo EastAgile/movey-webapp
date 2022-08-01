@@ -31,9 +31,7 @@ async fn find_by_token_works() {
     let (uid1, uid2, pid) = setup_user_package().await;
     let db = &DB_POOL;
     let conn = db.get().unwrap();
-    let owner_invitation1 = OwnerInvitation::create(uid1, uid2, pid, &conn)
-        .await
-        .unwrap();
+    let owner_invitation1 = OwnerInvitation::create(uid1, uid2, pid, &conn).unwrap();
 
     let owner_invitation2 =
         OwnerInvitation::find_by_token(&owner_invitation1.token, &conn).unwrap();
@@ -54,9 +52,7 @@ async fn find_by_id_works() {
     let (uid1, uid2, pid) = setup_user_package().await;
     let db = &DB_POOL;
     let conn = db.get().unwrap();
-    let owner_invitation1 = OwnerInvitation::create(uid1, uid2, pid, &conn)
-        .await
-        .unwrap();
+    let owner_invitation1 = OwnerInvitation::create(uid1, uid2, pid, &conn).unwrap();
 
     let owner_invitation2 = OwnerInvitation::find_by_id(uid1, pid, &conn).unwrap();
     assert_eq!(owner_invitation1, owner_invitation2);
@@ -76,11 +72,9 @@ async fn delete_works() {
     let (uid1, uid2, pid) = setup_user_package().await;
     let db = &DB_POOL;
     let conn = db.get().unwrap();
-    let owner_invitation = OwnerInvitation::create(uid1, uid2, pid, &conn)
-        .await
-        .unwrap();
+    let owner_invitation = OwnerInvitation::create(uid1, uid2, pid, &conn).unwrap();
 
-    owner_invitation.delete(&conn).await.unwrap();
+    owner_invitation.delete(&conn).unwrap();
     let not_found = OwnerInvitation::find_by_token(&owner_invitation.token, &conn);
     assert!(not_found.is_err());
     if let Err(Error::Database(diesel::NotFound)) = not_found {

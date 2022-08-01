@@ -1,11 +1,13 @@
-use crate::accounts::jobs::SendCollaboratorInvitationEmail;
+use crate::accounts::jobs::{SendCollaboratorInvitationEmail, SendRegisterToCollabEmail};
 use crate::accounts::Account;
 use crate::api::services::collaborators::views::{AddCollaboratorJson, InvitationResponse};
 use crate::constants::*;
 use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
+use crate::package_collaborators::models::pending_invitation::PendingInvitation;
 use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
 use crate::packages::Package;
 use crate::utils::request_utils;
+use diesel::result::{DatabaseErrorKind, Error as DBError};
 use jelly::actix_web::web;
 use jelly::actix_web::web::Path;
 use jelly::prelude::*;
@@ -24,43 +26,73 @@ pub async fn add_collaborators(
     let db = request.db_pool()?;
     let conn = db.get()?;
 
-    let package = Package::get_by_name(&package_name, db).await;
-    if let Err(e) = package {
-        warn!("add_collaborators failed, error: {}", e);
-        return Ok(HttpResponse::NotFound().json(json!({
-            "ok": false,
-            "msg": MSG_PACKAGE_NOT_FOUND,
-        })));
-    }
-    let package = package.unwrap();
-    let collaborator = PackageCollaborator::get(package.id, user.id, &conn).await;
-    if let Err(e) = collaborator {
-        warn!("add_collaborators failed, error: {}", e);
-        return Ok(HttpResponse::Unauthorized().json(json!({
-            "ok": false,
-            "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
-        })));
-    }
-    let collaborator = collaborator.unwrap();
-    if collaborator.role != Role::Owner as i32 {
-        return Ok(HttpResponse::Forbidden().json(json!({
-            "ok": false,
-            "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
-        })));
-    }
-
-    let invited_account = match Account::get_by_email_or_gh_login(&json.user, db).await {
-        Ok(account) => account,
+    let package = match Package::get_by_name(&package_name, db).await {
+        Ok(package) => package,
+        Err(Error::Database(DBError::NotFound)) => {
+            return Ok(HttpResponse::NotFound().json(json!({
+                "ok": false,
+                "msg": MSG_PACKAGE_NOT_FOUND,
+            })));
+        }
         Err(e) => {
             warn!("add_collaborators failed, error: {}", e);
-            return Ok(HttpResponse::BadRequest().json(json!({
+            return Ok(HttpResponse::InternalServerError().json(json!({
                 "ok": false,
-                "msg": MSG_ACCOUNT_NOT_FOUND,
+                "msg": MSG_FAILURE_INVITING_COLLABORATOR,
             })));
         }
     };
 
-    match OwnerInvitation::create(invited_account.id, user.id, package.id, &conn).await {
+    let invited_account = match Account::get_by_email_or_gh_login(&json.user, db).await {
+        Ok(account) => account,
+        Err(Error::Database(DBError::NotFound)) => {
+            if json.user.contains("@") {
+                // Send an email inviting this user to register and collaborate on this package
+                request.queue(SendRegisterToCollabEmail {
+                    to: json.user.clone(),
+                })?;
+                PendingInvitation::create(&json.user, user.id, package.id, &conn)?;
+            }
+            return Ok(HttpResponse::NotFound().json(json!({
+                "ok": false,
+                "msg": MSG_ACCOUNT_NOT_FOUND_INVITING,
+            })));
+        }
+        Err(e) => {
+            warn!("add_collaborators failed, error: {}", e);
+            return Ok(HttpResponse::InternalServerError().json(json!({
+                "ok": false,
+                "msg": MSG_FAILURE_INVITING_COLLABORATOR,
+            })));
+        }
+    };
+
+    match PackageCollaborator::get(package.id, user.id, &conn) {
+        Ok(collaborator) => {
+            if collaborator.role != Role::Owner as i32 {
+                return Ok(HttpResponse::Forbidden().json(json!({
+                    "ok": false,
+                    "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
+                })));
+            }
+        }
+        Err(e) => {
+            warn!("add_collaborators failed, error: {}", e);
+            return Ok(HttpResponse::Unauthorized().json(json!({
+                "ok": false,
+                "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
+            })));
+        }
+    };
+
+    if let Ok(_) = PackageCollaborator::get(package.id, invited_account.id, &conn) {
+        return Ok(HttpResponse::BadRequest().json(json!({
+            "ok": false,
+            "msg": MSG_COLLABORATOR_ALREADY_EXISTED
+        })));
+    }
+
+    match OwnerInvitation::create(invited_account.id, user.id, package.id, &conn) {
         Ok(_) => {
             if !invited_account.is_generated_email() {
                 request.queue(SendCollaboratorInvitationEmail {
@@ -68,9 +100,15 @@ pub async fn add_collaborators(
                 })?;
             }
         }
+        Err(Error::Database(DBError::DatabaseError(DatabaseErrorKind::UniqueViolation, _))) => {
+            return Ok(HttpResponse::BadRequest().json(json!({
+                "ok": false,
+                "msg": MSG_INVITATION_ALREADY_EXISTED,
+            })));
+        }
         Err(e) => {
             warn!("add_collaborators failed, error: {}", e);
-            return Ok(HttpResponse::BadRequest().json(json!({
+            return Ok(HttpResponse::InternalServerError().json(json!({
                 "ok": false,
                 "msg": MSG_FAILURE_INVITING_COLLABORATOR,
             })));
@@ -109,7 +147,7 @@ pub async fn handle_invite(
             })));
         }
     } else {
-        if let Err(e) = invitation.delete(&conn).await {
+        if let Err(e) = invitation.delete(&conn) {
             warn!("handle_invite failed, error: {}", e);
             return Ok(HttpResponse::Unauthorized().json(json!({
                 "ok": false,

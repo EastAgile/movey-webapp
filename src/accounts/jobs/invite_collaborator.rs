@@ -62,15 +62,15 @@ impl Job for SendCollaboratorInvitationEmail {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct SendPasswordWasResetEmail {
+pub struct SendRegisterToCollabEmail {
     pub to: String,
 }
 
-impl Job for SendPasswordWasResetEmail {
+impl Job for SendRegisterToCollabEmail {
     type State = JobState;
     type Future = Pin<Box<dyn Future<Output = Result<(), Error>> + Send>>;
 
-    const NAME: &'static str = "SendPasswordWasResetEmailJob";
+    const NAME: &'static str = "SendRegisterToCollabEmailJob";
     const QUEUE: &'static str = DEFAULT_QUEUE;
 
     fn run(self, state: JobState) -> Self::Future {
