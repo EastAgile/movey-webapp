@@ -5,12 +5,10 @@ use serde_json::json;
 use crate::accounts::Account;
 use crate::accounts::jobs::SendCollaboratorInvitationEmail;
 use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
-use crate::package_collaborators::package_collaborator;
 use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
 use crate::packages::Package;
 use jelly::Result;
 use crate::api::services::collaborators::views::{AddCollaboratorJson, InvitationResponse};
-use crate::utils::owner_invitation::accept_invitation;
 use crate::utils::request_utils;
 
 pub async fn add_collaborators(
@@ -72,7 +70,7 @@ pub async fn add_collaborators(
         package.id,
         &conn).await
     {
-        Ok(token) => {
+        Ok(_) => {
             if !invited_account.is_generated_email() {
                 request.queue(SendCollaboratorInvitationEmail {
                     to: invited_account.email

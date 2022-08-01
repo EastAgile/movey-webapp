@@ -6,10 +6,10 @@ use jelly::Result;
 use crate::accounts::forms::NewAccountForm;
 use crate::accounts::jobs::{SendAccountOddRegisterAttemptEmail, SendVerifyAccountEmail};
 use crate::accounts::Account;
-use crate::request;
+use crate::utils::request_utils;
 
 pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
-    if request::is_authenticated(&request).await? {
+    if request_utils::is_authenticated(&request).await? {
         return request.redirect("/settings/profile");
     }
 
@@ -24,7 +24,7 @@ pub async fn create_account(
     request: HttpRequest,
     form: Form<NewAccountForm>,
 ) -> Result<HttpResponse> {
-    if request::is_authenticated(&request).await? {
+    if request_utils::is_authenticated(&request).await? {
         return request.redirect("/settings/profile");
     }
 

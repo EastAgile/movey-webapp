@@ -36,6 +36,24 @@ pub fn configure(config: &mut ServiceConfig) {
                     .route(get().to(services::setting::controllers::profile::get_logged_in_user)),
             )
             .service(
+                scope("/packages")
+                    .service(
+                        resource("/{pkg_name}/badge")
+                            .route(get().to(services::package::controller::package_badge_info)),
+                    )
+                    .service(
+                        resource("/{package_name}/package_collaborators")
+                            .route(post().to(services::collaborators::controllers::add_collaborators)),
+                    )
+            )
+            .service(
+                scope("/owner_invitations")
+                    .service(
+                        resource("/")
+                            .route(post().to(services::collaborators::controllers::handle_invite)),
+                    )
+            )
+			.service(
                 resource("/badge")
                     .route(get().to(services::package::controller::package_badge_info)),
             ),

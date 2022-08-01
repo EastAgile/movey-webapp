@@ -35,6 +35,7 @@ pub mod schema;
 pub mod constants;
 pub mod jobs;
 pub mod package_collaborators;
+pub mod test;
 pub mod request;
 pub mod sql;
 pub mod test;

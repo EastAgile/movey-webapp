@@ -60,6 +60,15 @@ impl Account {
         Ok(result)
     }
 
+    pub async fn get_by_email_or_gh_login(term: &str, pool: &DieselPgPool) -> Result<Self, Error> {
+        let connection = pool.get()?;
+        let result = accounts
+            .filter(email.eq(term).or(github_login.eq(term)))
+            .first::<Account>(&connection)?;
+
+        Ok(result)
+    }
+
     pub async fn authenticate(form: &LoginForm, pool: &DieselPgPool) -> Result<User, Error> {
         let connection = pool.get()?;
         let user = accounts
@@ -267,6 +276,12 @@ impl Account {
             .execute(&conn)?;
 
         Ok(())
+    }
+
+    pub fn is_generated_email(&self) -> bool {
+        let no_reply_email_domain =
+            std::env::var("NO_REPLY_EMAIL_DOMAIN").expect("NO_REPLY_EMAIL_DOMAIN is not set!");
+        self.email.ends_with(&no_reply_email_domain)
     }
 }
 
