@@ -41,6 +41,7 @@ pub struct Account {
     pub updated: DateTime<Utc>,
     pub github_login: Option<String>,
     pub github_id: Option<i64>,
+    pub avatar: Option<String>,
 }
 
 impl Account {
@@ -193,6 +194,20 @@ impl Account {
                 ))
                 .execute(&connection)?;
 
+            if accounts
+                .filter(id.eq(record.id))
+                .select(avatar)
+                .first::<Option<String>>(&connection)?
+                .is_none()
+            {
+                diesel::update(accounts.filter(id.eq(record.id)))
+                    .set(avatar.eq(Some(format!(
+                        "https://avatars.githubusercontent.com/u/{}",
+                        oauth_user.id
+                    ))))
+                    .execute(&connection)?;
+            }
+
             record
         } else {
             // create a new account via github
@@ -251,6 +266,21 @@ impl Account {
                 .set((github_id.eq(gh_id), github_login.eq(gh_login)))
                 .execute(&conn)?;
 
+            // User has not had an avatar in their Movey account => use their Github avatar
+            if accounts
+                .filter(id.eq(movey_account_id))
+                .select(avatar)
+                .first::<Option<String>>(&conn)?
+                .is_none()
+            {
+                diesel::update(accounts.filter(id.eq(movey_account_id)))
+                    .set(avatar.eq(Some(format!(
+                        "https://avatars.githubusercontent.com/u/{}",
+                        gh_id
+                    ))))
+                    .execute(&conn)?;
+            }
+
             Ok(())
         })
     }
@@ -265,6 +295,20 @@ impl Account {
         diesel::update(accounts.filter(id.eq(movey_id)))
             .set((github_id.eq(gh_id), github_login.eq(gh_login)))
             .execute(&conn)?;
+
+        if accounts
+            .filter(id.eq(movey_id))
+            .select(avatar)
+            .first::<Option<String>>(&conn)?
+            .is_none()
+        {
+            diesel::update(accounts.filter(id.eq(movey_id)))
+                .set(avatar.eq(Some(format!(
+                    "https://avatars.githubusercontent.com/u/{}",
+                    gh_id
+                ))))
+                .execute(&conn)?;
+        }
 
         Ok(())
     }
@@ -325,6 +369,7 @@ pub struct NewGithubAccount {
     pub password: String,
     pub has_verified_email: bool,
     pub github_id: i64,
+    pub avatar: Option<String>,
 }
 
 impl NewGithubAccount {
@@ -340,6 +385,10 @@ impl NewGithubAccount {
             },
             has_verified_email: true,
             github_id: oauth_user.id,
+            avatar: Some(format!(
+                "https://avatars.githubusercontent.com/u/{}",
+                oauth_user.id
+            )),
         }
     }
 }
