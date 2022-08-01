@@ -22,7 +22,7 @@ pub struct PackageSearch {
     search_query: String,
 }
 
-pub async fn post_package(
+pub async fn register_package(
     request: HttpRequest,
     mut req: web::Json<PackageRequest>,
 ) -> Result<HttpResponse> {
