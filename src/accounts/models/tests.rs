@@ -9,7 +9,6 @@ use diesel::result::DatabaseErrorKind;
 use diesel::result::Error::DatabaseError;
 use jelly::forms::{EmailField, PasswordField};
 use std::{collections::HashSet, iter::FromIterator};
-use crate::utils::tests::setup_user;
 
 fn login_form() -> LoginForm {
     LoginForm {

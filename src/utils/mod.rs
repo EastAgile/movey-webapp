@@ -6,6 +6,7 @@ pub mod token;
 pub mod request_utils;
 #[cfg(test)]
 pub mod tests;
+pub mod token;
 
 pub fn new_auth() -> Auth {
     Auth {

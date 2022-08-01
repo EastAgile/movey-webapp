@@ -58,7 +58,11 @@ impl PackageCollaborator {
         Ok(())
     }
 
-    pub async fn get(package_id_: i32, account_id_: i32, conn: &DieselPgConnection) -> Result<Self, Error> {
+    pub async fn get(
+        package_id_: i32,
+        account_id_: i32,
+        conn: &DieselPgConnection,
+    ) -> Result<Self, Error> {
         Ok(package_collaborators::table
             .find((package_id_, account_id_))
             .first::<Self>(conn)?)
