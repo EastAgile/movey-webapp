@@ -2,7 +2,6 @@ use std::env;
 use std::future::Future;
 use std::pin::Pin;
 
-use jelly::accounts::OneTimeUseTokenGenerator;
 use jelly::anyhow::{anyhow, Error};
 use jelly::email::Email;
 use jelly::jobs::{Job, JobState, DEFAULT_QUEUE};
@@ -14,9 +13,11 @@ use crate::accounts::Account;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SendCollaboratorInvitationEmail {
     pub to: String,
+    pub package_name: String,
+    pub token: String,
 }
 
-pub fn build_context(verify_url: &str) -> Context {
+pub fn build_invite_collaborator_context(verify_url: &str) -> Context {
     let mut context = Context::new();
     context.insert("action_url", verify_url);
     context
@@ -33,24 +34,21 @@ impl Job for SendCollaboratorInvitationEmail {
         Box::pin(async move {
             let account = Account::get_by_email(&self.to, &state.pool)
                 .await
-                .map_err(|e| anyhow!("Error fetching account for password reset: {:?}", e))?;
+                .map_err(|e| anyhow!("Error fetching account for collaborator invitation: {:?}", e))?;
 
             let domain = env::var("JELLY_DOMAIN").expect("No JELLY_DOMAIN value set!");
 
-            let verify_url = format!(
-                "{}/accounts/reset/{}-{}/",
+            let invitation_url = format!(
+                "{}/owner_invitations/accept/{}",
                 domain,
-                base64_url::encode(&format!("{}", account.id)),
-                account
-                    .create_reset_token()
-                    .map_err(|e| { anyhow!("Error creating verification token: {:?}", e) })?
+                self.token
             );
 
             let email = Email::new(
                 "email/reset-password",
                 &[account.email],
-                "Reset your Movey account password",
-                build_context(&verify_url),
+                &format!("You have been invited to collaborate on {}", self.package_name),
+                build_invite_collaborator_context(&invitation_url),
                 state.templates,
             );
 

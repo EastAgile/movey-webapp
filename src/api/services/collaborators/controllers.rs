@@ -1,7 +1,6 @@
 use crate::accounts::jobs::{SendCollaboratorInvitationEmail, SendRegisterToCollabEmail};
 use crate::accounts::Account;
 use crate::api::services::collaborators::views::{AddCollaboratorJson, InvitationResponse};
-use crate::constants::*;
 use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
 use crate::package_collaborators::models::pending_invitation::PendingInvitation;
 use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
@@ -92,11 +91,18 @@ pub async fn add_collaborators(
         })));
     }
 
-    match OwnerInvitation::create(invited_account.id, user.id, package.id, &conn) {
-        Ok(_) => {
+    match OwnerInvitation::create(
+        invited_account.id,
+        user.id,
+        package.id,
+        &conn
+    ) {
+        Ok(invitation) => {
             if !invited_account.is_generated_email() {
                 request.queue(SendCollaboratorInvitationEmail {
                     to: invited_account.email,
+                    package_name: package.name,
+                    token: invitation.token
                 })?;
             }
         }

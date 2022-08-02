@@ -1,3 +1,4 @@
+use jelly::prelude::*;
 use crate::package_collaborators::package_collaborator::PackageCollaborator;
 use crate::packages::Package;
 use crate::test::{DatabaseTestContext, DB_POOL};
@@ -21,8 +22,8 @@ async fn new_collaborator_works() {
         Some(uid),
         &DB_POOL,
     )
-    .await
-    .unwrap();
+        .await
+        .unwrap();
 
     PackageCollaborator::new_collaborator(pid, uid, uid, &DB_POOL.get().unwrap()).unwrap();
 
@@ -30,4 +31,17 @@ async fn new_collaborator_works() {
     assert!(rel.is_ok());
     assert_eq!(rel.as_ref().unwrap().package_id, pid);
     assert_eq!(rel.unwrap().account_id, uid);
+}
+
+
+#[actix_rt::test]
+async fn get_non_existed_returns_err() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    let not_found = PackageCollaborator::get(100000, 1000000, &DB_POOL.get().unwrap());
+    assert!(not_found.is_err());
+    if let Err(Error::Database(diesel::NotFound)) = not_found {} else {
+        panic!()
+    }
 }
