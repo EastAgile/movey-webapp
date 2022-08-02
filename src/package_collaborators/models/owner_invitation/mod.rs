@@ -114,13 +114,13 @@ impl OwnerInvitation {
     fn expires_at(&self) -> NaiveDateTime {
         let expiration_days = env::var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS")
             .expect("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS not set!");
-        let days = expiration_days
+        let no_days = expiration_days
             .parse::<i64>()
             .expect("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS is not an integer!");
-        if days < 0 {
+        if no_days < 0 {
             panic!("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS cannot be less than 0")
         }
-        let days = chrono::Duration::days(days);
+        let days = chrono::Duration::days(no_days);
         self.created_at + days
     }
 }

@@ -157,22 +157,18 @@ async fn create_new_invitation_if_existing_one_is_expired() {
 }
 
 #[actix_rt::test]
+#[should_panic]
 async fn not_create_new_invitation_if_it_already_exists() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
     let owner_invitation = setup_invitation().await;
-    let token = owner_invitation.token;
-    let created_at = owner_invitation.created_at;
-
     env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "1");
-    let owner_invitation = OwnerInvitation::create(
+    OwnerInvitation::create(
         owner_invitation.invited_user_id,
         owner_invitation.invited_by_user_id,
         owner_invitation.package_id,
         &conn
     ).unwrap();
-    assert_eq!(token, owner_invitation.token);
-    assert_eq!(created_at, owner_invitation.created_at);
 }

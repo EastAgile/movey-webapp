@@ -13,9 +13,10 @@ pub use odd_registration_attempt::build_context as build_odd_registration_attemp
 pub use odd_registration_attempt::SendAccountOddRegisterAttemptEmail;
 
 mod contact;
-mod invite_collaborator;
-
 pub use contact::SendContactRequestEmail;
+
+mod invite_collaborator;
+pub use invite_collaborator::build_invite_collaborator_context;
 pub use invite_collaborator::{SendCollaboratorInvitationEmail, SendRegisterToCollabEmail};
 
 pub fn configure(config: WorkerConfig<JobState>) -> WorkerConfig<JobState> {
