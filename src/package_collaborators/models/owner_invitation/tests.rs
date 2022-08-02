@@ -1,10 +1,10 @@
-use std::env;
 use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
 use crate::packages::Package;
 use crate::test::{DatabaseTestContext, DB_POOL};
 use crate::utils::tests::setup_user;
-use jelly::prelude::*;
 use crate::utils::token::TOKEN_LENGTH;
+use jelly::prelude::*;
+use std::env;
 
 async fn setup_invitation() -> OwnerInvitation {
     let invited_uid = setup_user(None, None).await;
@@ -53,14 +53,31 @@ async fn find_by_id_works() {
     let owner_invitation2 = OwnerInvitation::find_by_id(
         owner_invitation1.invited_user_id,
         owner_invitation1.package_id,
-        &conn
-    ).unwrap();
+        &conn,
+    )
+    .unwrap();
     assert_eq!(owner_invitation1, owner_invitation2);
     let not_found = OwnerInvitation::find_by_id(
         owner_invitation1.invited_by_user_id,
         owner_invitation1.package_id,
-        &conn
+        &conn,
     );
+    assert!(not_found.is_err());
+    if let Err(Error::Database(diesel::NotFound)) = not_found {
+    } else {
+        panic!()
+    }
+}
+
+#[actix_rt::test]
+async fn accept_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+    let conn = DB_POOL.get().unwrap();
+
+    let owner_invitation = setup_invitation().await;
+    owner_invitation.accept(&conn).unwrap();
+    let not_found = OwnerInvitation::find_by_token(&owner_invitation.token, &conn);
     assert!(not_found.is_err());
     if let Err(Error::Database(diesel::NotFound)) = not_found {
     } else {
@@ -129,8 +146,9 @@ async fn create_works() {
     let owner_invitation2 = OwnerInvitation::find_by_id(
         owner_invitation1.invited_user_id,
         owner_invitation1.package_id,
-        &conn
-    ).unwrap();
+        &conn,
+    )
+    .unwrap();
     assert_eq!(owner_invitation1, owner_invitation2);
     assert_eq!(owner_invitation1.token.len(), TOKEN_LENGTH)
 }
@@ -150,8 +168,9 @@ async fn create_new_invitation_if_existing_one_is_expired() {
         owner_invitation.invited_user_id,
         owner_invitation.invited_by_user_id,
         owner_invitation.package_id,
-        &conn
-    ).unwrap();
+        &conn,
+    )
+    .unwrap();
     assert_ne!(token, owner_invitation.token);
     assert_ne!(created_at, owner_invitation.created_at);
 }
@@ -169,6 +188,7 @@ async fn not_create_new_invitation_if_it_already_exists() {
         owner_invitation.invited_user_id,
         owner_invitation.invited_by_user_id,
         owner_invitation.package_id,
-        &conn
-    ).unwrap();
+        &conn,
+    )
+    .unwrap();
 }

@@ -42,14 +42,21 @@ pub fn configure(config: &mut ServiceConfig) {
                             .route(get().to(services::package::controller::package_badge_info)),
                     )
                     .service(
-                        resource("/{package_name}/package_collaborators").route(
+                        resource("/{package_name}/collaborators").route(
                             post().to(services::collaborators::controllers::add_collaborators),
                         ),
                     ),
             )
-            .service(scope("/owner_invitations").service(
-                resource("/").route(post().to(services::collaborators::controllers::handle_invite)),
-            )),
+            .service(
+                scope("/owner_invitations")
+                    .service(
+                        resource("/")
+                            .route(post().to(services::collaborators::controllers::handle_invite)),
+                    )
+                    .service(resource("/accept/{token}").route(
+                        get().to(services::collaborators::controllers::accept_invite_with_token),
+                    )),
+            )
 			.service(
                 resource("/badge")
                     .route(get().to(services::package::controller::package_badge_info)),

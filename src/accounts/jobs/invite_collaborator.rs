@@ -17,12 +17,6 @@ pub struct SendCollaboratorInvitationEmail {
     pub token: String,
 }
 
-pub fn build_invite_collaborator_context(verify_url: &str) -> Context {
-    let mut context = Context::new();
-    context.insert("action_url", verify_url);
-    context
-}
-
 impl Job for SendCollaboratorInvitationEmail {
     type State = JobState;
     type Future = Pin<Box<dyn Future<Output = Result<(), Error>> + Send>>;
@@ -34,21 +28,29 @@ impl Job for SendCollaboratorInvitationEmail {
         Box::pin(async move {
             let account = Account::get_by_email(&self.to, &state.pool)
                 .await
-                .map_err(|e| anyhow!("Error fetching account for collaborator invitation: {:?}", e))?;
-
+                .map_err(|e| {
+                    anyhow!(
+                        "Error fetching account for collaborator invitation: {:?}",
+                        e
+                    )
+                })?;
             let domain = env::var("JELLY_DOMAIN").expect("No JELLY_DOMAIN value set!");
 
-            let invitation_url = format!(
-                "{}/owner_invitations/accept/{}",
-                domain,
-                self.token
-            );
+            let invitation_url = format!("{}/owner_invitations/accept/{}", domain, self.token);
 
             let email = Email::new(
-                "email/reset-password",
+                "email/invite-collaborator",
                 &[account.email],
-                &format!("You have been invited to collaborate on {}", self.package_name),
-                build_invite_collaborator_context(&invitation_url),
+                &format!(
+                    "You have been invited to collaborate on {}",
+                    self.package_name
+                ),
+                {
+                    let mut context = Context::new();
+                    context.insert("action_url", &invitation_url);
+                    context.insert("package_name", &self.package_name);
+                    context
+                },
                 state.templates,
             );
 
@@ -62,22 +64,34 @@ impl Job for SendCollaboratorInvitationEmail {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SendRegisterToCollabEmail {
     pub to: String,
+    pub package_name: String,
 }
 
 impl Job for SendRegisterToCollabEmail {
     type State = JobState;
     type Future = Pin<Box<dyn Future<Output = Result<(), Error>> + Send>>;
 
-    const NAME: &'static str = "SendRegisterToCollabEmailJob";
+    const NAME: &'static str = "SendRegisterToCollabEmail";
     const QUEUE: &'static str = DEFAULT_QUEUE;
 
     fn run(self, state: JobState) -> Self::Future {
         Box::pin(async move {
+            let domain = env::var("JELLY_DOMAIN").expect("No JELLY_DOMAIN value set!");
+            let register_url = format!("{}/accounts/register?redirect=/profile", domain);
+
             let email = Email::new(
-                "email/password-was-reset",
+                "email/register-to-collab",
                 &[self.to],
-                "Your Movey password was reset",
-                Context::new(),
+                &format!(
+                    "You have been invited to collaborate on {}",
+                    self.package_name
+                ),
+                {
+                    let mut context = Context::new();
+                    context.insert("action_url", &register_url);
+                    context.insert("package_name", &self.package_name);
+                    context
+                },
                 state.templates,
             );
 

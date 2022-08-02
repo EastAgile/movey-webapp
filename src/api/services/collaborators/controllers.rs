@@ -1,6 +1,7 @@
 use crate::accounts::jobs::{SendCollaboratorInvitationEmail, SendRegisterToCollabEmail};
 use crate::accounts::Account;
 use crate::api::services::collaborators::views::{AddCollaboratorJson, InvitationResponse};
+use crate::constants::*;
 use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
 use crate::package_collaborators::models::pending_invitation::PendingInvitation;
 use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
@@ -12,7 +13,6 @@ use jelly::actix_web::web::Path;
 use jelly::prelude::*;
 use jelly::Result;
 use serde_json::json;
-use crate::constants::*;
 
 pub async fn add_collaborators(
     request: HttpRequest,
@@ -47,11 +47,11 @@ pub async fn add_collaborators(
         Ok(account) => account,
         Err(Error::Database(DBError::NotFound)) => {
             if json.user.contains("@") {
-                // Send an email inviting this user to register and collaborate on this package
+                PendingInvitation::create(&json.user, user.id, package.id, &conn)?;
                 request.queue(SendRegisterToCollabEmail {
                     to: json.user.clone(),
+                    package_name: package.name,
                 })?;
-                PendingInvitation::create(&json.user, user.id, package.id, &conn)?;
             }
             return Ok(HttpResponse::NotFound().json(json!({
                 "ok": false,
@@ -92,18 +92,13 @@ pub async fn add_collaborators(
         })));
     }
 
-    match OwnerInvitation::create(
-        invited_account.id,
-        user.id,
-        package.id,
-        &conn
-    ) {
+    match OwnerInvitation::create(invited_account.id, user.id, package.id, &conn) {
         Ok(invitation) => {
             if !invited_account.is_generated_email() {
                 request.queue(SendCollaboratorInvitationEmail {
                     to: invited_account.email,
                     package_name: package.name,
-                    token: invitation.token
+                    token: invitation.token,
                 })?;
             }
         }
@@ -136,7 +131,6 @@ pub async fn handle_invite(
         return Ok(request_utils::clear_cookie(&request));
     }
     let user = request.user()?;
-
     let conn = request.db_pool()?.get()?;
     let invitation = OwnerInvitation::find_by_id(user.id, json.package_id, &conn)?;
     if invitation.is_expired() {
@@ -162,9 +156,25 @@ pub async fn handle_invite(
             })));
         }
     }
-
     Ok(HttpResponse::Ok().json(json!({
         "ok": true,
         "msg": MSG_SUCCESSFULLY_ADDED_COLLABORATOR
     })))
+}
+
+pub async fn accept_invite_with_token(
+    request: HttpRequest,
+    Path(token): web::Path<String>,
+) -> Result<HttpResponse> {
+    let conn = request.db_pool()?.get()?;
+    let invitation = OwnerInvitation::find_by_token(&token, &conn)?;
+    if invitation.is_expired() {
+        return request.render(410, "accounts/invalid_token.html", Context::new());
+    }
+    if let Err(e) = invitation.accept(&conn) {
+        warn!("handle_invite failed, error: {}", e);
+        return request.render(503, "503.html", Context::new());
+    }
+    let package = Package::get(invitation.package_id, request.db_pool()?).await?;
+    request.redirect(&format!("/packages/{}", package.name))
 }

@@ -3,7 +3,7 @@ mod tests;
 
 use crate::package_collaborators::package_collaborator::PackageCollaborator;
 use crate::schema::owner_invitations;
-use crate::utils::token::{generate_secure_alphanumeric_string, TOKEN_LENGTH};
+use crate::utils::token::SecureToken;
 use diesel::prelude::*;
 use diesel::{Identifiable, Insertable, Queryable};
 use jelly::chrono::{NaiveDateTime, Utc};
@@ -11,7 +11,7 @@ use jelly::Result;
 use jelly::{chrono, DieselPgConnection};
 use std::env;
 
-#[derive(Clone, Debug, PartialEq, Eq, Identifiable, Queryable)]
+#[derive(Clone, Debug, Eq, Identifiable, Queryable)]
 #[primary_key(invited_user_id, package_id)]
 pub struct OwnerInvitation {
     pub invited_user_id: i32,
@@ -19,6 +19,16 @@ pub struct OwnerInvitation {
     pub package_id: i32,
     pub token: String,
     pub created_at: NaiveDateTime,
+}
+
+impl PartialEq for OwnerInvitation {
+    fn eq(&self, other: &OwnerInvitation) -> bool {
+        self.invited_user_id == other.invited_user_id
+            && self.invited_by_user_id == other.invited_by_user_id
+            && self.package_id == other.package_id
+            && SecureToken::hash(&self.token) == other.token
+            && self.created_at == other.created_at
+    }
 }
 
 #[derive(Insertable, Clone, Debug)]
@@ -57,12 +67,13 @@ impl OwnerInvitation {
             Ok(())
         })?;
 
-        let res: OwnerInvitation = diesel::insert_into(owner_invitations::table)
+        let secure_token = SecureToken::generate();
+        let mut res: OwnerInvitation = diesel::insert_into(owner_invitations::table)
             .values(&NewRecord {
                 invited_user_id,
                 invited_by_user_id,
                 package_id,
-                token: generate_secure_alphanumeric_string(TOKEN_LENGTH),
+                token: secure_token.inner.sha256,
             })
             // The ON CONFLICT DO NOTHING clause results in not creating the invite if another one
             // already exists. This does not cause problems with expired invitation as those are
@@ -70,12 +81,14 @@ impl OwnerInvitation {
             .on_conflict_do_nothing()
             .get_result(conn)?;
 
+        res.token = secure_token.plaintext;
         Ok(res)
     }
 
     pub fn find_by_token(token: &str, conn: &DieselPgConnection) -> Result<Self> {
+        let hashed_token = SecureToken::hash(token);
         Ok(owner_invitations::table
-            .filter(owner_invitations::token.eq(token))
+            .filter(owner_invitations::token.eq(hashed_token))
             .first::<Self>(conn)?)
     }
 
