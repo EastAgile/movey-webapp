@@ -1,8 +1,6 @@
 use cucumber::{then, when};
 use mainlib::{
-    api::services::setting::controllers::profile::LoggedInUser, 
-    accounts::Account, 
-    test::DB_POOL,
+    accounts::Account, api::services::setting::controllers::profile::LoggedInUser, test::DB_POOL,
 };
 use reqwest::StatusCode;
 use thirtyfour::prelude::*;
@@ -17,24 +15,35 @@ async fn get_logged_in_user(world: &mut TestWorld) {
     let client = reqwest::Client::new();
     let res = client
         .get(format!("{}api/v1/me", world.root_url))
-        .header("Cookie", 
-            format!("sessionid={}", world.driver.get_cookie("sessionid").await.unwrap()
-                .value().to_string())
+        .header(
+            "Cookie",
+            format!(
+                "sessionid={}",
+                world.driver.get_cookie("sessionid").await.unwrap().value()
+            ),
         )
         .send()
-        .await.unwrap();
+        .await
+        .unwrap();
 
     world.response = Some(TestResponse {
         status_code: res.status(),
-        content_type: res.headers().get(reqwest::header::CONTENT_TYPE).unwrap().to_str().unwrap().to_string(),
+        content_type: res
+            .headers()
+            .get(reqwest::header::CONTENT_TYPE)
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_string(),
         body: res.text().await.unwrap(),
     })
 }
 
 #[when("My account is deleted but my browser is not signed out")]
 async fn delete_account(world: &mut TestWorld) {
-    let account = 
-        Account::get_by_email(&world.account.email, &DB_POOL).await.unwrap();
+    let account = Account::get_by_email(&world.account.email, &DB_POOL)
+        .await
+        .unwrap();
     Account::delete(account.id).await.unwrap();
 }
 
@@ -74,7 +83,9 @@ async fn see_default_account_information(world: &mut TestWorld) {
 
     let sessionid = world.driver.get_cookie("sessionid").await.unwrap();
     let sessionid_decoded = decode(&sessionid.value().to_string())
-        .unwrap().into_owned().replace("\"", "");
+        .unwrap()
+        .into_owned()
+        .replace('\"', "");
     assert_eq!(sessionid_decoded.len(), 46, "{}", sessionid_decoded);
 }
 
@@ -83,12 +94,24 @@ async fn sign_up_button_is_displayed(world: &mut TestWorld) {
     let sign_up_button = world
         .driver
         .find_element(By::ClassName("sign-up-li"))
-        .await.unwrap();
-    assert!(!sign_up_button.class_name().await.unwrap().unwrap().contains("hide"));
+        .await
+        .unwrap();
+    assert!(!sign_up_button
+        .class_name()
+        .await
+        .unwrap()
+        .unwrap()
+        .contains("hide"));
 
     let sign_in_button = world
         .driver
         .find_element(By::ClassName("sign-in-li"))
-        .await.unwrap();
-    assert!(!sign_in_button.class_name().await.unwrap().unwrap().contains("hide"));
+        .await
+        .unwrap();
+    assert!(!sign_in_button
+        .class_name()
+        .await
+        .unwrap()
+        .unwrap()
+        .contains("hide"));
 }

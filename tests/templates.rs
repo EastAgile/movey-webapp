@@ -1,6 +1,6 @@
 #[macro_use]
 extern crate lazy_static;
-use dotenv;
+
 use jelly::tera::Tera;
 use std::env;
 
@@ -9,8 +9,8 @@ lazy_static! {
     static ref TEMPLATES: Tera = {
         dotenv::dotenv().ok();
         let templates_glob = env::var("TEMPLATES_GLOB").expect("TEMPLATES_GLOB not set!");
-        let templates = Tera::new(&templates_glob).expect("Unable to compile templates!");
-        templates
+
+        Tera::new(&templates_glob).expect("Unable to compile templates!")
     };
 }
 
@@ -89,29 +89,6 @@ mod template_should_work_for {
         assert!(email.body.contains("/verify/account"));
         debug!("{}", email.body_html);
         assert!(email.body_html.contains(&escape_html("/verify/account")));
-        Ok(())
-    }
-
-    #[test]
-    fn welcome() -> Result<(), anyhow::Error> {
-        dotenv::dotenv().ok();
-        let email = jelly::email::Email::new(
-            "email/welcome",
-            &["Erby Doe <test@example.com>".to_string()],
-            "Test subject",
-            jobs::build_welcome_context("Erby Doe"),
-            Arc::new(RwLock::new(TEMPLATES.clone())),
-        )?;
-
-        assert_eq!(email.from, env::var("EMAIL_DEFAULT_FROM")?);
-        assert_eq!(email.to, "Erby Doe <test@example.com>");
-        assert_eq!(email.subject, "Test subject");
-        debug!("{}", email.body);
-        assert!(email.body.contains("http://example.com/help"));
-        debug!("{}", email.body_html);
-        assert!(email
-            .body_html
-            .contains(&escape_html("http://example.com/help")));
         Ok(())
     }
 }

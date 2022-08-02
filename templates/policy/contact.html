@@ -27,7 +27,8 @@
                     class="packages-sort"
                     data-sort=""
                     data-url="/packages/"
-                    placeholder="Select category"      
+                    placeholder="Select category"
+                    required
             >
                 <option value="" disabled  selected></option>
                 {% for category in categories %}
@@ -37,11 +38,19 @@
             <div class="packages-sort-chevron"></div>
 
             <label class="contact-label"  for="name">Name</label>
-            <input type="text" placeholder="John Doe" id="name" name="name" >
+            {% if name %}
+                <input type="text" id="name" name="name" value="{{ name }}" readonly>
+            {% else %}
+                <input type="text" placeholder="John Doe" id="name" name="name" required>
+            {% endif %}
 
             <label class="contact-label" for="email">Email</label>
-            <input type="email" placeholder="movey@eastagile.com" id="email" name="email" >
-            
+            {% if email %}
+                <input type="email" id="email" name="email" value="{{ email }}" readonly>
+            {% else %}
+                <input type="email" placeholder="movey@eastagile.com" id="email" name="email" required>
+            {% endif %}
+
             <div class="contact-instruction">Please, enter the email address where you wish to receive our answer. If you are a registered user of Movey, please include the email address you used when you registered if possible to help us locate your account as soon as possible.</div>
 
             <label class="contact-label" for="descr">How can we help?</label>

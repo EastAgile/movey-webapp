@@ -2,16 +2,16 @@ use jelly::error::Error;
 use jelly::error::Error::Generic;
 use reqwest::blocking::{multipart, Response};
 use reqwest::header;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::env;
 use std::hash::{Hash, Hasher};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 struct MoveToml {
     package: PackageToml,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 struct PackageToml {
     name: String,
     version: String,
@@ -41,15 +41,21 @@ impl Hash for GithubRepoData {
     }
 }
 
-#[derive(Default, Deserialize)]
+#[derive(Clone, Default, Deserialize)]
 pub struct GithubRepoInfo {
     pub description: Option<String>,
     pub size: i32,
     pub default_branch: String,
 }
 
+#[derive(Deserialize)]
+pub struct GithubRepoCommit {
+    pub sha: String,
+}
+
 pub static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"),);
 
+use crate::constants::DEEP_AI_URL;
 #[cfg(test)]
 use mockall::{automock, predicate::*};
 use oauth2::http::StatusCode;
@@ -62,21 +68,27 @@ impl GithubService {
     }
 }
 
+impl Default for GithubService {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg_attr(test, automock)]
 impl GithubService {
     pub fn fetch_repo_data(
         &self,
-        repo_url: &String,
+        repo_url: &str,
         path: Option<String>,
         mut rev: Option<String>,
     ) -> Result<GithubRepoData, Error> {
-        let mut github_info = get_repo_description_and_size(&repo_url)?;
+        let mut github_info = get_repo_description_and_size(repo_url)?;
         if github_info.default_branch.is_empty() {
             github_info.default_branch = "master".to_string();
         }
 
         if rev.is_none() {
-            if let Ok(sha) = get_repo_latest_commit_sha(&repo_url) {
+            if let Ok(sha) = get_repo_latest_commit_sha(repo_url) {
                 rev = Some(sha)
             } else {
                 rev = Some(github_info.default_branch.clone());
@@ -84,19 +96,95 @@ impl GithubService {
         }
         let rev = rev.unwrap();
 
-        let readme_content = get_repo_readme_content(repo_url, &rev, &mut github_info)?;
-        let move_toml = get_move_toml_content(repo_url, &rev, path)?;
+        // example readme url:
+        // https://raw.githubusercontent.com/move-language/move/main/README.md
+        let readme_url = format!(
+            "{}/{}/README.md",
+            repo_url.replace("https://github.com", "https://raw.githubusercontent.com"),
+            rev
+        );
+        let mut readme_content = "".to_string();
+        let response = call_github_api(&readme_url)?;
+        if response.status() != StatusCode::NOT_FOUND {
+            match response.text() {
+                Ok(content) => {
+                    // generate description from readme if not existed
+                    if github_info.description.is_none() {
+                        let mut description = call_deep_ai_api(content.clone(), None)?;
+                        if description.len() > 400 {
+                            let deepai_summary = call_deep_ai_api(description.clone(), None)?;
+                            if !deepai_summary.is_empty() {
+                                description = deepai_summary;
+                            }
+                        }
+                        description = strip_markdown::strip_markdown(&description);
 
-        Ok(GithubRepoData {
-            name: move_toml.package.name,
-            version: move_toml.package.version,
-            readme_content,
-            description: github_info.description.unwrap_or("".to_string()),
-            size: github_info.size,
-            // this field is overwritten in the crawler, modified this to save default branch
-            url: github_info.default_branch,
-            rev,
-        })
+                        if description.is_empty() {
+                            description = strip_markdown::strip_markdown(&content);
+                        }
+                        if description.len() > 400 {
+                            description = description[0..400].to_string();
+                        }
+                        github_info.description = Some(description);
+                    }
+                    readme_content = content
+                }
+                _ => {
+                    warn!("Error getting README.md content. url: {}", readme_url);
+                }
+            }
+        }
+
+        let move_url = match path {
+            // example Move.toml url with subdir:
+            // https://raw.githubusercontent.com/move-language/move/main/language/evm/hardhat-examples/contracts/ABIStruct/Move.toml
+            Some(path) => {
+                format!("{}/{}", readme_url.replace("/README.md", ""), path)
+            }
+            None => {
+                // Move.toml in top directory:
+                // https://raw.githubusercontent.com/taoheorg/taohe/master/Move.toml
+                readme_url.replace("README.md", "Move.toml")
+            }
+        };
+
+        let mut move_toml_content = "".to_string();
+        match call_github_api(&move_url)?.text() {
+            Ok(content) => move_toml_content = content,
+            Err(error) => {
+                error!(
+                    "Error getting Move.toml content. url: {:?}, error: {}",
+                    move_url, error
+                );
+            }
+        };
+
+        match toml::from_str::<MoveToml>(&move_toml_content) {
+            Ok(move_toml) => Ok(GithubRepoData {
+                name: move_toml.package.name,
+                version: move_toml.package.version,
+                readme_content,
+                description: github_info.description.unwrap_or_else(|| "".to_string()),
+                size: github_info.size,
+                url: String::from(""),
+                rev,
+            }),
+            Err(error) => {
+                warn!(
+                    "Invalid Move.toml url: {}, content: {}, error: {}",
+                    &move_url, &move_toml_content, &error
+                );
+                Ok(GithubRepoData {
+                    name: String::from(""),
+                    version: String::from(""),
+                    readme_content,
+                    description: github_info.description.unwrap_or_else(|| "".to_string()),
+                    size: github_info.size,
+                    url: String::from(""),
+                    rev,
+                })
+            }
+        }
     }
 }
 
@@ -112,14 +200,18 @@ fn call_github_api(url: &str) -> Result<Response, Error> {
     Ok(res)
 }
 
-fn call_deep_ai_api(content: String) -> Result<String, Error> {
+// url param is only used in testing
+fn call_deep_ai_api(content: String, url: Option<&str>) -> Result<String, Error> {
     let access_token = env::var("DEEP_AI_API_KEY").expect("Unable to pull DEEP_AI_API_KEY");
+    // not be able to mock both get and post func of Client at the moment,
+    // use full path to avoid using MockClient
     let client = reqwest::blocking::Client::builder()
         .user_agent(APP_USER_AGENT)
         .build()?;
     let form = multipart::Form::new().text("text", content);
+    let url = url.unwrap_or(DEEP_AI_URL);
     let response = client
-        .post("https://api.deepai.org/api/summarization")
+        .post(url)
         .header("api-key", access_token)
         .multipart(form)
         .send()
@@ -135,7 +227,7 @@ fn call_deep_ai_api(content: String) -> Result<String, Error> {
 
     match response.unwrap().json::<DeepApiResponse>() {
         Ok(response) => {
-            if response.output == "" {
+            if response.output.is_empty() {
                 return Ok(String::new());
             }
             Ok(response.output)
@@ -166,10 +258,6 @@ fn get_repo_latest_commit_sha(repo_url: &str) -> Result<String, Error> {
     let mut url = repo_url.replace("https://github.com/", "https://api.github.com/repos/");
     url.push_str("/commits");
     let response = call_github_api(&url)?;
-    #[derive(Deserialize)]
-    pub struct GithubRepoCommit {
-        pub sha: String,
-    }
     match response.json::<Vec<GithubRepoCommit>>() {
         Ok(info) if !info.is_empty() => Ok(info.get(0).unwrap().sha.clone()),
         Ok(_) => {
@@ -195,85 +283,235 @@ fn get_repo_latest_commit_sha(repo_url: &str) -> Result<String, Error> {
     }
 }
 
-fn get_repo_readme_content(
-    repo_url: &str,
-    rev: &str,
-    github_info: &mut GithubRepoInfo,
-) -> Result<String, Error> {
-    let readme_url = format!(
-        "{}/{}/README.md",
-        repo_url.replace("https://github.com", "https://raw.githubusercontent.com"),
-        rev
-    );
-    let mut readme_content = "".to_string();
-    let response = call_github_api(&readme_url)?;
-    if response.status() != StatusCode::NOT_FOUND {
-        match call_github_api(&readme_url)?.text() {
-            Ok(content) => {
-                // generate description from readme if not existed
-                if github_info.description.is_none() {
-                    let mut description = call_deep_ai_api(content.clone())?;
-                    if description.len() > 400 {
-                        let deepai_summary = call_deep_ai_api(description.clone())?;
-                        if deepai_summary.len() > 0 {
-                            description = deepai_summary;
-                        }
-                    }
-                    description = strip_markdown::strip_markdown(&description);
+#[cfg(test)]
+mod tests {
+    use httpmock::prelude::*;
+    use httpmock::MockServer;
+    use serde_json::json;
+    use std::env;
 
-                    if description.is_empty() {
-                        description = strip_markdown::strip_markdown(&content);
-                    }
-                    if description.len() > 400 {
-                        description = description[0..400].to_string();
-                    }
-                    github_info.description = Some(description);
-                }
-                readme_content = content
-            }
-            _ => {
-                warn!("Error getting README.md content. url: {}", readme_url);
-            }
-        }
+    use super::*;
+
+    #[test]
+    fn get_repo_description_and_size_works() {
+        crate::test::init();
+
+        let access_token = env::var("GITHUB_ACCESS_TOKEN").unwrap();
+        let server = MockServer::start();
+        let server_mock = server.mock(|when, then| {
+            when.method(GET)
+                .header("User-Agent", APP_USER_AGENT)
+                .header("authorization", format!("token {}", &access_token));
+            then.status(200).json_body(json!({
+                "description": "test description",
+                "size": 1,
+                "default_branch": "test branch",
+            }));
+        });
+
+        let result = get_repo_description_and_size(&server.base_url()).unwrap();
+        server_mock.assert();
+        assert_eq!(result.description, Some("test description".to_string()));
+        assert_eq!(result.size, 1);
+        assert_eq!(result.default_branch, "test branch");
     }
-    Ok(readme_content)
-}
 
-fn get_move_toml_content(
-    repo_url: &str,
-    rev: &str,
-    path: Option<String>,
-) -> Result<MoveToml, Error> {
-    let move_url = format!(
-        "{}/{}/{}",
-        repo_url.replace("https://github.com", "https://raw.githubusercontent.com"),
-        rev,
-        path.unwrap_or_else(|| String::from("Move.toml"))
-    );
+    #[test]
+    fn get_repo_description_and_size_returns_default_value_if_response_body_is_empty() {
+        crate::test::init();
 
-    let mut move_toml_content = "".to_string();
-    match call_github_api(&move_url)?.text() {
-        Ok(content) => move_toml_content = content,
-        Err(error) => {
-            error!(
-                "Error getting Move.toml content. url: {:?}, error: {}",
-                move_url, error
-            );
-        }
-    };
-    match toml::from_str::<MoveToml>(&move_toml_content) {
-        Ok(move_toml) => Ok(move_toml),
-        Err(error) => {
-            warn!(
-                "Invalid Move.toml url: {}, content: {}, error: {}",
-                &move_url, &move_toml_content, &error
-            );
-            Ok(MoveToml {
-                package: PackageToml {
-                    name: String::from(""),
-                    version: String::from(""),
-                },
-            })
-        }
+        let access_token = env::var("GITHUB_ACCESS_TOKEN").unwrap();
+        let server = MockServer::start();
+        let server_mock = server.mock(|when, then| {
+            when.method(GET)
+                .header("User-Agent", APP_USER_AGENT)
+                .header("authorization", format!("token {}", &access_token));
+            then.status(200);
+        });
+
+        let result = get_repo_description_and_size(&server.base_url()).unwrap();
+        server_mock.assert();
+
+        assert_eq!(result.description, None);
+        assert_eq!(result.size, 0);
+        assert_eq!(result.default_branch, "");
+    }
+
+    #[test]
+    fn get_repo_latest_commit_sha_works() {
+        crate::test::init();
+
+        let access_token = env::var("GITHUB_ACCESS_TOKEN").unwrap();
+        let server = MockServer::start();
+        let server_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path("/commits")
+                .header("User-Agent", APP_USER_AGENT)
+                .header("authorization", format!("token {}", &access_token));
+            then.status(200).json_body(json!([
+                { "sha": "test sha" }
+            ]));
+        });
+
+        let result = get_repo_latest_commit_sha(&server.base_url());
+        server_mock.assert();
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "test sha");
+    }
+
+    #[test]
+    fn get_repo_latest_commit_sha_returns_err_if_response_body_is_empty() {
+        crate::test::init();
+
+        let access_token = env::var("GITHUB_ACCESS_TOKEN").unwrap();
+        let server = MockServer::start();
+        let server_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path("/commits")
+                .header("User-Agent", APP_USER_AGENT)
+                .header("authorization", format!("token {}", &access_token));
+            then.status(200);
+        });
+
+        let result = get_repo_latest_commit_sha(&server.base_url());
+        server_mock.assert();
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn call_deep_ai_api_works() {
+        crate::test::init();
+
+        let access_token = env::var("DEEP_AI_API_KEY").expect("Unable to pull DEEP_AI_API_KEY");
+        let server = MockServer::start();
+        // TODO: check if the request content type is multipart
+        // https://github.com/alexliesenfeld/httpmock/tree/master/tests/examples
+        let server_mock = server.mock(|when, then| {
+            when.method(POST)
+                .path("/api/summarization")
+                .header("User-Agent", APP_USER_AGENT)
+                .header("api-key", access_token);
+            then.status(200)
+                .json_body(json!({ "output":"summarized text" }));
+        });
+
+        let result = call_deep_ai_api(
+            "original text".to_string(),
+            Some(&format!("{}/api/summarization", &server.base_url())),
+        );
+        server_mock.assert();
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "summarized text");
+    }
+
+    #[test]
+    fn call_deep_ai_api_returns_empty_string_if_deep_ai_response_body_is_empty() {
+        crate::test::init();
+
+        let access_token = env::var("DEEP_AI_API_KEY").expect("Unable to pull DEEP_AI_API_KEY");
+        let server = MockServer::start();
+        // TODO: check if the request content type is multipart
+        let server_mock = server.mock(|when, then| {
+            when.method(POST)
+                .path("/api/summarization")
+                .header("User-Agent", APP_USER_AGENT)
+                .header("api-key", access_token);
+            then.status(200).json_body(json!({ "output":"" }));
+        });
+
+        let result = call_deep_ai_api(
+            "original text".to_string(),
+            Some(&format!("{}/api/summarization", &server.base_url())),
+        );
+        server_mock.assert();
+        assert!(result.is_ok());
+        assert!(result.unwrap().is_empty());
+    }
+
+    #[test]
+    fn call_deep_ai_api_returns_empty_string_if_out_of_free_credit() {
+        crate::test::init();
+
+        let access_token = env::var("DEEP_AI_API_KEY").expect("Unable to pull DEEP_AI_API_KEY");
+        let server = MockServer::start();
+        // TODO: check if the request content type is multipart
+        let server_mock = server.mock(|when, then| {
+            when.method(POST)
+                .path("/api/summarization")
+                .header("User-Agent", APP_USER_AGENT)
+                .header("api-key", access_token);
+            then.status(401).json_body(json!({
+                "status":"Out of free credits \
+                    - please enter payment info in your dashboard: https://deepai.org/dashboard"
+            }));
+        });
+
+        let result = call_deep_ai_api(
+            "original text".to_string(),
+            Some(&format!("{}/api/summarization", &server.base_url())),
+        );
+        server_mock.assert();
+        assert!(result.is_ok());
+        assert!(result.unwrap().is_empty());
+    }
+
+    #[test]
+    fn fetch_repo_data_works() {
+        crate::test::init();
+
+        let access_token = env::var("GITHUB_ACCESS_TOKEN").unwrap();
+        let server = MockServer::start();
+        let description_and_size_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path("/EastAgile/ea-movey")
+                .header("User-Agent", APP_USER_AGENT)
+                .header("authorization", format!("token {}", &access_token));
+            then.status(200).json_body(json!({
+                "description": "test description",
+                "size": 10,
+                "default_branch": "test-default-branch",
+            }));
+        });
+        let readme_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path("/EastAgile/ea-movey/rev/README.md")
+                .header("User-Agent", APP_USER_AGENT)
+                .header("authorization", format!("token {}", &access_token));
+            then.status(200).body("test readme content");
+        });
+
+        let move_toml = MoveToml {
+            package: PackageToml {
+                name: "test package name".to_string(),
+                version: "0.0.0".to_string(),
+            },
+        };
+        let move_toml_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path("/EastAgile/ea-movey/rev/Move.toml")
+                .header("User-Agent", APP_USER_AGENT)
+                .header("authorization", format!("token {}", &access_token));
+            then.status(200).body(toml::to_string(&move_toml).unwrap());
+        });
+
+        let gh_service = GithubService::new();
+        let gh_repo_data = gh_service
+            .fetch_repo_data(
+                &format!("{}/EastAgile/ea-movey", server.base_url()),
+                None,
+                Some("rev".to_string()),
+            )
+            .unwrap();
+
+        description_and_size_mock.assert();
+        readme_mock.assert();
+        move_toml_mock.assert();
+        assert_eq!(gh_repo_data.name, "test package name");
+        assert_eq!(gh_repo_data.version, "0.0.0");
+        assert_eq!(gh_repo_data.readme_content, "test readme content");
+        assert_eq!(gh_repo_data.description, "test description");
+        assert_eq!(gh_repo_data.size, 10);
+        assert_eq!(gh_repo_data.url, "");
+        assert_eq!(gh_repo_data.rev, "rev");
     }
 }

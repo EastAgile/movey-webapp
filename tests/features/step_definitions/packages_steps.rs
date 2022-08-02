@@ -1,12 +1,13 @@
+use super::super::world::TestWorld;
+use super::signin_steps;
 use cucumber::{given, then, when};
 use mainlib::packages::{Package, PackageVersion};
 use mainlib::test::DB_POOL;
 use thirtyfour::prelude::*;
 
-use super::super::world::TestWorld;
-
 #[given("There are packages in the system")]
-async fn package_in_system(_world: &mut TestWorld) {
+async fn package_in_system(world: &mut TestWorld) {
+    signin_steps::an_user(world).await;
     let uid = Package::create_test_package(
         &"test-package".to_string(),
         &"https://github.com/Elements-Studio/starswap-core".to_string(),
@@ -16,7 +17,7 @@ async fn package_in_system(_world: &mut TestWorld) {
         &"rev".to_string(),
         2,
         100,
-        None,
+        Some(world.account.id),
         &DB_POOL,
     )
     .await
@@ -56,6 +57,7 @@ async fn package_in_system(_world: &mut TestWorld) {
         "rev_2".to_string(),
         2,
         100,
+        None,
         &DB_POOL,
     )
     .await
@@ -67,6 +69,7 @@ async fn package_in_system(_world: &mut TestWorld) {
         "rev_2".to_string(),
         2,
         100,
+        None,
         &DB_POOL,
     )
     .await
@@ -78,6 +81,7 @@ async fn package_in_system(_world: &mut TestWorld) {
         "rev_2".to_string(),
         2,
         100,
+        None,
         &DB_POOL,
     )
     .await
@@ -89,6 +93,15 @@ async fn visit_package_page(world: &mut TestWorld) {
     world
         .driver
         .get("http://localhost:17002/packages/test-package")
+        .await
+        .unwrap();
+}
+
+#[when("I access the package details page of a package that was crawled")]
+async fn visit_crawled_package_page(world: &mut TestWorld) {
+    world
+        .driver
+        .get("http://localhost:17002/packages/rand")
         .await
         .unwrap();
 }
@@ -149,6 +162,44 @@ async fn see_package_latest_info(world: &mut TestWorld) {
         "test-package", "https://github.com/Elements-Studio/starswap-core", "rev_2"
     );
     assert_eq!(package_instruction, expected_result);
+}
+
+#[then("I should see the owner information")]
+async fn see_owner_info(world: &mut TestWorld) {
+    let package_info_title = world
+        .driver
+        .find_element(By::Css(".package-owners .package-information-title"))
+        .await
+        .unwrap();
+    assert_eq!(package_info_title.text().await.unwrap(), "Owners");
+
+    let package_owner_info = world
+        .driver
+        .find_element(By::ClassName("package-owners-info"))
+        .await
+        .unwrap();
+    let name_from_email = world.account.email.split('@').next().unwrap();
+    assert_eq!(package_owner_info.text().await.unwrap(), name_from_email);
+}
+
+#[then("I should see a default owner name")]
+async fn not_see_owner_info(world: &mut TestWorld) {
+    let package_info_title = world
+        .driver
+        .find_element(By::Css(".package-owners .package-information-title"))
+        .await;
+    match package_info_title {
+        Ok(_) => {}
+        Err(_) => panic!(),
+    }
+    let package_owner_info = world
+        .driver
+        .find_element(By::ClassName("package-owners-info"))
+        .await;
+    match package_owner_info {
+        Ok(element) => assert_eq!(element.text().await.unwrap(), "Elements-Studio"),
+        Err(_) => panic!(),
+    }
 }
 
 #[when("I click on versions of that package")]

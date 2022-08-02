@@ -1,5 +1,7 @@
 Feature: Reset password
 
+  Rule: Correct password reset token
+
   Background:
     Given I have successfully requested a password reset link
       And I have received the email that contains password reset link
@@ -29,7 +31,10 @@ Feature: Reset password
       | abcd123             | 'Password must contain at least 8 characters.'          |
       | qwertyuiop          | 'Straight rows of keys are easy to guess.'              |
 
-      
+  Rule: Invalid/expired password reset token
 
-    
-
+  Scenario: Invalid password reset token
+    Given I have successfully requested a password reset link
+    And I have received the email that contains password reset link
+    When I access an invalid reset password link
+    Then I should see the Invalid or Expired page

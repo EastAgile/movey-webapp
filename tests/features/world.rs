@@ -4,10 +4,11 @@ use async_trait::async_trait;
 use cucumber::{World, WorldInit};
 use thirtyfour::prelude::*;
 
-#[derive(Debug, std::default::Default)]
+#[derive(Debug, Default)]
 pub struct AccountInformation {
     pub email: String,
-    pub password: String
+    pub password: String,
+    pub id: i32,
 }
 #[derive(Debug)]
 pub struct TestResponse {

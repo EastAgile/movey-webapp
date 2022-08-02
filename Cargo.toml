@@ -23,7 +23,7 @@ diesel_migrations = "1.4.0"
 dotenv = "0.15.0"
 jelly = { path = "jelly", features = ["email-local"] }
 lazy_static = "1.4.0"
-log = "*"
+log = "0.4.17"
 mockall_double = "0.1.0"
 reqwest = { version = "0.11", features = ["blocking", "json", "multipart"] }
 sentry = "0.26.0"
@@ -57,6 +57,7 @@ thirtyfour = "0.28.1"
 tokio = { version = "1.17.0", features = ["macros", "rt-multi-thread", "time"] }
 regex = "1.5.5"
 urlencoding = "2.1.0"
+httpmock = "0.6.6"
 
 [[test]]
 name = "integration_tests"
