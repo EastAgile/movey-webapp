@@ -1,3 +1,4 @@
+use jelly::actix_web::web::Query;
 use jelly::actix_web::{web::Form, HttpRequest};
 use jelly::prelude::*;
 use jelly::request::DatabasePool;
@@ -7,6 +8,11 @@ use crate::accounts::forms::NewAccountForm;
 use crate::accounts::jobs::{SendAccountOddRegisterAttemptEmail, SendVerifyAccountEmail};
 use crate::accounts::Account;
 use crate::utils::request_utils;
+
+#[derive(serde::Deserialize)]
+struct RegisterRedirectParams {
+    pub redirect: Option<String>,
+}
 
 pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
     if request_utils::is_authenticated(&request).await? {
@@ -22,6 +28,7 @@ pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
 
 pub async fn create_account(
     request: HttpRequest,
+    params: Query<RegisterRedirectParams>,
     form: Form<NewAccountForm>,
 ) -> Result<HttpResponse> {
     if request_utils::is_authenticated(&request).await? {
@@ -57,5 +64,9 @@ pub async fn create_account(
     }
 
     // No matter what, just appear as if it worked.
-    request.redirect("/accounts/verify/")
+    if params.redirect.is_some() {
+        request.redirect(&params.redirect.as_ref().unwrap())
+    } else {
+        request.redirect("/accounts/verify/")
+    }
 }
