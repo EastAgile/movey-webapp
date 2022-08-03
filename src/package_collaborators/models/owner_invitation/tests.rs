@@ -6,7 +6,7 @@ use crate::utils::token::TOKEN_LENGTH;
 use jelly::prelude::*;
 use std::env;
 
-async fn setup_invitation() -> OwnerInvitation {
+async fn setup_invitation(is_transferring: Option<bool>) -> OwnerInvitation {
     let invited_uid = setup_user(None, None).await;
     let invited_by_uid = setup_user(Some("email1@mail.com".to_string()), None).await;
     let pid = Package::create_test_package(
@@ -23,7 +23,13 @@ async fn setup_invitation() -> OwnerInvitation {
     )
     .await
     .unwrap();
-    OwnerInvitation::create(invited_uid, invited_by_uid, pid, &DB_POOL.get().unwrap()).unwrap()
+    OwnerInvitation::create(
+        invited_uid,
+        invited_by_uid,
+        pid,
+        is_transferring,
+        &DB_POOL.get().unwrap()
+    ).unwrap()
 }
 #[actix_rt::test]
 async fn find_by_token_works() {
@@ -31,7 +37,7 @@ async fn find_by_token_works() {
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
-    let owner_invitation1 = setup_invitation().await;
+    let owner_invitation1 = setup_invitation(None).await;
     let owner_invitation2 =
         OwnerInvitation::find_by_token(&owner_invitation1.token, &conn).unwrap();
     assert_eq!(owner_invitation1, owner_invitation2);
@@ -49,7 +55,7 @@ async fn find_by_id_works() {
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
-    let owner_invitation1 = setup_invitation().await;
+    let owner_invitation1 = setup_invitation(None).await;
     let owner_invitation2 = OwnerInvitation::find_by_id(
         owner_invitation1.invited_user_id,
         owner_invitation1.package_id,
@@ -75,7 +81,7 @@ async fn accept_works() {
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
-    let owner_invitation = setup_invitation().await;
+    let owner_invitation = setup_invitation(None).await;
     owner_invitation.accept(&conn).unwrap();
     let not_found = OwnerInvitation::find_by_token(&owner_invitation.token, &conn);
     assert!(not_found.is_err());
@@ -91,7 +97,7 @@ async fn delete_works() {
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
-    let owner_invitation = setup_invitation().await;
+    let owner_invitation = setup_invitation(None).await;
     owner_invitation.delete(&conn).unwrap();
     let not_found = OwnerInvitation::find_by_token(&owner_invitation.token, &conn);
     assert!(not_found.is_err());
@@ -106,7 +112,7 @@ async fn is_expired_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let owner_invitation = setup_invitation().await;
+    let owner_invitation = setup_invitation(None).await;
     env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "1");
     assert!(!owner_invitation.is_expired());
 
@@ -120,14 +126,14 @@ async fn is_expired_panics_if_expiration_days_is_less_than_0() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let owner_invitation = setup_invitation().await;
+    let owner_invitation = setup_invitation(None).await;
     env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "-1");
     owner_invitation.is_expired();
 }
 
 #[actix_rt::test]
 #[should_panic]
-async fn is_expired_panics_if_expiration_days_is_not_an_integer() {
+async fn is_expired_panics_if_expiration_days_is_not_an_integer(None) {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
@@ -137,20 +143,14 @@ async fn is_expired_panics_if_expiration_days_is_not_an_integer() {
 }
 
 #[actix_rt::test]
-async fn create_works() {
+async fn create_transfer_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
-    let owner_invitation1 = setup_invitation().await;
-    let owner_invitation2 = OwnerInvitation::find_by_id(
-        owner_invitation1.invited_user_id,
-        owner_invitation1.package_id,
-        &conn,
-    )
-    .unwrap();
-    assert_eq!(owner_invitation1, owner_invitation2);
-    assert_eq!(owner_invitation1.token.len(), TOKEN_LENGTH)
+    let owner_invitation1 = setup_invitation(Some(true)).await;
+    assert_eq!(owner_invitation1.token.len(), TOKEN_LENGTH);
+    assert_eq!(owner_invitation1.is_transferring, true);
 }
 
 #[actix_rt::test]
@@ -159,7 +159,7 @@ async fn create_new_invitation_if_existing_one_is_expired() {
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
-    let owner_invitation = setup_invitation().await;
+    let owner_invitation = setup_invitation(None).await;
     let token = owner_invitation.token;
     let created_at = owner_invitation.created_at;
 
@@ -168,6 +168,7 @@ async fn create_new_invitation_if_existing_one_is_expired() {
         owner_invitation.invited_user_id,
         owner_invitation.invited_by_user_id,
         owner_invitation.package_id,
+        None,
         &conn,
     )
     .unwrap();
@@ -182,12 +183,13 @@ async fn not_create_new_invitation_if_it_already_exists() {
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
-    let owner_invitation = setup_invitation().await;
+    let owner_invitation = setup_invitation(None).await;
     env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "1");
     OwnerInvitation::create(
         owner_invitation.invited_user_id,
         owner_invitation.invited_by_user_id,
         owner_invitation.package_id,
+        None,
         &conn,
     )
     .unwrap();

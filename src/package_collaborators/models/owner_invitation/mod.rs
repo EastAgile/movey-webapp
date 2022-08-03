@@ -18,6 +18,7 @@ pub struct OwnerInvitation {
     pub invited_by_user_id: i32,
     pub package_id: i32,
     pub token: String,
+    pub is_transferring: bool,
     pub created_at: NaiveDateTime,
 }
 
@@ -38,6 +39,7 @@ struct NewRecord {
     invited_by_user_id: i32,
     package_id: i32,
     token: String,
+    is_transferring: bool,
 }
 
 impl OwnerInvitation {
@@ -45,6 +47,7 @@ impl OwnerInvitation {
         invited_user_id: i32,
         invited_by_user_id: i32,
         package_id: i32,
+        is_transferring: Option<bool>,
         conn: &DieselPgConnection,
     ) -> Result<Self> {
         // Before actually creating the invite, check if an expired invitation already exists
@@ -74,6 +77,7 @@ impl OwnerInvitation {
                 invited_by_user_id,
                 package_id,
                 token: secure_token.inner.sha256,
+                is_transferring: is_transferring.unwrap_or(false),
             })
             // The ON CONFLICT DO NOTHING clause results in not creating the invite if another one
             // already exists. This does not cause problems with expired invitation as those are
