@@ -28,6 +28,7 @@
 .avatar .avatar-image {
   width: 200px;
   height: 200px;
+  border-radius: 50%;
 }
 @media screen and (max-width: 843px) {
   .avatar .avatar-image {
@@ -83,7 +84,7 @@
 .connect-wrapper .connect-status {
   font-size: 16px;
   line-height: 20px;
-  color: #9CA3AF;
+  color: #9ca3af;
 }
 .connect-wrapper .connect-button {
   display: flex;
@@ -93,7 +94,7 @@
   line-height: 20px;
 }
 .connect-wrapper .connect-button:hover {
-  text-decoration: underline 1px solid #9CA3AF;
+  text-decoration: underline 1px solid #9ca3af;
 }
 
 .profile-form {
@@ -119,7 +120,7 @@
   margin-bottom: 8px;
 }
 .profile-form input {
-  border: 1px solid #E5E7EB;
+  border: 1px solid #e5e7eb;
   box-shadow: 0px 1px 2px rgba(31, 41, 55, 0.08);
   border-radius: 4px;
 }
@@ -128,7 +129,7 @@
   width: 80%;
   float: left;
   margin-bottom: 70px;
-  border-top: 1px solid #808FB0;
+  border-top: 1px solid #808fb0;
   display: flex;
   justify-content: space-between;
 }
@@ -146,7 +147,7 @@
   margin-top: 32px;
   width: 147px;
   height: 48px;
-  border: 2px solid #44A1E7;
+  border: 2px solid #44a1e7;
   border-radius: 4px;
   font-size: 14px;
   line-height: 18px;

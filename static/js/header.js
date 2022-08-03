@@ -30,12 +30,20 @@ class Header {
             url: '/api/v1/me',
             success: (data) => {
                 $(".header-container .search-li").removeClass('hide');
-
                 if(data.id) {
                     $(".header-container #account-dropdown").removeClass('hide');
-
                     const char = (data.name != '' ? data.name[0] : data.email[0]);
-                    $(".header-container #account-dropdown #account-icon").text(char);
+                    // add image in header
+                    $(".header-container #account-dropdown #account-icon").text("");
+                    var x = document.createElement("img");
+                    x.setAttribute("src", data.avatar);
+                    x.setAttribute("width", "40");
+                    x.setAttribute("height", "40");
+                    x.setAttribute("id","account-icon");
+                    x.setAttribute("alt", "Avatar of Movey website");
+                    $(".header-container #account-dropdown #account-icon").append(x);
+                    
+                    // $(".header-container #account-dropdown #account-icon").text(char);
                     $(".search-btn").addClass('log');
                 } else {
                     $(".header-container .sign-in-li").removeClass('hide');

@@ -12,9 +12,13 @@
         <li class="sign-up-li hide"><a class="sign-up" href="/accounts/register/">SIGN UP</a></li>
         <li id="account-dropdown" class="hide">
           <a class="profile-link" href="/settings/profile">
+            {% if account.avatar %}
+              <img class="avatar-image" id="account-icon" src={{account.avatar}}>
+            {% else %}
             <button id="account-icon">
               A
             </button>
+            {% endif %}
           </a>
           <img id="account-dropdown-toggle" src="/static/resources/chevron_down_icon.svg">
           <ul id="account-dropdown-list">

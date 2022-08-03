@@ -15,6 +15,7 @@ use jelly::serde::{Deserialize, Serialize};
 use jelly::DieselPgPool;
 
 use super::forms::{LoginForm, NewAccountForm};
+use super::views::avatar::Gravatar;
 use super::views::verify::GithubOauthUser;
 use crate::schema::accounts;
 use crate::schema::accounts::dsl::*;
@@ -116,6 +117,7 @@ impl Account {
         let record = diesel::insert_into(accounts::table)
             .values(new_record)
             .get_result::<Account>(&connection)?;
+
 
         Ok(record.id)
     }
@@ -306,7 +308,7 @@ impl Account {
                 .set(avatar.eq(Some(format!(
                     "https://avatars.githubusercontent.com/u/{}",
                     gh_id
-                ))))
+                ))))    
                 .execute(&conn)?;
         }
 
@@ -346,16 +348,19 @@ pub struct NewAccount {
     pub name: String,
     pub email: String,
     pub password: String,
+    pub avatar: Option<String>,
 }
 
 impl NewAccount {
     fn from_form(form: &NewAccountForm) -> Self {
         let email_ = form.email.value.clone();
         let name_from_email = email_.split('@').next().unwrap();
+        let gravatar = Gravatar::new(&email_, None);
         NewAccount {
             name: String::from(name_from_email),
             email: form.email.value.clone(),
             password: "".to_string(),
+            avatar: Some(gravatar.image_url()),
         }
     }
 }
