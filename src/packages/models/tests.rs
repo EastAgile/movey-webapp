@@ -5,7 +5,7 @@ use jelly::forms::{EmailField, PasswordField};
 
 use crate::github_service::GithubRepoData;
 
-async fn setup() -> Result<(), Error> {
+async fn setup() -> Result<()> {
     let pool = &DB_POOL;
     Package::create_test_package(
         &"The first package".to_string(),

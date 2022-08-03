@@ -31,6 +31,11 @@ pub enum Error {
     InvalidAccountToken,
     PasswordHasher(djangohashers::HasherError),
     Reqwest(reqwest::Error),
+    ApiBadRequest(&'static str, Box<dyn std::error::Error>),
+    ApiUnauthorized(&'static str, Box<dyn std::error::Error>),
+    ApiForbidden(&'static str, Box<dyn std::error::Error>),
+    ApiNotFound(&'static str, Box<dyn std::error::Error>),
+    ApiServerError(Box<dyn std::error::Error>),
 }
 
 impl fmt::Display for Error {
@@ -54,7 +59,12 @@ impl error::Error for Error {
             | Error::InvalidPassword
             | Error::InvalidAccountToken
             | Error::PasswordHasher(_)
-            | Error::Reqwest(_) => None,
+            | Error::Reqwest(_)
+            | Error::ApiServerError(_)
+            | Error::ApiNotFound(_, _)
+            | Error::ApiForbidden(_, _)
+            | Error::ApiUnauthorized(_, _)
+            | Error::ApiBadRequest(_, _)=> None,
         }
     }
 }
@@ -124,6 +134,16 @@ lazy_static! {
 
 impl ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
+        use super::utils::api_errors::*;
+
+        match self {
+            Error::ApiServerError(e) => return server_error(e),
+            Error::ApiNotFound(msg, e) => return not_found(msg, e),
+            Error::ApiForbidden(msg, e) => return forbidden(msg, e),
+            Error::ApiUnauthorized(msg, e) => return unauthorized(msg, e),
+            Error::ApiBadRequest(msg, e) => return bad_request(msg, e),
+            _ => {}
+        }
         match TERA.read() {
             Ok(engine) => {
                 match engine.render("404.html", &Context::new())
