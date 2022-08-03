@@ -133,11 +133,11 @@ async fn is_expired_panics_if_expiration_days_is_less_than_0() {
 
 #[actix_rt::test]
 #[should_panic]
-async fn is_expired_panics_if_expiration_days_is_not_an_integer(None) {
+async fn is_expired_panics_if_expiration_days_is_not_an_integer() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let owner_invitation = setup_invitation().await;
+    let owner_invitation = setup_invitation(None).await;
     env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "invalid-integer");
     owner_invitation.is_expired();
 }

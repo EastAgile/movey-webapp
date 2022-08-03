@@ -35,7 +35,7 @@ pub async fn add_collaborators(
             })));
         }
         Err(e) => {
-            warn!("add_collaborators failed, error: {}", e);
+            warn!("add_collaborators failed, error: {:?}", e);
             return Ok(HttpResponse::InternalServerError().json(json!({
                 "ok": false,
                 "msg": MSG_FAILURE_INVITING_COLLABORATOR,
@@ -59,7 +59,7 @@ pub async fn add_collaborators(
             })));
         }
         Err(e) => {
-            warn!("add_collaborators failed, error: {}", e);
+            warn!("add_collaborators failed, error: {:?}", e);
             return Ok(HttpResponse::InternalServerError().json(json!({
                 "ok": false,
                 "msg": MSG_FAILURE_INVITING_COLLABORATOR,
@@ -77,7 +77,7 @@ pub async fn add_collaborators(
             }
         }
         Err(e) => {
-            warn!("add_collaborators failed, error: {}", e);
+            warn!("add_collaborators failed, error: {:?}", e);
             return Ok(HttpResponse::Unauthorized().json(json!({
                 "ok": false,
                 "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
@@ -102,14 +102,14 @@ pub async fn add_collaborators(
                 })?;
             }
         }
-        Err(Error::Database(DBError::DatabaseError(DatabaseErrorKind::UniqueViolation, _))) => {
+        Err(Error::Database(DBError::NotFound)) => {
             return Ok(HttpResponse::BadRequest().json(json!({
                 "ok": false,
                 "msg": MSG_INVITATION_ALREADY_EXISTED,
             })));
         }
         Err(e) => {
-            warn!("add_collaborators failed, error: {}", e);
+            warn!("add_collaborators failed, error: {:?}", e);
             return Ok(HttpResponse::InternalServerError().json(json!({
                 "ok": false,
                 "msg": MSG_FAILURE_INVITING_COLLABORATOR,
@@ -143,7 +143,7 @@ pub async fn transfer_ownership(
             })));
         }
         Err(e) => {
-            warn!("transfer_ownership failed, error: {}", e);
+            warn!("transfer_ownership failed, error: {:?}", e);
             return Ok(HttpResponse::InternalServerError().json(json!({
                 "ok": false,
                 "msg": MSG_FAILURE_INVITING_COLLABORATOR,
@@ -160,7 +160,7 @@ pub async fn transfer_ownership(
             })));
         }
         Err(e) => {
-            warn!("transfer_ownership failed, error: {}", e);
+            warn!("transfer_ownership failed, error: {:?}", e);
             return Ok(HttpResponse::InternalServerError().json(json!({
                 "ok": false,
                 "msg": MSG_FAILURE_INVITING_COLLABORATOR,
@@ -173,7 +173,6 @@ pub async fn transfer_ownership(
     match PackageCollaborator::get_in_bulk(package.id, ids, &conn) {
         Ok(collaborators) => {
             if collaborators.len() != 2 {
-                warn!("transfer_ownership failed, error: {}", e);
                 return Ok(HttpResponse::BadRequest().json(json!({
                 "ok": false,
                 "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
@@ -193,7 +192,7 @@ pub async fn transfer_ownership(
             }
         }
         Err(e) => {
-            warn!("transfer_ownership failed, error: {}", e);
+            warn!("transfer_ownership failed, error: {:?}", e);
             return Ok(HttpResponse::Unauthorized().json(json!({
                 "ok": false,
                 "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
@@ -219,7 +218,7 @@ pub async fn transfer_ownership(
             })));
         }
         Err(e) => {
-            warn!("add_collaborators failed, error: {}", e);
+            warn!("add_collaborators failed, error: {:?}", e);
             return Ok(HttpResponse::InternalServerError().json(json!({
                 "ok": false,
                 "msg": MSG_FAILURE_INVITING_COLLABORATOR,
@@ -251,7 +250,7 @@ pub async fn handle_invite(
     }
     if json.accepted {
         if let Err(e) = invitation.accept(&conn) {
-            warn!("handle_invite failed, error: {}", e);
+            warn!("handle_invite failed, error: {:?}", e);
             return Ok(HttpResponse::Unauthorized().json(json!({
                 "ok": false,
                 "msg": MSG_UNEXPECTED_ERROR
@@ -259,7 +258,7 @@ pub async fn handle_invite(
         }
     } else {
         if let Err(e) = invitation.delete(&conn) {
-            warn!("handle_invite failed, error: {}", e);
+            warn!("handle_invite failed, error: {:?}", e);
             return Ok(HttpResponse::Unauthorized().json(json!({
                 "ok": false,
                 "msg": MSG_UNEXPECTED_ERROR
@@ -282,7 +281,7 @@ pub async fn accept_invite_with_token(
         return request.render(410, "accounts/invalid_token.html", Context::new());
     }
     if let Err(e) = invitation.accept(&conn) {
-        warn!("handle_invite failed, error: {}", e);
+        warn!("handle_invite failed, error: {:?}", e);
         return request.render(503, "503.html", Context::new());
     }
     let package = Package::get(invitation.package_id, request.db_pool()?).await?;

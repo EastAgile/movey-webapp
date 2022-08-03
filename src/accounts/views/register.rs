@@ -10,7 +10,7 @@ use crate::accounts::Account;
 use crate::utils::request_utils;
 
 #[derive(serde::Deserialize)]
-struct RegisterRedirectParams {
+pub struct RegisterRedirectParams {
     pub redirect: Option<String>,
 }
 

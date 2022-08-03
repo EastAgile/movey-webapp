@@ -77,7 +77,7 @@ impl PackageCollaborator {
         Ok(package_collaborators::table
             .filter(
                 package_collaborators::package_id.eq(package_id)
-                    .and(package_collaborators::account_id_eq_any(account_ids))
+                    .and(package_collaborators::account_id.eq_any(account_ids))
             )
             .order(package_collaborators::role.asc()) // owner first
             .load::<Self>(conn)?)

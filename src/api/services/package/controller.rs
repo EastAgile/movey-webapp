@@ -99,10 +99,10 @@ pub async fn search_package(
 
 pub async fn package_badge_info(
     request: HttpRequest,
-    Path(pkg_name): Path<String>,
+    Path(package_name): Path<String>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    let result = Package::get_badge_info(&pkg_name, db).await?;
+    let result = Package::get_badge_info(&package_name, db).await?;
     if !result.is_empty() {
         let respond = PackageBadgeRespond::from(result);
         return Ok(HttpResponse::Ok().json(respond));

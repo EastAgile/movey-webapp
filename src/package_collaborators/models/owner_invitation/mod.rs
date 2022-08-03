@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests;
 
-use crate::package_collaborators::package_collaborator::PackageCollaborator;
+use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
 use crate::schema::owner_invitations;
 use crate::utils::token::SecureToken;
 use diesel::prelude::*;
@@ -10,6 +10,7 @@ use jelly::chrono::{NaiveDateTime, Utc};
 use jelly::Result;
 use jelly::{chrono, DieselPgConnection};
 use std::env;
+use crate::schema::package_collaborators;
 
 #[derive(Clone, Debug, Eq, Identifiable, Queryable)]
 #[primary_key(invited_user_id, package_id)]
@@ -62,9 +63,9 @@ impl OwnerInvitation {
                 .first(conn)
                 .optional()?;
 
-            if let Some(existing) = existing {
-                if existing.is_expired() {
-                    diesel::delete(&existing).execute(conn)?;
+            if let Some(existing_) = existing {
+                if existing_.is_expired() {
+                    diesel::delete(&existing_).execute(conn)?;
                 }
             }
             Ok(())
@@ -112,16 +113,30 @@ impl OwnerInvitation {
     }
 
     pub fn accept(&self, conn: &DieselPgConnection) -> Result<()> {
-        conn.transaction(|| -> Result<()> {
-            PackageCollaborator::new_collaborator(
-                self.package_id,
-                self.invited_user_id,
-                self.invited_by_user_id,
-                &conn,
-            )?;
-            self.delete(&conn)?;
-            Ok(())
-        })
+        if self.is_transferring {
+            conn.transaction(|| -> Result<()> {
+                diesel::update(package_collaborators::table)
+                    .set(package_collaborators::role.eq(Role::Collaborator as i32))
+                    .filter(package_collaborators::account_id.eq(self.invited_by_user_id))
+                    .execute(conn)?;
+                diesel::update(package_collaborators::table)
+                    .set(package_collaborators::role.eq(Role::Owner as i32))
+                    .filter(package_collaborators::account_id.eq(self.invited_user_id))
+                    .execute(conn)?;
+                self.delete(conn)
+            })?
+        } else {
+            conn.transaction(|| -> Result<()> {
+                PackageCollaborator::new_collaborator(
+                    self.package_id,
+                    self.invited_user_id,
+                    self.invited_by_user_id,
+                    conn,
+                )?;
+                self.delete(conn)
+            })?
+        }
+        Ok(())
     }
 
     pub fn is_expired(&self) -> bool {

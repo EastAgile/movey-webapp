@@ -130,7 +130,7 @@ impl Account {
         // Shift all pending invitations to this created-but-not-verified account
         let conn = pool.get()?;
         for inv in PendingInvitation::find_by_email(&record.email, &conn)? {
-            OwnerInvitation::create(record.id, inv.invited_by_user_id, inv.package_id, &conn)?;
+            OwnerInvitation::create(record.id, inv.invited_by_user_id, inv.package_id, None, &conn)?;
             inv.delete(&conn)?;
         }
 

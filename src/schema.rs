@@ -41,7 +41,7 @@ table! {
         invited_by_user_id -> Int4,
         package_id -> Int4,
         token -> Text,
-        is_transferring -> Nullable<Bool>,
+        is_transferring -> Bool,
         created_at -> Timestamp,
     }
 }
