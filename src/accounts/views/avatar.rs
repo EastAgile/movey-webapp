@@ -38,7 +38,7 @@ fn test_base_url() {
     let url = Gravatar::new("email@example.com", None).image_url();
     assert_eq!(
         url.as_str(),
-        "https://secure.gravatar.com/avatar/5658ffccee7f0ebfda2b226238b1eb6e&d=monsterid&r=pg"
+        "https://secure.gravatar.com/avatar/5658ffccee7f0ebfda2b226238b1eb6e?s=200&d=monsterid&r=pg"
     );
 }
 
@@ -47,7 +47,7 @@ fn test_hash_procedure() {
     let url = Gravatar::new("  EMaiL@exAMplE.cOm ", None).image_url();
     assert_eq!(
         url.as_str(),
-        "https://secure.gravatar.com/avatar/5658ffccee7f0ebfda2b226238b1eb6e&d=monsterid&r=pg"
+        "https://secure.gravatar.com/avatar/5658ffccee7f0ebfda2b226238b1eb6e?s=200&d=monsterid&r=pg"
     );
 }
 
