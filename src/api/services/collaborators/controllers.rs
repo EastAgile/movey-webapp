@@ -92,7 +92,7 @@ pub async fn add_collaborators(
         })));
     }
 
-    match OwnerInvitation::create(invited_account.id, user.id, package.id, &conn) {
+    match OwnerInvitation::create(invited_account.id, user.id, package.id, None, &conn) {
         Ok(invitation) => {
             if !invited_account.is_generated_email() {
                 request.queue(SendCollaboratorInvitationEmail {
@@ -103,6 +103,116 @@ pub async fn add_collaborators(
             }
         }
         Err(Error::Database(DBError::DatabaseError(DatabaseErrorKind::UniqueViolation, _))) => {
+            return Ok(HttpResponse::BadRequest().json(json!({
+                "ok": false,
+                "msg": MSG_INVITATION_ALREADY_EXISTED,
+            })));
+        }
+        Err(e) => {
+            warn!("add_collaborators failed, error: {}", e);
+            return Ok(HttpResponse::InternalServerError().json(json!({
+                "ok": false,
+                "msg": MSG_FAILURE_INVITING_COLLABORATOR,
+            })));
+        }
+    }
+
+    Ok(HttpResponse::Ok().json(&json!({
+        "ok": true,
+        "msg": MSG_SUCCESSFULLY_INVITED_COLLABORATOR,
+    })))
+}
+
+pub async fn transfer_ownership(
+    request: HttpRequest,
+    Path(package_name): Path<String>,
+    json: web::Json<AddCollaboratorJson>,
+) -> Result<HttpResponse> {
+    if !request_utils::is_authenticated(&request).await? {
+        return Ok(request_utils::clear_cookie(&request));
+    }
+    let db = request.db_pool()?;
+    let conn = db.get()?;
+
+    let package = match Package::get_by_name(&package_name, db).await {
+        Ok(package) => package,
+        Err(Error::Database(DBError::NotFound)) => {
+            return Ok(HttpResponse::NotFound().json(json!({
+                "ok": false,
+                "msg": MSG_PACKAGE_NOT_FOUND,
+            })));
+        }
+        Err(e) => {
+            warn!("transfer_ownership failed, error: {}", e);
+            return Ok(HttpResponse::InternalServerError().json(json!({
+                "ok": false,
+                "msg": MSG_FAILURE_INVITING_COLLABORATOR,
+            })));
+        }
+    };
+
+    let invited_account = match Account::get_by_email_or_gh_login(&json.user, db).await {
+        Ok(account) => account,
+        Err(Error::Database(DBError::NotFound)) => {
+            return Ok(HttpResponse::NotFound().json(json!({
+                "ok": false,
+                "msg": MSG_ACCOUNT_NOT_FOUND_INVITING,
+            })));
+        }
+        Err(e) => {
+            warn!("transfer_ownership failed, error: {}", e);
+            return Ok(HttpResponse::InternalServerError().json(json!({
+                "ok": false,
+                "msg": MSG_FAILURE_INVITING_COLLABORATOR,
+            })));
+        }
+    };
+
+    let user = request.user()?;
+    let ids = vec![user.id, invited_account.id];
+    match PackageCollaborator::get_in_bulk(package.id, ids, &conn) {
+        Ok(collaborators) => {
+            if collaborators.len() != 2 {
+                warn!("transfer_ownership failed, error: {}", e);
+                return Ok(HttpResponse::BadRequest().json(json!({
+                "ok": false,
+                "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
+            })));
+            }
+            if collaborators.get(0).unwrap().role != Role::Owner as i32 {
+                return Ok(HttpResponse::Forbidden().json(json!({
+                    "ok": false,
+                    "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
+                })));
+            }
+            if collaborators.get(1).unwrap().role != Role::Collaborator as i32 {
+                return Ok(HttpResponse::Forbidden().json(json!({
+                    "ok": false,
+                    "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
+                })));
+            }
+        }
+        Err(e) => {
+            warn!("transfer_ownership failed, error: {}", e);
+            return Ok(HttpResponse::Unauthorized().json(json!({
+                "ok": false,
+                "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
+            })));
+        }
+    };
+
+    match OwnerInvitation::create(invited_account.id, user.id, package.id, Some(true), &conn) {
+        Ok(invitation) => {
+            if !invited_account.is_generated_email() {
+                // TODO: need a new email for transferring ownership
+                request.queue(SendCollaboratorInvitationEmail {
+                    to: invited_account.email,
+                    package_name: package.name,
+                    token: invitation.token,
+                })?;
+            }
+        }
+        Err(Error::Database(DBError::NotFound)) => {
             return Ok(HttpResponse::BadRequest().json(json!({
                 "ok": false,
                 "msg": MSG_INVITATION_ALREADY_EXISTED,
