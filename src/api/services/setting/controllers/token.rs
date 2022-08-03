@@ -65,13 +65,13 @@ pub async fn revoke_token(
         token_id
             .parse::<i32>()
             .map_err(|e| anyhow!("Error parsing token id: {:?}", e))?,
-        &db,
+        db,
     )
     .await?;
 
     // checks if token belongs to account
     if token.account_id == user.id {
-        ApiToken::revoke(token.id, &db).await?;
+        ApiToken::revoke(token.id, db).await?;
     }
 
     Ok(HttpResponse::Ok().body(""))

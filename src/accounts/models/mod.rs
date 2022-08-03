@@ -1,4 +1,4 @@
-// Implements a basic Account model, with support for creating/updating/deleting
+// Implements a basic Account models, with support for creating/updating/deleting
 // users, along with welcome email and verification.
 
 use diesel::prelude::*;
@@ -110,7 +110,7 @@ impl Account {
         let hashword = make_password(&form.password);
 
         let mut new_record = NewAccount::from_form(form);
-        new_record.password = hashword.to_string();
+        new_record.password = hashword;
 
         let record = diesel::insert_into(accounts::table)
             .values(new_record)
@@ -148,7 +148,7 @@ impl Account {
         pool: &DieselPgPool,
     ) -> Result<(), Error> {
         let connection = pool.get()?;
-        let hashword = make_password(&account_password);
+        let hashword = make_password(account_password);
 
         diesel::update(accounts.filter(id.eq(uid)))
             .set((password.eq(hashword), last_login.eq(offset::Utc::now())))
@@ -308,11 +308,11 @@ impl NewAccount {
     fn from_form(form: &NewAccountForm) -> Self {
         let email_ = form.email.value.clone();
         let name_from_email = email_.split('@').next().unwrap();
-        return NewAccount {
+        NewAccount {
             name: String::from(name_from_email),
             email: form.email.value.clone(),
             password: "".to_string(),
-        };
+        }
     }
 }
 
@@ -329,7 +329,7 @@ pub struct NewGithubAccount {
 
 impl NewGithubAccount {
     fn from_oauth_user(oauth_user: &GithubOauthUser) -> Self {
-        return NewGithubAccount {
+        NewGithubAccount {
             name: "".to_string(),
             email: oauth_user.email.clone(),
             github_login: oauth_user.login.clone(),
@@ -340,6 +340,6 @@ impl NewGithubAccount {
             },
             has_verified_email: true,
             github_id: oauth_user.id,
-        };
+        }
     }
 }

@@ -1,4 +1,5 @@
 use crate::accounts::Account;
+use crate::sql::lower;
 
 use diesel::dsl::{count, now, sum};
 use diesel::prelude::*;
@@ -63,7 +64,7 @@ type PackageColumns = (
     packages::account_id,
 );
 
-const PACKAGE_COLUMNS: PackageColumns = (
+pub const PACKAGE_COLUMNS: PackageColumns = (
     packages::id,
     packages::name,
     packages::description,
@@ -132,15 +133,13 @@ impl std::fmt::Display for PackageSortField {
 impl PackageSortField {
     // Convert to a value used in ORM
     pub fn to_column_name(&self) -> String {
-        String::from(
-            match self {
-                PackageSortField::Name => "name",
-                PackageSortField::Description => "description",
-                PackageSortField::MostDownloads => "total_downloads_count",
-                PackageSortField::NewlyAdded => "created_at",
-                PackageSortField::RecentlyUpdated => "updated_at",
-            }
-        )
+        String::from(match self {
+            PackageSortField::Name => "name",
+            PackageSortField::Description => "description",
+            PackageSortField::MostDownloads => "total_downloads_count",
+            PackageSortField::NewlyAdded => "created_at",
+            PackageSortField::RecentlyUpdated => "updated_at",
+        })
     }
 }
 
@@ -154,12 +153,10 @@ pub enum PackageSortOrder {
 
 impl PackageSortOrder {
     fn to_order_direction(&self) -> String {
-        String::from(
-            match self {
-                PackageSortOrder::Asc => "ASC",
-                PackageSortOrder::Desc => "DESC",
-            }
-        )
+        String::from(match self {
+            PackageSortOrder::Asc => "ASC",
+            PackageSortOrder::Desc => "DESC",
+        })
     }
 }
 
@@ -187,6 +184,7 @@ pub struct NewPackageVersion {
     pub rev: String,
     pub total_files: i32,
     pub total_size: i32,
+    pub downloads_count: i32,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -207,9 +205,9 @@ impl Package {
     }
 
     pub async fn create(
-        repo_url: &String,
-        package_description: &String,
-        version_rev: &String,
+        repo_url: &str,
+        package_description: &str,
+        version_rev: &str,
         version_files: i32,
         version_size: i32,
         account_id_: Option<i32>,
@@ -217,7 +215,7 @@ impl Package {
         subdir: Option<String>,
         pool: &DieselPgPool,
     ) -> Result<i32, Error> {
-        let github_data = service.fetch_repo_data(&repo_url, subdir, None)?;
+        let github_data = service.fetch_repo_data(repo_url, subdir, None)?;
 
         Package::create_from_crawled_data(
             repo_url,
@@ -243,7 +241,7 @@ impl Package {
         pool: &DieselPgPool,
     ) -> Result<i32, Error> {
         let connection = pool.get()?;
-        let record = match Package::get_by_name(&github_data.name, &pool).await {
+        let record = match Package::get_by_name(&github_data.name, pool).await {
             Ok(package) => package,
             Err(_) => {
                 let new_package = NewPackage {
@@ -253,18 +251,20 @@ impl Package {
                     account_id: account_id_,
                 };
 
-                let record = diesel::insert_into(packages::table)
+                diesel::insert_into(packages::table)
                     .values(new_package)
                     .returning(PACKAGE_COLUMNS)
-                    .get_result::<Package>(&connection)?;
-
-                record
+                    .get_result::<Package>(&connection)?
             }
         };
 
         // Only creates new version if same user with package owner
         if record.account_id == account_id_ || record.account_id.is_none() {
-            if let Err(_) = record.get_version(&github_data.version, &pool).await {
+            if record
+                .get_version(&github_data.version, pool)
+                .await
+                .is_err()
+            {
                 PackageVersion::create(
                     record.id,
                     github_data.version,
@@ -272,6 +272,7 @@ impl Package {
                     version_rev.to_string(),
                     version_files,
                     version_size,
+                    None,
                     pool,
                 )
                 .await?;
@@ -298,6 +299,29 @@ impl Package {
             .filter(name.eq(package_name))
             .select(PACKAGE_COLUMNS)
             .first::<Package>(&connection)?;
+
+        Ok(result)
+    }
+
+    pub async fn get_badge_info(
+        package_name: &str,
+        pool: &DieselPgPool,
+    ) -> Result<Vec<(String, i32, String, i32)>, Error> {
+        let connection = pool.get()?;
+
+        let result: Vec<(String, i32, String, i32)> = packages::table
+            .inner_join(package_versions::table)
+            .filter(lower(packages::name).eq(package_name.to_lowercase()))
+            .filter(diesel::dsl::sql(
+                "TRUE GROUP BY packages.name, packages.total_downloads_count, package_versions.version, package_versions.downloads_count",
+            ))
+            .select((
+                packages::name,
+                packages::total_downloads_count,
+                package_versions::version,
+                package_versions::downloads_count,
+            ))
+            .load::<(String, i32, String, i32)>(&connection)?;
 
         Ok(result)
     }
@@ -356,10 +380,9 @@ impl Package {
         let mut https_url = url.to_owned();
         if url.starts_with("git@github.com") {
             https_url = url
-                .replace(":", "/")
+                .replace(':', "/")
                 .replace("git@", "https://")
-                .replace(".git", "")
-                .to_owned();
+                .replace(".git", "");
         }
         if https_url.ends_with(".git") {
             https_url = https_url[0..https_url.len() - 4].to_string();
@@ -399,6 +422,7 @@ impl Package {
                             rev_.clone(),
                             -1,
                             github_data.size,
+                            None,
                             pool,
                         )
                         .await?;
@@ -424,12 +448,12 @@ impl Package {
                 Package::create_from_crawled_data(
                     &https_url,
                     &github_data.description.clone(),
-                    &rev_,
+                    rev_,
                     -1,
                     github_data.size,
                     None,
                     github_data,
-                    &pool,
+                    pool,
                 )
                 .await?
             }
@@ -478,10 +502,10 @@ impl Package {
         let field = sort_field.to_column_name();
         let order = sort_order.to_order_direction();
         let order_query = format!("packages.{} {}", field, order);
-        let search_query: &str = &search_query.split(" ").collect::<Vec<&str>>().join(" & ");
+        let search_query: &str = &search_query.split(' ').collect::<Vec<&str>>().join(" & ");
 
-        let page = page.unwrap_or_else(|| 1);
-        let per_page = per_page.unwrap_or_else(|| PACKAGES_PER_PAGE);
+        let page = page.unwrap_or(1);
+        let per_page = per_page.unwrap_or(PACKAGES_PER_PAGE);
         if page < 1 || per_page < 1 {
             return Err(Error::Generic(String::from("Invalid page number.")));
         }
@@ -495,7 +519,7 @@ impl Package {
             .order(diesel::dsl::sql::<diesel::sql_types::Text>(&order_query))
             .load_with_pagination(&connection, Some(page), Some(per_page))?;
 
-        return Ok(result);
+        Ok(result)
     }
 
     pub async fn all_packages(
@@ -510,8 +534,8 @@ impl Package {
         let order = sort_order.to_order_direction();
         let order_query = format!("packages.{} {}", field, order);
 
-        let page = page.unwrap_or_else(|| 1);
-        let per_page = per_page.unwrap_or_else(|| PACKAGES_PER_PAGE);
+        let page = page.unwrap_or(1);
+        let per_page = per_page.unwrap_or(PACKAGES_PER_PAGE);
         if page < 1 || per_page < 1 {
             return Err(Error::Generic(String::from("Invalid page number.")));
         }
@@ -523,7 +547,7 @@ impl Package {
             .order(diesel::dsl::sql::<diesel::sql_types::Text>(&order_query))
             .load_with_pagination(&connection, Some(page), Some(per_page))?;
 
-        return Ok(result);
+        Ok(result)
     }
 }
 
@@ -537,6 +561,14 @@ impl PackageVersion {
         Ok(result)
     }
 
+    pub async fn delete_by_package_id(package_id_: i32, pool: &DieselPgPool) -> Result<usize, Error> {
+        let connection = pool.get()?;
+        let result = diesel::delete(package_versions.filter(package_id.eq(package_id_)))
+            .execute(&connection)?;
+
+        Ok(result)
+    }
+
     pub async fn create(
         version_package_id: i32,
         version_name: String,
@@ -544,6 +576,7 @@ impl PackageVersion {
         version_rev: String,
         version_files: i32,
         version_size: i32,
+        version_download: Option<i32>,
         pool: &DieselPgPool,
     ) -> Result<PackageVersion, Error> {
         let connection = pool.get()?;
@@ -555,6 +588,7 @@ impl PackageVersion {
             rev: version_rev,
             total_files: version_files,
             total_size: version_size,
+            downloads_count: version_download.unwrap_or(0),
         };
 
         let record = diesel::insert_into(package_versions::table)
@@ -639,6 +673,7 @@ impl Package {
             version_rev.to_string(),
             version_files,
             version_size,
+            None,
             pool,
         )
         .await
@@ -674,11 +709,61 @@ impl Package {
             String::from("rev"),
             5,
             500,
+            None,
             pool,
         )
         .await
         .unwrap();
 
+        Ok(record.id)
+    }
+
+    pub async fn create_test_package_with_multiple_versions(
+        package_name: &String,
+        repo_url: &String,
+        package_description: &String,
+        package_downloads_count: i32,
+        pool: &DieselPgPool,
+    ) -> Result<i32, Error> {
+        let connection = pool.get()?;
+
+        let new_package = NewTestPackage {
+            name: package_name.to_string(),
+            description: package_description.to_string(),
+            repository_url: repo_url.to_string(),
+            total_downloads_count: package_downloads_count,
+        };
+
+        let record = diesel::insert_into(packages::table)
+            .values(new_package)
+            .returning(PACKAGE_COLUMNS)
+            .get_result::<Package>(&connection)?;
+
+        PackageVersion::create(
+            record.id,
+            String::from("0.0.1"),
+            String::from("readme"),
+            String::from("rev"),
+            5,
+            500,
+            Some(500),
+            pool,
+        )
+        .await
+        .unwrap();
+
+        PackageVersion::create(
+            record.id,
+            String::from("0.0.2"),
+            String::from("readme"),
+            String::from("rev"),
+            5,
+            1000,
+            Some(1000),
+            pool,
+        )
+        .await
+        .unwrap();
         Ok(record.id)
     }
 }

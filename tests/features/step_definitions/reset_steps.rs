@@ -1,17 +1,17 @@
+use super::super::world::TestWorld;
 use cucumber::{given, then, when};
+use jelly::forms::{EmailField, PasswordField};
+use mainlib::accounts::forms::NewAccountForm;
+use mainlib::accounts::Account;
+use mainlib::test::DB_POOL;
 use regex::Regex;
 use std::fs;
 use std::{thread, time};
-use jelly::forms::{EmailField, PasswordField};
 use thirtyfour::prelude::*;
-use mainlib::accounts::Account;
-use mainlib::accounts::forms::NewAccountForm;
-use mainlib::test::DB_POOL;
-use super::super::world::TestWorld;
 
 #[given("I have successfully requested a password reset link")]
 async fn request_reset_link(world: &mut TestWorld) {
-    fs::remove_dir_all("./emails").unwrap_or_else(|_| ());
+    fs::remove_dir_all("./emails").unwrap_or(());
     let form = NewAccountForm {
         email: EmailField {
             value: "test@email.com".to_string(),
@@ -52,12 +52,12 @@ async fn receive_reset_link(world: &mut TestWorld) {
     assert!(email.contains("test@email.com"));
     assert!(email.contains("Reset Your Password"));
 
-    let re = Regex::new(format!(r"/accounts/reset/([^ \n]+)").as_str()).unwrap();
+    let re = Regex::new(r"/accounts/reset/([^ \n]+)".to_string().as_str()).unwrap();
     let caps = re.captures(email.as_str()).unwrap();
     let reset_token = caps.get(1).map(|m| m.as_str()).unwrap();
 
     world.reset_token = reset_token.to_string();
-    fs::remove_dir_all("./emails").unwrap_or_else(|_| ());
+    fs::remove_dir_all("./emails").unwrap_or(());
 }
 
 #[when("I access the reset password link")]
@@ -74,7 +74,10 @@ async fn access_reset_link(world: &mut TestWorld) {
 
 #[then("I should see the Reset Password page")]
 async fn see_reset_password_page(world: &mut TestWorld) {
-    assert_eq!(world.driver.title().await.unwrap(), "Reset Password | Movey");
+    assert_eq!(
+        world.driver.title().await.unwrap(),
+        "Reset Password | Movey"
+    );
 }
 
 #[when("I fill in a valid password and repeat the password correctly")]
@@ -105,7 +108,10 @@ async fn submit_reset_form(world: &mut TestWorld) {
 
 #[then("I should see the Password Changed page")]
 async fn see_password_changed(world: &mut TestWorld) {
-    assert_eq!(world.driver.title().await.unwrap(), "Password Changed | Movey");
+    assert_eq!(
+        world.driver.title().await.unwrap(),
+        "Password Changed | Movey"
+    );
 }
 
 #[then("I should receive an email that confirms password has changed")]
@@ -144,4 +150,23 @@ async fn fill_in_invalid_password(world: &mut TestWorld, invalid_password: Strin
 
     password.send_keys(invalid_password.clone()).await.unwrap();
     confirm_password.send_keys(invalid_password).await.unwrap();
+}
+
+#[when("I access an invalid reset password link")]
+async fn access_invalid_reset_link(world: &mut TestWorld) {
+    let mut invalid_link = world.reset_token.clone();
+    invalid_link.remove(0);
+    world
+        .driver
+        .get(format!(
+            "{}accounts/reset/{}",
+            world.root_url, invalid_link
+        ))
+        .await
+        .unwrap();
+}
+
+#[then("I should see the Invalid or Expired page")]
+async fn see_invalid_or_expired(world: &mut TestWorld) {
+    assert_eq!(world.driver.title().await.unwrap(), "Invalid or Expired | Movey");
 }
