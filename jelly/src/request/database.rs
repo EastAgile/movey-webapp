@@ -1,6 +1,6 @@
 use actix_web::HttpRequest;
 
-use crate::DieselPgPool;
+use crate::{DieselPgConnection, DieselPgPool};
 use crate::error::Error;
 
 /// A basic trait to extract a Database Pool instance for use in views and the like.
@@ -11,6 +11,7 @@ pub trait DatabasePool {
     /// Will return an error if, for some reason, it's unable to unwrap and get
     /// the reference.
     fn db_pool(&self) -> Result<&DieselPgPool, Error>;
+    fn db_connection(&self) -> Result<DieselPgConnection, Error>;
 }
 
 impl DatabasePool for HttpRequest {
@@ -22,6 +23,17 @@ impl DatabasePool for HttpRequest {
 
         Err(Error::Generic(
             "Unable to retrieve Database Pool.".to_string(),
+        ))
+    }
+
+    fn db_connection(&self) -> Result<DieselPgConnection, Error> {
+        let pool = self.db_pool()?;
+        if let Ok(connection) = pool.get() {
+            return Ok(connection);
+        }
+
+        Err(Error::Generic(
+            "Unable to retrieve Database Connection.".to_string(),
         ))
     }
 }

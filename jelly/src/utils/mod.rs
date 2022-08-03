@@ -1,5 +1,8 @@
 //! Implements some framework-level pieces, primarily useful in debugging scenarios.
 
+pub mod api_errors;
+pub mod error_constants;
+
 use actix_web::web::ServiceConfig;
 use actix_web::Result;
 use actix_web::{HttpRequest, HttpResponse};
