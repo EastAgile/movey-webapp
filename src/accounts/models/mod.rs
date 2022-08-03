@@ -196,20 +196,13 @@ impl Account {
                 ))
                 .execute(&connection)?;
 
-            if accounts
-                .filter(id.eq(record.id))
-                .select(avatar)
-                .first::<Option<String>>(&connection)?
-                .is_none()
-            {
-                diesel::update(accounts.filter(id.eq(record.id)))
-                    .set(avatar.eq(Some(format!(
-                        "https://avatars.githubusercontent.com/u/{}",
-                        oauth_user.id
-                    ))))
-                    .execute(&connection)?;
-            }
-
+            diesel::update(accounts.filter(id.eq(record.id)))
+                .set(avatar.eq(Some(format!(
+                    "https://avatars.githubusercontent.com/u/{}",
+                    oauth_user.id
+                ))))
+                .execute(&connection)?;
+            
             record
         } else {
             // create a new account via github
@@ -268,20 +261,13 @@ impl Account {
                 .set((github_id.eq(gh_id), github_login.eq(gh_login)))
                 .execute(&conn)?;
 
-            // User has not had an avatar in their Movey account => use their Github avatar
-            if accounts
-                .filter(id.eq(movey_account_id))
-                .select(avatar)
-                .first::<Option<String>>(&conn)?
-                .is_none()
-            {
-                diesel::update(accounts.filter(id.eq(movey_account_id)))
-                    .set(avatar.eq(Some(format!(
-                        "https://avatars.githubusercontent.com/u/{}",
-                        gh_id
-                    ))))
-                    .execute(&conn)?;
-            }
+            // Github avatar is prioritized over Gravatar
+            diesel::update(accounts.filter(id.eq(movey_account_id)))
+                .set(avatar.eq(Some(format!(
+                    "https://avatars.githubusercontent.com/u/{}",
+                    gh_id
+                ))))
+                .execute(&conn)?;
 
             Ok(())
         })
@@ -298,19 +284,12 @@ impl Account {
             .set((github_id.eq(gh_id), github_login.eq(gh_login)))
             .execute(&conn)?;
 
-        if accounts
-            .filter(id.eq(movey_id))
-            .select(avatar)
-            .first::<Option<String>>(&conn)?
-            .is_none()
-        {
-            diesel::update(accounts.filter(id.eq(movey_id)))
-                .set(avatar.eq(Some(format!(
-                    "https://avatars.githubusercontent.com/u/{}",
-                    gh_id
-                ))))    
-                .execute(&conn)?;
-        }
+        diesel::update(accounts.filter(id.eq(movey_id)))
+            .set(avatar.eq(Some(format!(
+                "https://avatars.githubusercontent.com/u/{}",
+                gh_id
+            ))))    
+            .execute(&conn)?;
 
         Ok(())
     }
