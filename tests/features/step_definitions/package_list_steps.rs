@@ -37,7 +37,9 @@ async fn go_to_package_list_page(world: &mut TestWorld) {
 async fn see_sorted_packages(world: &mut TestWorld, field: String) {
     let package_items = world
         .driver
-        .find_elements(By::Css(".package-list-item-title .package-title span:first-child"))
+        .find_elements(By::Css(
+            ".package-list-item-title .package-title span:first-child",
+        ))
         .await
         .unwrap();
     assert_ne!(package_items.len(), 0);

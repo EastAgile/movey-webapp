@@ -11,3 +11,15 @@ Feature: View Package
         Then I should see the versions of that package by oldest
         When I click on an older version of the package
         Then I should see the older version of the package
+
+    Scenario: User views package that was upload by move-cli
+        Given I am a guest / unregistered user
+        Given There are packages in the system
+        When I access the package details page
+        Then I should see the owner information
+
+    Scenario: User views package that was crawled
+        Given I am a guest / unregistered user
+        Given There are packages in the system
+        When I access the package details page of a package that was crawled
+        Then I should not see the owner information

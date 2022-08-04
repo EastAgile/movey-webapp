@@ -91,7 +91,7 @@ pub async fn change_password(
 pub async fn show_packages(request: HttpRequest) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
-        let packages = Package::get_by_account(user.id, &db).await?;
+        let packages = Package::get_by_account(user.id, db).await?;
 
         request.render(200, "settings/user_packages.html", {
             let mut ctx = Context::new();
@@ -107,7 +107,7 @@ pub async fn show_packages(request: HttpRequest) -> Result<HttpResponse> {
 pub async fn show_downloads(request: HttpRequest) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
-        let download = Package::get_downloads(user.id, &db).await?;
+        let download = Package::get_downloads(user.id, db).await?;
 
         request.render(200, "settings/downloads.html", {
             let mut ctx = Context::new();
@@ -123,7 +123,7 @@ pub async fn show_downloads(request: HttpRequest) -> Result<HttpResponse> {
 pub async fn show_tokens(request: HttpRequest) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
-        let tokens = ApiToken::get_by_account(user.id, &db).await?;
+        let tokens = ApiToken::get_by_account(user.id, db).await?;
 
         request.render(200, "settings/tokens.html", {
             let mut ctx = Context::new();

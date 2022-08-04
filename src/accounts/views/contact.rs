@@ -17,7 +17,7 @@ pub async fn send_contact(request: HttpRequest, form: Form<ContactForm>) -> Resu
     let captcha_secret_key =
         std::env::var("CAPTCHA_SECRET_KEY").expect("CAPTCHA_SECRET_KEY is not set!");
     let form = form.into_inner();
-    
+
     let mut url = Url::parse("https://www.google.com/recaptcha/api/siteverify").unwrap();
     url.query_pairs_mut()
         .extend_pairs(&[("secret", captcha_secret_key), ("response", form.token)]);
