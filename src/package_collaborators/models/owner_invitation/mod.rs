@@ -3,6 +3,7 @@ mod tests;
 
 use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
 use crate::schema::owner_invitations;
+use crate::schema::package_collaborators;
 use crate::utils::token::SecureToken;
 use diesel::prelude::*;
 use diesel::{Identifiable, Insertable, Queryable};
@@ -10,7 +11,6 @@ use jelly::chrono::{NaiveDateTime, Utc};
 use jelly::Result;
 use jelly::{chrono, DieselPgConnection};
 use std::env;
-use crate::schema::package_collaborators;
 
 #[derive(Clone, Debug, Eq, Identifiable, Queryable)]
 #[primary_key(invited_user_id, package_id)]
@@ -41,6 +41,7 @@ struct NewRecord {
     package_id: i32,
     token: String,
     is_transferring: bool,
+    created_at: Option<NaiveDateTime>,
 }
 
 impl OwnerInvitation {
@@ -49,6 +50,7 @@ impl OwnerInvitation {
         invited_by_user_id: i32,
         package_id: i32,
         is_transferring: Option<bool>,
+        created_at: Option<NaiveDateTime>,
         conn: &DieselPgConnection,
     ) -> Result<Self> {
         // Before actually creating the invite, check if an expired invitation already exists
@@ -79,6 +81,7 @@ impl OwnerInvitation {
                 package_id,
                 token: secure_token.inner.sha256,
                 is_transferring: is_transferring.unwrap_or(false),
+                created_at,
             })
             // The ON CONFLICT DO NOTHING clause results in not creating the invite if another one
             // already exists. This does not cause problems with expired invitation as those are

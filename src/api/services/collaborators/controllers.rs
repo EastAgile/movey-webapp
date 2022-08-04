@@ -1,7 +1,6 @@
 use crate::accounts::jobs::{SendCollaboratorInvitationEmail, SendRegisterToCollabEmail};
 use crate::accounts::Account;
 use crate::api::services::collaborators::views::{AddCollaboratorJson, InvitationResponse};
-use crate::constants::*;
 use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
 use crate::package_collaborators::models::pending_invitation::PendingInvitation;
 use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
@@ -10,10 +9,10 @@ use crate::utils::request_utils;
 use diesel::result::Error as DBError;
 use jelly::actix_web::web;
 use jelly::actix_web::web::Path;
-use jelly::prelude::*;
 use jelly::prelude::Error::*;
-use jelly::Result;
+use jelly::prelude::*;
 use jelly::utils::error_constants::*;
+use jelly::Result;
 use serde_json::json;
 
 pub async fn add_collaborators(
@@ -31,26 +30,18 @@ pub async fn add_collaborators(
         .await
         .map_err(|e| ApiNotFound(MSG_PACKAGE_NOT_FOUND, Box::new(e)))?;
     let user = request.user().map_err(|e| ApiServerError(Box::new(e)))?;
-    let invited_account = Account::get_by_email_or_gh_login(
-        &json.user,
-        db
-    )
+    let invited_account = Account::get_by_email_or_gh_login(&json.user, db)
         .await
         .map_err(|e| {
-            if matches!(Error::Database(DBError::NotFound), e) {
-                if json.user.contains("@") {
-                    // TODO: if the following 2 lines throws error, how do we handle it?
-                    let _ = PendingInvitation::create(
-                        &json.user,
-                        user.id,
-                        package.id,
-                        &conn
-                    );
-                    let _ = request.queue(SendRegisterToCollabEmail {
-                        to: json.user.clone(),
-                        package_name: package.name.clone(),
-                    });
-                }
+            if matches!(e, Error::Database(DBError::NotFound))
+                && json.user.contains('@')
+                && PendingInvitation::create(&json.user, user.id, package.id, &conn).is_ok()
+            {
+                // TODO: Handle error for this line
+                let _ = request.queue(SendRegisterToCollabEmail {
+                    to: json.user.clone(),
+                    package_name: package.name.clone(),
+                });
             }
             ApiNotFound(MSG_ACCOUNT_NOT_FOUND_INVITING, Box::new(e))
         })?;
@@ -58,27 +49,28 @@ pub async fn add_collaborators(
     let collaborator = PackageCollaborator::get(package.id, user.id, &conn)
         .map_err(|e| ApiForbidden(MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR, Box::new(e)))?;
     if collaborator.role != Role::Owner as i32 {
-        return Ok(HttpResponse::Forbidden().json(json!({
-            "ok": false,
-            "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
-        })));
+        return Err(ApiForbidden(
+            MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR,
+            Box::new(Error::Generic(format!(
+                "Non-owner is trying to add collaborator. uid: {}, package id: {}",
+                collaborator.account_id, collaborator.package_id
+            ))),
+        ));
     }
 
-    if let Ok(_) = PackageCollaborator::get(package.id, invited_account.id, &conn) {
-        return Ok(HttpResponse::BadRequest().json(json!({
-            "ok": false,
-            "msg": MSG_COLLABORATOR_ALREADY_EXISTED
-        })));
+    if PackageCollaborator::get(package.id, invited_account.id, &conn).is_ok() {
+        return Err(ApiBadRequest(
+            MSG_COLLABORATOR_ALREADY_EXISTED,
+            Box::new(Error::Generic(format!(
+                "Collaborator already existed. uid: {}, package id: {}",
+                invited_account.id, package.id
+            ))),
+        ));
     }
 
-    let invitation = OwnerInvitation::create(
-        invited_account.id,
-        user.id,
-        package.id,
-        None,
-        &conn
-    )
-        .map_err(|e| ApiBadRequest(MSG_INVITATION_ALREADY_EXISTED, Box::new(e)))?;
+    let invitation =
+        OwnerInvitation::create(invited_account.id, user.id, package.id, None, None, &conn)
+            .map_err(|e| ApiBadRequest(MSG_INVITATION_ALREADY_EXISTED, Box::new(e)))?;
     if !invited_account.is_generated_email() {
         request.queue(SendCollaboratorInvitationEmail {
             to: invited_account.email,
@@ -110,29 +102,28 @@ pub async fn transfer_ownership(
 
     let invited_account = Account::get_by_email_or_gh_login(&json.user, db)
         .await
-        .map_err(|e| ApiNotFound(MSG_ACCOUNT_NOT_FOUND_INVITING, Box::new(e)))?;
+        .map_err(|e| ApiNotFound(MSG_ACCOUNT_NOT_FOUND, Box::new(e)))?;
 
     let user = request.user().map_err(|e| ApiServerError(Box::new(e)))?;
     let ids = vec![user.id, invited_account.id];
-    let collaborators = PackageCollaborator::get_in_bulk(package.id, ids, &conn)
+    let collaborators = PackageCollaborator::get_in_bulk_order_by_role(package.id, ids, &conn)
         .map_err(|e| ApiForbidden(MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR, Box::new(e)))?;
+    let unauthoried_error = Box::new(Error::Generic(String::from(
+        "Unauthorized to transfer ownership.",
+    )));
     if collaborators.len() != 2 {
-        return Ok(HttpResponse::BadRequest().json(json!({
-        "ok": false,
-        "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
-        })));
+        return Err(ApiBadRequest(
+            MSG_UNAUTHORIZED_TO_TRANSFER_OWNERSHIP,
+            unauthoried_error,
+        ));
     }
-    if collaborators.get(0).unwrap().role != Role::Owner as i32 {
-        return Ok(HttpResponse::Forbidden().json(json!({
-            "ok": false,
-            "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
-        })));
-    }
-    if collaborators.get(1).unwrap().role != Role::Collaborator as i32 {
-        return Ok(HttpResponse::Forbidden().json(json!({
-            "ok": false,
-            "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
-        })));
+    if collaborators.get(0).unwrap().role != Role::Owner as i32
+        || collaborators.get(1).unwrap().role != Role::Collaborator as i32
+    {
+        return Err(ApiForbidden(
+            MSG_UNAUTHORIZED_TO_TRANSFER_OWNERSHIP,
+            unauthoried_error,
+        ));
     }
 
     let invitation = OwnerInvitation::create(
@@ -140,9 +131,10 @@ pub async fn transfer_ownership(
         user.id,
         package.id,
         Some(true),
-        &conn
+        None,
+        &conn,
     )
-        .map_err(|e| ApiBadRequest(MSG_INVITATION_ALREADY_EXISTED, Box::new(e)))?;
+    .map_err(|e| ApiBadRequest(MSG_INVITATION_ALREADY_EXISTED, Box::new(e)))?;
 
     if !invited_account.is_generated_email() {
         // TODO: need a new email for transferring ownership
@@ -174,15 +166,22 @@ pub async fn handle_invite(
     let invitation = OwnerInvitation::find_by_id(user.id, json.package_id, &conn)
         .map_err(|e| ApiNotFound(MSG_PACKAGE_NOT_FOUND, Box::new(e)))?;
     if invitation.is_expired() {
-        return Ok(HttpResponse::NotFound().json(json!({
-            "ok": false,
-            "msg": MSG_INVITATION_EXPIRED
-        })));
+        return Err(ApiBadRequest(
+            MSG_INVITATION_EXPIRED,
+            Box::new(Error::Generic(format!(
+                "Invitation is expired. invited id: {}, package id: {}",
+                invitation.invited_user_id, invitation.package_id
+            ))),
+        ));
     }
     if json.accepted {
-        invitation.accept(&conn).map_err(|e| ApiUnauthorized(MSG_UNEXPECTED_ERROR, Box::new(e)))?;
+        invitation
+            .accept(&conn)
+            .map_err(|e| ApiUnauthorized(MSG_UNEXPECTED_ERROR, Box::new(e)))?;
     } else {
-        invitation.delete(&conn).map_err(|e| ApiUnauthorized(MSG_UNEXPECTED_ERROR, Box::new(e)))?;
+        invitation
+            .delete(&conn)
+            .map_err(|e| ApiUnauthorized(MSG_UNEXPECTED_ERROR, Box::new(e)))?;
     }
     Ok(HttpResponse::Ok().json(json!({
         "ok": true,

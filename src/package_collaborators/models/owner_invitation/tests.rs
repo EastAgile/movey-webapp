@@ -28,9 +28,12 @@ async fn setup_invitation(is_transferring: Option<bool>) -> OwnerInvitation {
         invited_by_uid,
         pid,
         is_transferring,
-        &DB_POOL.get().unwrap()
-    ).unwrap()
+        None,
+        &DB_POOL.get().unwrap(),
+    )
+    .unwrap()
 }
+
 #[actix_rt::test]
 async fn find_by_token_works() {
     crate::test::init();
@@ -146,11 +149,10 @@ async fn is_expired_panics_if_expiration_days_is_not_an_integer() {
 async fn create_transfer_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    let conn = DB_POOL.get().unwrap();
 
     let owner_invitation1 = setup_invitation(Some(true)).await;
     assert_eq!(owner_invitation1.token.len(), TOKEN_LENGTH);
-    assert_eq!(owner_invitation1.is_transferring, true);
+    assert!(owner_invitation1.is_transferring);
 }
 
 #[actix_rt::test]
@@ -168,6 +170,7 @@ async fn create_new_invitation_if_existing_one_is_expired() {
         owner_invitation.invited_user_id,
         owner_invitation.invited_by_user_id,
         owner_invitation.package_id,
+        None,
         None,
         &conn,
     )
@@ -189,6 +192,7 @@ async fn not_create_new_invitation_if_it_already_exists() {
         owner_invitation.invited_user_id,
         owner_invitation.invited_by_user_id,
         owner_invitation.package_id,
+        None,
         None,
         &conn,
     )

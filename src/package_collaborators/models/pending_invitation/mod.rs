@@ -2,7 +2,6 @@
 mod tests;
 
 use crate::schema::pending_invitations;
-use crate::utils::token::{generate_secure_alphanumeric_string, TOKEN_LENGTH};
 use diesel::prelude::*;
 use diesel::{Identifiable, Insertable, Queryable};
 use jelly::chrono::{NaiveDateTime, Utc};
@@ -16,7 +15,6 @@ pub struct PendingInvitation {
     pub pending_user_email: String,
     pub invited_by_user_id: i32,
     pub package_id: i32,
-    pub token: String,
     pub created_at: NaiveDateTime,
 }
 
@@ -26,7 +24,6 @@ struct NewRecord {
     pending_user_email: String,
     invited_by_user_id: i32,
     package_id: i32,
-    token: String,
 }
 
 impl PendingInvitation {
@@ -56,18 +53,11 @@ impl PendingInvitation {
                 pending_user_email: String::from(pending_user_email),
                 invited_by_user_id,
                 package_id,
-                token: generate_secure_alphanumeric_string(TOKEN_LENGTH),
             })
             .on_conflict_do_nothing()
             .get_result(conn)?;
 
         Ok(res)
-    }
-
-    pub fn find_by_token(token: &str, conn: &DieselPgConnection) -> Result<Self> {
-        Ok(pending_invitations::table
-            .filter(pending_invitations::token.eq(token))
-            .first::<Self>(conn)?)
     }
 
     pub fn find_by_id(

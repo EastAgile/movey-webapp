@@ -42,18 +42,12 @@ pub fn configure(config: &mut ServiceConfig) {
                             post().to(services::collaborators::controllers::add_collaborators),
                         ),
                     )
-                    .service(
-                        resource("/transfer").route(
-                            post().to(services::collaborators::controllers::transfer_ownership),
-                        ),
-                    ),
+                    .service(resource("/transfer").route(
+                        post().to(services::collaborators::controllers::transfer_ownership),
+                    )),
             )
-            .service(
-                scope("/owner_invitations")
-                    .service(
-                        resource("")
-                            .route(post().to(services::collaborators::controllers::handle_invite)),
-                    ),
-            ),
+            .service(scope("/owner_invitations").service(
+                resource("").route(post().to(services::collaborators::controllers::handle_invite)),
+            )),
     );
 }

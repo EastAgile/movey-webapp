@@ -15,8 +15,8 @@ use jelly::serde::{Deserialize, Serialize};
 use jelly::DieselPgPool;
 
 use crate::github_service::GithubRepoData;
-use mockall_double::double;
 use jelly::Result;
+use mockall_double::double;
 #[cfg(test)]
 mod tests;
 
