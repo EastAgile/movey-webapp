@@ -59,25 +59,22 @@ impl PackageCollaborator {
         Ok(())
     }
 
-    pub fn get(
-        package_id: i32,
-        account_id: i32,
-        conn: &DieselPgConnection,
-    ) -> Result<Self, Error> {
+    pub fn get(package_id: i32, account_id: i32, conn: &DieselPgConnection) -> Result<Self, Error> {
         Ok(package_collaborators::table
             .find((package_id, account_id))
             .first::<Self>(conn)?)
     }
 
-    pub fn get_in_bulk(
+    pub fn get_in_bulk_order_by_role(
         package_id: i32,
         account_ids: Vec<i32>,
         conn: &DieselPgConnection,
     ) -> Result<Vec<Self>, Error> {
         Ok(package_collaborators::table
             .filter(
-                package_collaborators::package_id.eq(package_id)
-                    .and(package_collaborators::account_id.eq_any(account_ids))
+                package_collaborators::package_id
+                    .eq(package_id)
+                    .and(package_collaborators::account_id.eq_any(account_ids)),
             )
             .order(package_collaborators::role.asc()) // owner first
             .load::<Self>(conn)?)

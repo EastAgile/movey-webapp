@@ -1,5 +1,7 @@
 use crate::accounts::views::utils::validate_token;
 use crate::accounts::Account;
+use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
+use crate::package_collaborators::models::pending_invitation::PendingInvitation;
 #[cfg(test)]
 use crate::test::mock::MockHttpRequest as HttpRequest;
 use diesel::result::Error as DBError;
@@ -48,7 +50,25 @@ pub async fn with_token(
             is_anonymous: false,
         })?;
 
-        return request.redirect("/settings/profile");
+        // Shift all pending invitations to this verified account
+        let conn = db.get()?;
+        let pending_invitations = PendingInvitation::find_by_email(&account.email, &conn)?;
+        if pending_invitations.is_empty() {
+            return request.redirect("/settings/profile");
+        } else {
+            for invitation in pending_invitations {
+                OwnerInvitation::create(
+                    account.id,
+                    invitation.invited_by_user_id,
+                    invitation.package_id,
+                    None,
+                    Some(invitation.created_at),
+                    &conn,
+                )?;
+                invitation.delete(&conn)?;
+            }
+            return request.redirect("/settings/profile/invitations");
+        }
     }
 
     request.render(200, "accounts/invalid_token.html", Context::new())

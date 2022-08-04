@@ -16,8 +16,6 @@ use jelly::DieselPgPool;
 
 use super::forms::{LoginForm, NewAccountForm};
 use super::views::verify::GithubOauthUser;
-use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
-use crate::package_collaborators::models::pending_invitation::PendingInvitation;
 use crate::schema::accounts;
 use crate::schema::accounts::dsl::*;
 use crate::schema::api_tokens::dsl::{
@@ -126,13 +124,6 @@ impl Account {
         let record = diesel::insert_into(accounts::table)
             .values(new_record)
             .get_result::<Account>(&connection)?;
-
-        // Shift all pending invitations to this created-but-not-verified account
-        let conn = pool.get()?;
-        for inv in PendingInvitation::find_by_email(&record.email, &conn)? {
-            OwnerInvitation::create(record.id, inv.invited_by_user_id, inv.package_id, None, &conn)?;
-            inv.delete(&conn)?;
-        }
 
         Ok(record.id)
     }

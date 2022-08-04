@@ -46,11 +46,9 @@ pub fn configure(config: &mut ServiceConfig) {
                             post().to(services::collaborators::controllers::add_collaborators),
                         ),
                     )
-                    .service(
-                        resource("/transfer").route(
-                            post().to(services::collaborators::controllers::transfer_ownership),
-                        ),
-                    ),
+                    .service(resource("/transfer").route(
+                        post().to(services::collaborators::controllers::transfer_ownership),
+                    )),
             )
             .service(
                 scope("/owner_invitations")

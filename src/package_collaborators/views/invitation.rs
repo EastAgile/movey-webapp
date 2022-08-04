@@ -1,8 +1,8 @@
 use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
+use crate::packages::Package;
 use jelly::actix_web::web::Path;
 use jelly::prelude::*;
 use jelly::Result;
-use crate::packages::Package;
 
 pub async fn accept_invite_with_token(
     request: HttpRequest,

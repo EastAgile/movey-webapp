@@ -46,7 +46,7 @@ pub fn forbidden(msg: &str, e: &Box<dyn Error>) -> HttpResponse {
 
 pub fn not_found(msg: &str, e: &Box<dyn Error>) -> HttpResponse {
     warn!("error: {:?}", e);
-    HttpResponse::InternalServerError()
+    HttpResponse::NotFound()
         .json(json!({
                 "ok": false,
                 "msg": msg,
