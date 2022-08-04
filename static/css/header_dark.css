@@ -178,7 +178,7 @@ header .header-container nav #account-dropdown #account-icon .place-holder {
   width: 32px;
   height: 32px;
   margin: auto;
-  padding: auto;
+  padding: initial;
 }
 header .header-container nav #account-dropdown #account-dropdown-toggle {
   height: 24px;
