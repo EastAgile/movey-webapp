@@ -8,6 +8,7 @@
 {% block css %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"/>
     <link href="/static/css/packages/show.css" rel="stylesheet"/>
+    <link href="/static/css/packages/owner_settings.css" rel="stylesheet"/>
 {% endblock %}
 
 {% block javascript %}
@@ -40,6 +41,12 @@
                 <a href="/packages/{{package.name}}/versions">
                     <div class="tab-icon tab-icon-versions"></div>
                     <div class="tab-name">Versions</div>
+                </a>
+            </div>
+            <div onclick="location.href='/packages/{{package.name}}/settings';" class="content-tab tab-owner {% if package_tab == 'settings' %}active{% endif %}">
+                <a href="/packages/{{package.name}}/settings">
+                    <div class="tab-icon tab-icon-owner"></div>
+                    <div class="tab-name">Collaborators</div>
                 </a>
             </div>
         </div>
