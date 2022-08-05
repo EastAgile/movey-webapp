@@ -50,6 +50,7 @@ pub async fn register_package(
             req.github_repo_url, github_data.rev, req.subdir
         );
     }
+    let package_name = github_data.name.clone();
     Package::create_from_crawled_data(
         &req.github_repo_url,
         &github_data.description.clone(),
@@ -62,7 +63,7 @@ pub async fn register_package(
     )
     .await?;
 
-    Ok(HttpResponse::Ok().body(""))
+    Ok(HttpResponse::Ok().body(package_name))
 }
 
 #[derive(Clone, Deserialize)]
