@@ -10,7 +10,7 @@ pub fn configure(config: &mut ServiceConfig) {
             .service(
                 scope("/packages")
                     .service(
-                        resource("/register")
+                        resource("/upload")
                             .route(post().to(services::package::controller::register_package))
                     )
                     .service(
