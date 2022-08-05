@@ -1,5 +1,5 @@
-use crate::api::services::package::index::{
-    increase_download_count, post_package, DownloadInfo, PackageRequest,
+use crate::api::services::package::controller::{
+    increase_download_count, register_package, DownloadInfo, PackageRequest,
 };
 use crate::packages::{Package, PackageVersion};
 use crate::test::{mock, DatabaseTestContext, DB_POOL};
@@ -27,7 +27,7 @@ async fn package_request() -> web::Json<PackageRequest> {
 }
 
 #[actix_rt::test]
-async fn post_package_create_new_packages() {
+async fn register_package_create_new_packages() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
@@ -38,16 +38,16 @@ async fn post_package_create_new_packages() {
     let package_request = package_request().await;
     assert_eq!(Package::count(&DB_POOL).await.unwrap(), 0);
 
-    let response = post_package(mock_http_request, package_request).await;
+    let response = register_package(mock_http_request, package_request).await;
     assert!(response.is_ok());
     let resp = response.unwrap();
     assert_eq!(resp.status(), StatusCode::OK);
-    assert_eq!(resp.body().as_ref().unwrap(), &Body::from(""));
+    assert_eq!(resp.body().as_ref().unwrap(), &Body::from("name1"));
     assert_eq!(Package::count(&DB_POOL).await.unwrap(), 1);
 }
 
 #[actix_rt::test]
-async fn post_package_returns_error_with_invalid_token() {
+async fn register_package_returns_error_with_invalid_token() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
@@ -59,7 +59,7 @@ async fn post_package_returns_error_with_invalid_token() {
     package_request.token = "".to_string();
     assert_eq!(Package::count(&DB_POOL).await.unwrap(), 0);
 
-    let response = post_package(mock_http_request, package_request).await;
+    let response = register_package(mock_http_request, package_request).await;
     assert!(response.is_ok());
     let resp = response.unwrap();
     assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
