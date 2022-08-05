@@ -55,11 +55,28 @@ pub async fn show_package(
         derived_name.to_string()
     };
 
+    // Display url for install instruction
+    // example: https://github.com/move-language/move/tree/main/language/evm/hardhat-examples/contracts/ABIStruct
+    //          -> repo_url: https://github.com/move-language/move
+    //             subdir: language/evm/hardhat-examples/contracts/ABIStruct
+    let mut instruction_subdir = String::from("");
+    let mut instruction_repo_url: String;
+    let repo_url_tokens = package.repository_url.split('/').collect::<Vec<&str>>();
+    if repo_url_tokens.len() > 5 {
+        instruction_repo_url = repo_url_tokens[..5].join("/");
+        instruction_subdir = repo_url_tokens[7..].join("/");
+    } else {
+        instruction_repo_url = package.repository_url.clone();
+    }
+    instruction_repo_url.push_str(".git");
+
     request.render(200, "packages/show.html", {
         let mut ctx = Context::new();
         ctx.insert("package", &package);
         ctx.insert("package_version", &package_version);
         ctx.insert("account_name", &account_name);
+        ctx.insert("instruction_subdir", &instruction_subdir);
+        ctx.insert("instruction_repo_url", &instruction_repo_url);
         ctx.insert("package_tab", "readme");
         ctx
     })

@@ -3,6 +3,7 @@ use super::signin_steps;
 use cucumber::{given, then, when};
 use mainlib::packages::{Package, PackageVersion};
 use mainlib::test::DB_POOL;
+use thirtyfour::error::WebDriverError;
 use thirtyfour::prelude::*;
 
 #[given("There are packages in the system")]
@@ -88,6 +89,37 @@ async fn package_in_system(world: &mut TestWorld) {
     .unwrap();
 }
 
+#[given("There is a package that is in a subdir")]
+async fn package_in_subdir(world: &mut TestWorld) {
+    signin_steps::an_user(world).await;
+    let uid = Package::create_test_package(
+        &"long_url_package".to_string(),
+        &"https://github.com/666lcz/toy-move-packages/tree/main/fungible-tokens".to_string(),
+        &"package_description".to_string(),
+        &"first_version".to_string(),
+        &"first_readme_content".to_string(),
+        &"rev".to_string(),
+        2,
+        100,
+        None,
+        &DB_POOL,
+    )
+    .await
+    .unwrap();
+    PackageVersion::create(
+        uid,
+        "second_version".to_string(),
+        "second_readme_content".to_string(),
+        "rev_2".to_string(),
+        2,
+        100,
+        None,
+        &DB_POOL,
+    )
+    .await
+    .unwrap();
+}
+
 #[when("I access the package details page")]
 async fn visit_package_page(world: &mut TestWorld) {
     world
@@ -159,7 +191,7 @@ async fn see_package_latest_info(world: &mut TestWorld) {
 
     let expected_result = format!(
         "{} = {{ git = \"{}\", rev = \"{}\" }}",
-        "test-package", "https://github.com/Elements-Studio/starswap-core", "rev_2"
+        "test-package", "https://github.com/Elements-Studio/starswap-core.git", "rev_2"
     );
     assert_eq!(package_instruction, expected_result);
 }
@@ -314,4 +346,81 @@ async fn stats_after_upload_package(world: &mut TestWorld) {
     assert_eq!(stats.len(), 2);
     assert_eq!(stats[0].text().await.unwrap(), "4");
     assert_eq!(stats[1].text().await.unwrap(), "7");
+}
+
+#[when("I access the package details page of a package that is in a subdir")]
+async fn visit_subdir_package(world: &mut TestWorld) {
+    world
+        .driver
+        .get("http://localhost:17002/packages/long_url_package")
+        .await
+        .unwrap();
+}
+
+#[then("I should see correct install instruction for that package")]
+async fn see_install_instruction(world: &mut TestWorld) {
+    let package_name_element = world
+        .driver
+        .find_element(By::ClassName("package-name"))
+        .await
+        .unwrap();
+    let package_name = package_name_element.text().await.unwrap();
+    assert_eq!(package_name, "long_url_package");
+
+    let package_version_element = world
+        .driver
+        .find_element(By::ClassName("package-version"))
+        .await
+        .unwrap();
+    let package_version = package_version_element.text().await.unwrap();
+    assert_eq!(package_version, "second_version");
+
+    let package_instruction_element = world
+        .driver
+        .find_element(By::ClassName("package-install-instruction"))
+        .await
+        .unwrap();
+    let package_instruction = package_instruction_element.text().await.unwrap();
+    let expected_result = format!(
+        "{} = {{ git = \"{}\", rev = \"{}\", subdir = \"{}\" }}",
+        "long_url_package",
+        "https://github.com/666lcz/toy-move-packages.git",
+        "rev_2",
+        "fungible-tokens"
+    );
+    assert_eq!(package_instruction, expected_result);
+}
+
+#[then("I should see correct install instruction for older version of that package")]
+async fn see_older_install_instruction(world: &mut TestWorld) {
+    let package_name_element = world
+        .driver
+        .find_element(By::ClassName("package-name"))
+        .await
+        .unwrap();
+    let package_name = package_name_element.text().await.unwrap();
+    assert_eq!(package_name, "long_url_package");
+
+    let package_version_element = world
+        .driver
+        .find_element(By::ClassName("package-version"))
+        .await
+        .unwrap();
+    let package_version = package_version_element.text().await.unwrap();
+    assert_eq!(package_version, "first_version");
+
+    let package_instruction_element = world
+        .driver
+        .find_element(By::ClassName("package-install-instruction"))
+        .await
+        .unwrap();
+    let package_instruction = package_instruction_element.text().await.unwrap();
+    let expected_result = format!(
+        "{} = {{ git = \"{}\", rev = \"{}\", subdir = \"{}\" }}",
+        "long_url_package",
+        "https://github.com/666lcz/toy-move-packages.git",
+        "rev",
+        "fungible-tokens"
+    );
+    assert_eq!(package_instruction, expected_result);
 }
