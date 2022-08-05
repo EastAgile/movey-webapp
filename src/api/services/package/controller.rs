@@ -1,20 +1,26 @@
-use jelly::actix_web::{web, web::Path, HttpRequest};
+use jelly::actix_web::{web, web::Path};
 use jelly::prelude::*;
 use jelly::Result;
-use mockall_double::double;
 use serde::{Deserialize, Serialize};
+#[cfg(test)]
+use crate::test::mock::MockHttpRequest as HttpRequest;
+#[cfg(not(test))]
+use jelly::actix_web::HttpRequest;
+
+#[cfg(not(test))]
+use crate::github_service::GithubService;
+#[cfg(test)]
+use crate::test::mock::GithubService;
 
 use crate::api::services::package::view::PackageBadgeRespond;
-#[double]
-use crate::github_service::GithubService;
 use crate::packages::Package;
 use crate::settings::models::token::ApiToken;
 #[derive(Serialize, Deserialize)]
 pub struct PackageRequest {
-    github_repo_url: String,
-    total_files: i32,
-    token: String,
-    subdir: String,
+    pub github_repo_url: String,
+    pub total_files: i32,
+    pub token: String,
+    pub subdir: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -68,9 +74,9 @@ pub async fn register_package(
 
 #[derive(Clone, Deserialize)]
 pub struct DownloadInfo {
-    url: String,
-    rev: String,
-    subdir: String,
+    pub url: String,
+    pub rev: String,
+    pub subdir: String,
 }
 
 impl Validation for DownloadInfo {
