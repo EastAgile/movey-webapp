@@ -48,56 +48,29 @@ block css %}
 
     <label class="contact-label" for="name">Name</label>
     {% if name %}
-    <input type="text" id="name" name="name" value="{{ name }}" readonly>
+    <input type="text" id="name" name="name" value="{{ name }}" readonly />
     {% else %}
-    <input type="text" placeholder="John Doe" id="name" name="name" required>
+    <input type="text" placeholder="John Doe" id="name" name="name" required />
     {% endif %}
 
     <label class="contact-label" for="email">Email</label>
     {% if email %}
-    <input type="email" id="email" name="email" value="{{ email }}" readonly>
+    <input type="email" id="email" name="email" value="{{ email }}" readonly />
     {% else %}
-    <input type="email" placeholder="movey@eastagile.com" id="email" name="email" required>
+    <input
+      type="email"
+      placeholder="movey@eastagile.com"
+      id="email"
+      name="email"
+      required
+    />
     {% endif %}
 
-        <form action="/accounts/contact/" method="POST" class="package-search-sort">
-            <select name="category"
-                    class="packages-sort"
-                    data-sort=""
-                    data-url="/packages/"
-                    placeholder="Select category"
-                    required
-            >
-                <option value="" disabled  selected></option>
-                {% for category in categories %}
-                    <option name = "category"> {{category}}</option>
-                {% endfor %}
-            </select>
-            <div class="packages-sort-chevron"></div>
-
-            <label class="contact-label"  for="name">Name</label>
-            {% if name %}
-                <input type="text" id="name" name="name" value="{{ name }}" readonly>
-            {% else %}
-                <input type="text" placeholder="John Doe" id="name" name="name" required>
-            {% endif %}
-
-            <label class="contact-label" for="email">Email</label>
-            {% if email %}
-                <input type="email" id="email" name="email" value="{{ email }}" readonly>
-            {% else %}
-                <input type="email" placeholder="movey@eastagile.com" id="email" name="email" required>
-            {% endif %}
-
-            <div class="contact-instruction">Please, enter the email address where you wish to receive our answer. If you are a registered user of Movey, please include the email address you used when you registered if possible to help us locate your account as soon as possible.</div>
-
-            <label class="contact-label" for="descr">How can we help?</label>
-            <textarea name="description" id="descr" placeholder="Write us a message" required minlength="6"></textarea>
-
-            <button type="submit" class="contact-btn">
-                Submit
-            </button>
-        </form>
+    <div class="contact-instruction">
+      Please, enter the email address where you wish to receive our answer. If
+      you are a registered user of Movey, please include the email address you
+      used when you registered if possible to help us locate your account as
+      soon as possible.
     </div>
 
     <label class="contact-label" for="descr">How can we help?</label>
