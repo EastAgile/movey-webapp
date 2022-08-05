@@ -12,6 +12,10 @@ pub fn configure(config: &mut ServiceConfig) {
                 resource("/{package_name}/versions")
                     .route(get().to(views::controller::show_package_versions)),
             )
+            .service(
+                resource("/{package_name}/settings")
+                    .route(get().to(views::controller::show_package_settings)),
+            )
             .service(resource("/search").route(get().to(views::controller::show_search_results)))
             .service(resource("/owned").route(get().to(views::controller::show_owned_packages)))
             .service(resource("/{package_name}").route(get().to(views::controller::show_package)))

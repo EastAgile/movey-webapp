@@ -120,6 +120,19 @@ pub async fn show_downloads(request: HttpRequest) -> Result<HttpResponse> {
     }
 }
 
+pub async fn show_invitations(request: HttpRequest) -> Result<HttpResponse> {
+    let db = request.db_pool()?;
+    if let Ok(user) = request.user() {
+        request.render(200, "settings/invitations.html", {
+            let mut ctx = Context::new();
+            ctx.insert("profile_tab", "invitations");
+            ctx
+        })
+    } else {
+        Ok(HttpResponse::NotFound().body("Cannot find user"))
+    }
+}
+
 pub async fn show_tokens(request: HttpRequest) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
