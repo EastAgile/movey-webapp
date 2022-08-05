@@ -2,7 +2,6 @@ use crate::package_collaborators::models::pending_invitation::PendingInvitation;
 use crate::packages::Package;
 use crate::test::{DatabaseTestContext, DB_POOL};
 use crate::utils::tests::setup_user;
-use crate::utils::token::TOKEN_LENGTH;
 use jelly::prelude::*;
 use std::env;
 
@@ -24,24 +23,6 @@ async fn setup_pending_invitation() -> PendingInvitation {
     .await
     .unwrap();
     PendingInvitation::create(&outside_email, uid, pid, &DB_POOL.get().unwrap()).unwrap()
-}
-
-#[actix_rt::test]
-async fn pending_invitation_find_by_token_works() {
-    crate::test::init();
-    let _ctx = DatabaseTestContext::new();
-    let db = &DB_POOL;
-    let conn = db.get().unwrap();
-
-    let pending_1 = setup_pending_invitation().await;
-    let pending_2 = PendingInvitation::find_by_token(&pending_1.token, &conn).unwrap();
-    assert_eq!(pending_1, pending_2);
-    let not_found = PendingInvitation::find_by_token("test", &conn);
-    assert!(not_found.is_err());
-    if let Err(Error::Database(diesel::NotFound)) = not_found {
-    } else {
-        panic!()
-    }
 }
 
 #[actix_rt::test]
@@ -74,7 +55,11 @@ async fn pending_invitation_delete_works() {
     let pending_invitation = setup_pending_invitation().await;
 
     pending_invitation.delete(&conn).unwrap();
-    let not_found = PendingInvitation::find_by_token(&pending_invitation.token, &conn);
+    let not_found = PendingInvitation::find_by_id(
+        &pending_invitation.pending_user_email,
+        pending_invitation.package_id,
+        &conn,
+    );
     assert!(not_found.is_err());
     if let Err(Error::Database(diesel::NotFound)) = not_found {
     } else {
@@ -128,7 +113,6 @@ async fn create_works() {
         PendingInvitation::find_by_id(&pending1.pending_user_email, pending1.package_id, &conn)
             .unwrap();
     assert_eq!(pending1, pending2);
-    assert_eq!(pending1.token.len(), TOKEN_LENGTH)
 }
 
 #[actix_rt::test]
@@ -138,7 +122,6 @@ async fn create_new_invitation_if_existing_one_is_expired() {
     let conn = DB_POOL.get().unwrap();
 
     let pending1 = setup_pending_invitation().await;
-    let token = pending1.token;
     let created_at = pending1.created_at;
 
     env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "0");
@@ -149,7 +132,6 @@ async fn create_new_invitation_if_existing_one_is_expired() {
         &conn,
     )
     .unwrap();
-    assert_ne!(token, pending2.token);
     assert_ne!(created_at, pending2.created_at);
 }
 

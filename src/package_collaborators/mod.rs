@@ -6,6 +6,6 @@ pub use models::package_collaborator;
 
 pub fn configure(config: &mut ServiceConfig) {
     config.service(scope("/owner_invitations").service(
-        resource("/accept/{token}").route(get().to(views::invitation::handle_invite_with_token)),
+        resource("/accept/{token}").route(get().to(views::invitation::accept_invite_with_token)),
     ));
 }

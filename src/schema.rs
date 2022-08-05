@@ -103,7 +103,6 @@ table! {
         pending_user_email -> Text,
         invited_by_user_id -> Int4,
         package_id -> Int4,
-        token -> Text,
         created_at -> Timestamp,
     }
 }

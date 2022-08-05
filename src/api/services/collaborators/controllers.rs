@@ -1,16 +1,17 @@
 use crate::accounts::jobs::{SendCollaboratorInvitationEmail, SendRegisterToCollabEmail};
 use crate::accounts::Account;
 use crate::api::services::collaborators::views::{AddCollaboratorJson, InvitationResponse};
-use crate::constants::*;
 use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
 use crate::package_collaborators::models::pending_invitation::PendingInvitation;
 use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
 use crate::packages::Package;
 use crate::utils::request_utils;
-use diesel::result::{DatabaseErrorKind, Error as DBError};
+use diesel::result::Error as DBError;
 use jelly::actix_web::web;
 use jelly::actix_web::web::Path;
+use jelly::prelude::Error::*;
 use jelly::prelude::*;
+use jelly::utils::error_constants::*;
 use jelly::Result;
 use serde_json::json;
 
@@ -22,99 +23,60 @@ pub async fn add_collaborators(
     if !request_utils::is_authenticated(&request).await? {
         return Ok(request_utils::clear_cookie(&request));
     }
-    let user = request.user()?;
-    let db = request.db_pool()?;
-    let conn = db.get()?;
+    let db = request.db_pool().map_err(|e| ApiServerError(Box::new(e)))?;
+    let conn = db.get().map_err(|e| ApiServerError(Box::new(e)))?;
 
-    let package = match Package::get_by_name(&package_name, db).await {
-        Ok(package) => package,
-        Err(Error::Database(DBError::NotFound)) => {
-            return Ok(HttpResponse::NotFound().json(json!({
-                "ok": false,
-                "msg": MSG_PACKAGE_NOT_FOUND,
-            })));
-        }
-        Err(e) => {
-            warn!("add_collaborators failed, error: {:?}", e);
-            return Ok(HttpResponse::InternalServerError().json(json!({
-                "ok": false,
-                "msg": MSG_FAILURE_INVITING_COLLABORATOR,
-            })));
-        }
-    };
-
-    let invited_account = match Account::get_by_email_or_gh_login(&json.user, db).await {
-        Ok(account) => account,
-        Err(Error::Database(DBError::NotFound)) => {
-            if json.user.contains("@") {
-                PendingInvitation::create(&json.user, user.id, package.id, &conn)?;
-                request.queue(SendRegisterToCollabEmail {
+    let package = Package::get_by_name(&package_name, db)
+        .await
+        .map_err(|e| ApiNotFound(MSG_PACKAGE_NOT_FOUND, Box::new(e)))?;
+    let user = request.user().map_err(|e| ApiServerError(Box::new(e)))?;
+    let invited_account = Account::get_by_email_or_gh_login(&json.user, db)
+        .await
+        .map_err(|e| {
+            if matches!(e, Error::Database(DBError::NotFound))
+                && json.user.contains('@')
+                && PendingInvitation::create(&json.user, user.id, package.id, &conn).is_ok()
+            {
+                // TODO: Handle error for this line
+                let _ = request.queue(SendRegisterToCollabEmail {
                     to: json.user.clone(),
-                    package_name: package.name,
-                })?;
+                    package_name: package.name.clone(),
+                });
             }
-            return Ok(HttpResponse::NotFound().json(json!({
-                "ok": false,
-                "msg": MSG_ACCOUNT_NOT_FOUND_INVITING,
-            })));
-        }
-        Err(e) => {
-            warn!("add_collaborators failed, error: {:?}", e);
-            return Ok(HttpResponse::InternalServerError().json(json!({
-                "ok": false,
-                "msg": MSG_FAILURE_INVITING_COLLABORATOR,
-            })));
-        }
-    };
+            ApiNotFound(MSG_ACCOUNT_NOT_FOUND_INVITING, Box::new(e))
+        })?;
 
-    match PackageCollaborator::get(package.id, user.id, &conn) {
-        Ok(collaborator) => {
-            if collaborator.role != Role::Owner as i32 {
-                return Ok(HttpResponse::Forbidden().json(json!({
-                    "ok": false,
-                    "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
-                })));
-            }
-        }
-        Err(e) => {
-            warn!("add_collaborators failed, error: {:?}", e);
-            return Ok(HttpResponse::Unauthorized().json(json!({
-                "ok": false,
-                "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
-            })));
-        }
-    };
-
-    if let Ok(_) = PackageCollaborator::get(package.id, invited_account.id, &conn) {
-        return Ok(HttpResponse::BadRequest().json(json!({
-            "ok": false,
-            "msg": MSG_COLLABORATOR_ALREADY_EXISTED
-        })));
+    let collaborator = PackageCollaborator::get(package.id, user.id, &conn)
+        .map_err(|e| ApiForbidden(MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR, Box::new(e)))?;
+    if collaborator.role != Role::Owner as i32 {
+        return Err(ApiForbidden(
+            MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR,
+            Box::new(Error::Generic(format!(
+                "Non-owner is trying to add collaborator. uid: {}, package id: {}",
+                collaborator.account_id, collaborator.package_id
+            ))),
+        ));
     }
 
-    match OwnerInvitation::create(invited_account.id, user.id, package.id, None, &conn) {
-        Ok(invitation) => {
-            if !invited_account.is_generated_email() {
-                request.queue(SendCollaboratorInvitationEmail {
-                    to: invited_account.email,
-                    package_name: package.name,
-                    token: invitation.token,
-                })?;
-            }
-        }
-        Err(Error::Database(DBError::NotFound)) => {
-            return Ok(HttpResponse::BadRequest().json(json!({
-                "ok": false,
-                "msg": MSG_INVITATION_ALREADY_EXISTED,
-            })));
-        }
-        Err(e) => {
-            warn!("add_collaborators failed, error: {:?}", e);
-            return Ok(HttpResponse::InternalServerError().json(json!({
-                "ok": false,
-                "msg": MSG_FAILURE_INVITING_COLLABORATOR,
-            })));
-        }
+    if PackageCollaborator::get(package.id, invited_account.id, &conn).is_ok() {
+        return Err(ApiBadRequest(
+            MSG_COLLABORATOR_ALREADY_EXISTED,
+            Box::new(Error::Generic(format!(
+                "Collaborator already existed. uid: {}, package id: {}",
+                invited_account.id, package.id
+            ))),
+        ));
+    }
+
+    let invitation =
+        OwnerInvitation::create(invited_account.id, user.id, package.id, None, None, &conn)
+            .map_err(|e| ApiBadRequest(MSG_INVITATION_ALREADY_EXISTED, Box::new(e)))?;
+    if !invited_account.is_generated_email() {
+        request.queue(SendCollaboratorInvitationEmail {
+            to: invited_account.email,
+            package_name: package.name,
+            token: invitation.token,
+        })?;
     }
 
     Ok(HttpResponse::Ok().json(&json!({
@@ -131,99 +93,56 @@ pub async fn transfer_ownership(
     if !request_utils::is_authenticated(&request).await? {
         return Ok(request_utils::clear_cookie(&request));
     }
-    let db = request.db_pool()?;
-    let conn = db.get()?;
+    let db = request.db_pool().map_err(|e| ApiServerError(Box::new(e)))?;
+    let conn = db.get().map_err(|e| ApiServerError(Box::new(e)))?;
 
-    let package = match Package::get_by_name(&package_name, db).await {
-        Ok(package) => package,
-        Err(Error::Database(DBError::NotFound)) => {
-            return Ok(HttpResponse::NotFound().json(json!({
-                "ok": false,
-                "msg": MSG_PACKAGE_NOT_FOUND,
-            })));
-        }
-        Err(e) => {
-            warn!("transfer_ownership failed, error: {:?}", e);
-            return Ok(HttpResponse::InternalServerError().json(json!({
-                "ok": false,
-                "msg": MSG_FAILURE_INVITING_COLLABORATOR,
-            })));
-        }
-    };
+    let package = Package::get_by_name(&package_name, db)
+        .await
+        .map_err(|e| ApiNotFound(MSG_PACKAGE_NOT_FOUND, Box::new(e)))?;
 
-    let invited_account = match Account::get_by_email_or_gh_login(&json.user, db).await {
-        Ok(account) => account,
-        Err(Error::Database(DBError::NotFound)) => {
-            return Ok(HttpResponse::NotFound().json(json!({
-                "ok": false,
-                "msg": MSG_ACCOUNT_NOT_FOUND_INVITING,
-            })));
-        }
-        Err(e) => {
-            warn!("transfer_ownership failed, error: {:?}", e);
-            return Ok(HttpResponse::InternalServerError().json(json!({
-                "ok": false,
-                "msg": MSG_FAILURE_INVITING_COLLABORATOR,
-            })));
-        }
-    };
+    let invited_account = Account::get_by_email_or_gh_login(&json.user, db)
+        .await
+        .map_err(|e| ApiNotFound(MSG_ACCOUNT_NOT_FOUND, Box::new(e)))?;
 
-    let user = request.user()?;
+    let user = request.user().map_err(|e| ApiServerError(Box::new(e)))?;
     let ids = vec![user.id, invited_account.id];
-    match PackageCollaborator::get_in_bulk(package.id, ids, &conn) {
-        Ok(collaborators) => {
-            if collaborators.len() != 2 {
-                return Ok(HttpResponse::BadRequest().json(json!({
-                "ok": false,
-                "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
-            })));
-            }
-            if collaborators.get(0).unwrap().role != Role::Owner as i32 {
-                return Ok(HttpResponse::Forbidden().json(json!({
-                    "ok": false,
-                    "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
-                })));
-            }
-            if collaborators.get(1).unwrap().role != Role::Collaborator as i32 {
-                return Ok(HttpResponse::Forbidden().json(json!({
-                    "ok": false,
-                    "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
-                })));
-            }
-        }
-        Err(e) => {
-            warn!("transfer_ownership failed, error: {:?}", e);
-            return Ok(HttpResponse::Unauthorized().json(json!({
-                "ok": false,
-                "msg": MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR
-            })));
-        }
-    };
+    let collaborators = PackageCollaborator::get_in_bulk_order_by_role(package.id, ids, &conn)
+        .map_err(|e| ApiForbidden(MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR, Box::new(e)))?;
+    let unauthoried_error = Box::new(Error::Generic(String::from(
+        "Unauthorized to transfer ownership.",
+    )));
+    if collaborators.len() != 2 {
+        return Err(ApiBadRequest(
+            MSG_UNAUTHORIZED_TO_TRANSFER_OWNERSHIP,
+            unauthoried_error,
+        ));
+    }
+    if collaborators.get(0).unwrap().role != Role::Owner as i32
+        || collaborators.get(1).unwrap().role != Role::Collaborator as i32
+    {
+        return Err(ApiForbidden(
+            MSG_UNAUTHORIZED_TO_TRANSFER_OWNERSHIP,
+            unauthoried_error,
+        ));
+    }
 
-    match OwnerInvitation::create(invited_account.id, user.id, package.id, Some(true), &conn) {
-        Ok(invitation) => {
-            if !invited_account.is_generated_email() {
-                // TODO: need a new email for transferring ownership
-                request.queue(SendCollaboratorInvitationEmail {
-                    to: invited_account.email,
-                    package_name: package.name,
-                    token: invitation.token,
-                })?;
-            }
-        }
-        Err(Error::Database(DBError::NotFound)) => {
-            return Ok(HttpResponse::BadRequest().json(json!({
-                "ok": false,
-                "msg": MSG_INVITATION_ALREADY_EXISTED,
-            })));
-        }
-        Err(e) => {
-            warn!("add_collaborators failed, error: {:?}", e);
-            return Ok(HttpResponse::InternalServerError().json(json!({
-                "ok": false,
-                "msg": MSG_FAILURE_INVITING_COLLABORATOR,
-            })));
-        }
+    let invitation = OwnerInvitation::create(
+        invited_account.id,
+        user.id,
+        package.id,
+        Some(true),
+        None,
+        &conn,
+    )
+    .map_err(|e| ApiBadRequest(MSG_INVITATION_ALREADY_EXISTED, Box::new(e)))?;
+
+    if !invited_account.is_generated_email() {
+        // TODO: need a new email for transferring ownership
+        request.queue(SendCollaboratorInvitationEmail {
+            to: invited_account.email,
+            package_name: package.name,
+            token: invitation.token,
+        })?;
     }
 
     Ok(HttpResponse::Ok().json(&json!({
@@ -239,51 +158,33 @@ pub async fn handle_invite(
     if !request_utils::is_authenticated(&request).await? {
         return Ok(request_utils::clear_cookie(&request));
     }
-    let user = request.user()?;
-    let conn = request.db_pool()?.get()?;
-    let invitation = OwnerInvitation::find_by_id(user.id, json.package_id, &conn)?;
+
+    let db = request.db_pool().map_err(|e| ApiServerError(Box::new(e)))?;
+    let conn = db.get().map_err(|e| ApiServerError(Box::new(e)))?;
+
+    let user = request.user().map_err(|e| ApiServerError(Box::new(e)))?;
+    let invitation = OwnerInvitation::find_by_id(user.id, json.package_id, &conn)
+        .map_err(|e| ApiNotFound(MSG_PACKAGE_NOT_FOUND, Box::new(e)))?;
     if invitation.is_expired() {
-        return Ok(HttpResponse::NotFound().json(json!({
-            "ok": false,
-            "msg": MSG_INVITATION_EXPIRED
-        })));
+        return Err(ApiBadRequest(
+            MSG_INVITATION_EXPIRED,
+            Box::new(Error::Generic(format!(
+                "Invitation is expired. invited id: {}, package id: {}",
+                invitation.invited_user_id, invitation.package_id
+            ))),
+        ));
     }
     if json.accepted {
-        if let Err(e) = invitation.accept(&conn) {
-            warn!("handle_invite failed, error: {:?}", e);
-            return Ok(HttpResponse::Unauthorized().json(json!({
-                "ok": false,
-                "msg": MSG_UNEXPECTED_ERROR
-            })));
-        }
+        invitation
+            .accept(&conn)
+            .map_err(|e| ApiUnauthorized(MSG_UNEXPECTED_ERROR, Box::new(e)))?;
     } else {
-        if let Err(e) = invitation.delete(&conn) {
-            warn!("handle_invite failed, error: {:?}", e);
-            return Ok(HttpResponse::Unauthorized().json(json!({
-                "ok": false,
-                "msg": MSG_UNEXPECTED_ERROR
-            })));
-        }
+        invitation
+            .delete(&conn)
+            .map_err(|e| ApiUnauthorized(MSG_UNEXPECTED_ERROR, Box::new(e)))?;
     }
     Ok(HttpResponse::Ok().json(json!({
         "ok": true,
         "msg": MSG_SUCCESSFULLY_ADDED_COLLABORATOR
     })))
-}
-
-pub async fn accept_invite_with_token(
-    request: HttpRequest,
-    Path(token): web::Path<String>,
-) -> Result<HttpResponse> {
-    let conn = request.db_pool()?.get()?;
-    let invitation = OwnerInvitation::find_by_token(&token, &conn)?;
-    if invitation.is_expired() {
-        return request.render(410, "accounts/invalid_token.html", Context::new());
-    }
-    if let Err(e) = invitation.accept(&conn) {
-        warn!("handle_invite failed, error: {:?}", e);
-        return request.render(503, "503.html", Context::new());
-    }
-    let package = Package::get(invitation.package_id, request.db_pool()?).await?;
-    request.redirect(&format!("/packages/{}", package.name))
 }

@@ -15,8 +15,8 @@ use jelly::serde::{Deserialize, Serialize};
 use jelly::DieselPgPool;
 
 use crate::github_service::GithubRepoData;
+use jelly::Result;
 use mockall_double::double;
-
 #[cfg(test)]
 mod tests;
 
@@ -195,7 +195,7 @@ pub enum PackageVersionSort {
 }
 
 impl Package {
-    pub async fn count(pool: &DieselPgPool) -> Result<i64, Error> {
+    pub async fn count(pool: &DieselPgPool) -> Result<i64> {
         let connection = pool.get()?;
         let result = packages
             .select(count(packages::id))
@@ -214,7 +214,7 @@ impl Package {
         service: &GithubService,
         subdir: Option<String>,
         pool: &DieselPgPool,
-    ) -> Result<i32, Error> {
+    ) -> Result<i32> {
         let github_data = service.fetch_repo_data(repo_url, subdir, None)?;
 
         Package::create_from_crawled_data(
@@ -239,7 +239,7 @@ impl Package {
         account_id_: Option<i32>,
         github_data: GithubRepoData,
         pool: &DieselPgPool,
-    ) -> Result<i32, Error> {
+    ) -> Result<i32> {
         let connection = pool.get()?;
         let record = match Package::get_by_name(&github_data.name, pool).await {
             Ok(package) => package,
@@ -282,7 +282,7 @@ impl Package {
         Ok(record.id)
     }
 
-    pub async fn get(uid: i32, pool: &DieselPgPool) -> Result<Self, Error> {
+    pub async fn get(uid: i32, pool: &DieselPgPool) -> Result<Self> {
         let connection = pool.get()?;
         let result = packages
             .find(uid)
@@ -292,7 +292,7 @@ impl Package {
         Ok(result)
     }
 
-    pub async fn get_by_name(package_name: &str, pool: &DieselPgPool) -> Result<Self, Error> {
+    pub async fn get_by_name(package_name: &str, pool: &DieselPgPool) -> Result<Self> {
         let connection = pool.get()?;
 
         let result = packages
@@ -306,7 +306,7 @@ impl Package {
     pub async fn get_badge_info(
         package_name: &str,
         pool: &DieselPgPool,
-    ) -> Result<Vec<(String, i32, String, i32)>, Error> {
+    ) -> Result<Vec<(String, i32, String, i32)>> {
         let connection = pool.get()?;
 
         let result: Vec<(String, i32, String, i32)> = packages::table
@@ -329,7 +329,7 @@ impl Package {
     pub async fn get_by_account(
         owner_id: i32,
         pool: &DieselPgPool,
-    ) -> Result<Vec<PackageSearchResult>, Error> {
+    ) -> Result<Vec<PackageSearchResult>> {
         let connection = pool.get()?;
 
         let result = packages
@@ -342,7 +342,7 @@ impl Package {
         Ok(result)
     }
 
-    pub async fn get_downloads(owner_id: i32, pool: &DieselPgPool) -> Result<i64, Error> {
+    pub async fn get_downloads(owner_id: i32, pool: &DieselPgPool) -> Result<i64> {
         let connection = pool.get()?;
         let result = packages
             .select(sum(total_downloads_count))
@@ -359,7 +359,7 @@ impl Package {
         &self,
         version_name: &String,
         pool: &DieselPgPool,
-    ) -> Result<PackageVersion, Error> {
+    ) -> Result<PackageVersion> {
         let connection = pool.get()?;
         let result = package_versions
             .filter(package_id.eq(self.id).and(version.eq(version_name)))
@@ -374,7 +374,7 @@ impl Package {
         subdir: &String,
         service: &GithubService,
         pool: &DieselPgPool,
-    ) -> Result<usize, Error> {
+    ) -> Result<usize> {
         let connection = pool.get()?;
 
         let mut https_url = url.to_owned();
@@ -478,7 +478,7 @@ impl Package {
     pub async fn auto_complete_search(
         search_query: &str,
         pool: &DieselPgPool,
-    ) -> Result<Vec<(String, String, String)>, Error> {
+    ) -> Result<Vec<(String, String, String)>> {
         let connection = pool.get()?;
         let result: Vec<(String, String, String)> = packages::table
             .inner_join(package_versions::table)
@@ -497,7 +497,7 @@ impl Package {
         page: Option<i64>,
         per_page: Option<i64>,
         pool: &DieselPgPool,
-    ) -> Result<(Vec<PackageSearchResult>, i64, i64), Error> {
+    ) -> Result<(Vec<PackageSearchResult>, i64, i64)> {
         let connection = pool.get()?;
         let field = sort_field.to_column_name();
         let order = sort_order.to_order_direction();
@@ -528,7 +528,7 @@ impl Package {
         page: Option<i64>,
         per_page: Option<i64>,
         pool: &DieselPgPool,
-    ) -> Result<(Vec<PackageSearchResult>, i64, i64), Error> {
+    ) -> Result<(Vec<PackageSearchResult>, i64, i64)> {
         let connection = pool.get()?;
         let field = sort_field.to_column_name();
         let order = sort_order.to_order_direction();
@@ -552,7 +552,7 @@ impl Package {
 }
 
 impl PackageVersion {
-    pub async fn count(pool: &DieselPgPool) -> Result<i64, Error> {
+    pub async fn count(pool: &DieselPgPool) -> Result<i64> {
         let connection = pool.get()?;
         let result = package_versions
             .select(count(package_versions::id))
@@ -570,7 +570,7 @@ impl PackageVersion {
         version_size: i32,
         version_download: Option<i32>,
         pool: &DieselPgPool,
-    ) -> Result<PackageVersion, Error> {
+    ) -> Result<PackageVersion> {
         let connection = pool.get()?;
 
         let new_package_version = NewPackageVersion {
@@ -599,7 +599,7 @@ impl PackageVersion {
         uid: i32,
         sort_type: &PackageVersionSort,
         pool: &DieselPgPool,
-    ) -> Result<Vec<PackageVersion>, Error> {
+    ) -> Result<Vec<PackageVersion>> {
         let connection = pool.get()?;
         let versions = package_versions.filter(package_id.eq(uid));
 
@@ -643,7 +643,7 @@ impl Package {
         version_size: i32,
         account_id_: Option<i32>,
         pool: &DieselPgPool,
-    ) -> Result<i32, Error> {
+    ) -> Result<i32> {
         let connection = pool.get()?;
 
         let new_package = NewPackage {
@@ -679,7 +679,7 @@ impl Package {
         package_description: &String,
         package_downloads_count: i32,
         pool: &DieselPgPool,
-    ) -> Result<i32, Error> {
+    ) -> Result<i32> {
         let connection = pool.get()?;
 
         let new_package = NewTestPackage {
@@ -716,7 +716,7 @@ impl Package {
         package_description: &String,
         package_downloads_count: i32,
         pool: &DieselPgPool,
-    ) -> Result<i32, Error> {
+    ) -> Result<i32> {
         let connection = pool.get()?;
 
         let new_package = NewTestPackage {
