@@ -11,7 +11,7 @@ We provide some API endpoints to be consumed by the Move CLI:
 
 ### Upload a new package
 
-**URL** : `/api/v1/packages/register`
+**URL** : `/api/v1/packages/upload`
 
 **Method** : `POST`
 
@@ -48,4 +48,4 @@ At the beginning, our website populates its data by crawling Move packages from 
 
 ## Badges (upcoming)
 
-You can get our custom badge on your package repository by calling GET `/api/v1/packages/{package_name}/badge`.
+You can get our custom badge on your package repository by calling GET `/api/v1/badge?pkg_name={package_name}`.
