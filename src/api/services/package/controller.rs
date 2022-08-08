@@ -1,4 +1,4 @@
-use jelly::actix_web::{HttpRequest, web, web::Path};
+use jelly::actix_web::web;
 use jelly::prelude::*;
 use jelly::Result;
 use serde::{Deserialize, Serialize};

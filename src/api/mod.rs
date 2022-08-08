@@ -17,10 +17,6 @@ pub fn configure(config: &mut ServiceConfig) {
                         resource("/count")
                             .route(post().to(services::package::controller::increase_download_count)),
                     )
-                    .service(
-                        resource("/{pkg_name}/badge")
-                            .route(get().to(services::package::controller::package_badge_info)),
-                    )
             )
             .service(
                 resource("/search_package")
