@@ -32,7 +32,7 @@ pub fn configure(config: &mut ServiceConfig) {
                     .route(get().to(services::setting::controllers::profile::get_logged_in_user)),
             )
             .service(
-                resource("/packages/{pkg_name}/badge")
+                resource("/badge")
                     .route(get().to(services::package::controller::package_badge_info)),
             ),
     );

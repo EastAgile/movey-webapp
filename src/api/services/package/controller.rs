@@ -1,4 +1,4 @@
-use jelly::actix_web::{web, web::Path, HttpRequest};
+use jelly::actix_web::{web, HttpRequest};
 use jelly::prelude::*;
 use jelly::Result;
 use mockall_double::double;
@@ -97,12 +97,18 @@ pub async fn search_package(
     Ok(HttpResponse::Ok().json(packages_result))
 }
 
+#[derive(Deserialize)]
+pub struct BadgeRequest {
+    pkg_name: String
+}
+
 pub async fn package_badge_info(
     request: HttpRequest,
-    Path(pkg_name): Path<String>,
+    info: web::Query<BadgeRequest>,
 ) -> Result<HttpResponse> {
+    let info = info.into_inner();
     let db = request.db_pool()?;
-    let result = Package::get_badge_info(&pkg_name, db).await?;
+    let result = Package::get_badge_info(&info.pkg_name, db).await?;
     if !result.is_empty() {
         let respond = PackageBadgeRespond::from(result);
         return Ok(HttpResponse::Ok().json(respond));
