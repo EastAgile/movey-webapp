@@ -1,4 +1,4 @@
-pub const DEFAULT_AVATAR_STYLE: &str = "monsterid";
+pub const DEFAULT_AVATAR_STYLE: &str = "retro";
 pub const RATING: &str = "pg";
 pub const DEFAULT_AVATAR_SIZE: u16 = 200;
 
@@ -47,7 +47,7 @@ fn test_hash_procedure() {
     let url = Gravatar::new("  EMaiL@exAMplE.cOm ", None).image_url();
     assert_eq!(
         url.as_str(),
-        "https://secure.gravatar.com/avatar/5658ffccee7f0ebfda2b226238b1eb6e?s=200&d=monsterid&r=pg"
+        "https://secure.gravatar.com/avatar/5658ffccee7f0ebfda2b226238b1eb6e?s=200&d=retro&r=pg"
     );
 }
 
@@ -56,6 +56,6 @@ fn test_size() {
     let url = Gravatar::new("email@example.com", Some(50)).image_url();
     assert_eq!(
         url.as_str(),
-        "https://secure.gravatar.com/avatar/5658ffccee7f0ebfda2b226238b1eb6e?s=50&d=monsterid&r=pg"
+        "https://secure.gravatar.com/avatar/5658ffccee7f0ebfda2b226238b1eb6e?s=50&d=retro&r=pg"
     );
 }
