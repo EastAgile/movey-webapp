@@ -166,7 +166,8 @@ impl GithubService {
                 readme_content,
                 description: github_info.description.unwrap_or_else(|| "".to_string()),
                 size: github_info.size,
-                url: String::from(""),
+                // this field is overwritten in the crawler, modified this to save default branch
+                url: github_info.default_branch,
                 rev,
             }),
             Err(error) => {
@@ -180,7 +181,8 @@ impl GithubService {
                     readme_content,
                     description: github_info.description.unwrap_or_else(|| "".to_string()),
                     size: github_info.size,
-                    url: String::from(""),
+                    // this field is overwritten in the crawler, modified this to save default branch
+                    url: github_info.default_branch,
                     rev,
                 })
             }
