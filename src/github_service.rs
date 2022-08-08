@@ -513,7 +513,7 @@ mod tests {
         assert_eq!(gh_repo_data.readme_content, "test readme content");
         assert_eq!(gh_repo_data.description, "test description");
         assert_eq!(gh_repo_data.size, 10);
-        assert_eq!(gh_repo_data.url, "");
+        assert_eq!(gh_repo_data.url, "test-default-branch");
         assert_eq!(gh_repo_data.rev, "rev");
     }
 }
