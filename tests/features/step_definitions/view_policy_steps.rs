@@ -1,5 +1,5 @@
 use crate::TestWorld;
-use cucumber::{when, then};
+use cucumber::{then, when};
 use thirtyfour::By;
 
 #[when("I access the Terms of use page")]
@@ -17,9 +17,11 @@ async fn see_terms_of_use_page(world: &mut TestWorld) {
         world.driver.current_url().await.unwrap(),
         format!("{}/terms-of-use", world.root_url).as_str()
     );
-    let page_name = world.driver
+    let page_name = world
+        .driver
         .find_element(By::ClassName("page_name"))
-        .await.unwrap();
+        .await
+        .unwrap();
     assert_eq!(page_name.text().await.unwrap(), "Terms of Use");
 }
 
@@ -38,35 +40,41 @@ async fn see_policy_page(world: &mut TestWorld) {
         world.driver.current_url().await.unwrap(),
         format!("{}/policy", world.root_url).as_str()
     );
-    let page_name = world.driver
+    let page_name = world
+        .driver
         .find_element(By::ClassName("page_name"))
-        .await.unwrap();
+        .await
+        .unwrap();
     assert_eq!(page_name.text().await.unwrap(), "Privacy Policy");
 }
 
 #[then("I should see my name and email filled in textbox")]
 async fn name_email_filled_in(world: &mut TestWorld) {
-    let name_field = world.driver
-        .find_element(By::Id("name"))
-        .await.unwrap();
-    assert_eq!(name_field.get_attribute("value").await.unwrap(), Some("email".to_string()));
+    let name_field = world.driver.find_element(By::Id("name")).await.unwrap();
+    assert_eq!(
+        name_field.get_attribute("value").await.unwrap(),
+        Some("email".to_string())
+    );
 
-    let email_field = world.driver
-        .find_element(By::Id("email"))
-        .await.unwrap();
-    assert_eq!(email_field.get_attribute("value").await.unwrap(), Some(world.account.email.clone()));
+    let email_field = world.driver.find_element(By::Id("email")).await.unwrap();
+    assert_eq!(
+        email_field.get_attribute("value").await.unwrap(),
+        Some(world.account.email.clone())
+    );
 }
 
 #[then("I should see name field and email field are disabled")]
 async fn name_email_disabled(world: &mut TestWorld) {
-    let name_field = world.driver
-        .find_element(By::Id("name"))
-        .await.unwrap();
-    assert_eq!(name_field.get_attribute("readOnly").await.unwrap(), Some("true".to_string()));
-    let email_field = world.driver
-        .find_element(By::Id("email"))
-        .await.unwrap();
-    assert_eq!(email_field.get_attribute("readOnly").await.unwrap(), Some("true".to_string()));
+    let name_field = world.driver.find_element(By::Id("name")).await.unwrap();
+    assert_eq!(
+        name_field.get_attribute("readOnly").await.unwrap(),
+        Some("true".to_string())
+    );
+    let email_field = world.driver.find_element(By::Id("email")).await.unwrap();
+    assert_eq!(
+        email_field.get_attribute("readOnly").await.unwrap(),
+        Some("true".to_string())
+    );
 }
 
 #[when("I access the Contact us page")]
@@ -84,25 +92,25 @@ async fn see_contact_us_page(world: &mut TestWorld) {
         world.driver.current_url().await.unwrap(),
         format!("{}/contact", world.root_url).as_str()
     );
-    let page_name = world.driver
+    let page_name = world
+        .driver
         .find_element(By::ClassName("page_name"))
-        .await.unwrap();
+        .await
+        .unwrap();
     assert_eq!(page_name.text().await.unwrap(), "Contact Us");
-    let form_cta = world.driver
+    let form_cta = world
+        .driver
         .find_element(By::ClassName("form-cta"))
-        .await.unwrap();
+        .await
+        .unwrap();
     assert_eq!(form_cta.text().await.unwrap(), "Submit a request");
 
-    world.driver
+    world
+        .driver
         .find_element(By::ClassName("packages-sort"))
-        .await.unwrap();
-    world.driver
-        .find_element(By::Id("name"))
-        .await.unwrap();
-    world.driver
-        .find_element(By::Id("email"))
-        .await.unwrap();
-    world.driver
-        .find_element(By::Id("descr"))
-        .await.unwrap();
+        .await
+        .unwrap();
+    world.driver.find_element(By::Id("name")).await.unwrap();
+    world.driver.find_element(By::Id("email")).await.unwrap();
+    world.driver.find_element(By::Id("descr")).await.unwrap();
 }

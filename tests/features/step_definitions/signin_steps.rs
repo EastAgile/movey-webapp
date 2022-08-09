@@ -14,7 +14,7 @@ pub async fn an_user(world: &mut TestWorld) {
     let mut account = AccountInformation {
         email: "email@host.com".to_string(),
         password: "So$trongpas0word!".to_string(),
-        id: -1
+        id: -1,
     };
     let form = NewAccountForm {
         email: EmailField {

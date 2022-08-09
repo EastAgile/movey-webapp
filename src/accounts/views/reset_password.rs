@@ -1,7 +1,5 @@
 use jelly::accounts::User;
-use jelly::actix_web::{
-    web::{Form, Path},
-};
+use jelly::actix_web::web::{Form, Path};
 use jelly::prelude::*;
 use jelly::Result;
 
@@ -135,13 +133,13 @@ pub async fn reset(
 
 #[cfg(test)]
 mod tests {
-    use jelly::actix_web::HttpResponse;
-    use jelly::actix_web::web::Form;
-    use jelly::email::Context;
-    use jelly::forms::EmailField;
     use crate::accounts::forms::EmailForm;
     use crate::accounts::views::reset_password::request_reset;
-    use crate::test::{DB_POOL, mock};
+    use crate::test::{mock, DB_POOL};
+    use jelly::actix_web::web::Form;
+    use jelly::actix_web::HttpResponse;
+    use jelly::email::Context;
+    use jelly::forms::EmailField;
 
     #[actix_rt::test]
     async fn request_reset_returns_error_with_invalid_email_form() {
@@ -158,10 +156,9 @@ mod tests {
         let form = Form(EmailForm {
             email: EmailField {
                 value: "invalid".to_string(),
-                errors: vec![]
-            }
+                errors: vec![],
+            },
         });
         request_reset(mock_http_request, form).await.unwrap();
     }
 }
-

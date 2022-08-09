@@ -1,13 +1,17 @@
 use crate::TestWorld;
-use thirtyfour::prelude::*;
 use cucumber::{given, then};
 use mainlib::packages::Package;
 use mainlib::test::DB_POOL;
+use thirtyfour::prelude::*;
 
 #[given("I visit the My packages page")]
 pub async fn visit_my_package_page(world: &mut TestWorld) {
     world.go_to_root_url().await;
-    world.driver.get("http://localhost:17002/settings/packages").await.unwrap();
+    world
+        .driver
+        .get("http://localhost:17002/settings/packages")
+        .await
+        .unwrap();
 }
 
 #[given("I upload some packages")]
@@ -23,7 +27,9 @@ pub async fn upload_packages(world: &mut TestWorld) {
         100,
         Some(world.account.id),
         &DB_POOL,
-    ).await.unwrap();
+    )
+    .await
+    .unwrap();
     Package::create_test_package(
         &"test-package2".to_string(),
         &"https://github.com/Elements-Studio/rand".to_string(),
@@ -35,7 +41,9 @@ pub async fn upload_packages(world: &mut TestWorld) {
         100,
         Some(world.account.id),
         &DB_POOL,
-    ).await.unwrap();
+    )
+    .await
+    .unwrap();
 }
 
 #[then("I should see the My packages page")]
@@ -48,12 +56,18 @@ async fn see_my_package_page(world: &mut TestWorld) {
 
 #[then("I should see the list of packages that I uploaded")]
 async fn see_my_packages_list(world: &mut TestWorld) {
-    let total_packages =
-        world.driver.find_element(By::ClassName("total_package")).await.unwrap();
+    let total_packages = world
+        .driver
+        .find_element(By::ClassName("total_package"))
+        .await
+        .unwrap();
     assert_eq!(total_packages.text().await.unwrap(), "2 Packages");
 
-    let package_names: Vec<WebElement> =
-        world.driver.find_elements(By::Css(".package_content .package_name")).await.unwrap();
+    let package_names: Vec<WebElement> = world
+        .driver
+        .find_elements(By::Css(".package_content .package_name"))
+        .await
+        .unwrap();
     assert_eq!(package_names.len(), 2);
     let p: &WebElement = &package_names[0];
     assert!(p.text().await.unwrap().starts_with("test-package"));

@@ -3,18 +3,18 @@
 use crate::dev::Payload;
 use crate::github_service::{GithubRepoCommit, GithubRepoData, GithubRepoInfo};
 use futures::future::Ready;
+use jelly::accounts::User;
+use jelly::actix_session::Session;
 use jelly::actix_web::FromRequest;
+use jelly::jobs::Job;
 use jelly::prelude::*;
 use jelly::DieselPgPool;
 use mockall::mock;
 use mockall_double::double;
-use jelly::jobs::Job;
-use serde::Serialize;
-use jelly::accounts::User;
-use jelly::actix_session::Session;
-use reqwest::header::HeaderName;
 use reqwest::blocking::Response;
+use reqwest::header::HeaderName;
 use reqwest::StatusCode;
+use serde::Serialize;
 
 #[double]
 use crate::github_service::GithubService as MockGithubService;
@@ -48,17 +48,19 @@ pub struct GithubService {}
 impl GithubService {
     pub fn new() -> MockGithubService {
         let mut mock_gh_service = MockGithubService::new();
-        mock_gh_service.expect_fetch_repo_data().returning(|_, _, _| {
-            Ok(GithubRepoData {
-                name: "name1".to_string(),
-                version: "version1".to_string(),
-                readme_content: "readme_content1".to_string(),
-                description: "".to_string(),
-                size: 0,
-                url: "".to_string(),
-                rev: "".to_string(),
-            })
-        });
+        mock_gh_service
+            .expect_fetch_repo_data()
+            .returning(|_, _, _| {
+                Ok(GithubRepoData {
+                    name: "name1".to_string(),
+                    version: "version1".to_string(),
+                    readme_content: "readme_content1".to_string(),
+                    description: "".to_string(),
+                    size: 0,
+                    url: "".to_string(),
+                    rev: "".to_string(),
+                })
+            });
         mock_gh_service
     }
 }

@@ -1,4 +1,5 @@
 use super::*;
+use crate::test::util::{create_stub_packages, setup_user};
 use crate::{
     packages::models::Package,
     settings::models::token::ApiToken,
@@ -8,7 +9,6 @@ use diesel::result::DatabaseErrorKind;
 use diesel::result::Error::DatabaseError;
 use jelly::forms::{EmailField, PasswordField};
 use std::{collections::HashSet, iter::FromIterator};
-use crate::test::util::{create_stub_packages, setup_user};
 
 fn login_form() -> LoginForm {
     LoginForm {
@@ -46,7 +46,9 @@ async fn fetch_name_from_email_returns_error_with_non_existent_email() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    Account::fetch_name_from_email(&"non-existent@mail.com", &DB_POOL).await.unwrap();
+    Account::fetch_name_from_email("non-existent@mail.com", &DB_POOL)
+        .await
+        .unwrap();
 }
 
 #[actix_rt::test]
@@ -56,8 +58,9 @@ async fn fetch_name_from_email_returns_correct_name() {
 
     let uid = setup_user().await;
     let account_email = Account::get(uid, &DB_POOL).await.unwrap();
-    let account_name =
-        Account::fetch_name_from_email(&account_email.email, &DB_POOL).await.unwrap();
+    let account_name = Account::fetch_name_from_email(&account_email.email, &DB_POOL)
+        .await
+        .unwrap();
     assert_eq!(account_name, account_email.name);
 }
 
@@ -244,8 +247,8 @@ async fn change_password_returns_error_if_wrong_current_password() {
         new_password.clone(),
         &DB_POOL,
     )
-        .await
-        .unwrap();
+    .await
+    .unwrap();
 }
 
 #[actix_rt::test]

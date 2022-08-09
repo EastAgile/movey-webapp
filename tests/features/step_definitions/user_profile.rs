@@ -27,7 +27,11 @@ async fn enter_password(world: &mut TestWorld) {
 
 #[when("I enter wrong password into 'Current password' textbox")]
 async fn enter_wrong_password(world: &mut TestWorld) {
-    let password_field = world.driver.find_element(By::Id("current-password")).await.unwrap();
+    let password_field = world
+        .driver
+        .find_element(By::Id("current-password"))
+        .await
+        .unwrap();
     password_field.send_keys("wr0ng-p@ssw0rd").await.unwrap();
 }
 
@@ -131,16 +135,31 @@ async fn enter_text_whatever_textbox(world: &mut TestWorld) {
 
 #[when(regex = r"^I enter (.+) into 'New password'$")]
 async fn enter_invalid_new_password(world: &mut TestWorld, message: String) {
-    let new_password_field = world.driver.find_element(By::Id("current-password")).await.unwrap();
-    new_password_field.send_keys("So$trongpas0word!").await.unwrap();
+    let new_password_field = world
+        .driver
+        .find_element(By::Id("current-password"))
+        .await
+        .unwrap();
+    new_password_field
+        .send_keys("So$trongpas0word!")
+        .await
+        .unwrap();
 
-    let new_password_field = world.driver.find_element(By::Id("new-password")).await.unwrap();
+    let new_password_field = world
+        .driver
+        .find_element(By::Id("new-password"))
+        .await
+        .unwrap();
     new_password_field.send_keys(message).await.unwrap();
 }
 
 #[when(regex = r"^I enter (.+) into 'Repeat my password'$")]
 async fn enter_invalid_password_confirm(world: &mut TestWorld, message: String) {
-    let repeat_password_field = world.driver.find_element(By::Id("password-confirm")).await.unwrap();
+    let repeat_password_field = world
+        .driver
+        .find_element(By::Id("password-confirm"))
+        .await
+        .unwrap();
     repeat_password_field.send_keys(message).await.unwrap();
 }
 

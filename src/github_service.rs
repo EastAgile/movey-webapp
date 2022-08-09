@@ -53,18 +53,24 @@ pub struct GithubRepoCommit {
     pub sha: String,
 }
 
-pub static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"), );
+pub static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"),);
 
+use crate::constants::DEEP_AI_URL;
 #[cfg(test)]
 use mockall::{automock, predicate::*};
 use oauth2::http::StatusCode;
-use crate::constants::DEEP_AI_URL;
 
 pub struct GithubService {}
 
 impl GithubService {
     pub fn new() -> Self {
         GithubService {}
+    }
+}
+
+impl Default for GithubService {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -85,7 +91,7 @@ impl GithubService {
             if let Ok(sha) = get_repo_latest_commit_sha(repo_url) {
                 rev = Some(sha)
             } else {
-                rev = Some(github_info.default_branch);
+                rev = Some(github_info.default_branch.clone());
             }
         }
         let rev = rev.unwrap();
@@ -107,7 +113,7 @@ impl GithubService {
                         let mut description = call_deep_ai_api(content.clone(), None)?;
                         if description.len() > 400 {
                             let deepai_summary = call_deep_ai_api(description.clone(), None)?;
-                            if deepai_summary.len() > 0 {
+                            if !deepai_summary.is_empty() {
                                 description = deepai_summary;
                             }
                         }
@@ -160,7 +166,8 @@ impl GithubService {
                 readme_content,
                 description: github_info.description.unwrap_or_else(|| "".to_string()),
                 size: github_info.size,
-                url: String::from(""),
+                // this field is overwritten in the crawler, modified this to save default branch
+                url: github_info.default_branch,
                 rev,
             }),
             Err(error) => {
@@ -174,7 +181,8 @@ impl GithubService {
                     readme_content,
                     description: github_info.description.unwrap_or_else(|| "".to_string()),
                     size: github_info.size,
-                    url: String::from(""),
+                    // this field is overwritten in the crawler, modified this to save default branch
+                    url: github_info.default_branch,
                     rev,
                 })
             }
@@ -196,15 +204,13 @@ fn call_github_api(url: &str) -> Result<Response, Error> {
 
 // url param is only used in testing
 fn call_deep_ai_api(content: String, url: Option<&str>) -> Result<String, Error> {
-    let access_token = env::var("DEEP_AI_API_KEY")
-        .expect("Unable to pull DEEP_AI_API_KEY");
+    let access_token = env::var("DEEP_AI_API_KEY").expect("Unable to pull DEEP_AI_API_KEY");
     // not be able to mock both get and post func of Client at the moment,
     // use full path to avoid using MockClient
     let client = reqwest::blocking::Client::builder()
         .user_agent(APP_USER_AGENT)
         .build()?;
-    let form = multipart::Form::new()
-        .text("text", content);
+    let form = multipart::Form::new().text("text", content);
     let url = url.unwrap_or(DEEP_AI_URL);
     let response = client
         .post(url)
@@ -238,7 +244,7 @@ fn call_deep_ai_api(content: String, url: Option<&str>) -> Result<String, Error>
 fn get_repo_description_and_size(repo_url: &str) -> Result<GithubRepoInfo, Error> {
     let url = repo_url.replace("https://github.com/", "https://api.github.com/repos/");
     let response = call_github_api(&url)?;
-        match response.json::<GithubRepoInfo>() {
+    match response.json::<GithubRepoInfo>() {
         Ok(info) => Ok(info),
         Err(error) => {
             error!(
@@ -281,10 +287,10 @@ fn get_repo_latest_commit_sha(repo_url: &str) -> Result<String, Error> {
 
 #[cfg(test)]
 mod tests {
-    use std::env;
-    use httpmock::MockServer;
     use httpmock::prelude::*;
+    use httpmock::MockServer;
     use serde_json::json;
+    use std::env;
 
     use super::*;
 
@@ -378,8 +384,7 @@ mod tests {
     fn call_deep_ai_api_works() {
         crate::test::init();
 
-        let access_token = env::var("DEEP_AI_API_KEY")
-            .expect("Unable to pull DEEP_AI_API_KEY");
+        let access_token = env::var("DEEP_AI_API_KEY").expect("Unable to pull DEEP_AI_API_KEY");
         let server = MockServer::start();
         // TODO: check if the request content type is multipart
         // https://github.com/alexliesenfeld/httpmock/tree/master/tests/examples
@@ -388,12 +393,13 @@ mod tests {
                 .path("/api/summarization")
                 .header("User-Agent", APP_USER_AGENT)
                 .header("api-key", access_token);
-            then.status(200).json_body(json!({ "output":"summarized text" }));
+            then.status(200)
+                .json_body(json!({ "output":"summarized text" }));
         });
 
         let result = call_deep_ai_api(
             "original text".to_string(),
-            Some(&format!("{}/api/summarization", &server.base_url()))
+            Some(&format!("{}/api/summarization", &server.base_url())),
         );
         server_mock.assert();
         assert!(result.is_ok());
@@ -404,8 +410,7 @@ mod tests {
     fn call_deep_ai_api_returns_empty_string_if_deep_ai_response_body_is_empty() {
         crate::test::init();
 
-        let access_token = env::var("DEEP_AI_API_KEY")
-            .expect("Unable to pull DEEP_AI_API_KEY");
+        let access_token = env::var("DEEP_AI_API_KEY").expect("Unable to pull DEEP_AI_API_KEY");
         let server = MockServer::start();
         // TODO: check if the request content type is multipart
         let server_mock = server.mock(|when, then| {
@@ -418,7 +423,7 @@ mod tests {
 
         let result = call_deep_ai_api(
             "original text".to_string(),
-            Some(&format!("{}/api/summarization", &server.base_url()))
+            Some(&format!("{}/api/summarization", &server.base_url())),
         );
         server_mock.assert();
         assert!(result.is_ok());
@@ -429,8 +434,7 @@ mod tests {
     fn call_deep_ai_api_returns_empty_string_if_out_of_free_credit() {
         crate::test::init();
 
-        let access_token = env::var("DEEP_AI_API_KEY")
-            .expect("Unable to pull DEEP_AI_API_KEY");
+        let access_token = env::var("DEEP_AI_API_KEY").expect("Unable to pull DEEP_AI_API_KEY");
         let server = MockServer::start();
         // TODO: check if the request content type is multipart
         let server_mock = server.mock(|when, then| {
@@ -446,7 +450,7 @@ mod tests {
 
         let result = call_deep_ai_api(
             "original text".to_string(),
-            Some(&format!("{}/api/summarization", &server.base_url()))
+            Some(&format!("{}/api/summarization", &server.base_url())),
         );
         server_mock.assert();
         assert!(result.is_ok());
@@ -482,7 +486,7 @@ mod tests {
             package: PackageToml {
                 name: "test package name".to_string(),
                 version: "0.0.0".to_string(),
-            }
+            },
         };
         let move_toml_mock = server.mock(|when, then| {
             when.method(GET)
@@ -493,11 +497,13 @@ mod tests {
         });
 
         let gh_service = GithubService::new();
-        let gh_repo_data = gh_service.fetch_repo_data(
-            &format!("{}/EastAgile/ea-movey", server.base_url()),
-            None,
-            Some("rev".to_string())
-        ).unwrap();
+        let gh_repo_data = gh_service
+            .fetch_repo_data(
+                &format!("{}/EastAgile/ea-movey", server.base_url()),
+                None,
+                Some("rev".to_string()),
+            )
+            .unwrap();
 
         description_and_size_mock.assert();
         readme_mock.assert();
@@ -507,7 +513,7 @@ mod tests {
         assert_eq!(gh_repo_data.readme_content, "test readme content");
         assert_eq!(gh_repo_data.description, "test description");
         assert_eq!(gh_repo_data.size, 10);
-        assert_eq!(gh_repo_data.url, "");
+        assert_eq!(gh_repo_data.url, "test-default-branch");
         assert_eq!(gh_repo_data.rev, "rev");
     }
 }

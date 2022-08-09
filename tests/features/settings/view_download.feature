@@ -1,6 +1,5 @@
 Feature: View download
 
-  @wip
   Scenario: View download
     Given I am a user on Movey
     And I am signed in

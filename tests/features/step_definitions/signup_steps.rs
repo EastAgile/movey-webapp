@@ -74,7 +74,7 @@ async fn fill_in_invalid_password(world: &mut TestWorld, email: String, invalid_
 async fn click_verification_link(world: &mut TestWorld) {
     let path = std::fs::read_dir("./emails").unwrap().next();
     let contents = std::fs::read_to_string(path.unwrap().unwrap().path()).unwrap();
-    let contents = contents.split("\n").collect::<Vec<&str>>();
+    let contents = contents.split('\n').collect::<Vec<&str>>();
     for line in contents {
         if line.contains("/accounts/verify/") {
             let line_in_test = line
@@ -119,7 +119,9 @@ async fn receive_verification_email(_world: &mut TestWorld) {
     assert!(contents.contains("verify your account"));
 }
 
-#[then("I should receive an email warning that someone is trying to create an account with my email")]
+#[then(
+    "I should receive an email warning that someone is trying to create an account with my email"
+)]
 async fn receive_warning_email(_world: &mut TestWorld) {
     let path = std::fs::read_dir("./emails").unwrap().next();
     let contents = std::fs::read_to_string(path.unwrap().unwrap().path()).unwrap();

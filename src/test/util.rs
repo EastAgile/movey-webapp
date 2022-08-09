@@ -1,9 +1,9 @@
-use jelly::forms::{EmailField, PasswordField};
-use crate::accounts::Account;
 use crate::accounts::forms::NewAccountForm;
+use crate::accounts::Account;
 use crate::packages::Package;
 use crate::settings::models::token::ApiToken;
 use crate::test::DB_POOL;
+use jelly::forms::{EmailField, PasswordField};
 
 fn new_account_form() -> NewAccountForm {
     NewAccountForm {
@@ -48,7 +48,9 @@ pub async fn create_stub_packages(account_id: i32, num_of_packages: i32) {
             10,
             200,
             Some(account_id),
-            &DB_POOL)
-            .await.unwrap();
+            &DB_POOL,
+        )
+        .await
+        .unwrap();
     }
 }

@@ -158,15 +158,15 @@ async fn access_invalid_reset_link(world: &mut TestWorld) {
     invalid_link.remove(0);
     world
         .driver
-        .get(format!(
-            "{}accounts/reset/{}",
-            world.root_url, invalid_link
-        ))
+        .get(format!("{}accounts/reset/{}", world.root_url, invalid_link))
         .await
         .unwrap();
 }
 
 #[then("I should see the Invalid or Expired page")]
 async fn see_invalid_or_expired(world: &mut TestWorld) {
-    assert_eq!(world.driver.title().await.unwrap(), "Invalid or Expired | Movey");
+    assert_eq!(
+        world.driver.title().await.unwrap(),
+        "Invalid or Expired | Movey"
+    );
 }

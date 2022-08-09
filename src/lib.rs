@@ -35,8 +35,8 @@ pub mod schema;
 pub mod constants;
 pub mod jobs;
 pub mod request;
-pub mod test;
 pub mod sql;
+pub mod test;
 
 use jelly::{DieselPgPool, Server};
 

@@ -1,10 +1,9 @@
+use super::super::world::TestWorld;
+use super::signin_steps;
 use cucumber::{given, then, when};
-use thirtyfour::error::WebDriverError;
 use mainlib::packages::{Package, PackageVersion};
 use mainlib::test::DB_POOL;
 use thirtyfour::prelude::*;
-use super::signin_steps;
-use super::super::world::TestWorld;
 
 #[given("There are packages in the system")]
 async fn package_in_system(world: &mut TestWorld) {
@@ -20,7 +19,9 @@ async fn package_in_system(world: &mut TestWorld) {
         100,
         Some(world.account.id),
         &DB_POOL,
-    ).await.unwrap();
+    )
+    .await
+    .unwrap();
     let uid2 = Package::create_test_package(
         &"rand".to_string(),
         &"https://github.com/Elements-Studio/rand".to_string(),
@@ -32,7 +33,9 @@ async fn package_in_system(world: &mut TestWorld) {
         100,
         None,
         &DB_POOL,
-    ).await.unwrap();
+    )
+    .await
+    .unwrap();
     let uid3 = Package::create_test_package(
         &"random_derive".to_string(),
         &"https://github.com/Elements-Studio/random_derive".to_string(),
@@ -44,7 +47,9 @@ async fn package_in_system(world: &mut TestWorld) {
         100,
         None,
         &DB_POOL,
-    ).await.unwrap();
+    )
+    .await
+    .unwrap();
     PackageVersion::create(
         uid,
         "second_version".to_string(),
@@ -54,7 +59,9 @@ async fn package_in_system(world: &mut TestWorld) {
         100,
         None,
         &DB_POOL,
-    ).await.unwrap();
+    )
+    .await
+    .unwrap();
     PackageVersion::create(
         uid2,
         "second_version".to_string(),
@@ -64,7 +71,9 @@ async fn package_in_system(world: &mut TestWorld) {
         100,
         None,
         &DB_POOL,
-    ).await.unwrap();
+    )
+    .await
+    .unwrap();
     PackageVersion::create(
         uid3,
         "second_version".to_string(),
@@ -74,7 +83,9 @@ async fn package_in_system(world: &mut TestWorld) {
         100,
         None,
         &DB_POOL,
-    ).await.unwrap();
+    )
+    .await
+    .unwrap();
 }
 
 #[when("I access the package details page")]
@@ -171,25 +182,23 @@ async fn see_owner_info(world: &mut TestWorld) {
     assert_eq!(package_owner_info.text().await.unwrap(), name_from_email);
 }
 
-#[then("I should not see the owner information")]
+#[then("I should see a default owner name")]
 async fn not_see_owner_info(world: &mut TestWorld) {
     let package_info_title = world
         .driver
         .find_element(By::Css(".package-owners .package-information-title"))
         .await;
     match package_info_title {
-        Ok(_) => panic!(),
-        Err(WebDriverError::NoSuchElement(_)) => {}
-        Err(_) => panic!()
+        Ok(_) => {}
+        Err(_) => panic!(),
     }
     let package_owner_info = world
         .driver
         .find_element(By::ClassName("package-owners-info"))
         .await;
     match package_owner_info {
-        Ok(_) => panic!(),
-        Err(WebDriverError::NoSuchElement(_)) => {}
-        Err(_) => panic!()
+        Ok(element) => assert_eq!(element.text().await.unwrap(), "Elements-Studio"),
+        Err(_) => panic!(),
     }
 }
 

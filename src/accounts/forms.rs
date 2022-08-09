@@ -128,25 +128,26 @@ mod tests {
         let mut change_password_form = ChangePasswordForm {
             name: Some("name".to_string()),
             email: Some("email@mail.com".to_string()),
-            current_password: PasswordField{
+            current_password: PasswordField {
                 value: "str0ngCurr#ntP@ssword".to_string(),
                 errors: vec![],
-                hints: vec![]
+                hints: vec![],
             },
-            new_password: PasswordField{
+            new_password: PasswordField {
                 value: "str0ngnEwP@ssword".to_string(),
                 errors: vec![],
-                hints: vec![]
+                hints: vec![],
             },
-            password_confirm: PasswordField{
+            password_confirm: PasswordField {
                 value: "notMatchnEwP@ssword".to_string(),
                 errors: vec![],
-                hints: vec![]
-            }
+                hints: vec![],
+            },
         };
         assert!(!change_password_form.is_valid());
         assert!(change_password_form
-            .new_password.errors
+            .new_password
+            .errors
             .contains(&"Passwords must match.".to_string()))
     }
 
@@ -155,21 +156,21 @@ mod tests {
         let mut change_password_form = ChangePasswordForm {
             name: Some("name".to_string()),
             email: Some("email@mail.com".to_string()),
-            current_password: PasswordField{
+            current_password: PasswordField {
                 value: "str0ngCurr#ntP@ssword".to_string(),
                 errors: vec![],
-                hints: vec![]
+                hints: vec![],
             },
-            new_password: PasswordField{
+            new_password: PasswordField {
                 value: "str0ngnEwP@ssword".to_string(),
                 errors: vec![],
-                hints: vec![]
+                hints: vec![],
             },
-            password_confirm: PasswordField{
+            password_confirm: PasswordField {
                 value: "str0ngnEwP@ssword".to_string(),
                 errors: vec![],
-                hints: vec![]
-            }
+                hints: vec![],
+            },
         };
         assert!(change_password_form.is_valid());
 
