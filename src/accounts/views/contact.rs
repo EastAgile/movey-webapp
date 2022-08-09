@@ -4,12 +4,13 @@ use jelly::Result;
 use reqwest::Url;
 
 use crate::accounts::forms::ContactForm;
+use crate::accounts::jobs::SendContactEmail;
 use crate::accounts::jobs::SendContactRequestEmail;
 
 #[derive(Debug, serde::Deserialize)]
 pub struct RecaptchaResponse {
     pub success: bool,
-    #[serde(alias = "error-codes")]
+    #[serde(rename(deserialize = "error-codes"))]
     pub error_codes: Option<Vec<String>>,
 }
 
@@ -29,10 +30,14 @@ pub async fn send_contact(request: HttpRequest, form: Form<ContactForm>) -> Resu
     if response.success {
         request.queue(SendContactRequestEmail {
             to: "movey@eastagile.com".to_string(),
-            name: form.name,
-            email: form.email,
-            category: form.category,
-            description: form.description,
+            name: form.name.clone(),
+            email: form.email.clone(),
+            category: form.category.clone(),
+            description: form.description.clone(),
+        })?;
+    
+        request.queue(SendContactEmail {
+            to: form.email,
         })?;
         request.render(200, "accounts/contact_success.html", Context::new())
     } else {

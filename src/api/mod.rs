@@ -8,16 +8,23 @@ pub fn configure(config: &mut ServiceConfig) {
     config.service(
         scope("/api/v1")
             .service(
-                resource("/post_package")
-                    .route(post().to(services::package::controller::post_package)),
+                scope("/packages")
+                    .service(
+                        resource("/upload")
+                            .route(post().to(services::package::controller::register_package))
+                    )
+                    .service(
+                        resource("/count")
+                            .route(post().to(services::package::controller::increase_download_count)),
+                    )
+                    .service(
+                        resource("/{pkg_name}/badge")
+                            .route(get().to(services::package::controller::package_badge_info)),
+                    )
             )
             .service(
                 resource("/search_package")
                     .route(post().to(services::package::controller::search_package)),
-            )
-            .service(
-                resource("/download")
-                    .route(post().to(services::package::controller::increase_download_count)),
             )
             .service(
                 resource("/tokens/{token_id}")
@@ -30,10 +37,6 @@ pub fn configure(config: &mut ServiceConfig) {
             .service(
                 resource("/me")
                     .route(get().to(services::setting::controllers::profile::get_logged_in_user)),
-            )
-            .service(
-                resource("/packages/{pkg_name}/badge")
-                    .route(get().to(services::package::controller::package_badge_info)),
             ),
     );
 }

@@ -14,3 +14,4 @@ pub mod signup_steps;
 pub mod user_profile;
 pub mod user_profile_tokens_steps;
 pub mod view_policy_steps;
+mod contact_form_steps;
