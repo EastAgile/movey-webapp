@@ -7,7 +7,7 @@ Feature: Package collaborators
       And I am signed in
       And I am an owner of a package
       And There are other users on Movey
-      When I access the package details page of my package
+      When I access the package detail page of my package
       And I access the package Settings tab
       And I invite a user to become a collaborator of the package
       Then I should see a message that the invitation has been sent

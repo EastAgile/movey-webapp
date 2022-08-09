@@ -12,3 +12,4 @@ pub mod signin_steps;
 pub mod signup_steps;
 pub mod user_profile;
 pub mod user_profile_tokens_steps;
+pub mod collaborators_steps;
