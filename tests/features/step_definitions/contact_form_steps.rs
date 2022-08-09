@@ -1,8 +1,13 @@
-use cucumber::{then, when};
+use cucumber::{given, then, when};
 use std::fs;
 use thirtyfour::prelude::*;
 
 use super::super::world::TestWorld;
+
+#[given("The server has an invalid captcha secret key")]
+async fn has_invalid_captcha_secret_key(_world: &mut TestWorld) {
+    std::env::set_var("CAPTCHA_SECRET_KEY", "JUST_A_RANDOM_AND_INVALID_SECRET_KEY");
+}
 
 #[when("I click on the contact link on the footer")]
 async fn click_on_contact_link(world: &mut TestWorld) {
@@ -98,4 +103,29 @@ async fn receive_thankyou_email(_world: &mut TestWorld) {
             panic!()
         }
     }
+}
+
+#[then(regex = r"^I should see an error '(.+)' and a message to try again$")]
+async fn receive_contact_error(world: &mut TestWorld, message: String) {
+    let captcha_error = world
+        .driver
+        .find_element(By::ClassName("captcha-error"))
+        .await;
+    assert!(captcha_error.is_ok());
+
+    let captcha_error_message = captcha_error
+        .unwrap()
+        .find_element(By::Tag("p"))
+        .await
+        .unwrap()
+        .text()
+        .await
+        .unwrap();
+    assert_eq!(captcha_error_message, format!("Captcha verification error: {}. Please try again.", message))
+}
+
+#[then("I should not receive a thank you email")]
+async fn not_receive_thankyou_email(_world: &mut TestWorld) {
+    let emails_dir = fs::read_dir("./emails");
+    assert!(emails_dir.is_err());
 }
