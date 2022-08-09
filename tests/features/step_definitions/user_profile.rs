@@ -20,7 +20,7 @@ async fn enter_password(world: &mut TestWorld) {
         .await
         .unwrap();
     password_field
-        .send_keys(world.account.password.clone())
+        .send_keys(world.first_account.password.clone())
         .await
         .unwrap();
 }
@@ -32,9 +32,9 @@ async fn enter_new_password(world: &mut TestWorld) {
         .find_element(By::Id("new-password"))
         .await
         .unwrap();
-    world.account.password = String::from("BFfMgH79?}#;*Q'");
+    world.first_account.password = String::from("BFfMgH79?}#;*Q'");
     new_password_field
-        .send_keys(world.account.password.clone())
+        .send_keys(world.first_account.password.clone())
         .await
         .unwrap();
 }
@@ -47,7 +47,7 @@ async fn repeat_new_password(world: &mut TestWorld) {
         .await
         .unwrap();
     repeat_password_field
-        .send_keys(world.account.password.clone())
+        .send_keys(world.first_account.password.clone())
         .await
         .unwrap();
 }
@@ -59,9 +59,9 @@ async fn enter_short_password(world: &mut TestWorld) {
         .find_element(By::Id("new-password"))
         .await
         .unwrap();
-    world.account.password = String::from("BFfM");
+    world.first_account.password = String::from("BFfM");
     new_password_field
-        .send_keys(world.account.password.clone())
+        .send_keys(world.first_account.password.clone())
         .await
         .unwrap();
 }
@@ -74,7 +74,7 @@ async fn short_password_confirmation(world: &mut TestWorld) {
         .await
         .unwrap();
     repeat_password_field
-        .send_keys(world.account.password.clone())
+        .send_keys(world.first_account.password.clone())
         .await
         .unwrap();
 }
@@ -87,7 +87,7 @@ async fn different_password(world: &mut TestWorld) {
         .await
         .unwrap();
     repeat_password_field
-        .send_keys(format!("{}a", world.account.password.clone()))
+        .send_keys(format!("{}a", world.first_account.password.clone()))
         .await
         .unwrap();
 }
@@ -225,7 +225,7 @@ async fn save_button_disabled(world: &mut TestWorld) {
 async fn sign_in_with_new_password(world: &mut TestWorld) {
     let email_field = world.driver.find_element(By::Name("email")).await.unwrap();
     email_field
-        .send_keys(world.account.email.clone())
+        .send_keys(world.first_account.email.clone())
         .await
         .unwrap();
 
@@ -235,7 +235,7 @@ async fn sign_in_with_new_password(world: &mut TestWorld) {
         .await
         .unwrap();
     password_field
-        .send_keys(world.account.password.clone())
+        .send_keys(world.first_account.password.clone())
         .await
         .unwrap();
     let create_account_button = world

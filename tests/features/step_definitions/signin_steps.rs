@@ -14,6 +14,7 @@ async fn an_user(world: &mut TestWorld) {
     let account = AccountInformation {
         email: "email@host.com".to_string(),
         password: "So$trongpas0word!".to_string(),
+        owned_package_id: None
     };
     let form = NewAccountForm {
         email: EmailField {
@@ -26,7 +27,7 @@ async fn an_user(world: &mut TestWorld) {
             hints: vec![],
         },
     };
-    world.account = account;
+    world.first_account = account;
     let uid = Account::register(&form, &DB_POOL).await.unwrap();
     Account::mark_verified(uid, &DB_POOL).await.unwrap();
 }
