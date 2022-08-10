@@ -1,11 +1,21 @@
-use cucumber::{then, when};
+use cucumber::{given, then, when};
 use std::fs;
 use thirtyfour::prelude::*;
 
 use super::super::world::TestWorld;
 
+#[given("The server has an invalid captcha secret key")]
+async fn has_invalid_captcha_secret_key(_world: &mut TestWorld) {
+    std::env::set_var("CAPTCHA_SECRET_KEY", "JUST_A_RANDOM_AND_INVALID_SECRET_KEY");
+}
+
 #[when("I click on the contact link on the footer")]
 async fn click_on_contact_link(world: &mut TestWorld) {
+    // Keys for testing with Google reCaptcha, should allow testing go smoothly
+    // Refs: https://developers.google.com/recaptcha/docs/faq
+    std::env::set_var("CAPTCHA_SECRET_KEY", "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe");
+    std::env::set_var("JELLY_CAPTCHA_SITE_KEY", "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI");
+
     let contact_link = world
         .driver
         .find_element(By::ClassName("contact"))
@@ -21,8 +31,29 @@ async fn see_contact_form_page(world: &mut TestWorld) {
 
     assert_eq!(
         world.driver.current_url().await.unwrap(),
-        "http://localhost:17002/contact"
+        format!("{}contact", world.root_url).as_str()
     );
+    let page_name = world
+        .driver
+        .find_element(By::ClassName("page_name"))
+        .await
+        .unwrap();
+    assert_eq!(page_name.text().await.unwrap(), "Contact Us");
+    let form_cta = world
+        .driver
+        .find_element(By::ClassName("form-cta"))
+        .await
+        .unwrap();
+    assert_eq!(form_cta.text().await.unwrap(), "Submit a request");
+
+    world
+        .driver
+        .find_element(By::ClassName("packages-sort"))
+        .await
+        .unwrap();
+    world.driver.find_element(By::Id("name")).await.unwrap();
+    world.driver.find_element(By::Id("email")).await.unwrap();
+    world.driver.find_element(By::Id("descr")).await.unwrap();
 }
 
 #[when("I fill in form information and submit the form on contact page")]
@@ -50,6 +81,16 @@ async fn fill_in_contact_form(world: &mut TestWorld) {
         .send_keys("Hello this is a test.")
         .await
         .unwrap();
+
+    let captcha_btn = world
+        .driver
+        .find_element(By::ClassName("g-recaptcha"))
+        .await
+        .unwrap();
+    captcha_btn.click().await.unwrap();
+
+    // Wait for reCaptcha verification
+    tokio::time::sleep(std::time::Duration::from_secs(3)).await;
 
     let submit_btn = world
         .driver
@@ -83,4 +124,29 @@ async fn receive_thankyou_email(_world: &mut TestWorld) {
             panic!()
         }
     }
+}
+
+#[then(regex = r"^I should see an error '(.+)' and a message to try again$")]
+async fn receive_contact_error(world: &mut TestWorld, message: String) {
+    let captcha_error = world
+        .driver
+        .find_element(By::ClassName("captcha-error"))
+        .await;
+    assert!(captcha_error.is_ok());
+
+    let captcha_error_message = captcha_error
+        .unwrap()
+        .find_element(By::Tag("p"))
+        .await
+        .unwrap()
+        .text()
+        .await
+        .unwrap();
+    assert_eq!(captcha_error_message, format!("Captcha verification error: {}. Please try again.", message))
+}
+
+#[then("I should not receive a thank you email")]
+async fn not_receive_thankyou_email(_world: &mut TestWorld) {
+    let emails_dir = fs::read_dir("./emails");
+    assert!(emails_dir.is_err());
 }

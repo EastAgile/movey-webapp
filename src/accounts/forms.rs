@@ -117,6 +117,7 @@ pub struct ContactForm {
     pub email: String,
     pub name: String,
     pub description: String,
+    pub token: String,
 }
 
 #[cfg(test)]

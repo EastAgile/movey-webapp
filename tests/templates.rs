@@ -78,7 +78,7 @@ mod template_should_work_for {
             "email/verify-account",
             &["Erby Doe <test@example.com>".to_string()],
             "Test subject",
-            jobs::build_verify_context("/verify/account"),
+            jobs::build_verify_context("username", "/verify/account"),
             Arc::new(RwLock::new(TEMPLATES.clone())),
         )?;
 
