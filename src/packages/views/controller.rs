@@ -39,12 +39,20 @@ pub async fn show_package(
     let account_name = if let Some(uid) = package.account_id {
         let account = Account::get(uid, db).await?;
         if account.name.is_empty() {
-            account.email
+            // If account doesn't have a name, it is a Github-only account
+            if let Some(github_login) = account.github_login {
+                github_login
+            } else {
+                account.email
+            }
         } else {
             account.name
         }
     } else {
-        "".to_string()
+        // Default account name is derived from https://github.com/<github login>
+        let repo_url = package.repository_url.clone();
+        let derived_name = repo_url.split('/').collect::<Vec<&str>>()[3];
+        derived_name.to_string()
     };
 
     request.render(200, "packages/show.html", {

@@ -68,6 +68,12 @@ impl GithubService {
     }
 }
 
+impl Default for GithubService {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg_attr(test, automock)]
 impl GithubService {
     pub fn fetch_repo_data(
@@ -85,7 +91,7 @@ impl GithubService {
             if let Ok(sha) = get_repo_latest_commit_sha(repo_url) {
                 rev = Some(sha)
             } else {
-                rev = Some(github_info.default_branch);
+                rev = Some(github_info.default_branch.clone());
             }
         }
         let rev = rev.unwrap();
@@ -107,7 +113,7 @@ impl GithubService {
                         let mut description = call_deep_ai_api(content.clone(), None)?;
                         if description.len() > 400 {
                             let deepai_summary = call_deep_ai_api(description.clone(), None)?;
-                            if deepai_summary.len() > 0 {
+                            if !deepai_summary.is_empty() {
                                 description = deepai_summary;
                             }
                         }
@@ -160,7 +166,8 @@ impl GithubService {
                 readme_content,
                 description: github_info.description.unwrap_or_else(|| "".to_string()),
                 size: github_info.size,
-                url: String::from(""),
+                // this field is overwritten in the crawler, modified this to save default branch
+                url: github_info.default_branch,
                 rev,
             }),
             Err(error) => {
@@ -174,7 +181,8 @@ impl GithubService {
                     readme_content,
                     description: github_info.description.unwrap_or_else(|| "".to_string()),
                     size: github_info.size,
-                    url: String::from(""),
+                    // this field is overwritten in the crawler, modified this to save default branch
+                    url: github_info.default_branch,
                     rev,
                 })
             }
@@ -505,7 +513,7 @@ mod tests {
         assert_eq!(gh_repo_data.readme_content, "test readme content");
         assert_eq!(gh_repo_data.description, "test description");
         assert_eq!(gh_repo_data.size, 10);
-        assert_eq!(gh_repo_data.url, "");
+        assert_eq!(gh_repo_data.url, "test-default-branch");
         assert_eq!(gh_repo_data.rev, "rev");
     }
 }

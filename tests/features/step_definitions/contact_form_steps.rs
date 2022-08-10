@@ -31,8 +31,29 @@ async fn see_contact_form_page(world: &mut TestWorld) {
 
     assert_eq!(
         world.driver.current_url().await.unwrap(),
-        "http://localhost:17002/contact"
+        format!("{}contact", world.root_url).as_str()
     );
+    let page_name = world
+        .driver
+        .find_element(By::ClassName("page_name"))
+        .await
+        .unwrap();
+    assert_eq!(page_name.text().await.unwrap(), "Contact Us");
+    let form_cta = world
+        .driver
+        .find_element(By::ClassName("form-cta"))
+        .await
+        .unwrap();
+    assert_eq!(form_cta.text().await.unwrap(), "Submit a request");
+
+    world
+        .driver
+        .find_element(By::ClassName("packages-sort"))
+        .await
+        .unwrap();
+    world.driver.find_element(By::Id("name")).await.unwrap();
+    world.driver.find_element(By::Id("email")).await.unwrap();
+    world.driver.find_element(By::Id("descr")).await.unwrap();
 }
 
 #[when("I fill in form information and submit the form on contact page")]

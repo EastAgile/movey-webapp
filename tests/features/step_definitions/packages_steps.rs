@@ -3,7 +3,6 @@ use super::signin_steps;
 use cucumber::{given, then, when};
 use mainlib::packages::{Package, PackageVersion};
 use mainlib::test::DB_POOL;
-use thirtyfour::error::WebDriverError;
 use thirtyfour::prelude::*;
 
 #[given("There are packages in the system")]
@@ -183,15 +182,14 @@ async fn see_owner_info(world: &mut TestWorld) {
     assert_eq!(package_owner_info.text().await.unwrap(), name_from_email);
 }
 
-#[then("I should not see the owner information")]
+#[then("I should see a default owner name")]
 async fn not_see_owner_info(world: &mut TestWorld) {
     let package_info_title = world
         .driver
         .find_element(By::Css(".package-owners .package-information-title"))
         .await;
     match package_info_title {
-        Ok(_) => panic!(),
-        Err(WebDriverError::NoSuchElement(_)) => {}
+        Ok(_) => {}
         Err(_) => panic!(),
     }
     let package_owner_info = world
@@ -199,8 +197,7 @@ async fn not_see_owner_info(world: &mut TestWorld) {
         .find_element(By::ClassName("package-owners-info"))
         .await;
     match package_owner_info {
-        Ok(_) => panic!(),
-        Err(WebDriverError::NoSuchElement(_)) => {}
+        Ok(element) => assert_eq!(element.text().await.unwrap(), "Elements-Studio"),
         Err(_) => panic!(),
     }
 }

@@ -46,7 +46,7 @@ async fn fetch_name_from_email_returns_error_with_non_existent_email() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    Account::fetch_name_from_email(&"non-existent@mail.com", &DB_POOL)
+    Account::fetch_name_from_email("non-existent@mail.com", &DB_POOL)
         .await
         .unwrap();
 }

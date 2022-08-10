@@ -4,6 +4,7 @@ use crate::accounts::Account;
 use crate::test::mock::MockHttpRequest as HttpRequest;
 use diesel::result::Error as DBError;
 use jelly::accounts::User;
+#[allow(unused_imports)]
 use jelly::actix_session::UserSession;
 use jelly::actix_web::web::Query;
 #[cfg(not(test))]

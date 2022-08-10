@@ -22,4 +22,4 @@ Feature: View Package
         Given I am a guest / unregistered user
         Given There are packages in the system
         When I access the package details page of a package that was crawled
-        Then I should not see the owner information
+        Then I should see a default owner name

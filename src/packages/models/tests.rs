@@ -16,7 +16,7 @@ async fn setup(account_id_: Option<i32>) -> Result<(), Error> {
         0,
         0,
         account_id_,
-        &pool,
+        pool,
     )
     .await?;
     Package::create_test_package(
@@ -29,7 +29,7 @@ async fn setup(account_id_: Option<i32>) -> Result<(), Error> {
         0,
         0,
         account_id_,
-        &pool,
+        pool,
     )
     .await?;
     Package::create_test_package(
@@ -42,7 +42,7 @@ async fn setup(account_id_: Option<i32>) -> Result<(), Error> {
         0,
         0,
         account_id_,
-        &pool,
+        pool,
     )
     .await?;
     Ok(())
@@ -970,13 +970,12 @@ async fn get_badge_info() {
     )
     .await
     .unwrap();
-    let mut expected: Vec<(String, i32, String, i32)> = vec![];
-    expected.push((
+    let mut expected: Vec<(String, i32, String, i32)> = vec![(
         "The first package".to_string(),
         1500,
         "0.0.1".to_string(),
         500,
-    ));
+    )];
     expected.push((
         "The first package".to_string(),
         1500,
