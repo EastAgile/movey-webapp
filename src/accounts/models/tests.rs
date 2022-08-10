@@ -739,3 +739,47 @@ async fn is_generated_email_works() {
     let movey_account = Account::get(uid, &DB_POOL).await.unwrap();
     assert!(!movey_account.is_generated_email());
 }
+
+#[actix_rt::test]
+async fn register_make_slug_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    let uid = Account::register(
+        &NewAccountForm {
+            email: EmailField {
+                value: "email-to.slug_@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        },
+        &DB_POOL,
+    )
+    .await
+    .unwrap();
+    let account = Account::get(uid, &DB_POOL).await.unwrap();
+    assert_eq!(account.slug.unwrap(), "email-to-slug");
+
+    let uid = Account::register(
+        &NewAccountForm {
+            email: EmailField {
+                value: "email.to.slug.....@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        },
+        &DB_POOL,
+    )
+    .await
+    .unwrap();
+    let account = Account::get(uid, &DB_POOL).await.unwrap();
+    assert_eq!(account.slug.unwrap(), "email-to-slug-1");
+}

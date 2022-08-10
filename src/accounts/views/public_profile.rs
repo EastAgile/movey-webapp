@@ -3,6 +3,7 @@ use jelly::actix_web::web::Query;
 use jelly::prelude::*;
 use jelly::Result;
 
+use crate::accounts::Account;
 use crate::packages::models::PackageSortField;
 use crate::packages::models::PackageSortOrder;
 use crate::packages::models::PACKAGES_PER_PAGE;
@@ -11,7 +12,7 @@ use crate::packages::Package;
 
 pub async fn get(
     request: HttpRequest,
-    Path(user_slug): Path<i32>,
+    Path(user_slug): Path<String>,
     mut params: Query<PackageIndexParams>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
@@ -26,9 +27,9 @@ pub async fn get(
             Some(PackageSortOrder::Desc)
         }
     }
-
+    let mut account = Account::get_from_slug(&user_slug, db)?;
     let (packages, total_count, total_pages) = Package::get_by_account_paginated(
-        user_slug,
+        account.id,
         params.field.as_ref().unwrap(),
         params.order.as_ref().unwrap(),
         params.page,
@@ -48,10 +49,17 @@ pub async fn get(
     let display_pagination_start = (current_page - 1) * PACKAGES_PER_PAGE + 1;
     let display_pagination_end: usize = (display_pagination_start as usize) + packages.len() - 1;
 
+    // Purely for display and not logic-related
+    account.name = if account.name.is_empty() {
+        account.github_login.as_ref().unwrap_or(&account.email)
+    } else {
+        &account.name
+    }
+    .to_string();
+
     request.render(200, "accounts/public_profile.html", {
         let mut ctx = Context::new();
-        ctx.insert("account", "dung.ngo");
-        ctx.insert("account_slug", "2");
+        ctx.insert("account", &account);
         ctx.insert("packages", &packages);
         ctx.insert("sort_type", &field_name);
         ctx.insert("current_page", &current_page);

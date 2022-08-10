@@ -1,6 +1,6 @@
 {% extends "layout_dark.html" %}
 
-{% block title %}{{ account }} | Movey{% endblock %}
+{% block title %}{{ account.name }} | Movey{% endblock %}
 {% block css %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"/>
     <link href="/static/css/packages/index.css" rel="stylesheet"/>
@@ -22,7 +22,7 @@
         <img src="/static/resources/associated_photo.png" alt="Avatar">
     </div>
     <div class="owner-name">
-        {{ account }}
+        {{ account.name }}
     </div>
 </div>
 
@@ -34,7 +34,7 @@
             <select name="packages-sort"
                     class="packages-sort"
                     data-sort="{{ sort_type }}"
-                    data-url="/accounts/users/{{ account_slug }}/packages"
+                    data-url="/accounts/users/{{ account.slug }}/packages"
             >
                 <option value="name">Name</option>
                 <option value="most_downloads">Most Downloads</option>
@@ -88,7 +88,7 @@
                         <i class='fa fa-chevron-left'></i>
                     </li>
                     
-                    <li class="paginationjs-page J-paginationjs-page" data-url="/accounts/users/{{ account_slug }}/packages?field={{ sort_type }}"></li>
+                    <li class="paginationjs-page J-paginationjs-page" data-url="/accounts/users/{{ account.slug }}/packages?field={{ sort_type }}"></li>
                     
                     <li class="paginationjs-ellipsis J-paginationjs-ellipsis">
                         <i class="fa fa-ellipsis-h"></i>

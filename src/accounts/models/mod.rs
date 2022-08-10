@@ -1,6 +1,8 @@
 // Implements a basic Account models, with support for creating/updating/deleting
 // users, along with welcome email and verification.
 
+extern crate slug;
+
 use diesel::prelude::*;
 #[allow(unused_imports)]
 use diesel::result::Error as DBError;
@@ -43,6 +45,7 @@ pub struct Account {
     pub github_login: Option<String>,
     pub github_id: Option<i64>,
     pub avatar: Option<String>,
+    pub slug: Option<String>,
 }
 
 impl Account {
@@ -134,6 +137,8 @@ impl Account {
         let record = diesel::insert_into(accounts::table)
             .values(new_record)
             .get_result::<Account>(&connection)?;
+
+        record.make_slug(&connection)?;
 
         Ok(record.id)
     }
@@ -228,6 +233,8 @@ impl Account {
                 .values(new_record)
                 .get_result::<Account>(&connection)?
         };
+
+        account.make_slug(&connection)?;
 
         Ok(User {
             id: account.id,
@@ -327,6 +334,46 @@ impl Account {
         Ok(accounts::table
             .filter(id.eq_any(account_ids))
             .load::<Self>(conn)?)
+    }
+
+    pub fn get_from_slug(slug_: &str, pool: &DieselPgPool) -> Result<Self, Error> {
+        let connection = pool.get()?;
+        Ok(accounts
+            .filter(slug.eq(slug_))
+            .first::<Account>(&connection)?)
+    }
+
+    pub fn get_or_create_slug(&self, conn: &PgConnection) -> Result<String, Error> {
+        Ok(match self.slug {
+            Some(ref account_slug) => account_slug.to_string(),
+            None => self.make_slug(conn)?,
+        })
+    }
+
+    fn make_slug(&self, conn: &PgConnection) -> Result<String, Error> {
+        let before_slugify = if self.name.is_empty() {
+            self.github_login.as_ref().unwrap_or(&self.email)
+        } else {
+            &self.name
+        };
+        let after_slugify = slug::slugify(before_slugify);
+        let postfix = accounts
+            .filter(accounts::slug.eq(&after_slugify))
+            .get_results::<Account>(conn)?
+            .len();
+
+        let full_slug = if postfix > 0 {
+            format!("{after_slugify}-{postfix}")
+        } else {
+            after_slugify
+        };
+
+        // TODO: If an account is deleted, this may cause collision
+        diesel::update(accounts.filter(id.eq(self.id)))
+            .set(accounts::slug.eq(&full_slug))
+            .execute(conn)?;
+
+        Ok(full_slug)
     }
 }
 
