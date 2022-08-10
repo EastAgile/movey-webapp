@@ -8,7 +8,7 @@ use thirtyfour::prelude::*;
 pub struct AccountInformation {
     pub email: String,
     pub password: String,
-    pub owned_package_id: Option<i32>,
+    pub owned_package_name: Option<String>,
 }
 #[derive(Debug)]
 pub struct TestResponse {
@@ -23,7 +23,9 @@ pub struct TestWorld {
     pub root_url: String,
     pub suggestion: String,
     pub reset_token: String,
+    // default user used for own package
     pub first_account: AccountInformation,
+    // second user used for transfer ownership
     pub second_account: AccountInformation,
     pub response: Option<TestResponse>,
 }

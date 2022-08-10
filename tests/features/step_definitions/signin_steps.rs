@@ -14,7 +14,7 @@ async fn an_user(world: &mut TestWorld) {
     let account = AccountInformation {
         email: "email@host.com".to_string(),
         password: "So$trongpas0word!".to_string(),
-        owned_package_id: None
+        owned_package_name: None
     };
     let form = NewAccountForm {
         email: EmailField {
