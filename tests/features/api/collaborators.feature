@@ -9,6 +9,7 @@ Feature: Package collaborators
       And There are other users on Movey
       When I access the package detail page of my package
       And I access the package Settings tab
+      And I click on add button
       And I invite a user to become a collaborator of the package
       Then I should see a message that the invitation has been sent
       And She (the collaborator) should receive an invitation email

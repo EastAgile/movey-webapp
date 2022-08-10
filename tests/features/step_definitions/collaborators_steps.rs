@@ -1,4 +1,4 @@
-use cucumber::{then, when};
+use cucumber::{then, when, given};
 use jelly::forms::{EmailField, PasswordField};
 use thirtyfour::prelude::*;
 use mainlib::accounts::Account;
@@ -11,8 +11,8 @@ use super::super::world::TestWorld;
 
 #[given("I am an owner of a package")]
 async fn owner_of_package(world: &mut TestWorld) {
-    let uid = Package::create_test_package(
-        &"test-package".to_string(),
+    let uid = Package::create_test_package( 
+        &"test package".to_string(),
         &"https://github.com/Elements-Studio/starswap-core".to_string(),
         &"package_description".to_string(),
         &"first_version".to_string(),
@@ -38,16 +38,16 @@ async fn owner_of_package(world: &mut TestWorld) {
     )
         .await
         .unwrap();
-    world.first_account.owned_package_id = Some(uid)
+    world.first_account.owned_package_name = Some("test-package".to_string());
 }
 
 #[given("There are other users on Movey")]
 async fn other_users(world: &mut TestWorld) {
     let account = AccountInformation {
-        email: "email@host.com".to_string(),
+        email: "collaborator@host.com".to_string(),
         password: "So$trongpas0word!".to_string(),
-        owned_package_id: None
-    };
+        owned_package_name: None 
+    }; 
     let form = NewAccountForm {
         email: EmailField {
             value: account.email.clone(),
@@ -66,20 +66,64 @@ async fn other_users(world: &mut TestWorld) {
 
 #[when("I access the package detail page of my package")]
 async fn access_package_details_page(world: &mut TestWorld) {
-    world
-        .driver
-        .get("http://localhost:17002/accounts/login/")
+    world.
+        go_to_url("package/test%20package")
         .await
-        .unwrap()
 }
 
-#[then("I should see the header search overlay")]
-async fn see_header_search_overlay(world: &mut TestWorld) {
-    let search_overlay_element = world
+#[when("I access the package Settings tab")]
+async fn access_package_settings_page(world: &mut TestWorld) {
+    world.
+    go_to_url("package/test%20package")
+    .await
+}
+
+#[when("I click on add button")]
+async fn click_on_add_collaborator(world: &mut TestWorld) {
+    assert!(world.driver.find_element(By::Css(".username_input")).await.is_err());
+
+    let add_btn = world
         .driver
-        .find_element(By::Id("search-bar"))
+        .find_element(By::Css(".add_collaborator .btn"))
         .await
         .unwrap();
-    let displayed = search_overlay_element.is_displayed().await.unwrap();
-    assert!(displayed);
+
+    assert!(world.driver.find_element(By::Css(".username_input")).await.is_ok());
+
+    add_btn.click().await.unwrap();
 }
+
+#[when("I click on add button")]
+async fn click_on_add_btn(world: &mut TestWorld) {
+    let add_btn = world
+        .driver
+        .find_element(By::Css(".add_collaborator .btn"))
+        .await
+        .unwrap();
+
+    assert!(world.driver.find_element(By::Css(".username_input")).await.is_ok());
+
+    add_btn.click().await.unwrap();
+}
+
+#[when("I invite a user to become a collaborator of the package")]
+async fn invite_collaborator(world: &mut TestWorld) {
+    let input_username = world
+        .driver
+        .find_element(By::Css(".input .username"))
+        .await
+        .unwrap();
+
+    input_username.click().await.unwrap();
+    input_username
+        .send_keys(world.second_account.email.clone());
+
+    let invite_btn = world
+    .driver
+    .find_element(By::Css(".invite_collaborator .btn"))
+    .await
+    .unwrap();
+
+    invite_btn.click().await.unwrap();
+}
+
