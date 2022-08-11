@@ -10,13 +10,14 @@ Feature: Package collaborators
       When I access the package detail page of my package
       And I access the package Settings tab
       And I click on add button
-      And I invite a user to become a collaborator of the package
-      Then I should see a message that the invitation has been sent
-      And She (the collaborator) should receive an invitation email
+      Then I should see an overlay for inviting a collaborator
+      When I invite a user to become a collaborator of the package
+      Then She (the collaborator) should receive an invitation email
       When She is signed in
-      And She access her profile page
-      Then She should see an invitation in her profile page
+      And She access her own invitation page
+      Then She should see an invitation in her invitation page
     
+    @wip
     Scenario: Accept invitation through email works
       When She clicks on the link in the email to accept the invitation
       Then She should see that she is a collaborator of the package
