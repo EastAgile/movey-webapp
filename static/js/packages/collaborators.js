@@ -9,7 +9,9 @@ class Collaborator {
       this.newTokenInput = this.collaborators_modal.find('input')
       this.newTokenItemTemplate = $('.token-item-template .token-item')
       this.tokensList = $('.tokens-list')
-      this.inputEmail = $('.add_collaborators_form #submit-btn')
+      this.inviteBtn = $(".collaborators_btn.add")
+      this.collaboratorName = $(".collaborator_input")
+      this.packageName = $(".package-name")
       this.init()
     }
   
@@ -61,34 +63,35 @@ class Collaborator {
       // handle required input
       $('#user_email').change(() => {
         $('.add_collaborators_btn').css('background-color','var(--blue-color)');
-      }) 
- 
+      })
+
+      this.inviteBtn.click(sendCollaboratorInvitation)
     }
   
-    submitNewToken1() {
+    sendCollaboratorInvitation() {
       const tokenName = this.newTokenInput.val();
       if (!tokenName) return
       $.ajax({
-        type: 'PUT',
+        type: 'POST',
         dataType: "json",
-        url: '/api/v1/tokens',
+        url: `/packages/${this.packageName}/collaborators`,
         contentType: "application/json",
         processData: false,
         headers: {},
-        data: JSON.stringify({"name": tokenName}),
+        data: JSON.stringify({"user": this.collaboratorName}),
         success: (data, status, xhr) => {
-          $('.no-tokens').remove()
-          const newTokenItem = this.newTokenItemTemplate.clone()
-          newTokenItem.data('id', data.id)
-          newTokenItem.find('.token-name').text(data.name)
-          newTokenItem.find('.token-plaintext').text(data.token)
-  
-          this.tokensList.append(newTokenItem)
-          return data
+          // $('.no-tokens').remove()
+          // const newTokenItem = this.newTokenItemTemplate.clone()
+          // newTokenItem.data('id', data.id)
+          // newTokenItem.find('.token-name').text(data.name)
+          // newTokenItem.find('.token-plaintext').text(data.token)
+          //
+          // this.tokensList.append(newTokenItem)
+          // return data
         },
         error: function (xhr, status, errorThrown) {
-          $(".tokens-error").text(xhr.responseText)
-          return errorThrown
+          // $(".tokens-error").text(xhr.responseText)
+          // return errorThrown
         },
       })
     }
