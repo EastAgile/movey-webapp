@@ -42,7 +42,7 @@ async fn non_signed_in_user(world: &mut TestWorld) {
 }
 
 #[given("I am signed in")]
-async fn signed_in_user(world: &mut TestWorld) {
+pub async fn signed_in_user(world: &mut TestWorld) {
     visit_sign_in_page(world).await;
     fill_in_sign_in_form(world).await;
 }
@@ -185,7 +185,7 @@ async fn fill_in_blank_password(world: &mut TestWorld) {
 }
 
 #[when("I access the Sign in page")]
-async fn visit_sign_in_page(world: &mut TestWorld) {
+pub async fn visit_sign_in_page(world: &mut TestWorld) {
     world
         .driver
         .get("http://localhost:17002/accounts/login/")
