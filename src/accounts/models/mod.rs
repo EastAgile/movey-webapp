@@ -12,7 +12,7 @@ use jelly::djangohashers::{check_password, make_password};
 use jelly::error::Error;
 use jelly::error::Error::Generic;
 use jelly::serde::{Deserialize, Serialize};
-use jelly::DieselPgPool;
+use jelly::{DieselPgPool, DieselPgConnection};
 
 use super::forms::{LoginForm, NewAccountForm};
 use super::views::verify::GithubOauthUser;
@@ -282,6 +282,15 @@ impl Account {
         let no_reply_email_domain =
             std::env::var("NO_REPLY_EMAIL_DOMAIN").expect("NO_REPLY_EMAIL_DOMAIN is not set!");
         self.email.ends_with(&no_reply_email_domain)
+    }
+
+    pub fn get_accounts(
+        account_ids: Vec<i32>,
+        conn: &DieselPgConnection,
+    ) -> Result<Vec<Self>, Error> {
+        Ok(accounts::table
+            .filter(accounts::id.eq_any(account_ids))
+            .load::<Self>(conn)?)
     }
 }
 

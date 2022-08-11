@@ -89,9 +89,10 @@ class Collaborator {
     console.log("nbew")
     $('.collaborators_table').append(`
       <div class="collaborator_row">
-        <div class="email_address">
-          ${name} <span class="invitation_status">${status}</span>
+        <div class="email_address colaborator_name">
+          ${name} 
         </div>
+        <span class="invitation_status">${status}</span>
         <div class="roles">Collaborator</div>
         <div class="permission collaborators_settings">
           <button id="submit-btn" type="submit" class="ownership_btn transfer">

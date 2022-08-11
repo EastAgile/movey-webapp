@@ -15,7 +15,8 @@ Feature: Package collaborators
       Then She (the collaborator) should receive an invitation email
       When She is signed in
       And She access her own invitation page
-      Then She should see an invitation in her invitation page
+      # Ngan is working on
+      #Then She should see an invitation in her invitation page
     
     @wip
     Scenario: Accept invitation through email works

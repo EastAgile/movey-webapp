@@ -15,25 +15,6 @@
         ADD
       </button>
     </div>
-    <!-- <div class="add_collaborators_form" action="" method="POST">
-      <class class="owner_collab_wrapper">
-        <label for="user_email" class="collaborators_info">User email</label>
-        <input
-          name="user_info"
-          id="user_email"
-          type="email"
-          class="collaborators_input"
-          placeholder="Email/Github account"
-        />
-      </class>
-      <button
-        id="submit-btn"
-        type="submit"
-        class="add_collaborators_btn"
-      >
-        ADD
-      </button>
-    </div> -->
   </div>
 
   <div class="collaborators_wrapper">
@@ -44,10 +25,10 @@
         <div class="roles header">Roles</div>
         <div class="permission header"></div>
       </div>
-
+      {% for info in owner_list %}
       <div class="collaborator_row">
-        <div class="email_address">
-          User@gmail.com <span class="invitation_status"></span>
+        <div class="colaborator_name">
+          {{info.email}} <span class="invitation_status">{{info.status}}</span>
         </div>
         <div class="roles">Owner</div>
         <div class="permission collaborators_settings">
@@ -59,25 +40,12 @@
           </button>
         </div>
       </div>
+      {% endfor %}
+
 
     </div>
-    <!-- <div class="collaborators_content">
-      <div class="collaborators_info">
-        <img
-          class="avatar-image"
-          src="/static/resources/associated_photo.png"
-        />
-        <div class="collaborators_info">tdkhoaEA</div>
-      </div>
-      <div class="collaborators_settings">
-        <button id="submit-btn" type="submit" class="ownership_btn transfer">
-          Transfer
-        </button>
-        <button id="submit-btn" type="submit" class="ownership_btn remove">
-          Remove
-        </button>
-      </div>
-    </div> -->
+
+
   </div>
 
   <div class="modal reveal" id="new_collaborator_modal" data-reveal>

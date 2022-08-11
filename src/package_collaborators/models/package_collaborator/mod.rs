@@ -7,7 +7,7 @@ use jelly::DieselPgConnection;
 
 use crate::accounts::Account;
 use crate::packages::Package;
-use crate::schema::package_collaborators;
+use crate::schema::{package_collaborators, owner_invitations};
 
 #[cfg(test)]
 mod tests;
@@ -59,10 +59,35 @@ impl PackageCollaborator {
         Ok(())
     }
 
+    pub fn new_owner(
+        package_id_: i32,
+        account_id_: i32,
+        created_by_: i32,
+        conn: &DieselPgConnection,
+    ) -> Result<(), Error> {
+        diesel::insert_into(package_collaborators::table)
+            .values(NewCollaborator {
+                package_id: package_id_,
+                account_id: account_id_,
+                role: Role::Owner as i32,
+                created_by: created_by_,
+            })
+            .get_result::<PackageCollaborator>(conn)?;
+
+        Ok(())
+    }
+
     pub fn get(package_id: i32, account_id: i32, conn: &DieselPgConnection) -> Result<Self, Error> {
         Ok(package_collaborators::table
             .find((package_id, account_id))
             .first::<Self>(conn)?)
+    }
+
+    pub fn get_by_package_id(package_id: i32, conn: &DieselPgConnection) -> Result<Vec<i32>, Error> {
+        Ok(package_collaborators::table
+            .filter(package_collaborators::package_id.eq(package_id))
+            .select(package_collaborators::account_id)
+            .load::<i32>(conn)?)
     }
 
     pub fn get_in_bulk_order_by_role(

@@ -1,6 +1,8 @@
 use std::{fs, thread};
 use cucumber::{then, when, given};
 use jelly::forms::{EmailField, PasswordField};
+use mainlib::package_collaborators::package_collaborator::PackageCollaborator;
+use regex::Regex;
 use thirtyfour::prelude::*;
 use mainlib::accounts::Account;
 use mainlib::accounts::forms::NewAccountForm;
@@ -13,7 +15,7 @@ use super::super::world::TestWorld;
 
 #[given("I am an owner of a package")]
 async fn owner_of_package(world: &mut TestWorld) {
-    let uid = Package::create_test_package( 
+    let pid = Package::create_test_package( 
         &"test package".to_string(),
         &"https://github.com/Elements-Studio/starswap-core".to_string(),
         &"package_description".to_string(),
@@ -29,7 +31,7 @@ async fn owner_of_package(world: &mut TestWorld) {
         .unwrap();
 
     PackageVersion::create(
-        uid,
+        pid,
         "second_version".to_string(),
         "second_readme_content".to_string(),
         "rev_2".to_string(),
@@ -40,6 +42,7 @@ async fn owner_of_package(world: &mut TestWorld) {
     )
         .await
         .unwrap();
+    PackageCollaborator::new_owner(pid, 1, 1, &DB_POOL.get().unwrap());
     world.first_account.owned_package_name = Some("test-package".to_string());
 }
 
@@ -105,7 +108,7 @@ async fn see_an_invitation_overlay(world: &mut TestWorld) {
 async fn invite_collaborator(world: &mut TestWorld) {
     let input_username = world
         .driver
-        .find_element(By::ClassName("collaborator_input"))
+        .find_element(By::ClassName("collaborators_input"))
         .await
         .unwrap();
 
@@ -121,31 +124,23 @@ async fn invite_collaborator(world: &mut TestWorld) {
         .await
         .unwrap();
 
+    fs::remove_dir_all("./emails").unwrap_or(());
+    
     invite_btn.click().await.unwrap();
+    
 }
 
 #[then("She (the collaborator) should receive an invitation email")]
 async fn receive_invitation_email(_world: &mut TestWorld) {
     thread::sleep(std::time::Duration::from_millis(1000));
     let email_dir = fs::read_dir("./emails").unwrap().next();
-    let email = fs::read_to_string(email_dir.unwrap().unwrap().path()).unwrap();
-    let content = fs::read_to_string(email).unwrap();
-    if content.contains("Subject: New Contact Request") {
-        assert!(content.contains("To: movey@eastagile.com"));
-        assert!(content.contains("Hello Admin,"));
-        assert!(content.contains("A message was sent from John Doe"));
-        assert!(content.contains("Contact Email: email@host.com"));
-        assert!(content.contains("Contact for: Account"));
-        assert!(content.contains("Description: Hello this is a test."));
-    } else if content.contains("Subject: Thank you for contacting us") {
-        assert!(content.contains("To: email@host.com"));
-        assert!(content.contains("Hello there,"));
-        assert!(content.contains(
-            "We=E2=80=99ve received your request and will get back to you shortly."
-        ));
-    } else {
-        panic!()
-    }
+    let content = fs::read_to_string(email_dir.unwrap().unwrap().path()).unwrap();
+    
+    assert!(content.contains("Subject: You have been invited to collaborate on test package"));
+    assert!(content.contains("From: movey@eastagile.com"));
+    assert!(content.contains("To: collaborator@host.com"));
+    assert!(content.contains("New Collaborator Invitation"));
+    assert!(content.contains("You got invited as a collaborator on the package test package."));
 }
 
 #[when("She is signed in")]
@@ -185,4 +180,35 @@ async fn see_her_invitation(world: &mut TestWorld) {
         .await
         .unwrap();
     assert_eq!(&package_name.text().await.unwrap(), world.first_account.owned_package_name.as_ref().unwrap());
+}
+
+#[when("She clicks on the link in the email to accept the invitation")]
+async fn invitation_link_in_email(world: &mut TestWorld) {
+    let email_dir = fs::read_dir("./emails").unwrap().next();
+    let content = fs::read_to_string(email_dir.unwrap().unwrap().path()).unwrap();
+
+    let re = Regex::new(r"/owner_invitations/accept/([^ \n]+)".to_string().as_str()).unwrap();
+    let caps = re.captures(&content).unwrap();
+    let accept_token = caps.get(1).map(|m| m.as_str()).unwrap();
+    world.go_to_url(&format!("/owner_invitations/accept/{}", accept_token));
+}
+
+#[then("She should see that she is a collaborator of the package")]
+async fn confirm_in_collaborator_list(world: &mut TestWorld) {
+    world
+    .go_to_url("packages/test%20package/owner_settings")
+    .await;
+    let collaborator_names = world
+        .driver
+        .find_elements(By::ClassName("colaborator_name"))
+        .await
+        .unwrap();
+    
+    for name in collaborator_names {
+        let collaborator_name = name.text().await.unwrap();
+        if collaborator_name.contains(&world.second_account.email) && collaborator_name.contains("PENDING") {
+            return;        
+        }
+    }
+    panic!()
 }
