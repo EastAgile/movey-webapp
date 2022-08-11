@@ -39,14 +39,16 @@
   <div class="collaborators_wrapper">
     <!-- <div class="collaborators_title">Collaborators</div> -->
     <div class="collaborators_table">
-      <div class="collaborators_row header">
+      <div class="collaborator_row header">
         <div class="email_address header">Email address</div>
         <div class="roles header">Roles</div>
         <div class="permission header"></div>
       </div>
 
-      <div class="collaborators_row">
-        <div class="email_address">User@gmail.com</div>
+      <div class="collaborator_row">
+        <div class="email_address">
+          User@gmail.com <span class="invitation_status"></span>
+        </div>
         <div class="roles">Owner</div>
         <div class="permission collaborators_settings">
           <button id="submit-btn" type="submit" class="ownership_btn transfer">
@@ -57,6 +59,7 @@
           </button>
         </div>
       </div>
+
     </div>
     <!-- <div class="collaborators_content">
       <div class="collaborators_info">
@@ -87,7 +90,7 @@
     </div>
     <div class="new-token-container">
       <div class="new-token-name">
-        <input class="collaborator_input" placeholder="Email or Github account" />
+        <input class="collaborators_input" placeholder="Email or Github account" />
       </div>
       <div class="collaborators_btn add">INVITE</div>
     </div>

@@ -105,6 +105,7 @@ pub async fn show_package_settings(
     let package_latest_version =
         &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, db).await?[0];
 
+    
     request.render(200, "packages/owner_settings.html", {
         let mut ctx = Context::new();
         ctx.insert("package", &package);

@@ -303,6 +303,8 @@ impl Package {
         Ok(result)
     }
 
+    
+
     pub async fn get_badge_info(
         package_name: &str,
         pool: &DieselPgPool,
