@@ -25,6 +25,7 @@ use crate::schema::api_tokens::dsl::{
     account_id as api_tokens_account_id, api_tokens, name as api_tokens_name,
 };
 use crate::schema::package_collaborators;
+use crate::utils::token::generate_secure_alphanumeric_string;
 
 #[cfg(test)]
 mod tests;
@@ -138,7 +139,7 @@ impl Account {
             .values(new_record)
             .get_result::<Account>(&connection)?;
 
-        record.make_slug(&connection)?;
+        record.check_and_update_slug(&record.make_slug(), pool)?;
 
         Ok(record.id)
     }
@@ -234,7 +235,7 @@ impl Account {
                 .get_result::<Account>(&connection)?
         };
 
-        account.make_slug(&connection)?;
+        account.check_and_update_slug(&account.make_slug(), pool)?;
 
         Ok(User {
             id: account.id,
@@ -336,44 +337,47 @@ impl Account {
             .load::<Self>(conn)?)
     }
 
-    pub fn get_from_slug(slug_: &str, pool: &DieselPgPool) -> Result<Self, Error> {
+    pub fn get_by_slug(slug_: &str, pool: &DieselPgPool) -> Result<Self, Error> {
         let connection = pool.get()?;
         Ok(accounts
             .filter(slug.eq(slug_))
             .first::<Account>(&connection)?)
     }
 
-    pub fn get_or_create_slug(&self, conn: &PgConnection) -> Result<String, Error> {
-        Ok(match self.slug {
-            Some(ref account_slug) => account_slug.to_string(),
-            None => self.make_slug(conn)?,
-        })
+    pub fn make_slug(&self) -> String {
+        let before_slugify = if self.name.is_empty() {
+            self.github_login.clone().unwrap_or_else(|| {
+                let local_part = self.email.split('@').next().unwrap();
+                local_part.to_string()
+            })
+        } else {
+            self.name.clone()
+        };
+        slug::slugify(before_slugify)
     }
 
-    fn make_slug(&self, conn: &PgConnection) -> Result<String, Error> {
-        let before_slugify = if self.name.is_empty() {
-            self.github_login.as_ref().unwrap_or(&self.email)
-        } else {
-            &self.name
-        };
-        let after_slugify = slug::slugify(before_slugify);
-        let postfix = accounts
-            .filter(accounts::slug.eq(&after_slugify))
-            .get_results::<Account>(conn)?
-            .len();
-
-        let full_slug = if postfix > 0 {
-            format!("{after_slugify}-{postfix}")
-        } else {
-            after_slugify
-        };
-
-        // TODO: If an account is deleted, this may cause collision
-        diesel::update(accounts.filter(id.eq(self.id)))
-            .set(accounts::slug.eq(&full_slug))
-            .execute(conn)?;
-
-        Ok(full_slug)
+    pub fn check_and_update_slug(&self, slug_: &str, pool: &DieselPgPool) -> Result<bool, Error> {
+        let conn = pool.get()?;
+        let maximum_allowed_collisions = std::env::var("MAX_COLLISIONS_ALLOWED")
+            .unwrap_or_else(|_| "3".to_string())
+            .parse::<usize>()
+            .unwrap();
+        for trial in 0..maximum_allowed_collisions {
+            let full_slug = if trial == 0 {
+                slug_.to_string()
+            } else {
+                let random_string = generate_secure_alphanumeric_string(4);
+                format!("{}-{}", slug_, random_string)
+            };
+            match diesel::update(accounts.filter(id.eq(self.id)))
+                .set(accounts::slug.eq(&full_slug))
+                .execute(&conn)
+            {
+                Ok(_) => return Ok(true),
+                Err(_) => continue,
+            }
+        }
+        Ok(false)
     }
 }
 

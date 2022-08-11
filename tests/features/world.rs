@@ -10,6 +10,7 @@ pub struct AccountInformation {
     pub password: String,
     pub owned_package_name: Option<String>,
     pub id: i32,
+    pub slug: String,
 }
 #[derive(Debug)]
 pub struct TestResponse {

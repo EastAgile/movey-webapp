@@ -741,7 +741,7 @@ async fn is_generated_email_works() {
 }
 
 #[actix_rt::test]
-async fn register_make_slug_works() {
+async fn register_make_slug() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
@@ -782,4 +782,165 @@ async fn register_make_slug_works() {
     .unwrap();
     let account = Account::get(uid, &DB_POOL).await.unwrap();
     assert_eq!(account.slug.unwrap(), "email-to-slug-1");
+}
+
+#[actix_rt::test]
+async fn register_from_github_make_slug() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    let github_user = setup_github_account().await;
+    assert_eq!(github_user.github_login.unwrap(), "github_name");
+    assert_eq!(github_user.slug.unwrap(), "github-name");
+
+    Account::register_from_github(
+        &GithubOauthUser {
+            id: 145_346,
+            login: "-github__name-".to_string(),
+            email: "another_email@domain.com".to_string(),
+        },
+        &DB_POOL,
+    )
+    .await
+    .unwrap();
+    let another_github_user = Account::get_by_github_id(145_346, &DB_POOL).await.unwrap();
+    assert_ne!(another_github_user.id, github_user.id);
+    assert_eq!(another_github_user.github_login.unwrap(), "-github__name-");
+    assert_eq!(another_github_user.slug.unwrap(), "github-name-1");
+}
+
+#[actix_rt::test]
+async fn make_slug_can_avoid_collision() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    let github_user = setup_github_account().await;
+    assert_eq!(github_user.slug.as_ref().unwrap(), "github-name");
+
+    Account::register_from_github(
+        &GithubOauthUser {
+            id: 145_346,
+            login: "-github__name-".to_string(),
+            email: "another_email@domain.com".to_string(),
+        },
+        &DB_POOL,
+    )
+    .await
+    .unwrap();
+    let another_github_user = Account::get_by_github_id(145_346, &DB_POOL).await.unwrap();
+    assert_eq!(another_github_user.slug.as_ref().unwrap(), "github-name-1");
+
+    let uid = Account::register(
+        &NewAccountForm {
+            email: EmailField {
+                value: "github+name@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        },
+        &DB_POOL,
+    )
+    .await
+    .unwrap();
+    let account = Account::get(uid, &DB_POOL).await.unwrap();
+    assert_eq!(account.slug.unwrap(), "github-name-2");
+
+    Account::delete(another_github_user.id).await.unwrap();
+    let exist = Account::get(another_github_user.id, &DB_POOL).await;
+    assert!(exist.is_err());
+
+    // Now there should be github-name, github-name-2 in the database
+    let uid = Account::register(
+        &NewAccountForm {
+            email: EmailField {
+                value: "github____name@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        },
+        &DB_POOL,
+    )
+    .await
+    .unwrap();
+    let account = Account::get(uid, &DB_POOL).await.unwrap();
+    assert_eq!(account.slug.unwrap(), "github-name-1");
+}
+
+#[actix_rt::test]
+async fn make_slug_reach_maximum_collisions() {
+    std::env::set_var("MAX_COLLISIONS_ALLOWED", "2");
+
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    let github_user = setup_github_account().await;
+    assert_eq!(github_user.slug.as_ref().unwrap(), "github-name");
+
+    Account::register_from_github(
+        &GithubOauthUser {
+            id: 145_346,
+            login: "-github__name-".to_string(),
+            email: "another_email@domain.com".to_string(),
+        },
+        &DB_POOL,
+    )
+    .await
+    .unwrap();
+    let another_github_user = Account::get_by_github_id(145_346, &DB_POOL).await.unwrap();
+    assert_eq!(another_github_user.slug.as_ref().unwrap(), "github-name-1");
+
+    let uid = Account::register(
+        &NewAccountForm {
+            email: EmailField {
+                value: "github+name@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        },
+        &DB_POOL,
+    )
+    .await;
+    assert!(uid.is_err());
+    if let Err(Error::Generic(msg)) = uid {
+        assert_eq!(msg, "Too many collisions when making slug for account. slug: github-name")
+    } else {
+        panic!()
+    }
+}
+
+#[actix_rt::test]
+async fn get_by_slug_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    Account::register(
+        &NewAccountForm {
+            email: EmailField {
+                value: "email-to.slug_@host.com".to_string(),
+                errors: vec![],
+            },
+            password: PasswordField {
+                value: "So$trongpas0word!".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        },
+        &DB_POOL,
+    )
+    .await
+    .unwrap();
+    let account = Account::get_by_slug("email-to-slug", &DB_POOL).unwrap();
+    assert_eq!(account.email, "email-to.slug_@host.com");
 }

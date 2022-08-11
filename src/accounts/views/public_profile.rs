@@ -27,7 +27,20 @@ pub async fn get(
             Some(PackageSortOrder::Desc)
         }
     }
-    let mut account = Account::get_from_slug(&user_slug, db)?;
+    
+    // Handle accounts that doesn't have a slug
+    let mut account = match user_slug.parse::<i32>() {
+        Ok(id) => {
+            let mut account = Account::get(id, db).await?;
+            if account.slug.is_none() {
+                let new_slug = account.make_slug();
+                account.check_and_update_slug(&new_slug, db)?;
+                account.slug = Some(new_slug);
+            }
+            account
+        },
+        Err(_) => Account::get_by_slug(&user_slug, db)?,
+    };
     let (packages, total_count, total_pages) = Package::get_by_account_paginated(
         account.id,
         params.field.as_ref().unwrap(),
