@@ -1,5 +1,5 @@
 use cucumber::{given, then, when};
-use std::fs;
+use std::{env, fs};
 use thirtyfour::prelude::*;
 
 use super::super::world::TestWorld;
@@ -13,8 +13,14 @@ async fn has_invalid_captcha_secret_key(_world: &mut TestWorld) {
 async fn click_on_contact_link(world: &mut TestWorld) {
     // Keys for testing with Google reCaptcha, should allow testing go smoothly
     // Refs: https://developers.google.com/recaptcha/docs/faq
-    std::env::set_var("CAPTCHA_SECRET_KEY", "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe");
-    std::env::set_var("JELLY_CAPTCHA_SITE_KEY", "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI");
+    std::env::set_var(
+        "CAPTCHA_SECRET_KEY",
+        "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe",
+    );
+    std::env::set_var(
+        "JELLY_CAPTCHA_SITE_KEY",
+        "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
+    );
 
     let contact_link = world
         .driver
@@ -107,19 +113,20 @@ async fn receive_thankyou_email(_world: &mut TestWorld) {
 
     for email in fs::read_dir("./emails").unwrap() {
         let content = fs::read_to_string(email.unwrap().path()).unwrap();
-        if content.contains("Subject: New Contact Request") {
+        let environment = env::var("SENTRY_ALERT_ENVIRONMENT").unwrap_or_else(|_| "".to_string());
+        let subject = format!("[{}] New Contact Request", environment);
+        if content.contains(&format!("Subject: {}", &subject)) {
             assert!(content.contains("To: movey@eastagile.com"));
             assert!(content.contains("Hello Admin,"));
             assert!(content.contains("A message was sent from John Doe"));
             assert!(content.contains("Contact Email: email@host.com"));
-            assert!(content.contains("Contact for: Account"));
+            assert!(content.contains("Contact reason: Account"));
             assert!(content.contains("Description: Hello this is a test."));
         } else if content.contains("Subject: Thank you for contacting us") {
             assert!(content.contains("To: email@host.com"));
             assert!(content.contains("Hello there,"));
-            assert!(content.contains(
-                "We=E2=80=99ve received your request and will get back to you shortly."
-            ));
+            assert!(content
+                .contains("We=E2=80=99ve received your request and will get back to you shortly."));
         } else {
             panic!()
         }
@@ -142,7 +149,10 @@ async fn receive_contact_error(world: &mut TestWorld, message: String) {
         .text()
         .await
         .unwrap();
-    assert_eq!(captcha_error_message, format!("Captcha verification error: {}. Please try again.", message))
+    assert_eq!(
+        captcha_error_message,
+        format!("Captcha verification error: {}. Please try again.", message)
+    )
 }
 
 #[then("I should not receive a thank you email")]

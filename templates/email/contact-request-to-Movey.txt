@@ -3,7 +3,7 @@ Hello Admin,
 
 A message was sent from {{name}}
 Contact Email: {{email}}
-Contact for: {{category}}
+Contact reason: {{category}}
 
 Description: {{description}}
 
