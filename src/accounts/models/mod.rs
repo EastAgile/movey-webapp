@@ -139,7 +139,7 @@ impl Account {
             .values(new_record)
             .get_result::<Account>(&connection)?;
 
-        record.check_and_update_slug(&record.make_slug(), pool)?;
+        record.check_and_update_slug(pool)?;
 
         Ok(record.id)
     }
@@ -235,7 +235,7 @@ impl Account {
                 .get_result::<Account>(&connection)?
         };
 
-        account.check_and_update_slug(&account.make_slug(), pool)?;
+        account.check_and_update_slug(pool)?;
 
         Ok(User {
             id: account.id,
@@ -356,25 +356,23 @@ impl Account {
         slug::slugify(before_slugify)
     }
 
-    pub fn check_and_update_slug(&self, slug_: &str, pool: &DieselPgPool) -> Result<bool, Error> {
+    pub fn check_and_update_slug(&self, pool: &DieselPgPool) -> Result<bool, Error> {
         let conn = pool.get()?;
         let maximum_allowed_collisions = std::env::var("MAX_COLLISIONS_ALLOWED")
             .unwrap_or_else(|_| "3".to_string())
             .parse::<usize>()
             .unwrap();
-        for trial in 0..maximum_allowed_collisions {
-            let full_slug = if trial == 0 {
-                slug_.to_string()
-            } else {
-                let random_string = generate_secure_alphanumeric_string(4);
-                format!("{}-{}", slug_, random_string)
-            };
+        let slug_ = self.make_slug();
+        let mut extended_slug = slug_.clone();
+        for _ in 0..maximum_allowed_collisions {
             match diesel::update(accounts.filter(id.eq(self.id)))
-                .set(accounts::slug.eq(&full_slug))
+                .set(accounts::slug.eq(&extended_slug))
                 .execute(&conn)
             {
                 Ok(_) => return Ok(true),
-                Err(_) => continue,
+                Err(_) => {
+                    extended_slug = format!("{}-{}", &slug_, generate_secure_alphanumeric_string(4))
+                }
             }
         }
         Ok(false)

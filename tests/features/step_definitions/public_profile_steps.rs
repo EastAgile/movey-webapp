@@ -1,4 +1,4 @@
-use cucumber::{when, then};
+use cucumber::{then, when};
 use thirtyfour::By;
 
 use crate::features::world::TestWorld;
@@ -7,7 +7,10 @@ use crate::features::world::TestWorld;
 async fn access_public_profile(world: &mut TestWorld) {
     world
         .driver
-        .get(format!("{}/accounts/users/{}/packages", world.root_url, world.account.slug))
+        .get(format!(
+            "{}/accounts/users/{}/packages",
+            world.root_url, world.account.slug
+        ))
         .await
         .unwrap()
 }
@@ -37,7 +40,10 @@ async fn see_public_profile(world: &mut TestWorld) {
     world.driver.switch_to().window(&handles[1]).await.unwrap();
     assert_eq!(
         world.driver.current_url().await.unwrap(),
-        format!("{}accounts/users/{}/packages", world.root_url, world.account.slug)
+        format!(
+            "{}accounts/users/{}/packages",
+            world.root_url, world.account.slug
+        )
     );
 
     let owner_display = world
@@ -65,7 +71,7 @@ async fn see_packages_in_public_profile(world: &mut TestWorld) {
 
     let packages_list = packages_list.unwrap();
     assert_eq!(packages_list.len(), 1);
-    
+
     let package_name = packages_list[0]
         .find_element(By::ClassName("package-list-item-title"))
         .await
