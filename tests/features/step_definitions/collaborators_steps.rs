@@ -190,7 +190,8 @@ async fn invitation_link_in_email(world: &mut TestWorld) {
     let re = Regex::new(r"/owner_invitations/accept/([^ \n]+)".to_string().as_str()).unwrap();
     let caps = re.captures(&content).unwrap();
     let accept_token = caps.get(1).map(|m| m.as_str()).unwrap();
-    world.go_to_url(&format!("/owner_invitations/accept/{}", accept_token));
+    let url = &format!("owner_invitations/accept/{}", accept_token);
+    world.go_to_url(url).await;
 }
 
 #[then("She should see that she is a collaborator of the package")]
@@ -211,4 +212,145 @@ async fn confirm_in_collaborator_list(world: &mut TestWorld) {
         }
     }
     panic!()
+}
+
+#[when("Collaborator invitation is expired")]
+async fn expired_collaborator_invitation(_world: &mut TestWorld) {
+    std::env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "0");
+}
+
+#[then("She should see the Invalid or Expired page")]
+async fn invalid_page_for_expired_invitation(world: &mut TestWorld) {
+    let title = world
+        .driver
+        .find_element(By::ClassName("title"))
+        .await
+        .unwrap();
+    assert_eq!(&title.text().await.unwrap(), "Invalid Token");
+}
+
+#[when("I invite collaborator with a valid email that is not in our system")]
+async fn invite_email_not_in_system(world: &mut TestWorld) {
+    let input_username = world
+        .driver
+        .find_element(By::ClassName("collaborators_input"))
+        .await
+        .unwrap();
+
+    input_username.click().await.unwrap();
+    input_username
+        .send_keys("not_in_system@host.com")
+        .await
+        .unwrap();
+
+    let invite_btn = world
+        .driver
+        .find_element(By::ClassName("collaborators_btn"))
+        .await
+        .unwrap();
+
+    fs::remove_dir_all("./emails").unwrap_or(());
+    
+    invite_btn.click().await.unwrap();
+}
+
+#[then("She (the outsider) should receive an invitation email")]
+async fn outsider_receives_invitation_email(_world: &mut TestWorld) {
+    thread::sleep(std::time::Duration::from_millis(1000));
+    let email_dir = fs::read_dir("./emails").unwrap().next();
+    let content = fs::read_to_string(email_dir.unwrap().unwrap().path()).unwrap();
+    
+    assert!(content.contains("Reply-To: movey@eastagile.com"));
+    assert!(content.contains("To: not_in_system@host.com"));
+    assert!(content.contains("Register To Collaborate"));
+    assert!(content.contains("Subject: You have been invited to collaborate on test package"));
+    assert!(content.contains("A user on Movey invited you to collaborate on the package test package, but it looks like you haven't sign up yet."));
+    assert!(content.contains("To start collaborating, please create your account and start working on this."));
+    assert!(content.contains("/accounts/register?redirect=/profile"));
+}
+
+#[when("She clicks on the link in the email to sign up")]
+async fn invited_to_sign_up(world: &mut TestWorld) {
+    click_log_out(world).await;
+    world.go_to_url("/accounts/register?redirect=/profile").await;
+}
+
+#[when("She fills in the form and submit")]
+async fn fill_in_form(world: &mut TestWorld) {
+    let email_field = world.driver.find_element(By::Name("email")).await.unwrap();
+    email_field.send_keys("not_in_system@host.com").await.unwrap();
+
+    let password_field = world
+        .driver
+        .find_element(By::Name("password"))
+        .await
+        .unwrap();
+    password_field.send_keys("So$trongpas0word!").await.unwrap();
+
+    let i_agree = world
+        .driver
+        .find_element(By::Name("i_agree"))
+        .await
+        .unwrap();
+    i_agree.click().await.unwrap();
+
+    let create_account_button = world
+        .driver
+        .find_element(By::ClassName("create_account_btn"))
+        .await
+        .unwrap();
+    
+    fs::remove_dir_all("./emails").unwrap_or(());
+    create_account_button.click().await.unwrap();
+}
+
+#[when("She verifies her email")]
+async fn verify_email(world: &mut TestWorld) {
+    thread::sleep(std::time::Duration::from_millis(1000));
+
+    let email_dir = fs::read_dir("./emails").unwrap().next();
+    let content = fs::read_to_string(email_dir.unwrap().unwrap().path()).unwrap();
+    assert!(content.contains("To: not_in_system@host.com"));
+    assert!(content.contains("Subject: Verify your new Movey account"));
+    assert!(content.contains("An account with this email was created just now"));
+    let re = Regex::new(r"/accounts/verify/([^ \n]+)".to_string().as_str()).unwrap();
+    let caps = re.captures(&content).unwrap();
+    let token = caps.get(1).map(|m| m.as_str()).unwrap();
+    let url = &format!("accounts/verify/{}", token);
+    world.go_to_url(url).await;
+}
+
+#[then("She should be redirected to her profile page")]
+async fn redirect_to_profile_page(world: &mut TestWorld) {
+    assert_eq!(
+        world.driver.current_url().await.unwrap(),
+        "http://localhost:17002/settings/invitations"
+    );
+}
+
+#[then("She should see an invitation in her profile page")]
+async fn see_invitation_tab(world: &mut TestWorld) {
+    let invitation_list = world
+        .driver
+        .find_elements(By::ClassName("collaborators_content"))
+        .await
+        .unwrap();
+    assert_eq!(invitation_list.len(),1);
+    
+    let test_package_name = world
+        .driver
+        .find_elements(By::Id("package-name"))
+        .await
+        .unwrap();
+
+    assert_eq!(test_package_name[0].text().await.unwrap(),"test package".to_string());
+
+    let test_invitor_email = world
+        .driver
+        .find_elements(By::ClassName("invitations_owners email"))
+        .await
+        .unwrap();
+    
+    assert_eq!(test_invitor_email[0].text().await.unwrap(),world.first_account.email);
+
 }
