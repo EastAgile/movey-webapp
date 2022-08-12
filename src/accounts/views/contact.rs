@@ -35,10 +35,8 @@ pub async fn send_contact(request: HttpRequest, form: Form<ContactForm>) -> Resu
             category: form.category.clone(),
             description: form.description.clone(),
         })?;
-    
-        request.queue(SendContactEmail {
-            to: form.email,
-        })?;
+
+        request.queue(SendContactEmail { to: form.email })?;
         request.render(200, "accounts/contact_success.html", Context::new())
     } else {
         request.render(200, "policy/contact.html", {
