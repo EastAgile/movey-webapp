@@ -1,6 +1,7 @@
 use crate::accounts::forms::ChangePasswordForm;
 use crate::accounts::Account;
 use crate::constants;
+use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
 use crate::packages::Package;
 use crate::settings::models::token::ApiToken;
 
@@ -122,10 +123,16 @@ pub async fn show_downloads(request: HttpRequest) -> Result<HttpResponse> {
 
 pub async fn show_invitations(request: HttpRequest) -> Result<HttpResponse> {
     let db = request.db_pool()?;
+    let conn = db.get()?;
+
     if let Ok(user) = request.user() {
+        let invitations = OwnerInvitation::find_by_invited_account(user.id, &conn)
+            .unwrap_or(vec![]);
+
         request.render(200, "settings/invitations.html", {
             let mut ctx = Context::new();
             ctx.insert("profile_tab", "invitations");
+            ctx.insert("invitations", &invitations);
             ctx
         })
     } else {

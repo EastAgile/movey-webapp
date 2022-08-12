@@ -2,14 +2,14 @@
 mod tests;
 
 use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
-use crate::schema::owner_invitations;
-use crate::schema::package_collaborators;
+use crate::schema::{owner_invitations, package_collaborators, packages, accounts};
 use crate::utils::token::SecureToken;
 use diesel::prelude::*;
 use diesel::{Identifiable, Insertable, Queryable};
 use jelly::chrono::{NaiveDateTime, Utc};
 use jelly::Result;
 use jelly::{chrono, DieselPgConnection};
+use serde::Serialize;
 use std::env;
 
 #[derive(Clone, Debug, Eq, Identifiable, Queryable)]
@@ -23,6 +23,16 @@ pub struct OwnerInvitation {
     pub created_at: NaiveDateTime,
 }
 
+#[derive(Clone, Debug, Eq, Queryable, Serialize)]
+pub struct OwnerInvitationQuery {
+    pub invited_user_id: i32,
+    pub invited_by_user_id: i32,
+    pub invited_by_user_email: String,
+    pub package_id: i32,
+    pub package_name: String,
+    pub is_transferring: bool,
+}
+
 impl PartialEq for OwnerInvitation {
     fn eq(&self, other: &OwnerInvitation) -> bool {
         self.invited_user_id == other.invited_user_id
@@ -32,6 +42,15 @@ impl PartialEq for OwnerInvitation {
             && self.created_at == other.created_at
     }
 }
+
+impl PartialEq for OwnerInvitationQuery {
+    fn eq(&self, other: &OwnerInvitationQuery) -> bool {
+        self.invited_user_id == other.invited_user_id
+            && self.invited_by_user_id == other.invited_by_user_id
+            && self.package_id == other.package_id
+            && self.is_transferring == other.is_transferring
+    }
+} 
 
 #[derive(Insertable, Clone, Debug)]
 #[table_name = "owner_invitations"]
@@ -108,6 +127,18 @@ impl OwnerInvitation {
         Ok(owner_invitations::table
             .find((invited_user_id, package_id))
             .first::<Self>(conn)?)
+    }
+
+    pub fn find_by_invited_account(
+        invited_user_id: i32,
+        conn: &DieselPgConnection,
+    ) -> Result<Vec<OwnerInvitationQuery>>{
+        Ok(owner_invitations::table
+            .filter(owner_invitations::invited_user_id.eq(invited_user_id))
+            .inner_join(packages::table.on(owner_invitations::package_id.eq(packages::id)))
+            .inner_join(accounts::table.on(owner_invitations::invited_by_user_id.eq(accounts::id)))
+            .select((owner_invitations::invited_user_id, owner_invitations::invited_by_user_id, accounts::email, owner_invitations::package_id, packages::name, owner_invitations::is_transferring))
+            .load::<OwnerInvitationQuery>(conn)?)
     }
 
     pub fn delete(&self, conn: &DieselPgConnection) -> Result<()> {

@@ -38,18 +38,25 @@
       </button>
     </div>
   </div> -->
-
+  
   <div class="collaborators_wrapper">
-    <div class="collaborators_title">Invitation</div>
-    <div class="collaborators_content">
+    <div class="collaborators_title">Invitations</div>
+    {% for invitation in invitations %}
+      <div class="collaborators_content">
         <div class="collaborators_info">
           <div class="package-name-version">
-              <div class="package-name">stripe_event</div>
-              <div class="package-version"> 5.4.1</div>
+              <div class="package-name">{{ invitation.package_name }}</div>
+              <div class="package-version">
+                {% if invitation.is_transferring %}
+                  Owner
+                {% else %}
+                  Collaborator
+                {% endif %}
+              </div>
           </div>
         </div>
         <div class="invitations_owners">
-            Invited by: <span class="invitations_owners email">retdkhoa@gmail.com</span>
+            Invited by: <span class="invitations_owners email">{{ invitation.invited_by_user_email }}</span>
         </div>
         <div class="collaborators_settings">
           <button id="submit-btn" type="submit" class="ownership_btn accept">
@@ -60,7 +67,9 @@
           </button>
         </div>
       </div>
+      {% endfor %}
   </div>
+  
 
   <div class="reveal" id="new_token_modal" data-reveal>
     <div class="new-token-title">

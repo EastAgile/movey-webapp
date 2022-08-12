@@ -47,9 +47,6 @@ class Invitations {
       this.owner_modal.find('.cancel').on('click', () => {
         this.owner_modal.foundation('close')
       })
-      
-
-
 
       this.newTokenInput.on('keypress', (e) => {
         if (e.key == "Enter") {
