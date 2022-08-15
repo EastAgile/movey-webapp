@@ -6,7 +6,7 @@ use crate::schema::{owner_invitations, package_collaborators, packages, accounts
 use crate::utils::token::SecureToken;
 use diesel::prelude::*;
 use diesel::{Identifiable, Insertable, Queryable};
-use jelly::chrono::{NaiveDateTime, Utc, NaiveDate};
+use jelly::chrono::{NaiveDateTime, Utc};
 use jelly::Result;
 use jelly::{chrono, DieselPgConnection};
 use serde::Serialize;

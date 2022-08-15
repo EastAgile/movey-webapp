@@ -14,31 +14,31 @@ Feature: Package collaborators
       When I invite a user to become a collaborator of the package
       Then She (the collaborator) should receive an invitation email
       When She is signed in
-      And She access her own invitation page
+      And She accesses her invitation page
       # Ngan is working on this
-      # Then She should see an invitation in her invitation page
-    
+#      Then She should see an invitation in her invitation page
+
     Scenario: Accept invitation through email works
       When She clicks on the link in the email to accept the invitation
       Then She should see that she is a collaborator of the package
-      When She access her own invitation page
+      When She accesses her invitation page
       # Ngan is working on this
-      # And She should see that the invitation is deleted
+#      And She should see that the invitation is deleted
 
     Scenario: Email invitation is expired
       When Collaborator invitation is expired
       And She clicks on the link in the email to accept the invitation
       # don't have Expired page atm
-      # Then She should see the Invalid or Expired page
-      # When She access her profile page
-      # And She should see that the invitation is deleted
+#      Then She should see the Invalid or Expired page
+      When She accesses her invitation page
+      Then She should see that the invitation is deleted
 
     Scenario: Accept invitation through website works
-      When She clicks on the Accept button to accept the invitation
-      Then She should be redirected to the package details page
+#      When She clicks on the Accept button to accept the invitation
+      Then She should be redirected to the package detail page
       And She should see that she is a collaborator of the package
-      When She access her profile page
-      And She should see that the invitation is deleted
+      When She accesses her invitation page
+      Then She should see that the invitation is deleted
 
     Scenario: Decline invitation through website works
       When She click on the Decline button to decline the invitation
@@ -67,13 +67,12 @@ Feature: Package collaborators
       When I invite collaborator with a valid email that is not in our system
       Then She (the outsider) should receive an invitation email
 
-    @wip
     Scenario: it works
       When She clicks on the link in the email to sign up
       And She fills in the form and submit
       And She verifies her email
       Then She should be redirected to her profile page
-      And She should see an invitation in her profile page
+      Then She should see an invitation in her invitation page
 
     Scenario: Expired invitation
       When Collaborator invitation is expired

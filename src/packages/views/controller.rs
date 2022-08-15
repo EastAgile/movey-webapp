@@ -119,7 +119,7 @@ pub async fn show_package_settings(
     }).collect();
 
     // get movey account that accepted the collaborator invitation
-    let mut collaborator_ids = PackageCollaborator::get_by_package_id(package.id, &db_connection)?;
+    let collaborator_ids = PackageCollaborator::get_by_package_id(package.id, &db_connection)?;
     let mut collaborator_list = Account::get_accounts(collaborator_ids, &db_connection)?.iter().map(|account| Invitation {
         status: InvitationStatus::ACCEPTED,
         email: account.email.clone()

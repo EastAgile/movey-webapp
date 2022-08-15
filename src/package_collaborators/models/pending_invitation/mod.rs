@@ -8,6 +8,7 @@ use jelly::chrono::{NaiveDateTime, Utc};
 use jelly::Result;
 use jelly::{chrono, DieselPgConnection};
 use std::env;
+use crate::utils::token::SecureToken;
 
 #[derive(Clone, Debug, PartialEq, Eq, Identifiable, Queryable)]
 #[primary_key(pending_user_email, package_id)]
@@ -34,13 +35,12 @@ impl PendingInvitation {
         conn: &DieselPgConnection,
     ) -> Result<Self> {
         conn.transaction(|| -> Result<()> {
-            let existing: Option<PendingInvitation> = pending_invitations::table
+            let existing = pending_invitations::table
                 .find((pending_user_email, package_id))
                 .for_update()
-                .first(conn)
-                .optional()?;
+                .first::<PendingInvitation>(conn);
 
-            if let Some(existing) = existing {
+            if let Ok(existing) = existing {
                 if existing.is_expired() {
                     diesel::delete(&existing).execute(conn)?;
                 }

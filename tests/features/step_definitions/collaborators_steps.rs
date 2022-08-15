@@ -42,8 +42,26 @@ async fn owner_of_package(world: &mut TestWorld) {
     )
         .await
         .unwrap();
-    PackageCollaborator::new_owner(pid, 1, 1, &DB_POOL.get().unwrap());
-    world.first_account.owned_package_name = Some("test-package".to_string());
+    PackageCollaborator::new_owner(pid, 1, 1, &DB_POOL.get().unwrap()).unwrap();
+    world.first_account.owned_package_name = Some("test package".to_string());
+}
+
+#[given("There are other collaborators who work on that package")]
+async fn other_owners(world: &mut TestWorld) {
+    other_users(world).await;
+    let package = Package::get_by_name(
+        world.first_account.owned_package_name.as_ref().unwrap(),
+    &DB_POOL
+    )
+        .await
+        .unwrap();
+    PackageCollaborator::new_owner(
+        package.id,
+        2,
+        2,
+        &DB_POOL.get().unwrap()
+    )
+        .unwrap();
 }
 
 #[given("There are other users on Movey")]
@@ -99,7 +117,7 @@ async fn click_on_add_collaborator(world: &mut TestWorld) {
 }
 
 #[then("I should see an overlay for inviting a collaborator")]
-async fn see_an_invitation_overlay(world: &mut TestWorld) {
+async fn see_an_invitation_overlay(_world: &mut TestWorld) {
     // assert!(world.driver.find_element(By::ClassName("collaborator_input")).await.is_err());
     // assert!(world.driver.find_element(By::ClassName("collaborator_input")).await.is_ok());
 }
@@ -127,7 +145,6 @@ async fn invite_collaborator(world: &mut TestWorld) {
     fs::remove_dir_all("./emails").unwrap_or(());
     
     invite_btn.click().await.unwrap();
-    
 }
 
 #[then("She (the collaborator) should receive an invitation email")]
@@ -136,6 +153,19 @@ async fn receive_invitation_email(_world: &mut TestWorld) {
     let email_dir = fs::read_dir("./emails").unwrap().next();
     let content = fs::read_to_string(email_dir.unwrap().unwrap().path()).unwrap();
     
+    assert!(content.contains("Subject: You have been invited to collaborate on test package"));
+    assert!(content.contains("From: movey@eastagile.com"));
+    assert!(content.contains("To: collaborator@host.com"));
+    assert!(content.contains("New Collaborator Invitation"));
+    assert!(content.contains("You got invited as a collaborator on the package test package."));
+}
+
+#[then("She (the collaborator) should receive an ownership invitation email")]
+async fn receive_ownership_invitation_email(_world: &mut TestWorld) {
+    thread::sleep(std::time::Duration::from_millis(1000));
+    let email_dir = fs::read_dir("./emails").unwrap().next();
+    let content = fs::read_to_string(email_dir.unwrap().unwrap().path()).unwrap();
+
     assert!(content.contains("Subject: You have been invited to collaborate on test package"));
     assert!(content.contains("From: movey@eastagile.com"));
     assert!(content.contains("To: collaborator@host.com"));
@@ -165,21 +195,51 @@ async fn second_user_sign_in(world: &mut TestWorld) {
     login_button.click().await.unwrap();
 }
 
-#[when("She access her own invitation page")]
+#[when("She accesses her invitation page")]
 async fn visit_own_invitation_page(world: &mut TestWorld) {
     world
         .go_to_url("settings/invitations")
         .await
 }
 
-#[when("She should see an invitation in her invitation page")]
+#[then("She should see an invitation in her invitation page")]
 async fn see_her_invitation(world: &mut TestWorld) {
-    let package_name = world
+    let package_names = world
         .driver
-        .find_element(By::ClassName("package-name"))
+        .find_elements(By::ClassName("package-name"))
         .await
         .unwrap();
-    assert_eq!(&package_name.text().await.unwrap(), world.first_account.owned_package_name.as_ref().unwrap());
+    assert_eq!(package_names.len(), 1);
+    assert_eq!(&package_names[0].text().await.unwrap(), world.first_account.owned_package_name.as_ref().unwrap());
+}
+
+#[then("She should see an ownership invitation in her profile page")]
+async fn see_ownership_invitation(world: &mut TestWorld) {
+    let package_names = world
+        .driver
+        .find_elements(By::ClassName("package-name"))
+        .await
+        .unwrap();
+    assert_eq!(package_names.len(), 1);
+    assert_eq!(&package_names[0].text().await.unwrap(), world.first_account.owned_package_name.as_ref().unwrap());
+
+    let statuses = world
+        .driver
+        .find_elements(By::ClassName("status"))
+        .await
+        .unwrap();
+    assert_eq!(statuses.len(), 1);
+    assert_eq!(&statuses[0].text().await.unwrap(), "TRANSFER");
+}
+
+#[then("She should see that the invitation is deleted")]
+async fn deleted_invitation(world: &mut TestWorld) {
+    let package_names = world
+        .driver
+        .find_elements(By::ClassName("package-name"))
+        .await
+        .unwrap();
+    assert!(package_names.is_empty());
 }
 
 #[when("She clicks on the link in the email to accept the invitation")]
@@ -207,11 +267,30 @@ async fn confirm_in_collaborator_list(world: &mut TestWorld) {
     
     for name in collaborator_names {
         let collaborator_name = name.text().await.unwrap();
-        if collaborator_name.contains(&world.second_account.email) && collaborator_name.contains("PENDING") {
+        if collaborator_name.contains(&world.second_account.email) && collaborator_name.contains("ACCEPTED") {
             return;        
         }
     }
     panic!()
+}
+
+#[then("She should see that she is a collaborator of the package")]
+async fn not_in_collaborator_list(world: &mut TestWorld) {
+    world
+        .go_to_url("packages/test%20package/owner_settings")
+        .await;
+    let collaborator_names = world
+        .driver
+        .find_elements(By::ClassName("colaborator_name"))
+        .await
+        .unwrap();
+
+    for name in collaborator_names {
+        let collaborator_name = name.text().await.unwrap();
+        if collaborator_name.contains(&world.second_account.email) && collaborator_name.contains("ACCEPTED") {
+            panic!()
+        }
+    }
 }
 
 #[when("Collaborator invitation is expired")]
@@ -353,4 +432,123 @@ async fn see_invitation_tab(world: &mut TestWorld) {
     
     assert_eq!(test_invitor_email[0].text().await.unwrap(),world.first_account.email);
 
+}
+
+#[when("She clicks on the Accept button to accept the invitation")]
+async fn accept_invitation(world: &mut TestWorld) {
+    let accept_btns = world
+        .driver
+        .find_elements(By::ClassName("accept_btn"))
+        .await
+        .unwrap();
+
+    assert_eq!(accept_btns.len(), 1);
+    accept_btns[0].click().await.unwrap();
+}
+
+#[when("She clicks on the Decline button to accept the invitation")]
+async fn decline_invitation(world: &mut TestWorld) {
+    let decline_btns = world
+        .driver
+        .find_elements(By::ClassName("decline_btn"))
+        .await
+        .unwrap();
+
+    assert_eq!(decline_btns.len(), 1);
+    decline_btns[0].click().await.unwrap();
+}
+
+#[then("She should be redirected to the package detail page")]
+async fn redirected_to_package_detail_page(world: &mut TestWorld) {
+    assert_eq!(
+        world.driver.current_url().await.unwrap(),
+        "http://localhost:17002/packages/test%20package"
+    );
+}
+
+#[then("She should receive a message that the invitation is expired")]
+async fn see_expired_invitation_message(world: &mut TestWorld) {
+    let error_message = world
+        .driver
+        .find_element(By::ClassName("error_message"))
+        .await
+        .unwrap();
+    assert_eq!(error_message.text().await.unwrap(), "The invitation is expired");
+}
+
+#[when("I transfer ownership to a collaborator")]
+async fn transfer_ownership(world: &mut TestWorld) {
+    let transfer_btns = world
+        .driver
+        .find_elements(By::ClassName("transfer_btn"))
+        .await
+        .unwrap();
+
+    assert_eq!(transfer_btns.len(), 1);
+    transfer_btns[0].click().await.unwrap();
+}
+
+#[when("She clicks on the Accept button to accept the transfer")]
+async fn accept_ownership_invitation(world: &mut TestWorld) {
+    let accept_btns = world
+        .driver
+        .find_elements(By::ClassName("accept_btn"))
+        .await
+        .unwrap();
+
+    assert_eq!(accept_btns.len(), 1);
+    accept_btns[0].click().await.unwrap();
+}
+
+#[when("She clicks on the Decline button to accept the transfer")]
+async fn decline_ownership_invitation(world: &mut TestWorld) {
+    let decline_btns = world
+        .driver
+        .find_elements(By::ClassName("decline_btn"))
+        .await
+        .unwrap();
+
+    assert_eq!(decline_btns.len(), 1);
+    decline_btns[0].click().await.unwrap();
+}
+
+#[then("She should see that she is the owner of the package")]
+async fn package_owner(world: &mut TestWorld) {
+    world
+        .go_to_url("packages/test%20package/owner_settings")
+        .await;
+    let owner_name = world
+        .driver
+        .find_element(By::ClassName("owner_name"))
+        .await
+        .unwrap();
+
+    assert_eq!(&owner_name.text().await.unwrap(), &world.second_account.email);
+}
+
+#[then("She should see that I am a collaborator of the package")]
+async fn see_first_user_as_collaborator(world: &mut TestWorld) {
+    world
+        .go_to_url("packages/test%20package/owner_settings")
+        .await;
+    let collaborator_names = world
+        .driver
+        .find_elements(By::ClassName("colaborator_name"))
+        .await
+        .unwrap();
+
+    for name in collaborator_names {
+        let collaborator_name = name.text().await.unwrap();
+        if collaborator_name.contains(&world.first_account.email) {
+            return;
+        }
+    }
+    panic!()
+}
+
+#[when("She accesses the package detail page")]
+async fn visit_package_detail_page(world: &mut TestWorld) {
+    world.
+        go_to_url("packages/test%20package")
+        .await
 }

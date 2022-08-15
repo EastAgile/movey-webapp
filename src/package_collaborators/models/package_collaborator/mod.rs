@@ -7,7 +7,7 @@ use jelly::DieselPgConnection;
 
 use crate::accounts::Account;
 use crate::packages::Package;
-use crate::schema::{package_collaborators, owner_invitations};
+use crate::schema::{package_collaborators};
 
 #[cfg(test)]
 mod tests;
