@@ -7,31 +7,27 @@ Feature: Package collaborators
       And I am signed in
       And I am an owner of a package
       And There are other users on Movey
-      When I access the package detail page of my package
+      When I access the package details page of my package
       And I access the package Settings tab
-      And I click on add button
-      Then I should see an overlay for inviting a collaborator
-      When I invite a user to become a collaborator of the package
-      Then She (the collaborator) should receive an invitation email
+      And I invite a user to become a collaborator of the package
+      Then I should see a message that the invitation has been sent
+      And She (the collaborator) should receive an invitation email
       When She is signed in
-      And She access her own invitation page
-      # Ngan is working on this
-      # Then She should see an invitation in her invitation page
+      And She access her profile page
+      Then She should see an invitation in her profile page
     
     Scenario: Accept invitation through email works
       When She clicks on the link in the email to accept the invitation
       Then She should see that she is a collaborator of the package
-      When She access her own invitation page
-      # Ngan is working on this
-      # And She should see that the invitation is deleted
+      When She access her profile page
+      And She should see that the invitation is deleted
 
     Scenario: Email invitation is expired
       When Collaborator invitation is expired
       And She clicks on the link in the email to accept the invitation
-      # don't have Expired page atm
-      # Then She should see the Invalid or Expired page
-      # When She access her profile page
-      # And She should see that the invitation is deleted
+      Then She should see the Invalid or Expired page
+      When She access her profile page
+      And She should see that the invitation is deleted
 
     Scenario: Accept invitation through website works
       When She clicks on the Accept button to accept the invitation
@@ -60,14 +56,11 @@ Feature: Package collaborators
       Given I am a user on Movey
       And I am signed in
       And I am an owner of a package
-      When I access the package detail page of my package
+      When I access the package details page of my package
       And I access the package Settings tab
-      And I click on add button
-      Then I should see an overlay for inviting a collaborator
-      When I invite collaborator with a valid email that is not in our system
+      And I invite collaborator with a valid email that is not in our system
       Then She (the outsider) should receive an invitation email
 
-    @wip
     Scenario: it works
       When She clicks on the link in the email to sign up
       And She fills in the form and submit

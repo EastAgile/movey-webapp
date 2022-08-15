@@ -9,12 +9,11 @@ pub fn configure(config: &mut ServiceConfig) {
     config.service(
         scope("/packages")
             .service(
-                //TODO: check for package name having white space
                 resource("/{package_name}/versions")
                     .route(get().to(views::controller::show_package_versions)),
             )
             .service(
-                resource("/{package_name}/owner_settings")
+                resource("/{package_name}/settings")
                     .route(get().to(views::controller::show_package_settings)),
             )
             .service(resource("/search").route(get().to(views::controller::show_search_results)))

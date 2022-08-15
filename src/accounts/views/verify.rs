@@ -62,7 +62,7 @@ pub async fn with_token(
                 )?;
                 invitation.delete(&conn)?;
             }
-            return request.redirect("/settings/invitations");
+            return request.redirect("/settings/profile/invitations");
         }
     }
 

@@ -14,7 +14,6 @@ async fn an_user(world: &mut TestWorld) {
     let account = AccountInformation {
         email: "email@host.com".to_string(),
         password: "So$trongpas0word!".to_string(),
-        owned_package_name: None
     };
     let form = NewAccountForm {
         email: EmailField {
@@ -27,7 +26,7 @@ async fn an_user(world: &mut TestWorld) {
             hints: vec![],
         },
     };
-    world.first_account = account;
+    world.account = account;
     let uid = Account::register(&form, &DB_POOL).await.unwrap();
     Account::mark_verified(uid, &DB_POOL).await.unwrap();
 }
@@ -42,7 +41,7 @@ async fn non_signed_in_user(world: &mut TestWorld) {
 }
 
 #[given("I am signed in")]
-pub async fn signed_in_user(world: &mut TestWorld) {
+async fn signed_in_user(world: &mut TestWorld) {
     visit_sign_in_page(world).await;
     fill_in_sign_in_form(world).await;
 }
@@ -185,7 +184,7 @@ async fn fill_in_blank_password(world: &mut TestWorld) {
 }
 
 #[when("I access the Sign in page")]
-pub async fn visit_sign_in_page(world: &mut TestWorld) {
+async fn visit_sign_in_page(world: &mut TestWorld) {
     world
         .driver
         .get("http://localhost:17002/accounts/login/")

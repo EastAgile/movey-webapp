@@ -6,12 +6,8 @@ use jelly::request::DatabasePool;
 use jelly::Result;
 
 use crate::accounts::Account;
-use crate::package_collaborators::package_collaborator::PackageCollaborator;
 use crate::packages::models::{PackageSortField, PackageSortOrder, PACKAGES_PER_PAGE};
 use crate::packages::{Package, PackageVersion, PackageVersionSort};
-use crate::package_collaborators::models::owner_invitation::{OwnerInvitation};
-
-use super::serializer::{Invitation, InvitationStatus};
 
 #[derive(serde::Serialize, serde::Deserialize)]
 struct PackageShowParams {
@@ -104,32 +100,15 @@ pub async fn show_package_settings(
     request: HttpRequest,
     Path(package_name): Path<String>,
 ) -> Result<HttpResponse> {
-    let db_pool = request.db_pool()?;
-    let db_connection = db_pool.get()?;
-    let package = Package::get_by_name(&package_name, db_pool).await?;
+    let db = request.db_pool()?;
+    let package = Package::get_by_name(&package_name, db).await?;
     let package_latest_version =
-        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db_pool).await?[0];
-    
-    // get movey account that is invited to be a collaborator
-    let invited_ids = OwnerInvitation::find_by_package_id(package.id, &db_connection).
-    unwrap();
-    let mut owner_list: Vec<Invitation> = Account::get_accounts(invited_ids, &db_connection)?.iter().map(|account| Invitation {
-        status: InvitationStatus::PENDING,
-        email: account.email.clone()
-    }).collect();
+        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, db).await?[0];
 
-    // get movey account that accepted the collaborator invitation
-    let mut collaborator_ids = PackageCollaborator::get_by_package_id(package.id, &db_connection)?;
-    let mut collaborator_list = Account::get_accounts(collaborator_ids, &db_connection)?.iter().map(|account| Invitation {
-        status: InvitationStatus::ACCEPTED,
-        email: account.email.clone()
-    }).collect();
-    owner_list.append(&mut collaborator_list);
     request.render(200, "packages/owner_settings.html", {
         let mut ctx = Context::new();
         ctx.insert("package", &package);
         ctx.insert("package_tab", "settings");
-        ctx.insert("owner_list", &owner_list);
         ctx.insert("package_version", &package_latest_version);
         ctx
     })

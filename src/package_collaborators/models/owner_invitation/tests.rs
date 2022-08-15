@@ -1,11 +1,10 @@
-    use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
+use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
 use crate::packages::Package;
 use crate::test::{DatabaseTestContext, DB_POOL};
 use crate::utils::tests::setup_user;
 use crate::utils::token::TOKEN_LENGTH;
 use jelly::prelude::*;
 use std::env;
-
 
 async fn setup_invitation(is_transferring: Option<bool>) -> OwnerInvitation {
     let invited_uid = setup_user(None, None).await;
@@ -198,20 +197,4 @@ async fn not_create_new_invitation_if_it_already_exists() {
         &conn,
     )
     .unwrap();
-}
-
-#[actix_rt::test]
-async fn find_by_package_id_success() {
-    // crate::test::init();
-    // let _ctx = DatabaseTestContext::new();
-    // let conn = DB_POOL.get().unwrap();
-
-    // let stub_invitation = setup_invitation(None).await;
-    // let database_invitation = OwnerInvitation::find_by_package_id(stub_invitation.package_id,&conn).unwrap()[0].clone();
-    
-    // assert_eq!(stub_invitation.invited_user_id, database_invitation.invited_user_id);  
-    // assert_eq!(stub_invitation.invited_by_user_id,database_invitation.invited_by_user_id);    
-    // assert_eq!(stub_invitation.package_id,database_invitation.package_id);    
-    // assert_eq!(stub_invitation.is_transferring,database_invitation.is_transferring);    
-    // assert_eq!(stub_invitation.created_at,database_invitation.created_at);    
 }

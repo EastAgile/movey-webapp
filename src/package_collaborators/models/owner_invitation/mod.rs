@@ -6,7 +6,7 @@ use crate::schema::{owner_invitations, package_collaborators, packages, accounts
 use crate::utils::token::SecureToken;
 use diesel::prelude::*;
 use diesel::{Identifiable, Insertable, Queryable};
-use jelly::chrono::{NaiveDateTime, Utc, NaiveDate};
+use jelly::chrono::{NaiveDateTime, Utc};
 use jelly::Result;
 use jelly::{chrono, DieselPgConnection};
 use serde::Serialize;
@@ -18,7 +18,6 @@ pub struct OwnerInvitation {
     pub invited_user_id: i32,
     pub invited_by_user_id: i32,
     pub package_id: i32,
-    // should be hashed
     pub token: String,
     pub is_transferring: bool,
     pub created_at: NaiveDateTime,
@@ -128,17 +127,6 @@ impl OwnerInvitation {
         Ok(owner_invitations::table
             .find((invited_user_id, package_id))
             .first::<Self>(conn)?)
-
-    }
-
-    pub fn find_by_package_id(
-        package_id: i32,
-        conn: &DieselPgConnection,
-    ) -> Result<Vec<i32>> {
-        Ok(owner_invitations::table
-            .filter(owner_invitations::package_id.eq(package_id))
-            .select(owner_invitations::invited_user_id)
-            .load::<i32>(conn)?)
     }
 
     pub fn find_by_invited_account(

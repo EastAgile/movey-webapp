@@ -94,7 +94,7 @@
   border: 1px solid #e9ecef;
   width: 900px;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row {
   width: 900px;
   display: flex;
   flex-flow: row nowrap;
@@ -102,48 +102,48 @@
   justify-content: space-around;
   height: 80px;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row.header {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row.header {
   height: 50px;
   background: #d9dde7;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .email_address {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .email_address {
   width: 29%;
   font-weight: 300;
   font-size: 18px;
   line-height: 24px;
   color: var(--dark-blue-color);
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .email_address.header {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .email_address.header {
   font-weight: 500;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .roles {
   width: 19%;
   font-weight: 300;
   font-size: 18px;
   line-height: 24px;
   color: var(--dark-blue-color);
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles.header {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .roles.header {
   font-weight: 500;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .permission {
   width: 49%;
   font-weight: 500;
   font-size: 18px;
   line-height: 24px;
   color: var(--dark-blue-color);
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.header {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .permission.header {
   font-weight: 500;
   width: 380px;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .permission.collaborators_settings {
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
   width: 380px;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings .ownership_btn {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .permission.collaborators_settings .ownership_btn {
   padding: 15px 55px;
   font-weight: 700;
   font-size: 14px;
@@ -155,11 +155,11 @@
   cursor: pointer;
   text-transform: uppercase;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings .ownership_btn.transfer {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .permission.collaborators_settings .ownership_btn.transfer {
   color: #658f72;
   background-color: #effff4;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings .ownership_btn.remove {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .permission.collaborators_settings .ownership_btn.remove {
   color: #eb5757;
   background: none;
 }
