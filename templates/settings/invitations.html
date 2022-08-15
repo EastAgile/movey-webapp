@@ -4,54 +4,36 @@
 
 {% block javascript %}
 <link href="/static/css/settings/invitations.css" rel="stylesheet"/>
-<script src="/static/js/settings/user_package.js"></script>
+<!-- <script src="/static/js/settings/user_package.js"></script> -->
 <script src="/static/js/settings/invitations.js"></script>
-<!-- <link href="/static/css/settings/user_tokens.css" rel="stylesheet" /> -->
 <script
   src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.6.7/jquery.timeago.min.js"
   type="text/javascript"
 ></script>
+{% endblock %}
 
-{% endblock %} 
 {% block settings_content %}
-<div class="package-settings-container">
-  <!-- <div class="owner_settings_wrapper">
-    <div class="owner_settings_title">Add collaborators</div>
-    <div class="add_collaborators_form" action="" method="POST">
-      <class class="owner_collab_wrapper">
-        <label for="user_email" class="collaborators_info">User email</label>
-        <input
-          name="user_info"
-          id="user_email"
-          type="text"
-          class="collaborators_input"
-          placeholder="Email"
-        />
-      </class>
-      <button
-        id="submit-btn"
-        type="submit"
-        class="add_collaborators_btn"
-        disabled
-      >
-        ADD
-      </button>
-    </div>
-  </div> -->
-
+<div class="package-settings-container">  
   <div class="collaborators_wrapper">
-    <div class="collaborators_title">Invitation</div>
-    <div class="collaborators_content">
+    <div class="collaborators_title">Invitations</div>
+    {% for invitation in invitations %}
+      <div class="collaborators_content">
         <div class="collaborators_info">
           <div class="package-name-version">
-              <div class="package-name">stripe_event</div>
-              <div class="package-version"> 5.4.1</div>
+              <div class="package-name">{{ invitation.package_name }}</div>
+              <div class="package-version">
+                {% if invitation.is_transferring %}
+                  Owner
+                {% else %}
+                  Collaborator
+                {% endif %}
+              </div>
           </div>
         </div>
         <div class="invitations_owners">
-            Invited by: <span class="invitations_owners email">retdkhoa@gmail.com</span>
+            Invited by: <span class="invitations_owners email">{{ invitation.invited_by_user_email }}</span>
         </div>
-        <div class="collaborators_settings">
+        <div class="collaborators_settings" data-package-id="{{ invitation.package_id }}">
           <button id="submit-btn" type="submit" class="ownership_btn accept">
             Accept
           </button>
@@ -60,31 +42,10 @@
           </button>
         </div>
       </div>
-  </div>
-
-  <div class="reveal" id="new_token_modal" data-reveal>
-    <div class="new-token-title">
-      Do you want to transfer ownership to user@gmail.com
-    </div>
-    <div class="warning">
-      This action is irreversible, please make sure that you want to transfer
-      your ownership.
-    </div>
-    <div class="new-token-container">
-      <div class="new-token-btn submit new-token-submit-btn">Confirm</div>
-      <div class="new-token-btn cancel">Cancel</div>
-    </div>
-    <button
-      class="close-button"
-      data-close
-      aria-label="Close modal"
-      type="button"
-    >
-      <span aria-hidden="true">&times;</span>
-    </button>
+      {% endfor %}
   </div>
   <script>
-    new Inviations();
+    new Invitations();
   </script>
 </div>
 {% endblock %}
