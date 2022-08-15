@@ -1,5 +1,6 @@
 #[cfg(test)]
 use crate::test::mock::MockHttpRequest as HttpRequest;
+use diesel::result::Error as DBError;
 use jelly::actix_web::web;
 #[cfg(not(test))]
 use jelly::actix_web::HttpRequest;
@@ -57,7 +58,7 @@ pub async fn register_package(
         );
     }
     let package_name = github_data.name.clone();
-    Package::create_from_crawled_data(
+    let result = Package::create_from_crawled_data(
         &req.github_repo_url,
         &github_data.description.clone(),
         &github_data.rev.clone(),
@@ -67,7 +68,10 @@ pub async fn register_package(
         github_data,
         db,
     )
-    .await?;
+    .await;
+    if let Err(Error::Database(DBError::DatabaseError(_, e))) = result {
+        return Ok(HttpResponse::BadRequest().body(e.message().to_string()));
+    }
 
     Ok(HttpResponse::Ok().body(package_name))
 }
