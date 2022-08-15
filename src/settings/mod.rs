@@ -24,7 +24,6 @@ pub fn configure(config: &mut ServiceConfig) {
             )
             .service(resource("/packages").route(get().to(views::controller::show_packages)))
             .service(resource("/downloads").route(get().to(views::controller::show_downloads)))
-            .service(resource("/tokens").route(get().to(views::controller::show_tokens)))
-            .service(resource("/invitations").route(get().to(views::controller::show_invitations))),
+            .service(resource("/tokens").route(get().to(views::controller::show_tokens))),
     );
 }

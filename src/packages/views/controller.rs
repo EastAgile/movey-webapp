@@ -96,24 +96,6 @@ pub async fn show_package_versions(
     })
 }
 
-pub async fn show_package_settings(
-    request: HttpRequest,
-    Path(package_name): Path<String>,
-) -> Result<HttpResponse> {
-    let db = request.db_pool()?;
-    let package = Package::get_by_name(&package_name, db).await?;
-    let package_latest_version =
-        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, db).await?[0];
-
-    request.render(200, "packages/owner_settings.html", {
-        let mut ctx = Context::new();
-        ctx.insert("package", &package);
-        ctx.insert("package_tab", "settings");
-        ctx.insert("package_version", &package_latest_version);
-        ctx
-    })
-}
-
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct PackageSearchParams {
     pub query: TextField,
