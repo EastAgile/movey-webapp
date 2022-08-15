@@ -1,11 +1,11 @@
+#[cfg(test)]
+use crate::test::mock::MockHttpRequest as HttpRequest;
 use jelly::actix_web::web;
+#[cfg(not(test))]
+use jelly::actix_web::HttpRequest;
 use jelly::prelude::*;
 use jelly::Result;
 use serde::{Deserialize, Serialize};
-#[cfg(test)]
-use crate::test::mock::MockHttpRequest as HttpRequest;
-#[cfg(not(test))]
-use jelly::actix_web::HttpRequest;
 
 #[cfg(not(test))]
 use crate::github_service::GithubService;
@@ -116,7 +116,7 @@ pub async fn search_package(
 
 #[derive(Deserialize)]
 pub struct BadgeRequest {
-    pkg_name: String
+    pkg_name: String,
 }
 
 pub async fn package_badge_info(

@@ -9,6 +9,7 @@ use crate::accounts::views::utils::validate_token;
 use crate::accounts::Account;
 #[cfg(test)]
 use crate::test::mock::MockHttpRequest as HttpRequest;
+use crate::utils::presenter;
 #[cfg(not(test))]
 use jelly::actix_web::HttpRequest;
 
@@ -40,19 +41,12 @@ pub async fn request_reset(request: HttpRequest, form: Form<EmailForm>) -> Resul
         to: form.email.value.clone(),
     })?;
 
-    let email = form.email.value;
-    let mut censored_email = String::new();
-    censored_email.push_str(&email[0..1]);
-    censored_email.push_str("***");
-    censored_email.push_str(
-        &email[email
-            .find('@')
-            .ok_or_else(|| Error::Generic("Invalid email".to_string()))?..],
-    );
-
     request.render(200, "accounts/reset_password/requested.html", {
         let mut context = Context::new();
-        context.insert("censored_email", &censored_email);
+        context.insert(
+            "censored_email",
+            &presenter::censor_email(&form.email.value)?,
+        );
         context.insert("sent", &true);
         context
     })

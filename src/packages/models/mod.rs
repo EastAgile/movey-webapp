@@ -439,7 +439,11 @@ impl Package {
                     service.fetch_repo_data(&https_url, None, None)?
                 } else {
                     let subdir_with_toml = format!("{}/Move.toml", subdir);
-                    service.fetch_repo_data(&https_url, Some(subdir_with_toml), Some(rev_.clone()))?
+                    service.fetch_repo_data(
+                        &https_url,
+                        Some(subdir_with_toml),
+                        Some(rev_.clone()),
+                    )?
                 };
                 if !subdir.is_empty() {
                     https_url = format!("{}/blob/{}/{}", https_url, github_data.rev, subdir);

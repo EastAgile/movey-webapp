@@ -13,8 +13,14 @@ async fn has_invalid_captcha_secret_key(_world: &mut TestWorld) {
 async fn click_on_contact_link(world: &mut TestWorld) {
     // Keys for testing with Google reCaptcha, should allow testing go smoothly
     // Refs: https://developers.google.com/recaptcha/docs/faq
-    std::env::set_var("CAPTCHA_SECRET_KEY", "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe");
-    std::env::set_var("JELLY_CAPTCHA_SITE_KEY", "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI");
+    std::env::set_var(
+        "CAPTCHA_SECRET_KEY",
+        "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe",
+    );
+    std::env::set_var(
+        "JELLY_CAPTCHA_SITE_KEY",
+        "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
+    );
 
     let contact_link = world
         .driver
@@ -117,9 +123,8 @@ async fn receive_thankyou_email(_world: &mut TestWorld) {
         } else if content.contains("Subject: Thank you for contacting us") {
             assert!(content.contains("To: email@host.com"));
             assert!(content.contains("Hello there,"));
-            assert!(content.contains(
-                "We=E2=80=99ve received your request and will get back to you shortly."
-            ));
+            assert!(content
+                .contains("We=E2=80=99ve received your request and will get back to you shortly."));
         } else {
             panic!()
         }
@@ -142,7 +147,10 @@ async fn receive_contact_error(world: &mut TestWorld, message: String) {
         .text()
         .await
         .unwrap();
-    assert_eq!(captcha_error_message, format!("Captcha verification error: {}. Please try again.", message))
+    assert_eq!(
+        captcha_error_message,
+        format!("Captcha verification error: {}. Please try again.", message)
+    )
 }
 
 #[then("I should not receive a thank you email")]
