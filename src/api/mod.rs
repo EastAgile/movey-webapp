@@ -11,12 +11,13 @@ pub fn configure(config: &mut ServiceConfig) {
                 scope("/packages")
                     .service(
                         resource("/upload")
-                            .route(post().to(services::package::controller::register_package))
+                            .route(post().to(services::package::controller::register_package)),
                     )
                     .service(
-                        resource("/count")
-                            .route(post().to(services::package::controller::increase_download_count)),
-                    )
+                        resource("/count").route(
+                            post().to(services::package::controller::increase_download_count),
+                        ),
+                    ),
             )
             .service(
                 resource("/search_package")

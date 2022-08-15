@@ -3,7 +3,6 @@ use super::signin_steps;
 use cucumber::{given, then, when};
 use mainlib::packages::{Package, PackageVersion};
 use mainlib::test::DB_POOL;
-use thirtyfour::error::WebDriverError;
 use thirtyfour::prelude::*;
 
 #[given("There are packages in the system")]
