@@ -1,5 +1,6 @@
 #[cfg(test)]
 use crate::test::mock::MockHttpRequest as HttpRequest;
+use diesel::result::DatabaseErrorKind;
 use diesel::result::Error as DBError;
 use jelly::actix_web::web;
 #[cfg(not(test))]
@@ -69,8 +70,17 @@ pub async fn register_package(
         db,
     )
     .await;
-    if let Err(Error::Database(DBError::DatabaseError(_, e))) = result {
-        return Ok(HttpResponse::BadRequest().body(e.message().to_string()));
+    if let Err(Error::Database(DBError::DatabaseError(kind, e))) = result {
+        let error_message = format!(
+            "Cannot upload package: {}.{}",
+            e.message().to_string(),
+            match kind {
+                DatabaseErrorKind::UniqueViolation =>
+                    " Hint: You can try pushing latest changes to Github then try again.",
+                _ => "",
+            }
+        );
+        return Ok(HttpResponse::BadRequest().body(error_message));
     }
 
     Ok(HttpResponse::Ok().body(package_name))
