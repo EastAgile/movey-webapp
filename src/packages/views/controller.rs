@@ -5,9 +5,9 @@ use jelly::prelude::*;
 use jelly::request::DatabasePool;
 use jelly::Result;
 
-use crate::accounts::Account;
 use crate::packages::models::{PackageSortField, PackageSortOrder, PACKAGES_PER_PAGE};
 use crate::packages::{Package, PackageVersion, PackageVersionSort};
+use crate::utils::presenter;
 
 #[derive(serde::Serialize, serde::Deserialize)]
 struct PackageShowParams {
@@ -36,39 +36,9 @@ pub async fn show_package(
         package_version = package.get_version(version, db).await?
     }
 
-    let account_name = if let Some(uid) = package.account_id {
-        let account = Account::get(uid, db).await?;
-        if account.name.is_empty() {
-            // If account doesn't have a name, it is a Github-only account
-            if let Some(github_login) = account.github_login {
-                github_login
-            } else {
-                account.email
-            }
-        } else {
-            account.name
-        }
-    } else {
-        // Default account name is derived from https://github.com/<github login>
-        let repo_url = package.repository_url.clone();
-        let derived_name = repo_url.split('/').collect::<Vec<&str>>()[3];
-        derived_name.to_string()
-    };
-
-    // Display url for install instruction
-    // example: https://github.com/move-language/move/tree/main/language/evm/hardhat-examples/contracts/ABIStruct
-    //          -> repo_url: https://github.com/move-language/move
-    //             subdir: language/evm/hardhat-examples/contracts/ABIStruct
-    let mut instruction_subdir = String::from("");
-    let mut instruction_repo_url: String;
-    let repo_url_tokens = package.repository_url.split('/').collect::<Vec<&str>>();
-    if repo_url_tokens.len() > 5 {
-        instruction_repo_url = repo_url_tokens[..5].join("/");
-        instruction_subdir = repo_url_tokens[7..].join("/");
-    } else {
-        instruction_repo_url = package.repository_url.clone();
-    }
-    instruction_repo_url.push_str(".git");
+    let account_name = presenter::make_account_name(&package, db).await?;
+    let (instruction_repo_url, instruction_subdir) =
+        presenter::make_package_install_instruction(&package.repository_url);
 
     request.render(200, "packages/show.html", {
         let mut ctx = Context::new();
