@@ -1,4 +1,4 @@
-@import "./queries";
+@import "static/css/queries.scss";
 
 .package-show-container {
   min-height: calc(100vh - 350px);
@@ -107,48 +107,48 @@
       margin: 0 auto 60px;
 
       @include medium-screen {
-          padding: 0 20px;
-          margin: 0 auto 30px;
+        padding: 0 20px;
+        margin: 0 auto 30px;
       }
 
       @include small-screen {
-          padding: 0 20px;
-          margin: 0 auto 30px;
+        padding: 0 20px;
+        margin: 0 auto 30px;
       }
 
       .package-banner {
-          display: flex;
-          align-items: center;
-          width: 100%;
-          padding: 4px 16px;
-          background-color: #FFFED9;
-          border-radius: 5px;
-          border: 1px solid var(--geyser-color);
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 4px 16px;
+        background-color: #fffed9;
+        border-radius: 5px;
+        border: 1px solid var(--geyser-color);
 
-          .package-banner-content {
-              font-weight: 400;
-              font-size: 16px;
-              line-height: 30px;
-              margin: 10px 0;
+        .package-banner-content {
+          font-weight: 400;
+          font-size: 16px;
+          line-height: 30px;
+          margin: 10px 0;
 
-              a {
-                  text-decoration: underline;
-              }
-
-              @include medium-screen {
-                  font-size: 14px;
-                  line-height: 20px;
-                  margin: 5px 0;
-              }
-      
-              @include small-screen {
-                  font-size: 14px;
-                  line-height: 20px;
-                  margin: 5px 0;
-              }
+          a {
+            text-decoration: underline;
           }
+
+          @include medium-screen {
+            font-size: 14px;
+            line-height: 20px;
+            margin: 5px 0;
+          }
+
+          @include small-screen {
+            font-size: 14px;
+            line-height: 20px;
+            margin: 5px 0;
+          }
+        }
       }
-    } 
+    }
 
     .package-content-tabs {
       display: flex;
@@ -211,11 +211,10 @@
           a {
             color: #a34c00;
 
-                        .tab-name {
-
-                            @include medium-screen {
-                                display: none;
-                            }
+            .tab-name {
+              @include medium-screen {
+                display: none;
+              }
 
               @include small-screen {
                 display: none;
@@ -367,7 +366,7 @@
         }
       }
     }
-    
+
     .package-detail-container {
       display: flex;
       justify-content: space-between;
@@ -379,26 +378,26 @@
         font-size: 20px;
         margin-bottom: 40px;
 
-                code {
-                    color: var(--dark-blue-color);
-                    background-color: var(--gray-background-color);
-                    border-radius: 4px;
-                    margin: 0;
-                    padding: 5px 8px;
-                    border: none;
-                    white-space: pre;
-                }
+        code {
+          color: var(--dark-blue-color);
+          background-color: var(--gray-background-color);
+          border-radius: 4px;
+          margin: 0;
+          padding: 5px 8px;
+          border: none;
+          white-space: pre;
+        }
 
-                pre {
-                    background-color: var(--gray-background-color);
-                    margin: 10px 0;
-                    padding: 10px 16px;
-                    border-radius: 4px;
+        pre {
+          background-color: var(--gray-background-color);
+          margin: 10px 0;
+          padding: 10px 16px;
+          border-radius: 4px;
 
-                    code {
-                        display: block;
-                    }
-                }
+          code {
+            display: block;
+          }
+        }
 
         h1,
         h2,
@@ -445,135 +444,135 @@
             margin: 30px -22px;
           }
 
-                    .package-install {
-                        .package-install-instruction {
-                            padding: 13px 19px;
-                            font-size: 18px;
-                            line-height: 24px;
-                            border: 1px solid #001F60;
-                            border-radius: 4px;
-                            display: flex;
-                            align-items: center;
-                            margin-bottom: 32px;
-                            position: relative;
-                            word-break: break-word;
-                            cursor: pointer;
+          .package-install {
+            .package-install-instruction {
+              padding: 13px 19px;
+              font-size: 18px;
+              line-height: 24px;
+              border: 1px solid #001f60;
+              border-radius: 4px;
+              display: flex;
+              align-items: center;
+              margin-bottom: 32px;
+              position: relative;
+              word-break: break-word;
+              cursor: pointer;
 
-                            .copy-icon {
-                                display: none;
-                                width: 24px;
-                                height: 24px;
-                                position: absolute;
-                                right: 18px;
-                                top: 50%;
-                                transform: translate(0, -50%);
-                                background-image: url("/static/resources/copy_icon.svg");
-                                background-repeat: no-repeat;
-                            }
+              .copy-icon {
+                display: none;
+                width: 24px;
+                height: 24px;
+                position: absolute;
+                right: 18px;
+                top: 50%;
+                transform: translate(0, -50%);
+                background-image: url("/static/resources/copy_icon.svg");
+                background-repeat: no-repeat;
+              }
 
-                            &:hover {
-                                .copy-icon {
-                                    display: block;
-                                }
-                            }
+              &:hover {
+                .copy-icon {
+                  display: block;
+                }
+              }
 
-                            .copy-tooltip {
-                                color: darkblue;
-                                font-size: 16px;
-                                position: absolute;
-                                right: -30px;
-                                top: -10px;
-                                background-color: #D9DDE7;
-                                border-radius: 8px;
-                                padding: 4px;
-                                display: none;
-                            }
-                        }
+              .copy-tooltip {
+                color: darkblue;
+                font-size: 16px;
+                position: absolute;
+                right: -30px;
+                top: -10px;
+                background-color: #d9dde7;
+                border-radius: 8px;
+                padding: 4px;
+                display: none;
+              }
+            }
 
-                        .package-repo {
-                            display: flex;
-                            justify-content: start;
-                            align-items: center;
-                            margin-bottom: 32px;
+            .package-repo {
+              display: flex;
+              justify-content: start;
+              align-items: center;
+              margin-bottom: 32px;
 
-                            .package-repo-icon {
-                                width: 20px;
-                                height: 20px;
-                                background-repeat: no-repeat;
-                                background-image: url("/static/resources/packages/github_icon.svg");
-                                margin-right: 10px;
-                                flex-shrink: 0;
-                            }
+              .package-repo-icon {
+                width: 20px;
+                height: 20px;
+                background-repeat: no-repeat;
+                background-image: url("/static/resources/packages/github_icon.svg");
+                margin-right: 10px;
+                flex-shrink: 0;
+              }
 
-                            .package-repo-url a {
-                                color: #27AE60;
-                                font-size: 18px;
-                                line-height: 24px;
-                                overflow-wrap: anywhere;
-                                word-break: break-all;
-                            }
-                        }
-                    }
-                    .package-metadata {
-                        display: flex;
-                        flex-flow: row wrap;
+              .package-repo-url a {
+                color: #27ae60;
+                font-size: 18px;
+                line-height: 24px;
+                overflow-wrap: anywhere;
+                word-break: break-all;
+              }
+            }
+          }
+          .package-metadata {
+            display: flex;
+            flex-flow: row wrap;
 
-                        .package-total-download {
-                            width: 100%;
-                            display: flex;
-                            align-items: flex-start;
-                            margin-bottom: 12px;
+            .package-total-download {
+              width: 100%;
+              display: flex;
+              align-items: flex-start;
+              margin-bottom: 12px;
 
-                            .package-download-icon {
-                                width: 24px;
-                                height: 24px;
-                                background-repeat: no-repeat;
-                                background-image: url("/static/resources/packages/package_total_download_gray.svg");
-                                margin-right: 10px;
-                            }
+              .package-download-icon {
+                width: 24px;
+                height: 24px;
+                background-repeat: no-repeat;
+                background-image: url("/static/resources/packages/package_total_download_gray.svg");
+                margin-right: 10px;
+              }
 
-                            .package-download-count {
-                                color: #808FB0;
-                                font-weight: 700;
-                                font-size: 24px;
-                                line-height: 20px;
-                                margin-bottom: 16px;
-                            }
-                        }
+              .package-download-count {
+                color: #808fb0;
+                font-weight: 700;
+                font-size: 24px;
+                line-height: 20px;
+                margin-bottom: 16px;
+              }
+            }
 
-                        .package-download-info {
-                            width: 100%;
-                            margin-bottom: 32px;
-                            display: flex;
-                            align-items: flex-end;
-                            justify-content: space-between;
+            .package-download-info {
+              width: 100%;
+              margin-bottom: 32px;
+              display: flex;
+              align-items: flex-end;
+              justify-content: space-between;
 
-                            .package-download-number {
-                                color: var(--dark-blue-color);
-                                font-weight: 700;
-                                font-size: 24px;
-                                line-height: 20px;
-                            }
+              .package-download-number {
+                color: var(--dark-blue-color);
+                font-weight: 700;
+                font-size: 24px;
+                line-height: 20px;
+              }
 
-                            .package-download-figure {
-                                width: 321px;
-                                height: 56px;
-                                background-repeat: no-repeat;
-                                background-image: url("/static/resources/packages/package_download_figure.svg");
-                            }
-                        }
+              .package-download-figure {
+                width: 321px;
+                height: 56px;
+                background-repeat: no-repeat;
+                background-image: url("/static/resources/packages/package_download_figure.svg");
+              }
+            }
 
-                        .package-metadata-content {
-                            width: 45%;
-                            margin-bottom: 24px;
+            .package-metadata-content {
+              width: 45%;
+              margin-bottom: 24px;
 
-                            .package-metadata-title {
-                                color: var(--gray-color);
-                                font-weight: 700;
-                                font-size: 16px;
-                                line-height: 20px;
-                                margin-bottom: 16px;
-                            }
+              .package-metadata-title {
+                color: var(--gray-color);
+                font-weight: 700;
+                font-size: 16px;
+                line-height: 20px;
+                margin-bottom: 16px;
+              }
 
               .package-metadata-value {
                 color: var(--dark-blue-color);
@@ -582,12 +581,16 @@
               }
             }
           }
-
           .package-owners {
             .package-owners-info {
-              color: var(--dark-blue-color);
+              color: #1779ba;
               font-size: 24px;
               cursor: pointer;
+              width: fit-content;
+
+              &:hover {
+                color: var(--blue-color);
+              }
             }
           }
         }
@@ -864,18 +867,18 @@
 }
 
 .versions-sort-dropdown {
-    border: 1px solid var(--geyser-color);
-    box-sizing: border-box;
-    box-shadow: 0px 8px 12px rgba(2, 20, 58, 0.15);
-    border-radius: 4px;
+  border: 1px solid var(--geyser-color);
+  box-sizing: border-box;
+  box-shadow: 0px 8px 12px rgba(2, 20, 58, 0.15);
+  border-radius: 4px;
 
-    .select2-results {
-        .select2-results__option {
-            padding-left: 20px;
-            font-size: 24px;
-            line-height: 50px;
-            color: var(--dark-blue-color);
-        }
+  .select2-results {
+    .select2-results__option {
+      padding-left: 20px;
+      font-size: 24px;
+      line-height: 50px;
+      color: var(--dark-blue-color);
+    }
 
     .select2-results__option[aria-selected="true"] {
       background-color: transparent;

@@ -54,7 +54,7 @@
     font-size: 16px;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-info-container {
     max-width: 100%;
     padding: 20px 20px 0;
@@ -84,7 +84,7 @@
     padding: 0 20px;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container {
     max-width: 100%;
     padding: 0 20px;
@@ -101,7 +101,7 @@
     margin: 0 auto 30px;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-banner-wrapper {
     padding: 0 20px;
     margin: 0 auto 30px;
@@ -112,7 +112,7 @@
   align-items: center;
   width: 100%;
   padding: 4px 16px;
-  background-color: #FFFED9;
+  background-color: #fffed9;
   border-radius: 5px;
   border: 1px solid var(--geyser-color);
 }
@@ -132,7 +132,7 @@
     margin: 5px 0;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-banner-wrapper .package-banner .package-banner-content {
     font-size: 14px;
     line-height: 20px;
@@ -162,7 +162,7 @@
     padding: 22px;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-content-tabs .content-tab {
     padding: 8px;
     font-size: 16px;
@@ -200,7 +200,7 @@
     display: none;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-content-tabs .content-tab.tab-readme a .tab-name {
     display: none;
   }
@@ -213,7 +213,7 @@
     display: block;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-content-tabs .content-tab.tab-readme.active .tab-name {
     display: block;
   }
@@ -223,7 +223,7 @@
     flex-basis: 50%;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-content-tabs .content-tab.tab-readme.active {
     flex-basis: 40%;
   }
@@ -239,7 +239,7 @@
     display: none;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-content-tabs .content-tab.tab-dependency a .tab-name {
     display: none;
   }
@@ -252,7 +252,7 @@
     display: block;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-content-tabs .content-tab.tab-dependency.active .tab-name {
     display: block;
   }
@@ -262,7 +262,7 @@
     flex-basis: 50%;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-content-tabs .content-tab.tab-dependency.active {
     flex-basis: 40%;
   }
@@ -278,7 +278,7 @@
     display: none;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-content-tabs .content-tab.tab-dependents a .tab-name {
     display: none;
   }
@@ -291,7 +291,7 @@
     display: block;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-content-tabs .content-tab.tab-dependents.active .tab-name {
     display: block;
   }
@@ -301,7 +301,7 @@
     flex-basis: 50%;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-content-tabs .content-tab.tab-dependents.active {
     flex-basis: 40%;
   }
@@ -317,7 +317,7 @@
     display: none;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-content-tabs .content-tab.tab-versions a .tab-name {
     display: none;
   }
@@ -330,7 +330,7 @@
     display: block;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-content-tabs .content-tab.tab-versions.active .tab-name {
     display: block;
   }
@@ -340,7 +340,7 @@
     flex-basis: 50%;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-content-tabs .content-tab.tab-versions.active {
     flex-basis: 40%;
   }
@@ -415,7 +415,7 @@
   padding: 13px 19px;
   font-size: 18px;
   line-height: 24px;
-  border: 1px solid #001F60;
+  border: 1px solid #001f60;
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -444,7 +444,7 @@
   position: absolute;
   right: -30px;
   top: -10px;
-  background-color: #D9DDE7;
+  background-color: #d9dde7;
   border-radius: 8px;
   padding: 4px;
   display: none;
@@ -464,7 +464,7 @@
   flex-shrink: 0;
 }
 .package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-install .package-repo .package-repo-url a {
-  color: #27AE60;
+  color: #27ae60;
   font-size: 18px;
   line-height: 24px;
   overflow-wrap: anywhere;
@@ -488,7 +488,7 @@
   margin-right: 10px;
 }
 .package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-metadata .package-total-download .package-download-count {
-  color: #808FB0;
+  color: #808fb0;
   font-weight: 700;
   font-size: 24px;
   line-height: 20px;
@@ -530,9 +530,13 @@
   line-height: 30px;
 }
 .package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-owners .package-owners-info {
-  color: var(--dark-blue-color);
+  color: #1779ba;
   font-size: 24px;
   cursor: pointer;
+  width: fit-content;
+}
+.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-owners .package-owners-info:hover {
+  color: var(--blue-color);
 }
 .package-show-container .package-content-container .package-detail-container .package-sidebar .package-report {
   margin: 32px 0;
@@ -565,7 +569,7 @@
     width: 100%;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-detail-container {
     flex-flow: column wrap;
   }
@@ -660,7 +664,7 @@
     top: 19px;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-versions-container .package-version-header {
     display: block;
     font-size: 16px;
@@ -709,7 +713,7 @@
     flex-basis: 58%;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-versions-container .package-version-list .package-version-item .package-version-number {
     flex-basis: 25%;
   }
@@ -729,7 +733,7 @@
   color: #808fb0;
   line-height: 30px;
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-versions-container .package-version-list .package-version-item .package-download .package-download-count {
     font-size: 12px;
   }
@@ -749,7 +753,7 @@
   color: #808fb0;
   line-height: 30px;
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-versions-container .package-version-list .package-version-item .package-version-timeline .package-version-time {
     font-size: 12px;
   }
@@ -760,7 +764,7 @@
     height: 90px;
   }
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-versions-container .package-version-list .package-version-item {
     font-size: 16px;
     height: 90px;
