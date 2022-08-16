@@ -222,7 +222,7 @@ async fn link_github_to_movey_account(
     Ok(Some(updated_account))
 }
 
-async fn create_default_account_for_github_user(
+pub async fn create_default_account_for_github_user(
     mut oauth_response: GithubOauthResponse,
     pool: &DieselPgPool,
 ) -> Result<User> {
