@@ -16,7 +16,7 @@ use jelly::{DieselPgPool, DieselPgConnection};
 
 use super::forms::{LoginForm, NewAccountForm};
 use super::views::verify::GithubOauthUser;
-use crate::schema::accounts;
+use crate::schema::{accounts, package_collaborators};
 use crate::schema::accounts::dsl::*;
 use crate::schema::api_tokens::dsl::{
     account_id as api_tokens_account_id, api_tokens, name as api_tokens_name,

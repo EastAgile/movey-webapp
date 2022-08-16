@@ -11,7 +11,7 @@ use crate::packages::models::{PackageSortField, PackageSortOrder, PACKAGES_PER_P
 use crate::packages::{Package, PackageVersion, PackageVersionSort};
 use crate::package_collaborators::models::owner_invitation::{OwnerInvitation};
 
-use super::serializer::{Invitation, InvitationStatus};
+use super::serializer::{Collaborator, Role};
 
 #[derive(serde::Serialize, serde::Deserialize)]
 struct PackageShowParams {
@@ -109,28 +109,69 @@ pub async fn show_package_settings(
     let package = Package::get_by_name(&package_name, db_pool).await?;
     let package_latest_version =
         &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db_pool).await?[0];
-    
-    // get movey account that is invited to be a collaborator
-    let invited_ids = OwnerInvitation::find_by_package_id(package.id, &db_connection).
-    unwrap();
-    let mut owner_list: Vec<Invitation> = Account::get_accounts(invited_ids, &db_connection)?.iter().map(|account| Invitation {
-        status: InvitationStatus::PENDING,
-        email: account.email.clone()
-    }).collect();
+    let user = request.user()?;
 
-    // get movey account that accepted the collaborator invitation
-    let collaborator_ids = PackageCollaborator::get_by_package_id(package.id, &db_connection)?;
-    let mut collaborator_list = Account::get_accounts(collaborator_ids, &db_connection)?.iter().map(|account| Invitation {
-        status: InvitationStatus::ACCEPTED,
-        email: account.email.clone()
-    }).collect();
-    owner_list.append(&mut collaborator_list);
+    // get movey account that is invited to be a collaborator
+    let accepted_ids = PackageCollaborator::get_by_package_id(package.id, &db_connection)?;
+    
+    let mut vec = Vec::new();
+    vec.push(accepted_ids[0]);
+
+    let mut owner_: Vec< Account > = Account::get_accounts(vec, &db_connection)?;
+
+    let mut accepted_list:Vec<Collaborator > = Account::get_accounts(accepted_ids[0..].to_vec(), &db_connection)?
+    .iter().enumerate().map(|(idx,account)| {
+        // Collaborator {
+        //     role: Role::COLLABORATOR,
+        //     email: account.email.clone()
+        // }
+        if idx == 0 {
+            // 0 index is Owner
+            Collaborator {
+                role: Role::OWNER,
+                email: account.email.clone()
+            }
+        }else {
+            Collaborator {
+                role: Role::COLLABORATOR,
+                email: account.email.clone()
+            }
+        }
+    }
+    ).collect();
+
+    let mut user_type = "user";
+
+    if accepted_ids.contains(&user.id) { 
+        if accepted_ids[0] == user.id {
+            user_type = "owner";
+        } else {
+            user_type = "collaborator";
+        }
+
+        // get movey account that accepted the collaborator Collaborator
+        let pending_ids = OwnerInvitation::find_by_package_id(package.id, &db_connection)
+        .unwrap();
+
+        let mut pending_list: Vec<Collaborator> = Account::get_accounts(pending_ids, &db_connection)?
+            .iter().map(|account| Collaborator {
+                role: Role::PENDING,
+                email: account.email.clone()
+        }).collect();
+        
+        accepted_list.append(&mut pending_list);
+    }
+
     request.render(200, "packages/owner_settings.html", {
         let mut ctx = Context::new();
         ctx.insert("package", &package);
         ctx.insert("package_tab", "settings");
-        ctx.insert("owner_list", &owner_list);
+        ctx.insert("owner_list", &accepted_list);
         ctx.insert("package_version", &package_latest_version);
+        ctx.insert("user_type",&user_type);
+        ctx.insert("current_user", &format!("{}@gmail.com",user.name));
+        ctx.insert("l", &accepted_ids);
+        ctx.insert("o", &owner_[0]);
         ctx
     })
 }

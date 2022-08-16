@@ -74,7 +74,7 @@ impl PackageCollaborator {
             })
             .get_result::<PackageCollaborator>(conn)?;
 
-        Ok(())
+    Ok(())
     }
 
     pub fn get(package_id: i32, account_id: i32, conn: &DieselPgConnection) -> Result<Self, Error> {
@@ -87,6 +87,8 @@ impl PackageCollaborator {
         Ok(package_collaborators::table
             .filter(package_collaborators::package_id.eq(package_id))
             .select(package_collaborators::account_id)
+            // First element is the owner of package
+            .order(package_collaborators::role.asc())
             .load::<i32>(conn)?)
     }
 

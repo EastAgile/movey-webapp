@@ -261,7 +261,7 @@ async fn confirm_in_collaborator_list(world: &mut TestWorld) {
     .await;
     let collaborator_names = world
         .driver
-        .find_elements(By::ClassName("colaborator_name"))
+        .find_elements(By::ClassName("collaborator_name"))
         .await
         .unwrap();
     
@@ -281,7 +281,7 @@ async fn not_in_collaborator_list(world: &mut TestWorld) {
         .await;
     let collaborator_names = world
         .driver
-        .find_elements(By::ClassName("colaborator_name"))
+        .find_elements(By::ClassName("collaborator_name"))
         .await
         .unwrap();
 
@@ -533,7 +533,7 @@ async fn see_first_user_as_collaborator(world: &mut TestWorld) {
         .await;
     let collaborator_names = world
         .driver
-        .find_elements(By::ClassName("colaborator_name"))
+        .find_elements(By::ClassName("collaborator_name"))
         .await
         .unwrap();
 
