@@ -34,10 +34,12 @@ pub async fn make_account_name(package: &Package, db: &DieselPgPool) -> Result<(
         } else {
             &account.name
         };
-        let conn = db.get()?;
         let slug_url = format!(
             "/accounts/users/{}/packages",
-            account.get_or_create_slug(&conn)?
+            account.slug.as_ref().ok_or_else(|| Error::Generic(format!(
+                "This account has no slug. uid: {}.",
+                account.id
+            )))?
         );
         (name.clone(), slug_url)
     } else {
