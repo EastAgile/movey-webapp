@@ -986,3 +986,77 @@ async fn get_badge_info() {
     assert_eq!(result.len(), 2);
     assert_eq!(result, expected);
 }
+
+#[actix_rt::test]
+async fn get_by_name_case_insensitive_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    setup(None).await.unwrap();
+
+    let packages_list = Package::get_by_name_case_insensitive("the FIRST package", &DB_POOL).await;
+    assert!(packages_list.is_ok());
+    let packages_list = packages_list.unwrap();
+    assert_eq!(packages_list.len(), 1);
+    assert_eq!(packages_list[0].name, "The first package");
+
+    let packages_list = Package::get_by_name_case_insensitive("ChArLeS DiYa", &DB_POOL).await;
+    assert!(packages_list.is_ok());
+    let packages_list = packages_list.unwrap();
+    assert_eq!(packages_list.len(), 1);
+    assert_eq!(packages_list[0].name, "Charles Diya");
+
+    let packages_list = Package::get_by_name_case_insensitive("Charles D1ya", &DB_POOL).await;
+    assert!(packages_list.is_ok());
+    let packages_list = packages_list.unwrap();
+    assert_eq!(packages_list.len(), 0);
+}
+
+#[actix_rt::test]
+async fn create_package_fails_because_similar_name() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    setup(None).await.unwrap();
+
+    let mut mock_github_service = GithubService::new();
+    mock_github_service
+        .expect_fetch_repo_data()
+        .withf(|x: &str, y: &Option<String>, z: &Option<String>| {
+            x == "repo_url" && y.is_none() && z.is_none()
+        })
+        .returning(|_, _, _| {
+            Ok(GithubRepoData {
+                name: "CHARLES DIYA".to_string(),
+                version: "version".to_string(),
+                readme_content: "readme_content".to_string(),
+                description: "".to_string(),
+                size: 0,
+                url: "".to_string(),
+                rev: "".to_string(),
+            })
+        });
+    let uid = Package::create(
+        "repo_url",
+        "package_description",
+        "1",
+        2,
+        100,
+        None,
+        &mock_github_service,
+        None,
+        &DB_POOL,
+    )
+    .await;
+    assert!(uid.is_err());
+    let error = uid.unwrap_err();
+    match error {
+        Error::Database(DBError::DatabaseError(DatabaseErrorKind::UniqueViolation, msg)) => {
+            assert_eq!(
+                msg.message(),
+                "This package name is similar to another existing package: 'Charles Diya'"
+            )
+        }
+        _ => panic!(),
+    }
+}
