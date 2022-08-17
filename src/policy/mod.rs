@@ -1,5 +1,8 @@
+pub mod jobs;
+pub mod views;
+
 use crate::accounts::Account;
-use jelly::actix_web::web::{resource, scope, ServiceConfig};
+use jelly::actix_web::web::{get, post, resource, scope, ServiceConfig};
 use jelly::prelude::*;
 use jelly::Result;
 use std::env;
@@ -35,6 +38,10 @@ pub fn configure(config: &mut ServiceConfig) {
         scope("/")
             .service(resource("/terms-of-use").to(term_))
             .service(resource("/policy").to(policy_))
-            .service(resource("/contact").to(contact)),
+            .service(
+                resource("/contact")
+                    .route(get().to(contact))
+                    .route(post().to(views::send_contact)),
+            ),
     );
 }
