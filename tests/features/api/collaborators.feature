@@ -15,15 +15,13 @@ Feature: Package collaborators
       Then She (the collaborator) should receive an invitation email
       When She is signed in
       And She accesses her invitation page
-      # Ngan is working on this
-#      Then She should see an invitation in her invitation page
+      Then She should see an invitation in her invitation page
 
     Scenario: Accept invitation through email works
       When She clicks on the link in the email to accept the invitation
       Then She should see that she is a collaborator of the package
       When She accesses her invitation page
-      # Ngan is working on this
-#      And She should see that the invitation is deleted
+      And She should see that the invitation is deleted
 
     Scenario: Email invitation is expired
       When Collaborator invitation is expired
@@ -34,7 +32,7 @@ Feature: Package collaborators
       Then She should see that the invitation is deleted
 
     Scenario: Accept invitation through website works
-#      When She clicks on the Accept button to accept the invitation
+      When She clicks on the Accept button to accept the invitation
       Then She should be redirected to the package detail page
       And She should see that she is a collaborator of the package
       When She accesses her invitation page

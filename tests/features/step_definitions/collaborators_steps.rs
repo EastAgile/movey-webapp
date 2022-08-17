@@ -438,24 +438,12 @@ async fn see_invitation_tab(world: &mut TestWorld) {
 async fn accept_invitation(world: &mut TestWorld) {
     let accept_btns = world
         .driver
-        .find_elements(By::ClassName("accept_btn"))
+        .find_elements(By::ClassName("accept"))
         .await
         .unwrap();
 
     assert_eq!(accept_btns.len(), 1);
     accept_btns[0].click().await.unwrap();
-}
-
-#[when("She clicks on the Decline button to accept the invitation")]
-async fn decline_invitation(world: &mut TestWorld) {
-    let decline_btns = world
-        .driver
-        .find_elements(By::ClassName("decline_btn"))
-        .await
-        .unwrap();
-
-    assert_eq!(decline_btns.len(), 1);
-    decline_btns[0].click().await.unwrap();
 }
 
 #[then("She should be redirected to the package detail page")]
@@ -500,11 +488,11 @@ async fn accept_ownership_invitation(world: &mut TestWorld) {
     accept_btns[0].click().await.unwrap();
 }
 
-#[when("She clicks on the Decline button to accept the transfer")]
+#[when("She clicks on the Decline button to decline the transfer")]
 async fn decline_ownership_invitation(world: &mut TestWorld) {
     let decline_btns = world
         .driver
-        .find_elements(By::ClassName("decline_btn"))
+        .find_elements(By::ClassName("cancel"))
         .await
         .unwrap();
 

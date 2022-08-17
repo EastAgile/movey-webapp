@@ -21,7 +21,7 @@ Feature: Transfer ownership
     Then She should see that I am a collaborator of the package
 
   Scenario: reject ownership invitation
-    When She clicks on the Decline button to accept the transfer
+    When She clicks on the Decline button to decline the transfer
     Then She should see that the invitation is deleted
     Then She should see that she is a collaborator of the package
     And She should see that I am the owner of the package
