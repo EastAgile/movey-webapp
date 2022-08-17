@@ -712,7 +712,7 @@ async fn fetch_name_from_email_works() {
         Account::fetch_name_from_email("not_existed@host.com", &DB_POOL).await;
     assert!(account.is_err());
 
-    let uid = setup_user(None, None).await;
+    let _uid = setup_user(None, None).await;
     let name_ = Account::fetch_name_from_email("email@host.com", &DB_POOL).await.unwrap();
     assert_eq!(name_, "email".to_string());
 }

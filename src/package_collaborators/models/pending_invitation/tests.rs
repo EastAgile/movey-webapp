@@ -152,3 +152,19 @@ async fn not_create_new_invitation_if_it_already_exists() {
     )
     .unwrap();
 }
+
+#[actix_rt::test]
+async fn pending_invitation_find_by_email_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+    let db = &DB_POOL;
+    let conn = db.get().unwrap();
+
+    let pending_1 = setup_pending_invitation().await;
+    let pending_2 =
+        PendingInvitation::find_by_email(&pending_1.pending_user_email, &conn).unwrap();
+    assert_eq!(pending_2.len(), 1);
+    assert_eq!(pending_1, pending_2[0]);
+    let not_found = PendingInvitation::find_by_email("not_existed@random_email", &conn);
+    assert!(not_found.unwrap().is_empty());
+}

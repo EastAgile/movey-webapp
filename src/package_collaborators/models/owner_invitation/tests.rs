@@ -5,6 +5,7 @@ use crate::utils::tests::setup_user;
 use crate::utils::token::TOKEN_LENGTH;
 use jelly::prelude::*;
 use std::env;
+use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
 
 async fn setup_invitation(is_transferring: Option<bool>) -> OwnerInvitation {
     let invited_uid = setup_user(None, None).await;
@@ -79,12 +80,19 @@ async fn find_by_id_works() {
 }
 
 #[actix_rt::test]
-async fn accept_works() {
+async fn accept_collaborator_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
     let owner_invitation = setup_invitation(None).await;
+    let package_collaborator = PackageCollaborator::get(
+        owner_invitation.package_id,
+        owner_invitation.invited_user_id,
+        &DB_POOL.get().unwrap(),
+    );
+    assert!(package_collaborator.is_err());
+
     owner_invitation.accept(&conn).unwrap();
     let not_found = OwnerInvitation::find_by_token(&owner_invitation.token, &conn);
     assert!(not_found.is_err());
@@ -92,6 +100,49 @@ async fn accept_works() {
     } else {
         panic!()
     }
+
+    let package_collaborator = PackageCollaborator::get(
+        owner_invitation.package_id,
+        owner_invitation.invited_user_id,
+        &DB_POOL.get().unwrap(),
+    ).unwrap();
+    assert_eq!(package_collaborator.role, Role::Collaborator as i32);
+}
+
+#[actix_rt::test]
+async fn accept_owner_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+    let conn = DB_POOL.get().unwrap();
+
+    let owner_invitation = setup_invitation(Some(true)).await;
+    let _ = PackageCollaborator::new_collaborator(
+        owner_invitation.package_id, 
+        owner_invitation.invited_user_id,
+        owner_invitation.invited_user_id,
+            &DB_POOL.get().unwrap()
+        );
+    let invited_collaborator = PackageCollaborator::get(
+        owner_invitation.package_id,
+        owner_invitation.invited_user_id,
+        &DB_POOL.get().unwrap(),
+    ).unwrap();
+    assert_eq!(invited_collaborator.role, Role::Collaborator as i32);
+
+    owner_invitation.accept(&conn).unwrap();
+    let not_found = OwnerInvitation::find_by_token(&owner_invitation.token, &conn);
+    assert!(not_found.is_err());
+    if let Err(Error::Database(diesel::NotFound)) = not_found {
+    } else {
+        panic!()
+    }
+
+    let package_collaborator = PackageCollaborator::get(
+        owner_invitation.package_id,
+        owner_invitation.invited_user_id,
+        &DB_POOL.get().unwrap(),
+    ).unwrap();
+    assert_eq!(package_collaborator.role, Role::Owner as i32);
 }
 
 #[actix_rt::test]
