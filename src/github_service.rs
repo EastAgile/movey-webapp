@@ -111,7 +111,7 @@ impl GithubService {
                     // generate description from readme if not existed
                     if github_info.description.is_none() {
                         let mut description = call_deep_ai_api(content.clone(), None)?;
-                        if description.len() > 400 {
+                        if description.chars().count() > 100 {
                             let deepai_summary = call_deep_ai_api(description.clone(), None)?;
                             if !deepai_summary.is_empty() {
                                 description = deepai_summary;
@@ -122,8 +122,15 @@ impl GithubService {
                         if description.is_empty() {
                             description = strip_markdown::strip_markdown(&content);
                         }
-                        if description.len() > 400 {
-                            description = description[0..400].to_string();
+                        if description.chars().count() > 100 {
+                            let mut desc = String::from("");
+                            for character in description.chars() {
+                                desc.push(character);
+                                if desc.chars().count() >= 100 {
+                                    description = desc;
+                                    break;
+                                }
+                            }
                         }
                         github_info.description = Some(description);
                     }
