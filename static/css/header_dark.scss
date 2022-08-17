@@ -16,20 +16,20 @@ header {
   }
 
   .header-container {
-    display: grid;
-    grid-template-columns: 40% auto;
+    display: flex;
+    justify-content: space-between;
     width: 100%;
-
-    > a {
-      display: flex;
-      align-items: center;
-    }
 
     @include medium-small-screen {
       display: flex;
       height: 100%;
       align-items: center;
       position: relative;
+    }
+
+    > a {
+      display: flex;
+      align-items: center;
     }
 
     .header-logo {

@@ -16,13 +16,9 @@ header {
   }
 }
 header .header-container {
-  display: grid;
-  grid-template-columns: 40% auto;
-  width: 100%;
-}
-header .header-container > a {
   display: flex;
-  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 @media screen and (max-width: 1280px) {
   header .header-container {
@@ -31,6 +27,10 @@ header .header-container > a {
     align-items: center;
     position: relative;
   }
+}
+header .header-container > a {
+  display: flex;
+  align-items: center;
 }
 header .header-container .header-logo {
   background-image: url("/static/resources/logo_white.svg");
