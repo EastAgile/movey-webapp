@@ -86,7 +86,7 @@
   align-items: baseline;
   line-height: 54px;
 }
-.package-settings-container .collaborators_wrapper .collaborators_content .collaborators_info .package-name-version .package-name {
+.package-settings-container .collaborators_wrapper .collaborators_content .collaborators_info .package-name-version .package-name-view {
   color: var(--dark-blue-color);
   font-size: 32px;
   font-weight: 700;

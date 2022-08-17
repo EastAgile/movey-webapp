@@ -2,10 +2,8 @@
 <script src="/static/js/settings/user_package.js"></script>
 <script src="/static/js/packages/collaborators.js"></script>
 <!-- <link href="/static/css/settings/user_tokens.css" rel="stylesheet" /> -->
-<script
-  src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.6.7/jquery.timeago.min.js"
-  type="text/javascript"
-></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.6.7/jquery.timeago.min.js"
+  type="text/javascript"></script>
 
 {% endblock %} {% block package_content %}
 <!-- {{current_user}} -->
@@ -18,9 +16,6 @@
       </button>
     </div>
   </div>
-  {% for la in l %}
-     {{la}}
-  {% endfor %}
   <div class="collaborators_wrapper">
     <!-- <div class="collaborators_title">Collaborators</div> -->
     <div class="collaborators_table">
@@ -32,24 +27,28 @@
       {% for info in owner_list %}
       <div class="collaborator_row">
         <div class="email_address collaborator_name">
-          {{info.email}} 
+          {{info.email}}
+          {% if info.email == current_user %}
+          <span>You</span>
+          {% endif %}
         </div>
+
         <!-- <span class="invitation_status">{{info.role}}</span> -->
         <div class="roles">
           {% if info.role == "OWNER" %}
-            Owner 
+          Owner
           {% else %}
-            Collaborator
+          Collaborator
           {% endif %}
         </div>
-        
+
         {% if info.role == "OWNER" %}
         <div class="permission collaborators_settings">
         </div>
         {% elif info.email == current_user%}
-          <div class="permission collaborators_settings">
-          </div>
-        {%  else %}
+        <div class="permission collaborators_settings">
+        </div>
+        {% else %}
         <div class="permission collaborators_settings">
           <button id="transfer-btn" type="submit" class="ownership_btn transfer">
             Transfer
@@ -72,25 +71,18 @@
     </div>
     <div class="new-token-container">
       <div class="new-token-name">
-        <input
-          class="collaborators_input"
-          placeholder="Email or Github account"
-        />
+        <input class="collaborators_input" placeholder="Email or Github account" />
       </div>
       <div class="collaborators_btn add">INVITE</div>
     </div>
-    <button
-      class="close-button"
-      data-close
-      aria-label="Close modal"
-      type="button"
-    >
+    <button class="close-button" data-close aria-label="Close modal" type="button">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
 
   <div class="modal reveal" id="transfer_owner_modal" data-reveal>
-    <div class="message">You are transfering the ownership of this package to <span id="collaborator_email"></span></div>
+    <div class="message">You are transfering the ownership of this package to <span id="collaborator_email"></span>
+    </div>
     <div class="warning">
       This action is irreversible, please make sure that you want to transfer
       your ownership.
@@ -99,12 +91,7 @@
       <div id="confirm_transfer" class="collaborators_btn submit">Confirm</div>
       <div id="cancel_transfer" class="collaborators_btn cancel">Cancel</div>
     </div>
-    <button
-      class="close-button"
-      data-close
-      aria-label="Close modal"
-      type="button"
-    >
+    <button class="close-button" data-close aria-label="Close modal" type="button">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
@@ -119,12 +106,7 @@
       <div class="collaborators_btn submit">Confirm</div>
       <div class="collaborators_btn cancel">Cancel</div>
     </div>
-    <button
-      class="close-button"
-      data-close
-      aria-label="Close modal"
-      type="button"
-    >
+    <button class="close-button" data-close aria-label="Close modal" type="button">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>

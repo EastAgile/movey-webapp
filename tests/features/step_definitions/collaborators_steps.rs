@@ -1,3 +1,4 @@
+use std::time::Duration;
 use std::{fs, thread};
 use cucumber::{then, when, given};
 use jelly::forms::{EmailField, PasswordField};
@@ -12,6 +13,7 @@ use crate::features::world::AccountInformation;
 use super::logout_steps::click_log_out;
 use super::signin_steps::visit_sign_in_page;
 use super::super::world::TestWorld;
+use tokio::time::sleep;
 
 #[given("I am an owner of a package")]
 async fn owner_of_package(world: &mut TestWorld) {
@@ -149,7 +151,7 @@ async fn invite_collaborator(world: &mut TestWorld) {
 
 #[then("She (the collaborator) should receive an invitation email")]
 async fn receive_invitation_email(_world: &mut TestWorld) {
-    thread::sleep(std::time::Duration::from_millis(1000));
+    sleep(Duration::from_secs(2)).await;
     let email_dir = fs::read_dir("./emails").unwrap().next();
     let content = fs::read_to_string(email_dir.unwrap().unwrap().path()).unwrap();
     
@@ -162,7 +164,7 @@ async fn receive_invitation_email(_world: &mut TestWorld) {
 
 #[then("She (the collaborator) should receive an ownership invitation email")]
 async fn receive_ownership_invitation_email(_world: &mut TestWorld) {
-    thread::sleep(std::time::Duration::from_millis(1000));
+    sleep(Duration::from_secs(2)).await;
     let email_dir = fs::read_dir("./emails").unwrap().next();
     let content = fs::read_to_string(email_dir.unwrap().unwrap().path()).unwrap();
 
@@ -206,7 +208,7 @@ async fn visit_own_invitation_page(world: &mut TestWorld) {
 async fn see_her_invitation(world: &mut TestWorld) {
     let package_names = world
         .driver
-        .find_elements(By::ClassName("package-name"))
+        .find_elements(By::ClassName("package-name-view"))
         .await
         .unwrap();
     assert_eq!(package_names.len(), 1);
@@ -217,7 +219,7 @@ async fn see_her_invitation(world: &mut TestWorld) {
 async fn see_ownership_invitation(world: &mut TestWorld) {
     let package_names = world
         .driver
-        .find_elements(By::ClassName("package-name"))
+        .find_elements(By::ClassName("package-name-view"))
         .await
         .unwrap();
     assert_eq!(package_names.len(), 1);
@@ -236,7 +238,7 @@ async fn see_ownership_invitation(world: &mut TestWorld) {
 async fn deleted_invitation(world: &mut TestWorld) {
     let package_names = world
         .driver
-        .find_elements(By::ClassName("package-name"))
+        .find_elements(By::ClassName("package-name-view"))
         .await
         .unwrap();
     assert!(package_names.is_empty());
@@ -267,31 +269,31 @@ async fn confirm_in_collaborator_list(world: &mut TestWorld) {
     
     for name in collaborator_names {
         let collaborator_name = name.text().await.unwrap();
-        if collaborator_name.contains(&world.second_account.email) && collaborator_name.contains("ACCEPTED") {
+        if collaborator_name.contains(&world.second_account.email) {
             return;        
         }
     }
     panic!()
 }
 
-#[then("She should see that she is a collaborator of the package")]
-async fn not_in_collaborator_list(world: &mut TestWorld) {
-    world
-        .go_to_url("packages/test%20package/owner_settings")
-        .await;
-    let collaborator_names = world
-        .driver
-        .find_elements(By::ClassName("collaborator_name"))
-        .await
-        .unwrap();
+// #[then("She sa should see that she is a collaborator of the package")]
+// async fn not_in_collaborator_list(world: &mut TestWorld) {
+//     world
+//         .go_to_url("packages/test%20package/owner_settings")
+//         .await;
+//     let collaborator_names = world
+//         .driver
+//         .find_elements(By::ClassName("collaborator_name"))
+//         .await
+//         .unwrap();
 
-    for name in collaborator_names {
-        let collaborator_name = name.text().await.unwrap();
-        if collaborator_name.contains(&world.second_account.email) && collaborator_name.contains("ACCEPTED") {
-            panic!()
-        }
-    }
-}
+//     for name in collaborator_names {
+//         let collaborator_name = name.text().await.unwrap();
+//         if collaborator_name.contains(&world.second_account.email) && collaborator_name.contains("ACCEPTED") {
+//             panic!()
+//         }
+//     }
+// }
 
 #[when("Collaborator invitation is expired")]
 async fn expired_collaborator_invitation(_world: &mut TestWorld) {
@@ -335,7 +337,7 @@ async fn invite_email_not_in_system(world: &mut TestWorld) {
 
 #[then("She (the outsider) should receive an invitation email")]
 async fn outsider_receives_invitation_email(_world: &mut TestWorld) {
-    thread::sleep(std::time::Duration::from_millis(1000));
+    sleep(Duration::from_secs(3)).await;
     let email_dir = fs::read_dir("./emails").unwrap().next();
     let content = fs::read_to_string(email_dir.unwrap().unwrap().path()).unwrap();
     
@@ -385,7 +387,7 @@ async fn fill_in_form(world: &mut TestWorld) {
 
 #[when("She verifies her email")]
 async fn verify_email(world: &mut TestWorld) {
-    thread::sleep(std::time::Duration::from_millis(1000));
+    sleep(Duration::from_secs(2)).await;
 
     let email_dir = fs::read_dir("./emails").unwrap().next();
     let content = fs::read_to_string(email_dir.unwrap().unwrap().path()).unwrap();
@@ -418,7 +420,7 @@ async fn see_invitation_tab(world: &mut TestWorld) {
     
     let test_package_name = world
         .driver
-        .find_elements(By::Id("package-name"))
+        .find_elements(By::Id("package-name-view"))
         .await
         .unwrap();
 
@@ -446,11 +448,24 @@ async fn accept_invitation(world: &mut TestWorld) {
     accept_btns[0].click().await.unwrap();
 }
 
+
+#[when("She click on the Decline button to decline the invitation")]
+async fn decline_invitation(world: &mut TestWorld) {
+    let cancel_btns = world
+        .driver
+        .find_elements(By::ClassName("cancel"))
+        .await
+        .unwrap();
+
+    assert_eq!(cancel_btns.len(), 1);
+    cancel_btns[0].click().await.unwrap();
+}
+
 #[then("She should be redirected to the package detail page")]
 async fn redirected_to_package_detail_page(world: &mut TestWorld) {
     assert_eq!(
         world.driver.current_url().await.unwrap(),
-        "http://localhost:17002/packages/test%20package"
+        "http://localhost:17002/settings/invitations"
     );
 }
 

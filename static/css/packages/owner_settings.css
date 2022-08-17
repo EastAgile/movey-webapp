@@ -112,9 +112,16 @@
   font-size: 18px;
   line-height: 24px;
   color: var(--dark-blue-color);
+  display: flex;
+  flex-direction: column;
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .email_address.header {
   font-weight: 500;
+}
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .email_address span {
+  color: var(--gray-color);
+  opacity: 80%;
+  font-size: 18px;
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles {
   width: 19%;

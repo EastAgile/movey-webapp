@@ -117,28 +117,38 @@ pub async fn show_package_settings(
     let mut vec = Vec::new();
     vec.push(accepted_ids[0]);
 
-    let mut owner_: Vec< Account > = Account::get_accounts(vec, &db_connection)?;
+    //let mut owner_: Vec< Account > = Account::get_accounts(vec, &db_connection)?;
+
+    let mut owner: Collaborator 
+        = Collaborator {
+            role: Role::COLLABORATOR,
+            email: "owner@gmail.com".to_string(),
+        }
+    ;
 
     let mut accepted_list:Vec<Collaborator > = Account::get_accounts(accepted_ids[0..].to_vec(), &db_connection)?
-    .iter().enumerate().map(|(idx,account)| {
-        // Collaborator {
-        //     role: Role::COLLABORATOR,
-        //     email: account.email.clone()
-        // }
-        if idx == 0 {
-            // 0 index is Owner
-            Collaborator {
+    .iter()
+    .filter(|&account| {
+        if account.id == accepted_ids[0] {
+            owner = Collaborator {
                 role: Role::OWNER,
                 email: account.email.clone()
-            }
-        }else {
-            Collaborator {
-                role: Role::COLLABORATOR,
-                email: account.email.clone()
-            }
+            };
+            return false;
         }
+        return true;
+    })
+    .map(|account| {
+        
+        Collaborator {
+            role: Role::COLLABORATOR,
+            email: account.email.clone()
+        }
+        
     }
     ).collect();
+    // the owner will be the first element in the accepted_list, help the view to render
+    accepted_list.insert(0,owner);
 
     let mut user_type = "user";
 
@@ -171,7 +181,6 @@ pub async fn show_package_settings(
         ctx.insert("user_type",&user_type);
         ctx.insert("current_user", &format!("{}@gmail.com",user.name));
         ctx.insert("l", &accepted_ids);
-        ctx.insert("o", &owner_[0]);
         ctx
     })
 }

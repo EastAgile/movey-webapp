@@ -125,9 +125,17 @@
           font-size: 18px;
           line-height: 24px;
           color: var(--dark-blue-color);
+          display: flex;
+          flex-direction: column;
 
           &.header {
             font-weight: 500;
+          }
+
+          span {
+            color: var(--gray-color);
+            opacity: 80%;
+            font-size: 18px;
           }
         }
 
