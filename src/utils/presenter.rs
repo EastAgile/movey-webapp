@@ -35,7 +35,7 @@ pub async fn make_account_name(package: &Package, db: &DieselPgPool) -> Result<(
             &account.name
         };
         let slug_url = format!(
-            "/accounts/users/{}/packages",
+            "/users/{}",
             account.slug.as_ref().ok_or_else(|| Error::Generic(format!(
                 "This account has no slug. uid: {}.",
                 account.id

@@ -7,10 +7,7 @@ use crate::features::world::TestWorld;
 async fn access_public_profile(world: &mut TestWorld) {
     world
         .driver
-        .get(format!(
-            "{}/accounts/users/{}/packages",
-            world.root_url, world.account.slug
-        ))
+        .get(format!("{}users/{}", world.root_url, world.account.slug))
         .await
         .unwrap()
 }
@@ -40,10 +37,7 @@ async fn see_public_profile(world: &mut TestWorld) {
     world.driver.switch_to().window(&handles[1]).await.unwrap();
     assert_eq!(
         world.driver.current_url().await.unwrap(),
-        format!(
-            "{}accounts/users/{}/packages",
-            world.root_url, world.account.slug
-        )
+        format!("{}users/{}", world.root_url, world.account.slug)
     );
 
     let owner_display = world
