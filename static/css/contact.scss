@@ -215,6 +215,12 @@
     }
   }
 
+  .select2-hidden-accessible,
+  .select2-hidden-accessible:focus {
+    left: 50% !important;
+    top: 55px !important;
+  }
+
   .contact-instruction {
     margin-top: 24px;
     margin-bottom: 24px;

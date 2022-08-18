@@ -1,16 +1,20 @@
-{% extends "layout.html" %} {% block title %}Contact Us | Movey{% endblock %} {%
-block css %}
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"
-/>
+{% extends "layout.html" %}
+
+{% block title %}Contact Us | Movey{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
 <link href="/static/css/contact.css" rel="stylesheet" />
-{% endblock %} {% block javascript %}
+{% endblock %}
+
+{% block javascript %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.0.3/showdown.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.6.7/jquery.timeago.min.js"></script>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-{% endblock %} {% block content %}
+{% endblock %}
+
+{% block content %}
 <div class="contact-container">
   <h1 class="page_name">Contact Us</h1>
   <div class="contact-content">
@@ -26,19 +30,9 @@ block css %}
   {% endif %}
   <div class="form-cta">Submit a request</div>
 
-  <form
-    action="/contact"
-    method="POST"
-    class="package-search-sort"
-    id="contact_us_form"
-  >
-    <select
-      name="category"
-      class="packages-sort"
-      data-sort=""
-      data-url="/packages/"
-      placeholder="Select category"
-    >
+  <form action="/contact" method="POST" class="package-search-sort" id="contact_us_form">
+    <select name="category" class="packages-sort" data-sort="" data-url="/packages/" placeholder="Select category"
+      required>
       <option value="" disabled selected></option>
       {% for category in categories %}
       <option name="category">{{category}}</option>
@@ -57,13 +51,7 @@ block css %}
     {% if email %}
     <input type="email" id="email" name="email" value="{{ email }}" readonly />
     {% else %}
-    <input
-      type="email"
-      placeholder="movey@eastagile.com"
-      id="email"
-      name="email"
-      required
-    />
+    <input type="email" placeholder="movey@eastagile.com" id="email" name="email" required />
     {% endif %}
 
     <div class="contact-instruction">
@@ -74,23 +62,13 @@ block css %}
     </div>
 
     <label class="contact-label" for="descr">How can we help?</label>
-    <textarea
-      name="description"
-      id="descr"
-      placeholder="Write us a message"
-      required
-      minlength="6"
-    ></textarea>
+    <textarea name="description" id="descr" placeholder="Write us a message" required minlength="6"></textarea>
 
     <input type="hidden" id="token" hidden name="token" default="" />
 
     <div class="submit-container">
-      <div
-        class="g-recaptcha"
-        data-sitekey="{{ JELLY_CAPTCHA_SITE_KEY }}"
-        data-callback="onCaptcha"
-        data-size="normal"
-      ></div>
+      <div class="g-recaptcha" data-sitekey="{{ JELLY_CAPTCHA_SITE_KEY }}" data-callback="onCaptcha" data-size="normal">
+      </div>
       <button type="submit" class="contact-btn" disabled>Submit</button>
     </div>
   </form>

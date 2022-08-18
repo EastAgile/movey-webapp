@@ -30,10 +30,19 @@ Feature: Policy
       When I access the Contact us page
       Then I should see the Contact us page
 
-    Scenario: Guest views the Contact us page
+    Scenario: Signed-in user views the Contact us page
       Given I am a user on Movey
       And I am signed in
       When I access the Contact us page
       Then I should see the Contact us page
       And I should see my name and email filled in textbox
       And I should see name field and email field are disabled
+
+    # # How to test Github signed in users
+    # Scenario: Github signed-in user views the Contact us page
+    #   Given I am a user on Movey with generated email
+    #   And I am signed in with generated email
+    #   When I access the Contact us page
+    #   Then I should see the Contact us page
+    #   And I should not see my name and email filled in textbox
+    #   And I should see name field and email field are enabled
