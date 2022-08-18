@@ -126,6 +126,7 @@ async fn see_an_invitation_overlay(_world: &mut TestWorld) {
 
 #[when("I invite a user to become a collaborator of the package")]
 async fn invite_collaborator(world: &mut TestWorld) {
+    fs::remove_dir_all("./emails").unwrap_or(());
     let input_username = world
         .driver
         .find_element(By::ClassName("collaborators_input"))
@@ -336,7 +337,7 @@ async fn invite_email_not_in_system(world: &mut TestWorld) {
         .await
         .unwrap();
 
-    fs::remove_dir_all("./emails").unwrap_or(());
+    // fs::remove_dir_all("./emails").unwrap_or(());
     
     invite_btn.click().await.unwrap();
 }
@@ -487,6 +488,7 @@ async fn see_expired_invitation_message(world: &mut TestWorld) {
 
 #[when("I transfer ownership to a collaborator")]
 async fn transfer_ownership(world: &mut TestWorld) {
+    
     let transfer_btns = world
         .driver
         .find_elements(By::ClassName("transfer"))

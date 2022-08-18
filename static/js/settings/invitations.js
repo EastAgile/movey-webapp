@@ -33,6 +33,7 @@ class Invitations {
       },
       error: function (xhr, status, errorThrown) {
         // TODO
+        window.location.reload();
       },
     })
   }

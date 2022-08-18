@@ -144,7 +144,7 @@ pub async fn transfer_ownership(
             token: invitation.token,
         })?;
     }
-
+    
     Ok(HttpResponse::Ok().json(&json!({
         "ok": true,
         "msg": MSG_SUCCESSFULLY_INVITED_COLLABORATOR,
