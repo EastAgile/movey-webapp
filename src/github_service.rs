@@ -122,16 +122,7 @@ impl GithubService {
                         if description.is_empty() {
                             description = strip_markdown::strip_markdown(&content);
                         }
-                        if description.chars().count() > 100 {
-                            let mut desc = String::from("");
-                            for character in description.chars() {
-                                desc.push(character);
-                                if desc.chars().count() >= 100 {
-                                    description = desc;
-                                    break;
-                                }
-                            }
-                        }
+                        description = description.chars().take(100).collect();
                         github_info.description = Some(description);
                     }
                     readme_content = content
