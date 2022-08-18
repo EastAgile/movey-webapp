@@ -19,10 +19,11 @@ Feature: Package collaborators
 
     Scenario: Accept invitation through email works
       When She clicks on the link in the email to accept the invitation
-      Then She should see that she is a collaborator of the package
+      And She accesses the package detail page
+      #Then She should see that she is a collaborator of the package
       When She accesses her invitation page
       Then She should see that the invitation is deleted
-@wip
+
     Scenario: Email invitation is expired
       When Collaborator invitation is expired
       And She clicks on the link in the email to accept the invitation
@@ -30,26 +31,25 @@ Feature: Package collaborators
 #      Then She should see the Invalid or Expired page
       When She accesses her invitation page
       Then She should see that the invitation is deleted
-@wip
+
     Scenario: Accept invitation through website works
       When She clicks on the Accept button to accept the invitation
       Then She should be redirected to the package detail page
-      And She should see that she is a collaborator of the package
+      #And She should see that she is a collaborator of the package
       When She accesses her invitation page
       Then She should see that the invitation is deleted
-@wip
+
     Scenario: Decline invitation through website works
       When She click on the Decline button to decline the invitation
       Then She should see that the invitation is deleted
-      When She access the package details page
-      Then She should see that she is not a collaborator of the package
-@wip
+      When She accesses the package detail page
+      #Then She should see that she is not a collaborator of the package
+
     Scenario: Expired invitation returns message
       When Collaborator invitation is expired
       And She clicks on the Accept button to accept the invitation
       Then She should see that the invitation is deleted
-      #And She should receive a message that the invitation is expired
-      #When She access the package details page
+      When She accesses the package detail page
       #Then She should see that she is not a collaborator of the package
 
   Rule: Invite user outside our system to collaborate
@@ -64,18 +64,18 @@ Feature: Package collaborators
       Then I should see an overlay for inviting a collaborator
       When I invite collaborator with a valid email that is not in our system
       Then She (the outsider) should receive an invitation email
-@wip
+
     Scenario: it works
       When She clicks on the link in the email to sign up
       And She fills in the form and submit
       And She verifies her email
       Then She should be redirected to her profile page
       Then She should see an invitation in her invitation page
-@wip
+
     Scenario: Expired invitation
-      When Collaborator invitation is expired
       When She clicks on the link in the email to sign up
       And She fills in the form and submit
+      And Collaborator invitation is expired
       And She verifies her email
       Then She should be redirected to her profile page
       And She should see that the invitation is deleted

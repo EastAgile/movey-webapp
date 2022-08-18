@@ -1,5 +1,5 @@
 use std::time::Duration;
-use std::{fs, thread};
+use std::fs;
 use cucumber::{then, when, given};
 use jelly::forms::{EmailField, PasswordField};
 use mainlib::package_collaborators::package_collaborator::PackageCollaborator;
@@ -57,7 +57,7 @@ async fn other_owners(world: &mut TestWorld) {
     )
         .await
         .unwrap();
-    PackageCollaborator::new_owner(
+    PackageCollaborator::new_collaborator(
         package.id,
         2,
         2,
@@ -225,17 +225,18 @@ async fn see_ownership_invitation(world: &mut TestWorld) {
     assert_eq!(package_names.len(), 1);
     assert_eq!(&package_names[0].text().await.unwrap(), world.first_account.owned_package_name.as_ref().unwrap());
 
-    let statuses = world
+    let accept_btns = world
         .driver
-        .find_elements(By::ClassName("status"))
+        .find_elements(By::ClassName("accept"))
         .await
         .unwrap();
-    assert_eq!(statuses.len(), 1);
-    assert_eq!(&statuses[0].text().await.unwrap(), "TRANSFER");
+    assert_eq!(accept_btns.len(), 1);
+    assert_eq!(&accept_btns[0].text().await.unwrap(), "ACCEPT");
 }
 
 #[then("She should see that the invitation is deleted")]
 async fn deleted_invitation(world: &mut TestWorld) {
+    sleep(Duration::from_millis(1000)).await;
     let package_names = world
         .driver
         .find_elements(By::ClassName("package-name-view"))
@@ -258,9 +259,9 @@ async fn invitation_link_in_email(world: &mut TestWorld) {
 
 #[then("She should see that she is a collaborator of the package")]
 async fn confirm_in_collaborator_list(world: &mut TestWorld) {
-    world
-    .go_to_url("packages/test%20package/owner_settings")
-    .await;
+    // world
+    // .go_to_url("packages/test%20package/owner_settings")
+    // .await;
     let collaborator_names = world
         .driver
         .find_elements(By::ClassName("collaborator_name"))
@@ -297,6 +298,11 @@ async fn confirm_in_collaborator_list(world: &mut TestWorld) {
 
 #[when("Collaborator invitation is expired")]
 async fn expired_collaborator_invitation(_world: &mut TestWorld) {
+    std::env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "0");
+}
+
+#[when("The transfer ownership invitation is expired")]
+async fn expired_owner_invitation(_world: &mut TestWorld) {
     std::env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "0");
 }
 
@@ -483,19 +489,26 @@ async fn see_expired_invitation_message(world: &mut TestWorld) {
 async fn transfer_ownership(world: &mut TestWorld) {
     let transfer_btns = world
         .driver
-        .find_elements(By::ClassName("transfer_btn"))
+        .find_elements(By::ClassName("transfer"))
         .await
         .unwrap();
 
     assert_eq!(transfer_btns.len(), 1);
     transfer_btns[0].click().await.unwrap();
+
+    let confirm_btn = world
+        .driver
+        .find_element(By::Id("confirm_transfer"))
+        .await
+        .unwrap();
+    confirm_btn.click().await.unwrap();
 }
 
 #[when("She clicks on the Accept button to accept the transfer")]
 async fn accept_ownership_invitation(world: &mut TestWorld) {
     let accept_btns = world
         .driver
-        .find_elements(By::ClassName("accept_btn"))
+        .find_elements(By::ClassName("accept"))
         .await
         .unwrap();
 

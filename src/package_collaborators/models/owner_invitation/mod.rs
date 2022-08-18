@@ -6,11 +6,13 @@ use crate::schema::{owner_invitations, package_collaborators, packages, accounts
 use crate::utils::token::SecureToken;
 use diesel::prelude::*;
 use diesel::{Identifiable, Insertable, Queryable};
+use diesel::pg::expression::extensions::IntervalDsl;
 use jelly::chrono::{NaiveDateTime, Utc};
 use jelly::Result;
 use jelly::{chrono, DieselPgConnection};
 use serde::Serialize;
 use std::env;
+use diesel::dsl::now;
 
 #[derive(Clone, Debug, Eq, Identifiable, Queryable)]
 #[primary_key(invited_user_id, package_id)]
@@ -145,8 +147,10 @@ impl OwnerInvitation {
         invited_user_id: i32,
         conn: &DieselPgConnection,
     ) -> Result<Vec<OwnerInvitationQuery>>{
+        let expiration_days = Self::get_expiration_days();
         Ok(owner_invitations::table
             .filter(owner_invitations::invited_user_id.eq(invited_user_id))
+            .filter(owner_invitations::created_at.gt(now - expiration_days.days()))
             .inner_join(packages::table.on(owner_invitations::package_id.eq(packages::id)))
             .inner_join(accounts::table.on(owner_invitations::invited_by_user_id.eq(accounts::id)))
             .select((owner_invitations::invited_user_id, owner_invitations::invited_by_user_id, accounts::email, owner_invitations::package_id, packages::name, owner_invitations::is_transferring))
@@ -190,15 +194,19 @@ impl OwnerInvitation {
     }
 
     fn expires_at(&self) -> NaiveDateTime {
-        let expiration_days = env::var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS")
-            .expect("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS not set!");
-        let no_days = expiration_days
-            .parse::<i64>()
-            .expect("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS is not an integer!");
-        if no_days < 0 {
+        let expiration_days = Self::get_expiration_days();
+        if expiration_days < 0 {
             panic!("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS cannot be less than 0")
         }
-        let days = chrono::Duration::days(no_days);
+        let days = chrono::Duration::days(expiration_days);
         self.created_at + days
+    }
+
+    fn get_expiration_days() -> i64 {
+        let expiration_days = env::var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS")
+            .expect("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS not set!");
+        expiration_days
+            .parse::<i64>()
+            .expect("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS is not an integer!")
     }
 }

@@ -8,7 +8,6 @@ use jelly::chrono::{NaiveDateTime, Utc};
 use jelly::Result;
 use jelly::{chrono, DieselPgConnection};
 use std::env;
-use crate::utils::token::SecureToken;
 
 #[derive(Clone, Debug, PartialEq, Eq, Identifiable, Queryable)]
 #[primary_key(pending_user_email, package_id)]

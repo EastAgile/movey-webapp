@@ -201,17 +201,36 @@ async fn not_create_new_invitation_if_it_already_exists() {
 }
 
 #[actix_rt::test]
-async fn find_by_package_id_success() {
-    // crate::test::init();
-    // let _ctx = DatabaseTestContext::new();
-    // let conn = DB_POOL.get().unwrap();
+async fn find_by_invited_account_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+    let conn = DB_POOL.get().unwrap();
 
-    // let stub_invitation = setup_invitation(None).await;
-    // let database_invitation = OwnerInvitation::find_by_package_id(stub_invitation.package_id,&conn).unwrap()[0].clone();
-    
-    // assert_eq!(stub_invitation.invited_user_id, database_invitation.invited_user_id);  
-    // assert_eq!(stub_invitation.invited_by_user_id,database_invitation.invited_by_user_id);    
-    // assert_eq!(stub_invitation.package_id,database_invitation.package_id);    
-    // assert_eq!(stub_invitation.is_transferring,database_invitation.is_transferring);    
-    // assert_eq!(stub_invitation.created_at,database_invitation.created_at);    
+    let owner_invitation = setup_invitation(None).await;
+    env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "1");
+    let invited_account = OwnerInvitation::find_by_invited_account(
+        owner_invitation.invited_user_id,
+        &conn
+    ).unwrap();
+
+    assert_eq!(invited_account.len(), 1);
+    assert_eq!(invited_account[0].invited_user_id, owner_invitation.invited_user_id);
+    assert_eq!(invited_account[0].package_id, owner_invitation.package_id);
+    assert_eq!(invited_account[0].invited_by_user_id, owner_invitation.invited_by_user_id);
+}
+
+#[actix_rt::test]
+async fn find_by_invited_account_returns_err_if_invitation_expired() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+    let conn = DB_POOL.get().unwrap();
+
+    let owner_invitation = setup_invitation(None).await;
+    env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "0");
+
+    let invited_account = OwnerInvitation::find_by_invited_account(
+        owner_invitation.invited_user_id,
+        &conn
+    ).unwrap();
+    assert_eq!(invited_account.len(), 0);
 }
