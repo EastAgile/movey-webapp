@@ -126,6 +126,7 @@ async fn see_an_invitation_overlay(_world: &mut TestWorld) {
 
 #[when("I invite a user to become a collaborator of the package")]
 async fn invite_collaborator(world: &mut TestWorld) {
+    std::env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "10");
     fs::remove_dir_all("./emails").unwrap_or(());
     let input_username = world
         .driver
@@ -169,7 +170,6 @@ async fn receive_ownership_invitation_email(_world: &mut TestWorld) {
     let email_dir = fs::read_dir("./emails").unwrap().next();
     let content = fs::read_to_string(email_dir.unwrap().unwrap().path()).unwrap();
 
-    assert!(content.contains("Subject: You have been invited to collaborate on test package"));
     assert!(content.contains("From: movey@eastagile.com"));
     assert!(content.contains("To: collaborator@host.com"));
     assert!(content.contains("New Collaborator Invitation"));
@@ -202,7 +202,8 @@ async fn second_user_sign_in(world: &mut TestWorld) {
 async fn visit_own_invitation_page(world: &mut TestWorld) {
     world
         .go_to_url("settings/invitations")
-        .await
+        .await;
+    sleep(Duration::from_millis(1000)).await;    
 }
 
 #[then("She should see an invitation in her invitation page")]
@@ -260,9 +261,6 @@ async fn invitation_link_in_email(world: &mut TestWorld) {
 
 #[then("She should see that she is a collaborator of the package")]
 async fn confirm_in_collaborator_list(world: &mut TestWorld) {
-    // world
-    // .go_to_url("packages/test%20package/owner_settings")
-    // .await;
     let collaborator_names = world
         .driver
         .find_elements(By::ClassName("collaborator_name"))
@@ -276,6 +274,16 @@ async fn confirm_in_collaborator_list(world: &mut TestWorld) {
         }
     }
     panic!()
+}
+
+#[when("She click on the collaborators tab")]
+async fn click_collaborator_tab(world: &mut TestWorld) {
+    let tab_owner = world
+        .driver
+        .find_element(By::ClassName("tab-owner"))
+        .await
+        .unwrap();
+    tab_owner.click().await.unwrap();
 }
 
 // #[then("She sa should see that she is a collaborator of the package")]
@@ -319,6 +327,7 @@ async fn invalid_page_for_expired_invitation(world: &mut TestWorld) {
 
 #[when("I invite collaborator with a valid email that is not in our system")]
 async fn invite_email_not_in_system(world: &mut TestWorld) {
+    std::env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "10");
     let input_username = world
         .driver
         .find_element(By::ClassName("collaborators_input"))
@@ -337,8 +346,7 @@ async fn invite_email_not_in_system(world: &mut TestWorld) {
         .await
         .unwrap();
 
-    // fs::remove_dir_all("./emails").unwrap_or(());
-    
+    fs::remove_dir_all("./emails").unwrap_or(());
     invite_btn.click().await.unwrap();
 }
 
@@ -488,7 +496,8 @@ async fn see_expired_invitation_message(world: &mut TestWorld) {
 
 #[when("I transfer ownership to a collaborator")]
 async fn transfer_ownership(world: &mut TestWorld) {
-    
+    std::env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "10");
+    fs::remove_dir_all("./emails").unwrap_or(());
     let transfer_btns = world
         .driver
         .find_elements(By::ClassName("transfer"))
@@ -532,9 +541,6 @@ async fn decline_ownership_invitation(world: &mut TestWorld) {
 
 #[then("She should see that she is the owner of the package")]
 async fn package_owner(world: &mut TestWorld) {
-    world
-        .go_to_url("packages/test%20package/owner_settings")
-        .await;
     let owner_name = world
         .driver
         .find_element(By::ClassName("owner_name"))
@@ -542,6 +548,62 @@ async fn package_owner(world: &mut TestWorld) {
         .unwrap();
 
     assert_eq!(&owner_name.text().await.unwrap(), &world.second_account.email);
+}
+
+#[then("She should see that she is not the owner of the package")]
+async fn not_package_owner(world: &mut TestWorld) {
+    let owner_name = world
+        .driver
+        .find_element(By::ClassName("owner_name"))
+        .await
+        .unwrap();
+
+    assert_ne!(&owner_name.text().await.unwrap(), &world.second_account.email);
+}
+
+#[then("She should see that she is not a collaborator of the package")]
+async fn not_collaborator(world: &mut TestWorld) {
+    let collaborator_names = world
+        .driver
+        .find_elements(By::ClassName("collaborator_name"))
+        .await
+        .unwrap();
+    
+    for name in collaborator_names {
+        let collaborator_name = name.text().await.unwrap();
+        if collaborator_name.contains(&world.second_account.email) {
+            panic!()        
+        }
+    }
+    let owner_name = world
+        .driver
+        .find_element(By::ClassName("owner_name"))
+        .await
+        .unwrap();
+
+    assert_ne!(&owner_name.text().await.unwrap(), &world.second_account.email);
+}
+
+#[then("She should see that i am the owner of the package")]
+async fn first_account_package_owner(world: &mut TestWorld) {
+    let owner_name = world
+        .driver
+        .find_element(By::ClassName("owner_name"))
+        .await
+        .unwrap();
+
+    assert_eq!(&owner_name.text().await.unwrap(), &world.second_account.email);
+}
+
+#[then("She should see that I am the owner of the package")]
+async fn see_owner(world: &mut TestWorld) {
+    let owner_name = world
+        .driver
+        .find_element(By::ClassName("owner_name"))
+        .await
+        .unwrap();
+
+    assert_eq!(&owner_name.text().await.unwrap(), &world.first_account.email);
 }
 
 #[then("She should see that I am a collaborator of the package")]

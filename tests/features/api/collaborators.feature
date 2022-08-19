@@ -28,18 +28,15 @@ Feature: Package collaborators
     Scenario: Email invitation is expired
       When Collaborator invitation is expired
       And She clicks on the link in the email to accept the invitation
-      # don't have Expired page atm
-      # Then She should see the Invalid or Expired page
       When She accesses her invitation page
       Then She should see that the invitation is deleted
 
     Scenario: Accept invitation through website works
       When She clicks on the Accept button to accept the invitation
-      Then She should be redirected to the package detail page
-      And She click on the collaborators tab
-      #And She should see that she is a collaborator of the package
-      When She accesses her invitation page
       Then She should see that the invitation is deleted
+      When She accesses the package detail page
+      And She click on the collaborators tab
+      Then She should see that she is a collaborator of the package
 
     Scenario: Decline invitation through website works
       When She click on the Decline button to decline the invitation
