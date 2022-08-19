@@ -2,6 +2,7 @@ pub const MSG_UNEXPECTED_ERROR: &str = "Encountered unexpected error.";
 pub const MSG_BAD_REQUEST: &str = "Bad Request.";
 pub const MSG_PACKAGE_NOT_FOUND: &str = "Package not found.";
 pub const MSG_ACCOUNT_NOT_FOUND: &str = "Account not found.";
+pub const MSG_INVITATION_NOT_FOUND: &str = "Invitation not found.";
 pub const MSG_ACCOUNT_NOT_FOUND_INVITING: &str = "Account not found. If you entered an email, \
     we are trying to invite this person to join you as a collaborator.";
 

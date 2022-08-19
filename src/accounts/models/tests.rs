@@ -675,8 +675,8 @@ async fn get_by_email_or_gh_login_works() {
     assert_eq!(real_account.email, gh_account.email);
     assert_eq!(
         real_account.github_login.as_ref().unwrap(),
-        gh_account.github_login.as_ref().unwrap())
-    ;
+        gh_account.github_login.as_ref().unwrap(),
+    );
     assert_eq!(real_account.id, gh_account.id);
 
     let uid = setup_user(None, None).await;
