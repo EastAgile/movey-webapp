@@ -57,7 +57,7 @@ async fn fetch_name_from_email_returns_correct_name() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     let account_email = Account::get(uid, &DB_POOL).await.unwrap();
     let account_name = Account::fetch_name_from_email(&account_email.email, &DB_POOL)
         .await
@@ -70,7 +70,7 @@ async fn fetch_email_returns_correct_email() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     let (name_, email_) = Account::fetch_email(uid, &DB_POOL).await.unwrap();
     let account_email = Account::get(uid, &DB_POOL).await.unwrap();
 
@@ -257,7 +257,7 @@ async fn change_password_returns_error_if_wrong_current_password() {
 async fn change_password_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
 
     let new_password = String::from("nEw$trongpas0word!");
     Account::change_password(

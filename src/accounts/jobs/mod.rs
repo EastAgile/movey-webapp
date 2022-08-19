@@ -14,6 +14,7 @@ pub use odd_registration_attempt::SendAccountOddRegisterAttemptEmail;
 
 mod contact;
 pub use contact::SendContactRequestEmail;
+pub use contact::SendContactEmail;
 
 mod invite_collaborator;
 pub use invite_collaborator::{SendCollaboratorInvitationEmail, SendRegisterToCollabEmail};

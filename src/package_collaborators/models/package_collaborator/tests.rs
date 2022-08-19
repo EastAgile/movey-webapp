@@ -1,8 +1,8 @@
 use crate::package_collaborators::package_collaborator::PackageCollaborator;
 use crate::packages::Package;
 use crate::test::{DatabaseTestContext, DB_POOL};
-use crate::utils::tests::setup_user;
 use jelly::prelude::*;
+use crate::test::util::setup_user;
 
 #[actix_rt::test]
 async fn new_collaborator_works() {

@@ -1,11 +1,11 @@
 use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
 use crate::packages::Package;
 use crate::test::{DatabaseTestContext, DB_POOL};
-use crate::utils::tests::setup_user;
 use crate::utils::token::TOKEN_LENGTH;
 use jelly::prelude::*;
 use std::env;
 use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
+use crate::test::util::setup_user;
 
 async fn setup_invitation(is_transferring: Option<bool>) -> OwnerInvitation {
     let invited_uid = setup_user(None, None).await;
