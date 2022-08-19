@@ -30,9 +30,12 @@ pub async fn add_collaborators(
         .await
         .map_err(|e| ApiNotFound(MSG_PACKAGE_NOT_FOUND, Box::new(e)))?;
     let user = request.user().map_err(|e| ApiServerError(Box::new(e)))?;
+    
     let invited_account = Account::get_by_email_or_gh_login(&json.user, db)
-        .await
-        .map_err(|e| {
+    .await;
+    let invited_account = match invited_account {
+        Ok(account) => account,
+        Err(e) => {
             if matches!(e, Error::Database(DBError::NotFound))
                 && json.user.contains('@')
                 && PendingInvitation::create(&json.user, user.id, package.id, &conn).is_ok()
@@ -43,8 +46,13 @@ pub async fn add_collaborators(
                     package_name: package.name.clone(),
                 });
             }
-            ApiNotFound(MSG_ACCOUNT_NOT_FOUND_INVITING, Box::new(e))
-        })?;
+            // Inviting email is not in system, return a message that will send email to them.
+            return Ok(HttpResponse::Ok().json(json!({
+                "ok": false,
+                "msg": MSG_ACCOUNT_NOT_FOUND_INVITING
+            })));
+        }
+    };
 
     let collaborator = PackageCollaborator::get(package.id, user.id, &conn)
         .map_err(|e| ApiForbidden(MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR, Box::new(e)))?;

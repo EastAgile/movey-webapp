@@ -16,7 +16,7 @@ Feature: Package collaborators
       When She is signed in
       And She accesses her invitation page
       Then She should see an invitation in her invitation page
-@wip
+      
     Scenario: Accept invitation through email works
       When She clicks on the link in the email to accept the invitation
       And She accesses the package detail page
