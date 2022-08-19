@@ -113,6 +113,7 @@
         align-items: center;
         justify-content: space-around;
         height: 80px;
+        position: relative;
 
         &.header {
           height: 50px;
@@ -139,6 +140,12 @@
           }
         }
 
+        .sending_status {
+          position: absolute;
+          left: 16px;
+          top: 48px;
+        }
+
         .roles {
           width: 19%;
           font-weight: 300;
@@ -148,6 +155,10 @@
 
           &.header {
             font-weight: 500;
+          }
+
+          .collaborator {
+            margin-bottom: 0px;
           }
         }
 
@@ -306,5 +317,27 @@
         margin-left: 20px;
       }
     }
+  }
+}
+
+#success_modal {
+  background-color: #effff4;
+  border-radius: 4px;
+  margin: auto;
+
+  .message {
+    color: #333333;
+  }
+
+  .close-button {}
+}
+
+#error_modal {
+  background-color: #FFFFFF;
+  border-radius: 4px;
+  margin: auto;
+
+  .message {
+    color: #eb5757;
   }
 }

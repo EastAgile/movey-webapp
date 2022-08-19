@@ -16,7 +16,7 @@ Feature: Package collaborators
       When She is signed in
       And She accesses her invitation page
       Then She should see an invitation in her invitation page
- 
+@wip
     Scenario: Accept invitation through email works
       When She clicks on the link in the email to accept the invitation
       And She accesses the package detail page
@@ -65,7 +65,7 @@ Feature: Package collaborators
       Then I should see an overlay for inviting a collaborator
       When I invite collaborator with a valid email that is not in our system
       Then She (the outsider) should receive an invitation email
-
+@wip
     Scenario: it works
       When She clicks on the link in the email to sign up
       And She fills in the form and submit

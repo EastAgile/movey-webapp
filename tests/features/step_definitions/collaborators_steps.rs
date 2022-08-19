@@ -149,6 +149,14 @@ async fn invite_collaborator(world: &mut TestWorld) {
     fs::remove_dir_all("./emails").unwrap_or(());
     
     invite_btn.click().await.unwrap();
+
+    let close_modal_btn = world
+        .driver
+        .find_element(By::ClassName("close-button-icon"))
+        .await
+        .unwrap();
+
+    close_modal_btn.click().await.unwrap();
 }
 
 #[then("She (the collaborator) should receive an invitation email")]
@@ -192,7 +200,7 @@ async fn second_user_sign_in(world: &mut TestWorld) {
     password_field.send_keys(&world.second_account.password).await.unwrap();
     let login_button = world
         .driver
-        .find_element(By::ClassName("login-btn"))
+        .find_element(By::Css(".login-btn"))
         .await
         .unwrap();
     login_button.click().await.unwrap();
@@ -348,6 +356,14 @@ async fn invite_email_not_in_system(world: &mut TestWorld) {
 
     fs::remove_dir_all("./emails").unwrap_or(());
     invite_btn.click().await.unwrap();
+
+    let close_modal_btn = world
+        .driver
+        .find_element(By::ClassName("close-button-icon"))
+        .await
+        .unwrap();
+
+    close_modal_btn.click().await.unwrap();
 }
 
 #[then("She (the outsider) should receive an invitation email")]
@@ -513,6 +529,14 @@ async fn transfer_ownership(world: &mut TestWorld) {
         .await
         .unwrap();
     confirm_btn.click().await.unwrap();
+
+    let close_modal_btn = world
+        .driver
+        .find_element(By::ClassName("close-button-icon"))
+        .await
+        .unwrap();
+
+    close_modal_btn.click().await.unwrap();
 }
 
 #[when("She clicks on the Accept button to accept the transfer")]

@@ -114,8 +114,6 @@ pub async fn show_package_settings(
     // get movey account that is invited to be a collaborator
     let accepted_ids = PackageCollaborator::get_by_package_id(package.id, &db_connection)?;
     
-    let mut vec = Vec::new();
-    vec.push(accepted_ids[0]);
 
     //let mut owner_: Vec< Account > = Account::get_accounts(vec, &db_connection)?;
 

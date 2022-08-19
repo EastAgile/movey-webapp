@@ -17,6 +17,9 @@ class Collaborator {
     this.userNameInput = $(".collaborators_input");
     this.packageName = $(".package-name")[0];
 
+    this.success_modal = $('#success_modal');
+    this.error_modal = $('#error_modal');
+
     this.init();
   }
 
@@ -41,19 +44,19 @@ class Collaborator {
       this.collaborators_modal.foundation("close");
     });
 
-    this.owner_btn.each(function(){
+    this.owner_btn.each(function () {
       console.log($(this))
-      $( this ).click(
+      $(this).click(
         (e) => {
-          $('#collaborator_email').text(e.target.parentElement.parentElement.querySelector('.collaborator_name').innerText) 
+          $('#collaborator_email').text(e.target.parentElement.parentElement.querySelector('.collaborator_name').innerText)
           $("#transfer_owner_modal").foundation("open")
         }
       )
-      
+
     });
-    this.remove_btn.each(function(){
+    this.remove_btn.each(function () {
       console.log($(this))
-      $( this ).click(
+      $(this).click(
         () => {
           $("#remove_owner_modal").foundation("open")
         }
@@ -61,7 +64,7 @@ class Collaborator {
     });
 
     this.transfer_modal.find(".submit").on("click", () => {
-      console.log("transfer");
+
       this.transferOwnership()
       this.transfer_modal.foundation("close");
     });
@@ -105,23 +108,28 @@ class Collaborator {
       data: JSON.stringify({ user: this.userName }),
       success: (data, status, xhr) => {
         if (data.ok) {
-          console.log("ASDASDASD");
           this.updateRow(this.userName, "pending");
+          $('#success_modal_message').text(data.msg);
+          this.success_modal.foundation("open");
+          // this.success_modal.foundation("close");
+        } else {
+          $('#error_modal_message').text(data.msg);
+          this.error_modal.foundation("open");
         }
       },
-      error: function (xhr, status, errorThrown) {
-        $(".tokens-error").text(xhr.responseText);
-        return errorThrown;
+      error: (data, status, xhr) => {
+        $('#error_modal_message').text(data.responseJSON.msg);
+        this.error_modal.foundation("open");
       },
     });
   };
 
   transferOwnership = () => {
-    
+
     console.log($('#collaborator_email').text());
     let collaboratorUrl =
       "/api/v1/packages/" + this.packageName.innerHTML + "/transfer";
-    
+
     $.ajax({
       type: "POST",
       dataType: "json",
@@ -131,19 +139,24 @@ class Collaborator {
       headers: {},
       data: JSON.stringify({ user: $('#collaborator_email').text() }),
       success: (data, status, xhr) => {
+        console.log(data.ok);
         if (data.ok) {
-          console.log("Transfer success");
+          $('#success_modal_message').text(data.msg);
+          this.success_modal.foundation("open");
+        } else {
+          console.log("ASD")
+          $('#error_modal_message').text(data.msg);
+          this.error_modal.foundation("open");
         }
       },
-      error: function (xhr, status, errorThrown) {
-        $(".tokens-error").text(xhr.responseText);
-        return errorThrown;
+      error: (data, status, xhr) => {
+        $('#error_modal_message').text(data.responseJSON.msg);
+        this.error_modal.foundation("open");
       },
     });
   };
 
   updateRow = (name, status) => {
-    console.log("nbew");
     $(".collaborators_table").append(`
       <div class="collaborator_row">
         <div class="email_address collaborator_name">
