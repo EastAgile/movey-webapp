@@ -1,12 +1,10 @@
 {% extends "packages/layout.html" %} {% block javascript %}
 <script src="/static/js/settings/user_package.js"></script>
 <script src="/static/js/packages/collaborators.js"></script>
-<!-- <link href="/static/css/settings/user_tokens.css" rel="stylesheet" /> -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.6.7/jquery.timeago.min.js"
   type="text/javascript"></script>
 
 {% endblock %} {% block package_content %}
-<!-- {{current_user}} -->
 <div class="package-settings-container">
   <div class="owner_settings_wrapper">
     <div class="owner_header">
@@ -40,7 +38,6 @@
         {% if info.role == "PENDING"%}
         <div class="sending_status">invitation sent</div>
         {% endif %}
-        <!-- <span class="invitation_status">{{info.role}}</span> -->
         <div class="roles">
           <p class="collaborator">Collaborator</p>
         </div>
@@ -112,8 +109,6 @@
   <div class="modal reveal" id="remove_owner_modal" data-reveal>
     <div class="message">You are remove this collaborator from package</div>
     <div class="warning">
-      <!-- This action is irreversible, please make sure that you want to transfer
-      your ownership. -->
     </div>
     <div class="new-token-container">
       <div class="collaborators_btn submit">Confirm</div>
@@ -132,15 +127,6 @@
       <span class="close-button-icon" aria-hidden="true">&times;</span>
     </button>
   </div>
-
-  <!-- <div class="modal reveal" id="error_modal" data-reveal>
-    <div id="error_modal_message" class="message">
-      There are some errors. Please check again.
-    </div>
-    <button class="close-button" data-close aria-label="Close modal" type="button">
-      <span class="close-button-icon-not-found" aria-hidden="true">&times;</span>
-    </button>
-  </div> -->
 
   <script>
     new Collaborator();

@@ -30,9 +30,8 @@ pub async fn add_collaborators(
         .await
         .map_err(|e| ApiNotFound(MSG_PACKAGE_NOT_FOUND, Box::new(e)))?;
     let user = request.user().map_err(|e| ApiServerError(Box::new(e)))?;
-    
-    let invited_account = Account::get_by_email_or_gh_login(&json.user, db)
-    .await;
+
+    let invited_account = Account::get_by_email_or_gh_login(&json.user, db).await;
     let invited_account = match invited_account {
         Ok(account) => account,
         Err(e) => {
@@ -152,7 +151,7 @@ pub async fn transfer_ownership(
             token: invitation.token,
         })?;
     }
-    
+
     Ok(HttpResponse::Ok().json(&json!({
         "ok": true,
         "msg": MSG_SUCCESSFULLY_INVITED_COLLABORATOR,

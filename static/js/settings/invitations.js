@@ -26,13 +26,12 @@ class Invitations {
       processData: false,
       headers: {},
       data: JSON.stringify({ "package_id": packageId, "accepted": accepted }),
-      success: (data, status, xhr) => {
+      success: (_data, _status, _xhr) => {
         // reload to update database because ajax response need time to load new change
         window.location.reload();
         console.log("OK");
       },
-      error: function (xhr, status, errorThrown) {
-        // TODO
+      error: function (_xhr, _status, _errorThrown) {
         window.location.reload();
       },
     })

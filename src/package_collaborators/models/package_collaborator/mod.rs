@@ -7,7 +7,7 @@ use jelly::DieselPgConnection;
 
 use crate::accounts::Account;
 use crate::packages::Package;
-use crate::schema::{package_collaborators};
+use crate::schema::package_collaborators;
 
 #[cfg(test)]
 mod tests;
@@ -74,7 +74,7 @@ impl PackageCollaborator {
             })
             .get_result::<PackageCollaborator>(conn)?;
 
-    Ok(())
+        Ok(())
     }
 
     pub fn get(package_id: i32, account_id: i32, conn: &DieselPgConnection) -> Result<Self, Error> {
@@ -83,7 +83,10 @@ impl PackageCollaborator {
             .first::<Self>(conn)?)
     }
 
-    pub fn get_by_package_id(package_id: i32, conn: &DieselPgConnection) -> Result<Vec<i32>, Error> {
+    pub fn get_by_package_id(
+        package_id: i32,
+        conn: &DieselPgConnection,
+    ) -> Result<Vec<i32>, Error> {
         Ok(package_collaborators::table
             .filter(package_collaborators::package_id.eq(package_id))
             .select(package_collaborators::account_id)

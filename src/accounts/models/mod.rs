@@ -12,7 +12,7 @@ use jelly::djangohashers::{check_password, make_password};
 use jelly::error::Error;
 use jelly::error::Error::Generic;
 use jelly::serde::{Deserialize, Serialize};
-use jelly::{DieselPgPool, DieselPgConnection};
+use jelly::{DieselPgConnection, DieselPgPool};
 
 use super::forms::{LoginForm, NewAccountForm};
 use super::views::verify::GithubOauthUser;

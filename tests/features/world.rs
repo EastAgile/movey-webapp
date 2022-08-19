@@ -64,7 +64,10 @@ impl TestWorld {
     }
 
     pub async fn go_to_url(&self, relative_url: &str) {
-        self.driver.get(format!("{}{}", &self.root_url, relative_url)).await.unwrap()
+        self.driver
+            .get(format!("{}{}", &self.root_url, relative_url))
+            .await
+            .unwrap()
     }
 
     pub async fn close_browser(&self) {

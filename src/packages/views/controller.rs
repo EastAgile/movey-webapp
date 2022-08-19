@@ -6,10 +6,10 @@ use jelly::request::DatabasePool;
 use jelly::Result;
 
 use crate::accounts::Account;
+use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
 use crate::package_collaborators::package_collaborator::PackageCollaborator;
 use crate::packages::models::{PackageSortField, PackageSortOrder, PACKAGES_PER_PAGE};
 use crate::packages::{Package, PackageVersion, PackageVersionSort};
-use crate::package_collaborators::models::owner_invitation::{OwnerInvitation};
 
 use super::serializer::{Collaborator, Role};
 
@@ -108,65 +108,58 @@ pub async fn show_package_settings(
     let db_connection = db_pool.get()?;
     let package = Package::get_by_name(&package_name, db_pool).await?;
     let package_latest_version =
-        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db_pool).await?[0];
+        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db_pool).await?
+            [0];
     let user = request.user()?;
 
     // get movey account that is invited to be a collaborator
     let accepted_ids = PackageCollaborator::get_by_package_id(package.id, &db_connection)?;
-    
+    let mut owner: Option<Collaborator>;
 
-    //let mut owner_: Vec< Account > = Account::get_accounts(vec, &db_connection)?;
-
-    let mut owner: Collaborator 
-        = Collaborator {
-            role: Role::COLLABORATOR,
-            email: "owner@gmail.com".to_string(),
-        }
-    ;
-
-    let mut accepted_list:Vec<Collaborator > = Account::get_accounts(accepted_ids[0..].to_vec(), &db_connection)?
-    .iter()
-    .filter(|&account| {
-        if account.id == accepted_ids[0] {
-            owner = Collaborator {
-                role: Role::OWNER,
-                email: account.email.clone()
-            };
-            return false;
-        }
-        return true;
-    })
-    .map(|account| {
-        
-        Collaborator {
-            role: Role::COLLABORATOR,
-            email: account.email.clone()
-        }
-        
-    }
-    ).collect();
+    let mut accepted_list: Vec<Collaborator> =
+        Account::get_accounts(accepted_ids[0..].to_vec(), &db_connection)?
+            .iter()
+            .filter(|&account| {
+                if account.id == accepted_ids[0] {
+                    owner = Some(Collaborator {
+                        role: Role::OWNER,
+                        email: account.email.clone(),
+                        id: account.id,
+                    });
+                    return false;
+                }
+                return true;
+            })
+            .map(|account| Collaborator {
+                role: Role::COLLABORATOR,
+                email: account.email.clone(),
+                id: account.id,
+            })
+            .collect();
     // the owner will be the first element in the accepted_list, help the view to render
-    accepted_list.insert(0,owner);
-
+    if owner.is_some() {
+        accepted_list.insert(0, owner.unwrap());
+    }
     let mut user_type = "user";
 
-    if accepted_ids.contains(&user.id) { 
-        if accepted_ids[0] == user.id {
-            user_type = "owner";
+    if accepted_ids.contains(&user.id) {
+        user_type = if accepted_ids[0] == user.id {
+            "owner"
         } else {
-            user_type = "collaborator";
-        }
-
+            "collaborator"
+        };
         // get movey account that accepted the collaborator Collaborator
-        let pending_ids = OwnerInvitation::find_by_package_id(package.id, &db_connection)
-        .unwrap();
+        let pending_ids = OwnerInvitation::find_by_package_id(package.id, &db_connection).unwrap();
+        let mut pending_list: Vec<Collaborator> =
+            Account::get_accounts(pending_ids, &db_connection)?
+                .iter()
+                .map(|account| Collaborator {
+                    role: Role::PENDING,
+                    email: account.email.clone(),
+                    id: account.id,
+                })
+                .collect();
 
-        let mut pending_list: Vec<Collaborator> = Account::get_accounts(pending_ids, &db_connection)?
-            .iter().map(|account| Collaborator {
-                role: Role::PENDING,
-                email: account.email.clone()
-        }).collect();
-        
         accepted_list.append(&mut pending_list);
     }
 
@@ -174,11 +167,10 @@ pub async fn show_package_settings(
         let mut ctx = Context::new();
         ctx.insert("package", &package);
         ctx.insert("package_tab", "settings");
+        // owner_list = accepted_list + pending_list
         ctx.insert("owner_list", &accepted_list);
         ctx.insert("package_version", &package_latest_version);
-        ctx.insert("user_type",&user_type);
-        ctx.insert("current_user", &format!("{}@gmail.com",user.name));
-        ctx.insert("l", &accepted_ids);
+        ctx.insert("user_type", &user_type);
         ctx
     })
 }

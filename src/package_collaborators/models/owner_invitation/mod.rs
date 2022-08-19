@@ -2,17 +2,17 @@
 mod tests;
 
 use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
-use crate::schema::{owner_invitations, package_collaborators, packages, accounts};
+use crate::schema::{accounts, owner_invitations, package_collaborators, packages};
 use crate::utils::token::SecureToken;
+use diesel::dsl::now;
+use diesel::pg::expression::extensions::IntervalDsl;
 use diesel::prelude::*;
 use diesel::{Identifiable, Insertable, Queryable};
-use diesel::pg::expression::extensions::IntervalDsl;
 use jelly::chrono::{NaiveDateTime, Utc};
 use jelly::Result;
 use jelly::{chrono, DieselPgConnection};
 use serde::Serialize;
 use std::env;
-use diesel::dsl::now;
 
 #[derive(Clone, Debug, Eq, Identifiable, Queryable)]
 #[primary_key(invited_user_id, package_id)]
@@ -20,7 +20,6 @@ pub struct OwnerInvitation {
     pub invited_user_id: i32,
     pub invited_by_user_id: i32,
     pub package_id: i32,
-    // should be hashed
     pub token: String,
     pub is_transferring: bool,
     pub created_at: NaiveDateTime,
@@ -53,7 +52,7 @@ impl PartialEq for OwnerInvitationQuery {
             && self.package_id == other.package_id
             && self.is_transferring == other.is_transferring
     }
-} 
+}
 
 #[derive(Insertable, Clone, Debug)]
 #[table_name = "owner_invitations"]
@@ -130,13 +129,9 @@ impl OwnerInvitation {
         Ok(owner_invitations::table
             .find((invited_user_id, package_id))
             .first::<Self>(conn)?)
-
     }
 
-    pub fn find_by_package_id(
-        package_id: i32,
-        conn: &DieselPgConnection,
-    ) -> Result<Vec<i32>> {
+    pub fn find_by_package_id(package_id: i32, conn: &DieselPgConnection) -> Result<Vec<i32>> {
         Ok(owner_invitations::table
             .filter(owner_invitations::package_id.eq(package_id))
             .select(owner_invitations::invited_user_id)
@@ -146,14 +141,21 @@ impl OwnerInvitation {
     pub fn find_by_invited_account(
         invited_user_id: i32,
         conn: &DieselPgConnection,
-    ) -> Result<Vec<OwnerInvitationQuery>>{
+    ) -> Result<Vec<OwnerInvitationQuery>> {
         let expiration_days = Self::get_expiration_days();
         Ok(owner_invitations::table
             .filter(owner_invitations::invited_user_id.eq(invited_user_id))
             .filter(owner_invitations::created_at.gt(now - expiration_days.days()))
             .inner_join(packages::table.on(owner_invitations::package_id.eq(packages::id)))
             .inner_join(accounts::table.on(owner_invitations::invited_by_user_id.eq(accounts::id)))
-            .select((owner_invitations::invited_user_id, owner_invitations::invited_by_user_id, accounts::email, owner_invitations::package_id, packages::name, owner_invitations::is_transferring))
+            .select((
+                owner_invitations::invited_user_id,
+                owner_invitations::invited_by_user_id,
+                accounts::email,
+                owner_invitations::package_id,
+                packages::name,
+                owner_invitations::is_transferring,
+            ))
             .load::<OwnerInvitationQuery>(conn)?)
     }
 

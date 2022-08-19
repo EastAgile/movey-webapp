@@ -44,7 +44,7 @@ Feature: Package collaborators
       When She accesses the package detail page
       And She click on the collaborators tab
       Then She should see that she is not a collaborator of the package
-   
+      
     Scenario: Expired invitation returns message
       When Collaborator invitation is expired
       And She clicks on the Accept button to accept the invitation
@@ -65,7 +65,7 @@ Feature: Package collaborators
       Then I should see an overlay for inviting a collaborator
       When I invite collaborator with a valid email that is not in our system
       Then She (the outsider) should receive an invitation email
-@wip
+
     Scenario: it works
       When She clicks on the link in the email to sign up
       And She fills in the form and submit
