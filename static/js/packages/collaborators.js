@@ -24,8 +24,6 @@ class Collaborator {
 
       this.collaborators_modal.find('.submit').on('click', () => {
         this.collaborators_modal.foundation('close')
-        //call function
-        //this.submitNewToken()
       })
 
       this.collaborators_modal.find('.cancel').on('click', () => {
@@ -39,8 +37,6 @@ class Collaborator {
 
       this.owner_modal.find('.submit').on('click', () => {
         this.owner_modal.foundation('close')
-        //call function
-        //this.submitNewToken()
       })
 
       this.owner_modal.find('.cancel').on('click', () => {
