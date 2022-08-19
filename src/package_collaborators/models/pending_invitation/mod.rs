@@ -73,7 +73,7 @@ impl PendingInvitation {
     pub fn find_by_email(pending_user_email: &str, conn: &DieselPgConnection) -> Result<Vec<Self>> {
         Ok(pending_invitations::table
             .filter(pending_invitations::pending_user_email.eq(pending_user_email))
-            .get_results::<Self>(conn)?)
+            .load::<Self>(conn)?)
     }
 
     pub fn delete(&self, conn: &DieselPgConnection) -> Result<()> {

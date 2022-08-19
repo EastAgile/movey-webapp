@@ -16,8 +16,9 @@ pub struct SendVerifyAccountEmail {
     pub to: i32,
 }
 
-pub fn build_context(verify_url: &str) -> Context {
+pub fn build_context(username: &str, verify_url: &str) -> Context {
     let mut context = Context::new();
+    context.insert("username", &username);
     context.insert("action_url", &verify_url);
     context
 }
@@ -50,7 +51,7 @@ impl Job for SendVerifyAccountEmail {
                 "email/verify-account",
                 &[account.email],
                 "Verify your new Movey account",
-                build_context(&verify_url),
+                build_context(&account.name, &verify_url),
                 state.templates,
             );
 

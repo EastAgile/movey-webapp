@@ -1,14 +1,76 @@
 {% extends "email/layout.html" %}
+
 {% block content %}
-<p>Hi there,</p>
-
-<p>An account with this email was created just now. Please click on the following <a href="{{ action_url }}">link to verify your account</a>.</p>
-
-<p>Or copy the link below into your browser address bar:</p>
-<p class="sub">{{ action_url }}</p>
-
-<p>If you did not request this, please ignore this email</p>
-
-<p>Thanks,</p>
-<p><a href="mailto:{{ JELLY_SUPPORT_EMAIL }}">The Movey Team</a></p>
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; width: 100%;" width="100%">
+    <tr>
+        <td style="font-family: 'Mulish', sans-serif; font-size: 14px; vertical-align: top; text-align: left; margin-top: 25px;" valign="top" align="left">
+            <p style="font-family: 'Mulish', sans-serif; font-size: 14px; font-weight: normal; margin: 0; text-align: left; margin-top: 25px; color: #525F7F;">Hi {{ username }}, welcome to our team. Great to have you on board.</p>
+            <h1 style="color: #001F60; font-family: 'Mulish', sans-serif; line-height: 1.4; margin: 0; font-size: 24px; font-weight: bold; text-align: left; margin-top: 25px;">1. Verify your account</h1>
+            <p style="font-family: 'Mulish', sans-serif; font-size: 14px; font-weight: normal; margin: 0; color: #001F60; text-align: left; margin-top: 25px;">To verify that you are a real person please click the button below.</p>
+            <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; box-sizing: border-box; min-width: 100%; width: 100%;" width="100%">
+                <tbody>
+                <tr>
+                    <td align="left" style="font-family: 'Mulish', sans-serif; font-size: 14px; vertical-align: top; text-align: left; margin-top: 25px; padding-top: 25px;" valign="top">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: auto; width: auto;">
+                        <tbody>
+                        <tr>
+                            <td style="font-family: 'Mulish', sans-serif; font-size: 14px; vertical-align: top; margin-top: 25px; border-radius: 7px; text-align: center; background-color: #44A1E7;" valign="top" align="center" bgcolor="#44A1E7">
+                            <a href="https://{{ action_url | safe }}" target="_blank" style="text-align: left; margin-top: 25px; border: 1px solid; border-radius: 7px; box-sizing: border-box; cursor: pointer; display: inline-block; font-size: 14px; font-weight: 500; margin: 0; padding: 16px 50px; text-decoration: none; text-transform: capitalize; background-color: #44A1E7; border-color: #44A1E7; color: #FFFFFF;">
+                                VERIFY ACCOUNT
+                            </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <hr style="border: 0; border-bottom: 1px solid #F3F3F3; margin-top: 25px;">
+            <h1 style="color: #001F60; font-family: 'Mulish', sans-serif; line-height: 1.4; margin: 0; font-size: 24px; font-weight: bold; text-align: left; margin-top: 25px;">2. Complete your profile</h1>
+            <p style="font-family: 'Mulish', sans-serif; font-size: 14px; font-weight: normal; margin: 0; color: #001F60; text-align: left; margin-top: 25px;">With your account confirmed, it’s time to complete your profile. We’ve found that adding a profile photo and other information incrases your chances of connecting with other contributors.</p>
+            <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-secondary" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; box-sizing: border-box; min-width: 100%; width: 100%;" width="100%">
+                <tbody>
+                <tr>
+                    <td align="left" style="font-family: 'Mulish', sans-serif; font-size: 14px; vertical-align: top; text-align: left; margin-top: 25px; padding-top: 25px;" valign="top">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: auto; width: auto;">
+                        <tbody>
+                        <tr>
+                            <td style="font-family: 'Mulish', sans-serif; font-size: 14px; vertical-align: top; margin-top: 25px; border-radius: 7px; text-align: center; background-color: #FFFFFF;" valign="top" align="center" bgcolor="#FFFFFF">
+                            <a href="https://{{ JELLY_DOMAIN | safe }}/settings/profile/" target="_blank" style="text-align: left; margin-top: 25px; border: 1px solid; border-radius: 7px; box-sizing: border-box; cursor: pointer; display: inline-block; font-size: 14px; font-weight: 500; margin: 0; padding: 16px 50px; text-decoration: none; text-transform: capitalize; background-color: #FFFFFF; border-color: #44A1E7; color: #44A1E7;">
+                                COMPLETE PROFILE
+                            </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <hr style="border: 0; border-bottom: 1px solid #F3F3F3; margin-top: 25px;">
+            <h1 style="color: #001F60; font-family: 'Mulish', sans-serif; line-height: 1.4; margin: 0; font-size: 24px; font-weight: bold; text-align: left; margin-top: 25px;">3. Start exploring</h1>
+            <p style="font-family: 'Mulish', sans-serif; font-size: 14px; font-weight: normal; margin: 0; color: #001F60; text-align: left; margin-top: 25px;">Now you are ready. Good luck at your journey.</p>
+            <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-secondary" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; box-sizing: border-box; min-width: 100%; width: 100%;" width="100%">
+                <tbody>
+                <tr>
+                    <td align="left" style="font-family: 'Mulish', sans-serif; font-size: 14px; vertical-align: top; text-align: left; margin-top: 25px; padding-top: 25px;" valign="top">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: auto; width: auto;">
+                        <tbody>
+                        <tr>
+                            <td style="font-family: 'Mulish', sans-serif; font-size: 14px; vertical-align: top; margin-top: 25px; border-radius: 7px; text-align: center; background-color: #FFFFFF;" valign="top" align="center" bgcolor="#FFFFFF">
+                            <a href="https://{{ JELLY_DOMAIN | safe }}" target="_blank" style="text-align: left; margin-top: 25px; border: 1px solid; border-radius: 7px; box-sizing: border-box; cursor: pointer; display: inline-block; font-size: 14px; font-weight: 500; margin: 0; padding: 16px 50px; text-decoration: none; text-transform: capitalize; background-color: #FFFFFF; border-color: #44A1E7; color: #44A1E7;">
+                                BROWSE PACKAGES
+                            </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </td>
+    </tr>
+</table>
 {% endblock %}

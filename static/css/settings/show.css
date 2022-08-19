@@ -434,7 +434,7 @@
 }
 .package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-install .package-repo {
   display: flex;
-  justify-content: baseline;
+  justify-content: start;
   align-items: center;
   margin-bottom: 32px;
 }

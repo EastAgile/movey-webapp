@@ -1,4 +1,9 @@
 use jelly::database;
+#[cfg(test)]
+pub mod mock;
+#[cfg(test)]
+pub mod util;
+
 use lazy_static::lazy_static;
 use std::env;
 use std::sync::{Arc, Mutex};
