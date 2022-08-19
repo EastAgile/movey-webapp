@@ -70,14 +70,16 @@ pub async fn register_package(
         db,
     )
     .await;
-    if let Err(Error::Database(DBError::DatabaseError(kind, e))) = result {
+    if let Err(Error::Database(DBError::DatabaseError(kind, _))) = result {
+        let domain = std::env::var("JELLY_DOMAIN").expect("JELLY_DOMAIN is not set");
         let error_message = format!(
-            "Cannot upload package: {}.{}",
-            e.message().to_string(),
+            "Cannot upload package.\n{}",
             match kind {
-                DatabaseErrorKind::UniqueViolation =>
-                    " Hint: You can try pushing latest changes to Github then try again.",
-                _ => "",
+                DatabaseErrorKind::UniqueViolation => format!(
+                    "Version already exists for package ({domain}/packages/{package_name}). \
+                    Please commit your changes to Github and try again."
+                ),
+                _ => "Something went wrong, please try again later.".to_string(),
             }
         );
         return Ok(HttpResponse::BadRequest().body(error_message));
