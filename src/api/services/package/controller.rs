@@ -48,7 +48,7 @@ pub async fn register_package(
         None
     } else {
         let mut subdir = req.subdir.clone();
-        subdir.push_str("/Move.toml");
+        subdir.push_str("Move.toml");
         Some(subdir)
     };
     let github_data = service.fetch_repo_data(&req.github_repo_url, subdir, None)?;
@@ -76,7 +76,7 @@ pub async fn register_package(
             "Cannot upload package.\n{}",
             match kind {
                 DatabaseErrorKind::UniqueViolation => format!(
-                    "Version already exists for package ({domain}/packages/{package_name}). \
+                    "Version already exists for package at {domain}/packages/{package_name}. \
                     Please commit your changes to Github and try again."
                 ),
                 _ => "Something went wrong, please try again later.".to_string(),
