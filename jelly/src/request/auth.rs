@@ -38,23 +38,14 @@ impl Authentication for HttpRequest {
                 Some(cookie) => cookie.value().to_owned(),
                 None => return Ok(false)
             };
-            let index = match remember_me_token.find("=") {
-                Some(index) => index,
-                None => return Ok(false)
-            };
-            if remember_me_token.len() < index + 2 {
-                return Ok(false);
-            }
-            let user_id = &remember_me_token[index + 1..];
+            const CRYPTOGRAPHIC_KEY_LEN: usize = 43;
+            let user_id = &remember_me_token[CRYPTOGRAPHIC_KEY_LEN + 1..];
 
             let key = std::env::var("SECRET_KEY").expect("SECRET_KEY not set!");
             let mut jar = CookieJar::new();
             jar.signed(&Key::derive_from(key.as_bytes()))
-                .add(Cookie::new("re_signed", user_id.to_owned()));
-
-            let is_my_cookie = remember_me_token.contains(jar.get("re_signed").unwrap().value());
-            
-            Ok(is_my_cookie)
+                .add(Cookie::new("re_signed_token", user_id.to_owned()));
+            Ok(remember_me_token == jar.get("re_signed_token").unwrap().value())
         }
     }
 

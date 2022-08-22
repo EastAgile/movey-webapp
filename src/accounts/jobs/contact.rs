@@ -26,7 +26,7 @@ impl Job for SendContactRequestEmail {
     fn run(self, state: JobState) -> Self::Future {
         Box::pin(async move {
             let email = Email::new(
-                "email/contact-request",
+                "email/contact-request-to-Movey",
                 &[self.to],
                 "New Contact Request",
                 {
@@ -39,7 +39,34 @@ impl Job for SendContactRequestEmail {
                 },
                 state.templates,
             );
+            email?.send()?;
 
+            Ok(())
+        })
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SendContactEmail {
+    pub to: String,
+}
+
+impl Job for SendContactEmail {
+    type State = JobState;
+    type Future = Pin<Box<dyn Future<Output = Result<(), Error>> + Send>>;
+
+    const NAME: &'static str = "SendContactEmail";
+    const QUEUE: &'static str = DEFAULT_QUEUE;
+
+    fn run(self, state: JobState) -> Self::Future {
+        Box::pin(async move {
+            let email = Email::new(
+                "email/contact-request",
+                &[self.to],
+                "Thank you for contacting us",
+                Context::new(),
+                state.templates,
+            );
             email?.send()?;
 
             Ok(())

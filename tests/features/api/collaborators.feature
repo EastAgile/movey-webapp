@@ -1,4 +1,3 @@
-@wip
 Feature: Package collaborators
 
   Rule: Invite collaborators
@@ -109,6 +108,7 @@ Feature: Package collaborators
       Then She should be redirected to her profile page
       And She should see that the invitation is deleted
 
+    @wip
     Scenario: Anonymous cannot see external invitations
       When She is signed out
       When I access the package detail page of my package

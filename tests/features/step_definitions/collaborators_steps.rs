@@ -66,6 +66,7 @@ async fn other_users(world: &mut TestWorld) {
         email: "collaborator@host.com".to_string(),
         password: "So$trongpas0word!".to_string(),
         owned_package_name: None,
+        id: -1,
     };
     let form = NewAccountForm {
         email: EmailField {

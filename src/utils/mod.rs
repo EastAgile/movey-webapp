@@ -1,6 +1,7 @@
 use jelly::guards::Auth;
 
 pub mod paginate;
+pub mod presenter;
 pub mod request_utils;
 #[cfg(test)]
 pub mod tests;

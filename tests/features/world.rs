@@ -9,6 +9,7 @@ pub struct AccountInformation {
     pub email: String,
     pub password: String,
     pub owned_package_name: Option<String>,
+    pub id: i32,
 }
 #[derive(Debug)]
 pub struct TestResponse {

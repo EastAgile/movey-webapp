@@ -27,7 +27,24 @@ Feature: View user profile
         And I repeat the same short password into 'Repeat new password' textbox
         Then I should see the 'Save' button is disabled
 
+    Scenario: User changes password failed because of wrong current password
+        When I enter wrong password into 'Current password' textbox
+        And I enter new valid password into 'New password' textbox
+        And I repeat the same new valid password into 'Repeat new password' textbox
+        And I click on 'Save' button
+        Then I should see the error 'Wrong password. Try again!'
+
     Scenario: User discard changes
         When I enter random texts into whatever textboxes
         And I click on 'Discard' button
         Then I should see all textboxs return to blank
+
+    Scenario Outline: User submits invalid form
+        When I enter <invalid_new_password> into 'New password'
+        When I enter <invalid_password_confirm> into 'Repeat my password'
+        And I click on 'Save' button
+        Then I should see the error '<error>'
+
+    Examples:
+        | invalid_new_password       | invalid_password_confirm      | error                        |
+        | invalid1                    | invalid1                     | Password not strong enough.  |

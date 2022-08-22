@@ -150,7 +150,6 @@ body {
                     @include medium-small-screen {
                         width: 100%;
                         flex-direction: row;
-                        justify-content: space-around;
                         align-items: baseline;
                     }
 
@@ -158,9 +157,15 @@ body {
                         color: var(--gray-color);
                         display: flex;
                         align-items: center;
+                        flex-grow: 1;
+                        max-width: 250px;
 
                         img {
                             margin-right: 8px;
+                        }
+
+                        @include medium-small-screen {
+                            max-width: unset;
                         }
                     }
 
@@ -169,6 +174,8 @@ body {
                         margin-right: 25px;
                         display: flex;
                         align-items: center;
+                        max-width: 150px;
+                        flex-grow: 1;
 
                         img {
                             margin-right: 8px;
@@ -177,6 +184,7 @@ body {
                         @include medium-small-screen {
                             margin-right: 0;
                             margin-bottom: 0;
+                            max-width: unset;
                         }
                     }
 

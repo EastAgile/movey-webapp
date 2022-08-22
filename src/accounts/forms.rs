@@ -117,6 +117,7 @@ pub struct ContactForm {
     pub email: String,
     pub name: String,
     pub description: String,
+    pub token: String,
 }
 
 #[cfg(test)]
@@ -124,7 +125,70 @@ mod tests {
     use super::*;
 
     #[test]
-    fn is_valid_works() {
+    fn change_password_form_is_valid_returns_false_if_password_not_match() {
+        let mut change_password_form = ChangePasswordForm {
+            name: Some("name".to_string()),
+            email: Some("email@mail.com".to_string()),
+            current_password: PasswordField {
+                value: "str0ngCurr#ntP@ssword".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+            new_password: PasswordField {
+                value: "str0ngnEwP@ssword".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+            password_confirm: PasswordField {
+                value: "notMatchnEwP@ssword".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        };
+        assert!(!change_password_form.is_valid());
+        assert!(change_password_form
+            .new_password
+            .errors
+            .contains(&"Passwords must match.".to_string()))
+    }
+
+    #[test]
+    fn change_password_form_is_valid_works() {
+        let mut change_password_form = ChangePasswordForm {
+            name: Some("name".to_string()),
+            email: Some("email@mail.com".to_string()),
+            current_password: PasswordField {
+                value: "str0ngCurr#ntP@ssword".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+            new_password: PasswordField {
+                value: "str0ngnEwP@ssword".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+            password_confirm: PasswordField {
+                value: "str0ngnEwP@ssword".to_string(),
+                errors: vec![],
+                hints: vec![],
+            },
+        };
+        assert!(change_password_form.is_valid());
+
+        change_password_form.current_password.value = "invalid".to_string();
+        assert!(!change_password_form.is_valid());
+        change_password_form.current_password.value = "str0ngCurr#ntP@ssword".to_string();
+
+        change_password_form.new_password.value = "invalid".to_string();
+        assert!(!change_password_form.is_valid());
+        change_password_form.new_password.value = "str0ngnEwP@ssword".to_string();
+
+        change_password_form.password_confirm.value = "invalid".to_string();
+        assert!(!change_password_form.is_valid());
+    }
+
+    #[test]
+    fn new_account_form_is_valid_works() {
         let mut new_account_form = NewAccountForm {
             email: EmailField {
                 value: "valid@example.com".to_string(),
@@ -140,7 +204,7 @@ mod tests {
     }
 
     #[test]
-    fn is_valid_with_short_password_return_false() {
+    fn new_account_form_is_valid_with_short_password_return_false() {
         let mut new_account_form = NewAccountForm {
             email: EmailField {
                 value: "valid@example.com".to_string(),

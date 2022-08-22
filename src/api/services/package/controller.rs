@@ -1,20 +1,26 @@
-use jelly::actix_web::{web, web::Path, HttpRequest};
+#[cfg(test)]
+use crate::test::mock::MockHttpRequest as HttpRequest;
+use jelly::actix_web::web;
+#[cfg(not(test))]
+use jelly::actix_web::HttpRequest;
 use jelly::prelude::*;
 use jelly::Result;
-use mockall_double::double;
 use serde::{Deserialize, Serialize};
 
-use crate::api::services::package::view::PackageBadgeRespond;
-#[double]
+#[cfg(not(test))]
 use crate::github_service::GithubService;
+#[cfg(test)]
+use crate::test::mock::GithubService;
+
+use crate::api::services::package::view::PackageBadgeRespond;
 use crate::packages::Package;
 use crate::settings::models::token::ApiToken;
 #[derive(Serialize, Deserialize)]
 pub struct PackageRequest {
-    github_repo_url: String,
-    total_files: i32,
-    token: String,
-    subdir: String,
+    pub github_repo_url: String,
+    pub total_files: i32,
+    pub token: String,
+    pub subdir: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -22,7 +28,7 @@ pub struct PackageSearch {
     search_query: String,
 }
 
-pub async fn post_package(
+pub async fn register_package(
     request: HttpRequest,
     mut req: web::Json<PackageRequest>,
 ) -> Result<HttpResponse> {
@@ -50,6 +56,7 @@ pub async fn post_package(
             req.github_repo_url, github_data.rev, req.subdir
         );
     }
+    let package_name = github_data.name.clone();
     Package::create_from_crawled_data(
         &req.github_repo_url,
         &github_data.description.clone(),
@@ -62,23 +69,33 @@ pub async fn post_package(
     )
     .await?;
 
-    Ok(HttpResponse::Ok().body(""))
+    Ok(HttpResponse::Ok().body(package_name))
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct DownloadInfo {
-    url: String,
-    rev: String,
-    subdir: String,
+    pub url: String,
+    pub rev: String,
+    pub subdir: String,
+}
+
+impl Validation for DownloadInfo {
+    fn is_valid(&mut self) -> bool {
+        !self.url.is_empty() && !self.rev.is_empty()
+    }
 }
 
 pub async fn increase_download_count(
     request: HttpRequest,
     form: web::Form<DownloadInfo>,
 ) -> Result<HttpResponse> {
+    let mut form = form.into_inner();
+    if !form.is_valid() {
+        return Ok(HttpResponse::BadRequest().body("invalid git info"));
+    }
+
     let db = request.db_pool()?;
     let service = GithubService::new();
-    let form = form.into_inner();
     if let Ok(res) =
         Package::increase_download_count(&form.url, &form.rev, &form.subdir, &service, db).await
     {
@@ -97,12 +114,18 @@ pub async fn search_package(
     Ok(HttpResponse::Ok().json(packages_result))
 }
 
+#[derive(Deserialize)]
+pub struct BadgeRequest {
+    pkg_name: String,
+}
+
 pub async fn package_badge_info(
     request: HttpRequest,
-    Path(package_name): Path<String>,
+    info: web::Query<BadgeRequest>,
 ) -> Result<HttpResponse> {
+    let info = info.into_inner();
     let db = request.db_pool()?;
-    let result = Package::get_badge_info(&package_name, db).await?;
+    let result = Package::get_badge_info(&info.pkg_name, db).await?;
     if !result.is_empty() {
         let respond = PackageBadgeRespond::from(result);
         return Ok(HttpResponse::Ok().json(respond));

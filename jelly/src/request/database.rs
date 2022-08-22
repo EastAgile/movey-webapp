@@ -28,12 +28,8 @@ impl DatabasePool for HttpRequest {
 
     fn db_connection(&self) -> Result<DieselPgConnection, Error> {
         let pool = self.db_pool()?;
-        if let Ok(connection) = pool.get() {
-            return Ok(connection);
-        }
-
-        Err(Error::Generic(
-            "Unable to retrieve Database Connection.".to_string(),
+        pool.get().map_err(|_e| Error::Generic(
+            "Unable to retrieve Database Connection.".to_string()
         ))
     }
 }

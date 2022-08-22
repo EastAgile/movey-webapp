@@ -51,13 +51,12 @@ async fn see_home_page(world: &mut TestWorld) {
 
 #[when("I search for package on the search bar")]
 async fn search_for_packages(world: &mut TestWorld) {
-    type_into_search_bar(world);
+    type_into_search_bar(world).await;
+    thread::sleep(Duration::from_millis(2000));
 }
 
 #[then("I should see the dropdown show matching packages")]
 async fn dropdown_confirm(world: &mut TestWorld) {
-    type_into_search_bar(world).await;
-    thread::sleep(Duration::from_millis(2000));
     let suggestion = world
         .driver
         .find_element(By::Id("suggestions"))

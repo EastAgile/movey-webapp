@@ -2,11 +2,16 @@ use crate::accounts::views::utils::validate_token;
 use crate::accounts::Account;
 use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
 use crate::package_collaborators::models::external_invitation::ExternalInvitation;
+#[cfg(test)]
+use crate::test::mock::MockHttpRequest as HttpRequest;
 use diesel::result::Error as DBError;
 use jelly::accounts::User;
+#[allow(unused_imports)]
 use jelly::actix_session::UserSession;
 use jelly::actix_web::web::Query;
-use jelly::actix_web::{web, web::Path, HttpRequest};
+#[cfg(not(test))]
+use jelly::actix_web::HttpRequest;
+use jelly::actix_web::{web, web::Path};
 use jelly::request::DatabasePool;
 use jelly::Result;
 use jelly::{prelude::*, DieselPgPool};
@@ -217,7 +222,7 @@ async fn link_github_to_movey_account(
     Ok(Some(updated_account))
 }
 
-async fn create_default_account_for_github_user(
+pub async fn create_default_account_for_github_user(
     mut oauth_response: GithubOauthResponse,
     pool: &DieselPgPool,
 ) -> Result<User> {
