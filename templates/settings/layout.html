@@ -49,6 +49,12 @@
                     <div class="tab-name">Tokens</div>
                 </a>
             </div>
+            <div onclick="location.href='/settings/invitations';" class="content-tab tab-invitations {% if profile_tab == 'invitations' %}active{% endif %}">
+                <a href="/settings/invitations">
+                    <div class="tab-icon tab-icon-invitations"></div>
+                    <div class="tab-name">Invitations</div>
+                </a>
+            </div>
         </div>
         {% block settings_content %}{% endblock %}
     </div>

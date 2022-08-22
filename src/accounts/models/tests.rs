@@ -258,6 +258,7 @@ async fn change_password_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
     let uid = setup_user(None, None).await;
+    Account::mark_verified(uid, &DB_POOL).await.unwrap();
 
     let new_password = String::from("nEw$trongpas0word!");
     Account::change_password(

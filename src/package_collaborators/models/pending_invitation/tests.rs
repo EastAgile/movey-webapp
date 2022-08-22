@@ -1,7 +1,7 @@
 use crate::package_collaborators::models::pending_invitation::PendingInvitation;
 use crate::packages::Package;
-use crate::test::util::setup_user;
 use crate::test::{DatabaseTestContext, DB_POOL};
+use crate::utils::tests::setup_user;
 use jelly::prelude::*;
 use std::env;
 
