@@ -8,7 +8,6 @@ use jelly::Result;
 
 pub mod avatar;
 pub mod login;
-pub mod public_profile;
 pub mod register;
 pub mod reset_password;
 pub mod utils;

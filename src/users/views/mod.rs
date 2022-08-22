@@ -10,7 +10,7 @@ use crate::packages::models::PACKAGES_PER_PAGE;
 use crate::packages::views::controller::PackageIndexParams;
 use crate::packages::Package;
 
-pub async fn get(
+pub async fn get_public_profile(
     request: HttpRequest,
     Path(user_slug): Path<String>,
     mut params: Query<PackageIndexParams>,

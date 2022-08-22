@@ -76,8 +76,4 @@ pub fn configure(config: &mut ServiceConfig) {
             .service(resource("/logout").route(post().to(views::logout)))
             .service(resource("/oauth").route(get().to(views::login::oauth))),
     );
-    config.service(
-        scope("/users")
-            .service(resource("/{account_slug}").route(get().to(views::public_profile::get))),
-    );
 }
