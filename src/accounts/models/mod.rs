@@ -1,4 +1,4 @@
-// Implements a basic Account model, with support for creating/updating/deleting
+// Implements a basic Account models, with support for creating/updating/deleting
 // users, along with welcome email and verification.
 
 use diesel::prelude::*;

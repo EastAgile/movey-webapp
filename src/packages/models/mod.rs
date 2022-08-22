@@ -259,24 +259,23 @@ impl Package {
         };
 
         // Only creates new version if same user with package owner
-        if record.account_id == account_id_ || record.account_id.is_none() {
-            if record
+        if (record.account_id == account_id_ || record.account_id.is_none())
+            && record
                 .get_version(&github_data.version, pool)
                 .await
                 .is_err()
-            {
-                PackageVersion::create(
-                    record.id,
-                    github_data.version,
-                    github_data.readme_content,
-                    version_rev.to_string(),
-                    version_files,
-                    version_size,
-                    None,
-                    pool,
-                )
-                .await?;
-            }
+        {
+            PackageVersion::create(
+                record.id,
+                github_data.version,
+                github_data.readme_content,
+                version_rev.to_string(),
+                version_files,
+                version_size,
+                None,
+                pool,
+            )
+            .await?;
         }
 
         Ok(record.id)
@@ -440,7 +439,11 @@ impl Package {
                     service.fetch_repo_data(&https_url, None, None)?
                 } else {
                     let subdir_with_toml = format!("{}/Move.toml", subdir);
-                    service.fetch_repo_data(&https_url, Some(subdir_with_toml), None)?
+                    service.fetch_repo_data(
+                        &https_url,
+                        Some(subdir_with_toml),
+                        Some(rev_.clone()),
+                    )?
                 };
                 if !subdir.is_empty() {
                     https_url = format!("{}/blob/{}/{}", https_url, github_data.rev, subdir);
@@ -557,6 +560,17 @@ impl PackageVersion {
         let result = package_versions
             .select(count(package_versions::id))
             .first::<i64>(&connection)?;
+
+        Ok(result)
+    }
+
+    pub async fn delete_by_package_id(
+        package_id_: i32,
+        pool: &DieselPgPool,
+    ) -> Result<usize> {
+        let connection = pool.get()?;
+        let result = diesel::delete(package_versions.filter(package_id.eq(package_id_)))
+            .execute(&connection)?;
 
         Ok(result)
     }

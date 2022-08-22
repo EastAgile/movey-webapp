@@ -10,11 +10,12 @@ use super::super::world::TestWorld;
 use super::signup_steps::*;
 
 #[given("I am a user on Movey")]
-async fn an_user(world: &mut TestWorld) {
-    let account = AccountInformation {
+pub async fn an_user(world: &mut TestWorld) {
+    let mut account = AccountInformation {
         email: "email@host.com".to_string(),
         password: "So$trongpas0word!".to_string(),
         owned_package_name: None,
+        id: -1,
     };
     let form = NewAccountForm {
         email: EmailField {
@@ -27,9 +28,10 @@ async fn an_user(world: &mut TestWorld) {
             hints: vec![],
         },
     };
-    world.first_account = account;
     let uid = Account::register(&form, &DB_POOL).await.unwrap();
     Account::mark_verified(uid, &DB_POOL).await.unwrap();
+    account.id = uid;
+    world.first_account = account;
 }
 
 #[given("I am not signed in")]

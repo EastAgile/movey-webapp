@@ -1,8 +1,8 @@
 use crate::package_collaborators::package_collaborator::PackageCollaborator;
 use crate::packages::Package;
 use crate::test::{DatabaseTestContext, DB_POOL};
-use crate::utils::tests::setup_user;
 use jelly::prelude::*;
+use crate::test::util::setup_user;
 
 async fn setup_collaborator() -> (i32, i32) {
     let uid = setup_user(None, None).await;
@@ -34,6 +34,17 @@ async fn new_collaborator_works() {
     assert!(rel.is_ok());
     assert_eq!(rel.as_ref().unwrap().package_id, pid);
     assert_eq!(rel.unwrap().account_id, uid);
+
+    let uid2 = setup_user(Some("second@host.com".to_string()), None).await;
+    PackageCollaborator::new_collaborator(pid, uid2, uid, &DB_POOL.get().unwrap()).unwrap();
+
+    let res = PackageCollaborator::get_in_bulk_order_by_role(
+        pid,
+        vec![uid, uid2],
+        &DB_POOL.get().unwrap()
+    ).unwrap();
+
+    assert_eq!(res.len(), 2);
 }
 
 #[actix_rt::test]

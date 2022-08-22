@@ -65,12 +65,26 @@ pub async fn add_collaborators(
         }
     };
 
-    if PackageCollaborator::get(package.id, invited_account.id, &conn).is_ok() {
+    let ids = vec![user.id, invited_account.id];
+    let collaborators = PackageCollaborator::get_in_bulk_order_by_role(package.id, ids, &conn)
+        .map_err(|e| ApiForbidden(MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR, Box::new(e)))?;
+    if collaborators.len() == 2 {
         return Err(ApiBadRequest(
             MSG_COLLABORATOR_ALREADY_EXISTED,
             Box::new(Error::Generic(format!(
                 "Collaborator already existed. uid: {}, package id: {}",
-                invited_account.id, package.id
+                invited_account.id,
+                package.id,
+            )))
+        ));
+    }
+    // we know that the owner will be the first item
+    if collaborators[0].role != Role::Owner as i32 {
+        return Err(ApiForbidden(
+            MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR,
+            Box::new(Error::Generic(format!(
+                "Non-owner is trying to add collaborator. uid: {}, package id: {}",
+                collaborators[0].account_id, package.id
             ))),
         ));
     }
@@ -171,7 +185,7 @@ pub async fn handle_invite(
 
     let user = request.user().map_err(|e| ApiServerError(Box::new(e)))?;
     let invitation = OwnerInvitation::find_by_id(user.id, json.package_id, &conn)
-        .map_err(|e| ApiNotFound(MSG_PACKAGE_NOT_FOUND, Box::new(e)))?;
+        .map_err(|e| ApiNotFound(MSG_INVITATION_NOT_FOUND, Box::new(e)))?;
     if invitation.is_expired() {
         return Err(ApiBadRequest(
             MSG_INVITATION_EXPIRED,

@@ -12,7 +12,11 @@ use tokio::time::sleep;
 #[tokio::main]
 async fn main() {
     dotenv().ok();
-    ready(TestDatabaseHelper::create_test_database()).boxed_local();
+    {
+        TestDatabaseHelper::create_test_database();
+        ready(())
+    }
+    .boxed_local();
     tokio::spawn(async {
         let _ = actix_rt::System::new("test-server");
         env::set_var("PORT", "17002");
@@ -25,13 +29,21 @@ async fn main() {
     TestWorld::cucumber()
         .before(|_feature, _rule, _scenario, _world| {
             dotenv().ok();
-            ready(TestDatabaseHelper::create_test_database()).boxed_local()
+            {
+                TestDatabaseHelper::create_test_database();
+                ready(())
+            }
+            .boxed_local()
         })
         .after(|_feature, _rule, _scenario, world| {
             if let Some(w) = world {
                 block_on(w.close_browser());
             }
-            ready(TestDatabaseHelper::cleanup_test_database()).boxed_local()
+            {
+                TestDatabaseHelper::cleanup_test_database();
+                ready(())
+            }
+            .boxed_local()
         })
         .run_and_exit("tests/features/")
         .await;

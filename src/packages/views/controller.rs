@@ -12,6 +12,7 @@ use crate::package_collaborators::models::external_invitation::ExternalInvitatio
 use crate::package_collaborators::package_collaborator::PackageCollaborator;
 use crate::packages::models::{PackageSortField, PackageSortOrder, PACKAGES_PER_PAGE};
 use crate::packages::{Package, PackageVersion, PackageVersionSort};
+use crate::utils::presenter;
 
 use super::serializer::{SerializableInvitation, Status};
 
@@ -42,22 +43,17 @@ pub async fn show_package(
         package_version = package.get_version(version, db).await?
     }
 
-    let account_name = if let Some(uid) = package.account_id {
-        let account = Account::get(uid, db).await?;
-        if account.name.is_empty() {
-            account.email
-        } else {
-            account.name
-        }
-    } else {
-        "".to_string()
-    };
+    let account_name = presenter::make_account_name(&package, db).await?;
+    let (instruction_repo_url, instruction_subdir) =
+        presenter::make_package_install_instruction(&package.repository_url);
 
     request.render(200, "packages/show.html", {
         let mut ctx = Context::new();
         ctx.insert("package", &package);
         ctx.insert("package_version", &package_version);
         ctx.insert("account_name", &account_name);
+        ctx.insert("instruction_subdir", &instruction_subdir);
+        ctx.insert("instruction_repo_url", &instruction_repo_url);
         ctx.insert("package_tab", "readme");
         ctx
     })
