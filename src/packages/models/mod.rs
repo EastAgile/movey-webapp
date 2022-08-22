@@ -242,31 +242,21 @@ impl Package {
         pool: &DieselPgPool,
     ) -> Result<i32, Error> {
         let connection = pool.get()?;
-        let record = match Package::get_by_name_case_insensitive(&github_data.name, pool).await {
-            Ok(packages_list) => {
-                if packages_list.is_empty() {
-                    let new_package = NewPackage {
-                        name: github_data.name,
-                        description: package_description.to_string(),
-                        repository_url: repo_url.to_string(),
-                        account_id: account_id_,
-                    };
+        let record = match Package::get_by_name(&github_data.name, pool).await {
+            Ok(package) => package,
+            Err(_) => {
+                let new_package = NewPackage {
+                    name: github_data.name,
+                    description: package_description.to_string(),
+                    repository_url: repo_url.to_string(),
+                    account_id: account_id_,
+                };
 
-                    diesel::insert_into(packages::table)
-                        .values(new_package)
-                        .returning(PACKAGE_COLUMNS)
-                        .get_result::<Package>(&connection)?
-                } else {
-                    let similar_name = &packages_list[0].name;
-                    return Err(Error::Database(DBError::DatabaseError(
-                        DatabaseErrorKind::UniqueViolation,
-                        Box::new(format!(
-                            "This package name is similar to another existing package: '{similar_name}'",
-                        )),
-                    )));
-                }
+                diesel::insert_into(packages::table)
+                    .values(new_package)
+                    .returning(PACKAGE_COLUMNS)
+                    .get_result::<Package>(&connection)?
             }
-            Err(e) => return Err(e),
         };
 
         // Only creates new version if same user with package owner
