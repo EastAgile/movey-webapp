@@ -8,6 +8,7 @@ use jelly::chrono::{NaiveDateTime, Utc};
 use jelly::Result;
 use jelly::{chrono, DieselPgConnection};
 use std::env;
+use crate::schema;
 
 #[derive(Clone, Debug, PartialEq, Eq, Identifiable, Queryable)]
 #[primary_key(external_user_email, package_id)]
@@ -78,6 +79,15 @@ impl ExternalInvitation {
     pub fn delete(&self, conn: &DieselPgConnection) -> Result<()> {
         diesel::delete(self).execute(conn)?;
         Ok(())
+    }
+
+    pub fn delete_by_id(external_user_email_: &str, package_id_: i32, conn: &DieselPgConnection) -> Result<usize> {
+        use schema::external_invitations::dsl::*;
+        let no_deleted_rows = diesel::delete(external_invitations.filter(
+            external_user_email.eq(external_user_email_)
+                .and(package_id.eq(package_id_))
+        )).execute(conn)?;
+        Ok(no_deleted_rows)
     }
 
     pub fn find_by_package_id(package_id: i32, conn: &DieselPgConnection) -> Result<Vec<String>> {

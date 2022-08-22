@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize)]
-pub struct AddCollaboratorJson {
+pub struct CollaboratorJson {
     pub user: String,
 }
 

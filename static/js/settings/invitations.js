@@ -21,7 +21,7 @@ class Invitations {
     $.ajax({
       type: 'POST',
       dataType: "json",
-      url: '/api/v1/owner_invitations',
+      url: '/api/v1/owner_invitations/handle',
       contentType: "application/json",
       processData: false,
       headers: {},

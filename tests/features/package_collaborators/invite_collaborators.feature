@@ -1,4 +1,3 @@
-@wip
 Feature: Package collaborators
 
   Rule: Invite collaborators

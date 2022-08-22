@@ -13,6 +13,7 @@ use jelly::Result;
 use jelly::{chrono, DieselPgConnection};
 use serde::Serialize;
 use std::env;
+use crate::schema;
 
 #[derive(Clone, Debug, Eq, Identifiable, Queryable)]
 #[primary_key(invited_user_id, package_id)]
@@ -162,6 +163,15 @@ impl OwnerInvitation {
     pub fn delete(&self, conn: &DieselPgConnection) -> Result<()> {
         diesel::delete(self).execute(conn)?;
         Ok(())
+    }
+
+    pub fn delete_by_id(invited_user_id_: i32, package_id_: i32, conn: &DieselPgConnection) -> Result<usize> {
+        use schema::owner_invitations::dsl::*;
+        let no_deleted_rows = diesel::delete(owner_invitations.filter(
+            invited_user_id.eq(invited_user_id_)
+                .and(package_id.eq(package_id_))
+        )).execute(conn)?;
+        Ok(no_deleted_rows)
     }
 
     pub fn accept(&self, conn: &DieselPgConnection) -> Result<()> {

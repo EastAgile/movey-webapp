@@ -131,12 +131,12 @@
   </div>
 
   <div class="modal reveal" id="remove_owner_modal" data-reveal>
-    <div class="message">You are remove this collaborator from package</div>
+    <div class="message">You are remove this collaborator <span id="removed_email"></span> from package</div>
     <div class="warning">
     </div>
     <div class="new-token-container">
-      <div class="collaborators_btn submit">Confirm</div>
-      <div class="collaborators_btn cancel">Cancel</div>
+      <div id="confirm_delete" class="collaborators_btn submit">Confirm</div>
+      <div id="cancel_delete" class="collaborators_btn cancel">Cancel</div>
     </div>
     <button class="close-button" data-close aria-label="Close modal" type="button">
       <span aria-hidden="true">&times;</span>

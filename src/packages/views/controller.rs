@@ -139,25 +139,30 @@ pub async fn show_package_settings(
             Account::get_accounts(&all_invitation_ids, &db_connection)?
                 .iter()
                 .map(|account| {
+                    let email_or_gh_login = if account.is_generated_email() {
+                        account.github_login.as_ref().unwrap_or(&account.email).clone()
+                    } else {
+                        account.email.clone()
+                    };
                     if account.id == owner_id {
                         SerializableInvitation {
                             status: Status::Owner,
-                            email: account.email.clone(),
+                            email: email_or_gh_login,
                         }
                     } else if pending_owners_ids.contains(&account.id) {
                         SerializableInvitation {
                             status: Status::PendingOwner,
-                            email: account.email.clone(),
+                            email: email_or_gh_login,
                         }
                     } else if accepted_ids.contains(&account.id) {
                         SerializableInvitation {
                             status: Status::Collaborator,
-                            email: account.email.clone(),
+                            email: email_or_gh_login,
                         }
                     } else {
                         SerializableInvitation {
                             status: Status::PendingCollaborator,
-                            email: account.email.clone(),
+                            email: email_or_gh_login,
                         }
                     }
                 })
