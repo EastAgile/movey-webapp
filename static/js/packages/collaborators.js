@@ -117,7 +117,7 @@ class Collaborator {
         this.current_transfer_target.parent().parent()
             .find('.collaborator_name')
             .after(`
-                <div className="sending_status">ownership invitation sent</div>
+                <div class="sending_status">ownership invitation sent</div>
             `)
         this.current_transfer_target = undefined
       },
