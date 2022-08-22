@@ -1,11 +1,11 @@
-use crate::package_collaborators::models::pending_invitation::PendingInvitation;
+use crate::package_collaborators::models::external_invitation::ExternalInvitation;
 use crate::packages::Package;
 use crate::test::{DatabaseTestContext, DB_POOL};
 use crate::utils::tests::setup_user;
 use jelly::prelude::*;
 use std::env;
 
-async fn setup_pending_invitation() -> PendingInvitation {
+async fn setup_pending_invitation() -> ExternalInvitation {
     let outside_email = String::from("email@not_in_db.com");
     let uid = setup_user(Some("email1@mail.com".to_string()), None).await;
     let pid = Package::create_test_package(
@@ -22,7 +22,7 @@ async fn setup_pending_invitation() -> PendingInvitation {
     )
     .await
     .unwrap();
-    PendingInvitation::create(&outside_email, uid, pid, &DB_POOL.get().unwrap()).unwrap()
+    ExternalInvitation::create(&outside_email, uid, pid, &DB_POOL.get().unwrap()).unwrap()
 }
 
 #[actix_rt::test]
@@ -34,10 +34,10 @@ async fn pending_invitation_find_by_id_works() {
 
     let pending_1 = setup_pending_invitation().await;
     let pending_2 =
-        PendingInvitation::find_by_id(&pending_1.pending_user_email, pending_1.package_id, &conn)
+        ExternalInvitation::find_by_id(&pending_1.external_user_email, pending_1.package_id, &conn)
             .unwrap();
     assert_eq!(pending_1, pending_2);
-    let not_found = PendingInvitation::find_by_id("some@random_email", pending_1.package_id, &conn);
+    let not_found = ExternalInvitation::find_by_id("some@random_email", pending_1.package_id, &conn);
     assert!(not_found.is_err());
     if let Err(Error::Database(diesel::NotFound)) = not_found {
     } else {
@@ -55,8 +55,8 @@ async fn pending_invitation_delete_works() {
     let pending_invitation = setup_pending_invitation().await;
 
     pending_invitation.delete(&conn).unwrap();
-    let not_found = PendingInvitation::find_by_id(
-        &pending_invitation.pending_user_email,
+    let not_found = ExternalInvitation::find_by_id(
+        &pending_invitation.external_user_email,
         pending_invitation.package_id,
         &conn,
     );
@@ -110,7 +110,7 @@ async fn create_works() {
 
     let pending1 = setup_pending_invitation().await;
     let pending2 =
-        PendingInvitation::find_by_id(&pending1.pending_user_email, pending1.package_id, &conn)
+        ExternalInvitation::find_by_id(&pending1.external_user_email, pending1.package_id, &conn)
             .unwrap();
     assert_eq!(pending1, pending2);
 }
@@ -125,8 +125,8 @@ async fn create_new_invitation_if_existing_one_is_expired() {
     let created_at = pending1.created_at;
 
     env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "0");
-    let pending2 = PendingInvitation::create(
-        &pending1.pending_user_email,
+    let pending2 = ExternalInvitation::create(
+        &pending1.external_user_email,
         pending1.invited_by_user_id,
         pending1.package_id,
         &conn,
@@ -144,8 +144,8 @@ async fn not_create_new_invitation_if_it_already_exists() {
 
     let pending = setup_pending_invitation().await;
     env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "1");
-    PendingInvitation::create(
-        &pending.pending_user_email,
+    ExternalInvitation::create(
+        &pending.external_user_email,
         pending.invited_by_user_id,
         pending.package_id,
         &conn,

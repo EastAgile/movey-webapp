@@ -1,38 +1,32 @@
 class Collaborator {
   constructor() {
-    this.add_collaborators = $(".add_collaborators_btn");
-    this.collaborators_modal = $("#new_collaborator_modal");
+    this.add_collaborator_btn = $(".add_collaborators_btn")
+    this.transfer_owner_btn = $(".ownership_btn.transfer")
+    this.remove_btn = $(".ownership_btn.remove")
+    this.invite_btn = $(".collaborators_btn.add")
 
-    this.owner_btn = $(".ownership_btn.transfer");
-    this.transfer_modal = $("#transfer_owner_modal");
+    this.collaborators_modal = $("#new_collaborator_modal")
+    this.remove_modal = $("#remove_owner_modal")
+    this.transfer_modal = $("#transfer_owner_modal")
+    this.success_modal = $('#success_modal')
 
-    this.remove_btn = $(".ownership_btn.remove");
-    this.remove_modal = $("#remove_owner_modal");
+    this.userName = ''
+    this.userNameInput = $(".collaborators_input")
+    this.packageName = $(".package-name")[0]
 
-    this.newTokenItemTemplate = $(".token-item-template .token-item");
-    this.invite_btn = $(".collaborators_btn.add");
-    this.inputEmail = $(".add_collaborators_form #submit-btn");
-
-    this.userName = "";
-    this.userNameInput = $(".collaborators_input");
-    this.packageName = $(".package-name")[0];
-
-    this.success_modal = $('#success_modal');
-    this.error_modal = $('#error_modal');
-
-    this.init();
+    this.init()
   }
 
   init() {
-    $(document).foundation();
-    $(".token-created-at").timeago();
+    $(document).foundation()
+    $(".token-created-at").timeago()
 
     this.invite_btn.click(() => {
       this.inviteCollaborator();
       this.collaborators_modal.foundation("close");
     });
 
-    this.add_collaborators.click(() => {
+    this.add_collaborator_btn.click(() => {
       $("#new_collaborator_modal").foundation("open");
     });
 
@@ -44,41 +38,27 @@ class Collaborator {
       this.collaborators_modal.foundation("close");
     });
 
-    this.owner_btn.each(function () {
-      console.log($(this))
-      $(this).click(
-        (e) => {
-          $('#collaborator_email').text(e.target.parentElement.parentElement.querySelector('.collaborator_name').innerText)
-          $("#transfer_owner_modal").foundation("open")
-        }
-      )
-
+    this.transfer_owner_btn.click(e => {
+      this.current_transfer_target = $(e.target)
+      $('#collaborator_email').text(e.target.parentElement.parentElement.querySelector('.collaborator_name').innerText)
+      $("#transfer_owner_modal").foundation("open")
     });
-    this.remove_btn.each(function () {
-      console.log($(this))
-      $(this).click(
-        () => {
-          $("#remove_owner_modal").foundation("open")
-        }
-      )
+    this.remove_btn.click(() => {
+        $("#remove_owner_modal").foundation("open")
     });
 
     this.transfer_modal.find(".submit").on("click", () => {
-
       this.transferOwnership()
       this.transfer_modal.foundation("close");
     });
     this.transfer_modal.find(".cancel").on("click", () => {
-      console.log("cancel transfer");
       this.transfer_modal.foundation("close");
     });
 
     this.remove_modal.find(".submit").on("click", () => {
-      console.log("remove");
       this.remove_modal.foundation("close");
     });
     this.remove_modal.find(".cancel").on("click", () => {
-      console.log("cancel remove");
       this.remove_modal.foundation("close");
     });
 
@@ -94,10 +74,9 @@ class Collaborator {
 
   inviteCollaborator = () => {
     const collaboratorEmail = $(".collaborators_input").val();
-    if (!collaboratorEmail) return;
+    if (!collaboratorEmail || !this.userName) return;
     let collaboratorUrl =
       "/api/v1/packages/" + this.packageName.innerHTML + "/collaborators";
-    console.log(this.userName);
     $.ajax({
       type: "POST",
       dataType: "json",
@@ -106,13 +85,14 @@ class Collaborator {
       processData: false,
       headers: {},
       data: JSON.stringify({ user: this.userName }),
-      success: (data, status, xhr) => {
-        this.updateRow(this.userName, "pending");
+      success: (data) => {
+        if (data.ok) this.updateRow(this.userName, "Collaborator")
+        else this.updateRow(this.userName, "External");
         $('#success_modal_message').text(data.msg);
         this.success_modal.foundation("open");
 
       },
-      error: (data, status, xhr) => {
+      error: (data) => {
         $('#success_modal_message').text(data.responseJSON.msg);
         this.success_modal.foundation("open");
       },
@@ -121,7 +101,6 @@ class Collaborator {
 
   transferOwnership = () => {
 
-    console.log($('#collaborator_email').text());
     let collaboratorUrl =
       "/api/v1/packages/" + this.packageName.innerHTML + "/transfer";
 
@@ -133,41 +112,43 @@ class Collaborator {
       processData: false,
       headers: {},
       data: JSON.stringify({ user: $('#collaborator_email').text() }),
-      success: (data, status, xhr) => {
-        if (data.ok) {
-          $('#success_modal_message').text(data.msg);
-          this.success_modal.foundation("open");
-        } else {
-
-          $('#success_modal_message').text(data.msg);
-          this.success_modal.foundation("open");
-        }
+      success: (data) => {
+        $('#success_modal_message').text(data.msg);
+        this.success_modal.foundation("open");
+        this.current_transfer_target.attr('class', 'hidden-btn')
+        this.current_transfer_target.parent().parent()
+            .find('.collaborator_name')
+            .append(`
+                <div className="sending_status">ownership invitation sent</div>
+            `)
+        this.current_transfer_target = undefined
       },
-      error: (data, status, xhr) => {
-        console.log("asdasdasd")
+      error: (data) => {
         $('#success_modal_message').text(data.responseJSON.msg);
         this.success_modal.foundation("open");
       },
     });
   };
 
-  updateRow = (name, status) => {
+  updateRow = (name, role) => {
     $(".collaborators_table").append(`
       <div class="collaborator_row">
-        <div class="email_address collaborator_name">
-          ${name} 
+        <div class="email_address ${role.toLowerCase()}_name">
+          ${name}
         </div>
-        <span class="invitation_status">${status}</span>
-        <div class="roles">Collaborator</div>
+        <div class="sending_status">${role.toLowerCase()} invitation sent</div>
+        <div class="roles">
+          <p class="collaborator">${role}</p>
+        </div>
         <div class="permission collaborators_settings">
-          <button id="submit-btn" type="submit" class="ownership_btn transfer">
-            
+          <button type="submit" 
+              ${role==='Collaborator' ? '': 'class="hidden-btn"'}>
+            Transfer
           </button>
-          <button id="submit-btn" type="submit" class="ownership_btn remove">
+          <button type="submit" class="ownership_btn remove">
             Remove
           </button>
         </div>
-      </div>
     `);
   };
 }

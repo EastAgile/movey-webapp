@@ -2,7 +2,7 @@ use crate::accounts::jobs::{SendCollaboratorInvitationEmail, SendRegisterToColla
 use crate::accounts::Account;
 use crate::api::services::collaborators::views::{AddCollaboratorJson, InvitationResponse};
 use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
-use crate::package_collaborators::models::pending_invitation::PendingInvitation;
+use crate::package_collaborators::models::external_invitation::ExternalInvitation;
 use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
 use crate::packages::Package;
 use crate::utils::request_utils;
@@ -37,7 +37,7 @@ pub async fn add_collaborators(
         Err(e) => {
             if matches!(e, Error::Database(DBError::NotFound))
                 && json.user.contains('@')
-                && PendingInvitation::create(&json.user, user.id, package.id, &conn).is_ok()
+                && ExternalInvitation::create(&json.user, user.id, package.id, &conn).is_ok()
             {
                 // TODO: Handle error for this line
                 let _ = request.queue(SendRegisterToCollabEmail {
@@ -154,7 +154,7 @@ pub async fn transfer_ownership(
 
     Ok(HttpResponse::Ok().json(&json!({
         "ok": true,
-        "msg": MSG_SUCCESSFULLY_INVITED_COLLABORATOR,
+        "msg": MSG_SUCCESSFULLY_TRANSFER_OWNERSHIP,
     })))
 }
 

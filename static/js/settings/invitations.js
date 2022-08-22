@@ -9,15 +9,15 @@ class Invitations {
 
     this.acceptBtn.click((event) => {
       let packageId = $(event.target).parent().data("package-id");
-      this.submitInvitationResponse(packageId, true);
+      this.submitInvitationResponse(packageId, true, $(event.target));
     });
     this.cancelBtn.click((event) => {
       let packageId = $(event.target).parent().data("package-id");
-      this.submitInvitationResponse(packageId, false);
+      this.submitInvitationResponse(packageId, false, $(event.target));
     });
   }
 
-  submitInvitationResponse(packageId, accepted) {
+  submitInvitationResponse(packageId, accepted, targetElement) {
     $.ajax({
       type: 'POST',
       dataType: "json",
@@ -26,12 +26,12 @@ class Invitations {
       processData: false,
       headers: {},
       data: JSON.stringify({ "package_id": packageId, "accepted": accepted }),
-      success: (_data, _status, _xhr) => {
+      success: () => {
         // reload to update database because ajax response need time to load new change
-        window.location.reload();
+        targetElement.parent().parent().remove()
         console.log("OK");
       },
-      error: function (_xhr, _status, _errorThrown) {
+      error: function () {
         window.location.reload();
       },
     })

@@ -1,7 +1,7 @@
 use crate::accounts::views::utils::validate_token;
 use crate::accounts::Account;
 use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
-use crate::package_collaborators::models::pending_invitation::PendingInvitation;
+use crate::package_collaborators::models::external_invitation::ExternalInvitation;
 use diesel::result::Error as DBError;
 use jelly::accounts::User;
 use jelly::actix_session::UserSession;
@@ -47,7 +47,7 @@ pub async fn with_token(
 
         // Shift all pending invitations to this verified account
         let conn = db.get()?;
-        let pending_invitations = PendingInvitation::find_by_email(&account.email, &conn)?;
+        let pending_invitations = ExternalInvitation::find_by_email(&account.email, &conn)?;
         if pending_invitations.is_empty() {
             return request.redirect("/settings/profile");
         } else {

@@ -1,16 +1,29 @@
+use std::hash::{Hash, Hasher};
 use serde::Serialize;
 
-#[derive(Serialize)]
-pub struct Collaborator {
-    pub role: Role,
+#[derive(Serialize, Eq)]
+pub struct SerializableInvitation {
+    pub status: Status,
     pub email: String,
-    pub id: i32,
 }
 
-#[derive(Serialize)]
-pub enum Role {
-    OWNER,
-    COLLABORATOR,
-    PENDING,
-    EXTERNAL,
+impl PartialEq for SerializableInvitation {
+    fn eq(&self, other: &SerializableInvitation) -> bool {
+        self.email == other.email
+    }
+}
+
+impl Hash for SerializableInvitation {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.email.hash(state);
+    }
+}
+
+#[derive(Serialize, Eq, PartialEq, PartialOrd, Ord, Clone)]
+pub enum Status {
+    Owner,
+    PendingOwner,
+    Collaborator,
+    PendingCollaborator,
+    External,
 }

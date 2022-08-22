@@ -100,20 +100,29 @@ async fn access_package_settings_page(world: &mut TestWorld) {
 
 #[when("I click on add button")]
 async fn click_on_add_collaborator(world: &mut TestWorld) {
-    // assert!(world.driver.find_element(By::ClassName("collaborator_input")).await.is_err());
+    assert!(world.driver
+        .find_element(By::ClassName("new_collaborator_modal"))
+        .await
+        .is_err()
+    );
     let add_btn = world
         .driver
         .find_element(By::ClassName("add_collaborators_btn"))
         .await
         .unwrap();
     add_btn.click().await.unwrap();
-    // assert!(world.driver.find_element(By::ClassName("collaborator_input")).await.is_ok());
 }
 
 #[then("I should see an overlay for inviting a collaborator")]
-async fn see_an_invitation_overlay(_world: &mut TestWorld) {
-    // assert!(world.driver.find_element(By::ClassName("collaborator_input")).await.is_err());
-    // assert!(world.driver.find_element(By::ClassName("collaborator_input")).await.is_ok());
+async fn see_an_invitation_overlay(world: &mut TestWorld) {
+    assert!(world.driver
+        .find_element(By::Id("new_collaborator_modal"))
+        .await
+        .unwrap()
+        .is_displayed()
+        .await
+        .unwrap()
+    );
 }
 
 #[when("I invite a user to become a collaborator of the package")]
@@ -141,7 +150,10 @@ async fn invite_collaborator(world: &mut TestWorld) {
     fs::remove_dir_all("./emails").unwrap_or(());
 
     invite_btn.click().await.unwrap();
+}
 
+#[when("I close the modal")]
+async fn close_modal(world: &mut TestWorld) {
     let close_modal_btn = world
         .driver
         .find_element(By::ClassName("close-button-icon"))
@@ -202,6 +214,12 @@ async fn second_user_sign_in(world: &mut TestWorld) {
         .await
         .unwrap();
     login_button.click().await.unwrap();
+}
+
+#[when("She is signed out")]
+async fn second_user_sign_out(world: &mut TestWorld) {
+    click_log_out(world).await;
+    visit_sign_in_page(world).await;
 }
 
 #[when("She accesses her invitation page")]
@@ -296,25 +314,6 @@ async fn click_collaborator_tab(world: &mut TestWorld) {
     tab_owner.click().await.unwrap();
 }
 
-// #[then("She sa should see that she is a collaborator of the package")]
-// async fn not_in_collaborator_list(world: &mut TestWorld) {
-//     world
-//         .go_to_url("packages/test%20package/owner_settings")
-//         .await;
-//     let collaborator_names = world
-//         .driver
-//         .find_elements(By::ClassName("collaborator_name"))
-//         .await
-//         .unwrap();
-
-//     for name in collaborator_names {
-//         let collaborator_name = name.text().await.unwrap();
-//         if collaborator_name.contains(&world.second_account.email) && collaborator_name.contains("ACCEPTED") {
-//             panic!()
-//         }
-//     }
-// }
-
 #[when("Collaborator invitation is expired")]
 async fn expired_collaborator_invitation(_world: &mut TestWorld) {
     std::env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "0");
@@ -358,14 +357,6 @@ async fn invite_email_not_in_system(world: &mut TestWorld) {
 
     fs::remove_dir_all("./emails").unwrap_or(());
     invite_btn.click().await.unwrap();
-
-    let close_modal_btn = world
-        .driver
-        .find_element(By::ClassName("close-button-icon"))
-        .await
-        .unwrap();
-
-    close_modal_btn.click().await.unwrap();
 }
 
 #[then("She (the outsider) should receive an invitation email")]
@@ -544,14 +535,6 @@ async fn transfer_ownership(world: &mut TestWorld) {
         .await
         .unwrap();
     confirm_btn.click().await.unwrap();
-
-    let close_modal_btn = world
-        .driver
-        .find_element(By::ClassName("close-button-icon"))
-        .await
-        .unwrap();
-
-    close_modal_btn.click().await.unwrap();
 }
 
 #[when("She clicks on the Accept button to accept the transfer")]
@@ -683,4 +666,76 @@ async fn see_first_user_as_collaborator(world: &mut TestWorld) {
 #[when("She accesses the package detail page")]
 async fn visit_package_detail_page(world: &mut TestWorld) {
     world.go_to_url("packages/test%20package").await
+}
+
+#[then(regex = r"^I should see a modal with text '(.+)'$")]
+async fn see_success_message(world: &mut TestWorld, message: String) {
+    sleep(Duration::from_millis(100)).await;
+    let modal = world
+        .driver
+        .find_element(By::Id("success_modal_message"))
+        .await
+        .unwrap();
+    let msg = modal.text().await.unwrap();
+    assert_eq!(msg, message);
+}
+
+#[then("I should see the invited collaborator email")]
+async fn see_invited_collaborator_email(world: &mut TestWorld) {
+    let names = world
+        .driver
+        .find_elements(By::ClassName("collaborator_name"))
+        .await
+        .unwrap();
+    assert_eq!(names.len(), 1);
+    assert_eq!(names[0].text().await.unwrap(), world.second_account.email);
+    
+    let sending_statuses = world
+        .driver
+        .find_elements(By::ClassName("sending_status"))
+        .await
+        .unwrap();
+    assert_eq!(sending_statuses.len(), 1);
+    assert_eq!(sending_statuses[0].text().await.unwrap(), "collaborator invitation sent");
+}
+
+#[then("I should see the invited external email")]
+async fn see_invited_external_email(world: &mut TestWorld) {
+    let names = world
+        .driver
+        .find_elements(By::ClassName("external_name"))
+        .await
+        .unwrap();
+    assert_eq!(names.len(), 1);
+    assert_eq!(names[0].text().await.unwrap(), "not_in_system@host.com".to_string());
+    
+    let sending_statuses = world
+        .driver
+        .find_elements(By::ClassName("sending_status"))
+        .await
+        .unwrap();
+    assert_eq!(sending_statuses.len(), 1);
+    assert_eq!(sending_statuses[0].text().await.unwrap(), "external invitation sent");
+}
+
+#[then("I should not see the list of pending collaborators")]
+async fn not_see_pending_list(world: &mut TestWorld) {
+    let collaborator_names = world
+        .driver
+        .find_elements(By::ClassName("collaborator_name"))
+        .await
+        .unwrap();
+
+    assert!(collaborator_names.is_empty());
+}
+
+#[then("I should not see the list of external invitations")]
+async fn not_see_external_list(world: &mut TestWorld) {
+    let external_names = world
+        .driver
+        .find_elements(By::ClassName("external_name"))
+        .await
+        .unwrap();
+
+    assert!(external_names.is_empty());
 }

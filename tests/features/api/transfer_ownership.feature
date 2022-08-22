@@ -1,3 +1,4 @@
+@wip
 Feature: Transfer ownership
 
   Background:
@@ -8,6 +9,8 @@ Feature: Transfer ownership
     When I access the package detail page of my package
     And I access the package Settings tab
     And I transfer ownership to a collaborator
+    Then I should see a modal with text 'Ownership transfer invitation is created successfully.'
+    When I close the modal
     Then She (the collaborator) should receive an ownership invitation email
     When She is signed in
     And She accesses her invitation page

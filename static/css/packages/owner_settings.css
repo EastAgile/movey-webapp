@@ -324,4 +324,8 @@
   color: #eb5757;
 }
 
+.hidden-btn {
+  visibility: hidden;
+}
+
 /*# sourceMappingURL=owner_settings.css.map */

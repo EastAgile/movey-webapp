@@ -60,10 +60,11 @@ impl Account {
         Ok(result)
     }
 
-    pub async fn get_by_email_or_gh_login(term: &str, pool: &DieselPgPool) -> Result<Self, Error> {
+    pub async fn get_by_email_or_gh_login(search_term: &str, pool: &DieselPgPool) -> Result<Self, Error> {
         let connection = pool.get()?;
+        let trimmed_search_term = search_term.trim();
         let result = accounts
-            .filter(email.eq(term).or(github_login.eq(term)))
+            .filter(email.eq(trimmed_search_term).or(github_login.eq(trimmed_search_term)))
             .first::<Account>(&connection)?;
 
         Ok(result)
@@ -285,11 +286,11 @@ impl Account {
     }
 
     pub fn get_accounts(
-        account_ids: Vec<i32>,
+        account_ids: &Vec<i32>,
         conn: &DieselPgConnection,
     ) -> Result<Vec<Self>, Error> {
         Ok(accounts::table
-            .filter(accounts::id.eq_any(account_ids))
+            .filter(id.eq_any(account_ids))
             .load::<Self>(conn)?)
     }
 }

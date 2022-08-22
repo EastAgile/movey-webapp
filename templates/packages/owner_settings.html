@@ -15,7 +15,6 @@
     </div>
   </div>
   <div class="collaborators_wrapper">
-    <!-- <div class="collaborators_title">Collaborators</div> -->
     <div class="collaborators_table">
       <div class="collaborator_row header">
         <div class="email_address header">Email address</div>
@@ -24,7 +23,7 @@
       </div>
       {% for info in owner_list %}
       <div class="collaborator_row">
-        {% if info.role == "OWNER" %}
+        {% if info.status == "Owner" %}
         <div class="email_address owner_name">
           {{info.email}}
         </div>
@@ -32,38 +31,63 @@
           <p class="owner">Owner</p>
         </div>
         {% else %}
-        <div class="email_address collaborator_name">
-          {{info.email}}
-        </div>
-        {% if info.role == "PENDING"%}
-        <div class="sending_status">invitation sent</div>
-        {% endif %}
-        <div class="roles">
-          <p class="collaborator">Collaborator</p>
-        </div>
+          {% if info.status == "Collaborator"%}
+          <div class="email_address collaborator_name">
+            {{info.email}}
+          </div>
+          <div class="roles">
+            <p class="collaborator">Collaborator</p>
+          </div>
+          {% elif info.status == "PendingOwner"%}
+          <div class="email_address collaborator_name">
+            {{info.email}}
+          </div>
+          <div class="sending_status">ownership invitation sent</div>
+          <div class="roles">
+            <p class="collaborator">Collaborator</p>
+          </div>
+          {% elif info.status == "PendingCollaborator"%}
+          <div class="email_address collaborator_name">
+            {{info.email}}
+          </div>
+          <div class="sending_status">collaborator invitation sent</div>
+          <div class="roles">
+            <p class="collaborator">Pending</p>
+          </div>
+          {% elif info.status == "External"%}
+          <div class="email_address external_name">
+            {{info.email}}
+          </div>
+          <div class="sending_status">external invitation sent</div>
+          <div class="roles">
+            <p class="collaborator">External</p>
+          </div>
+          {% endif %}
         {% endif %}
 
-        {% if info.role == "OWNER" %}
+        {% if info.status == "Owner" %}
         <div class="permission collaborators_settings"></div>
-        {% elif info.email == current_user%}
-        <div class="permission collaborators_settings"></div>
-        {% elif info.role == "EXTERNAL"%}
+        {% elif info.status == "Collaborator"%}
         <div class="permission collaborators_settings">
-          <button type="submit" hidden>
-            Transfer
-          </button>
-          <button type="submit" class="ownership_btn remove">
-            Remove
-          </button>
-        </div>
-        {% else %}
-        <div class="permission collaborators_settings">
+          {% if is_current_user_owner == true %}
           <button type="submit" class="ownership_btn transfer">
             Transfer
           </button>
           <button type="submit" class="ownership_btn remove">
             Remove
           </button>
+          {% endif %}
+        </div>
+        {% else %}
+        <div class="permission collaborators_settings">
+          <button type="submit" class="hidden-btn">
+            Transfer
+          </button>
+          {% if is_current_user_owner == true %}
+          <button type="submit" class="ownership_btn remove">
+            Remove
+          </button>
+          {% endif %}
         </div>
         {% endif %}
       </div>
