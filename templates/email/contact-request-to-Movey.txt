@@ -1,0 +1,12 @@
+Hello Admin,
+
+
+A message was sent from {{name}}
+Contact Email: {{email}}
+Contact reason: {{category}}
+
+Description: {{description}}
+
+
+Thanks,
+- The Team

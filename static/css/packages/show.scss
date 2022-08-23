@@ -339,11 +339,21 @@
                     color: var(--dark-blue-color);
                     background-color: var(--gray-background-color);
                     border-radius: 4px;
-                    margin: 10px 0;
-                    padding: 10px 16px;
-                    display: block;
+                    margin: 0;
+                    padding: 5px 8px;
                     border: none;
                     white-space: pre;
+                }
+
+                pre {
+                    background-color: var(--gray-background-color);
+                    margin: 10px 0;
+                    padding: 10px 16px;
+                    border-radius: 4px;
+
+                    code {
+                        display: block;
+                    }
                 }
 
                 h1, h2, h3 {
@@ -436,7 +446,7 @@
 
                         .package-repo {
                             display: flex;
-                            justify-content: baseline;
+                            justify-content: start;
                             align-items: center;
                             margin-bottom: 32px;
 

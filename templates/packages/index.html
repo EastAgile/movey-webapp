@@ -29,6 +29,7 @@
                 <option value="name">Name</option>
                 <option value="most_downloads">Most Downloads</option>
                 <option value="newly_added">Newly Added</option>
+                <option value="recently_updated">Recently Updated</option>
             </select>
             <div class="packages-sort-chevron"></div>
         </div>
@@ -51,10 +52,17 @@
                         <img src='/static/resources/download_icon.svg' alt="Download icon of Movey website">
                         <b>{{ package.total_downloads_count }}</b>
                     </div>
+                    {% if sort_type == 'newly_added' %}
+                    <div class='update-timestamp'>
+                        <img src='/static/resources/packages/package_version_icon.svg' alt="upload icon">
+                        <time datetime='{{ package.created_at | date(format="%FT%TZ") }}'>{{ package.created_at }}</time>
+                    </div>
+                    {% else %}
                     <div class='update-timestamp'>
                         <img src='/static/resources/reload_icon.svg' alt = "Reload icon of Movey website">
                         <time datetime='{{ package.updated_at | date(format="%FT%TZ") }}'>{{ package.updated_at }}</time>
                     </div>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}

@@ -140,6 +140,7 @@ body {
                 .right-wrapper {
                     display: flex;
                     align-items: center;
+                    margin-top: 8px;
 
                     @include large-screen {
                         width: 30%;
@@ -148,17 +149,23 @@ body {
 
                     @include medium-small-screen {
                         width: 100%;
-                        flex-direction: column;
-                        justify-content: space-around;
+                        flex-direction: row;
+                        align-items: baseline;
                     }
 
                     .update-timestamp {
                         color: var(--gray-color);
                         display: flex;
                         align-items: center;
+                        flex-grow: 1;
+                        max-width: 250px;
 
                         img {
-                            margin-right: 5px;
+                            margin-right: 8px;
+                        }
+
+                        @include medium-small-screen {
+                            max-width: unset;
                         }
                     }
 
@@ -167,13 +174,17 @@ body {
                         margin-right: 25px;
                         display: flex;
                         align-items: center;
+                        max-width: 150px;
+                        flex-grow: 1;
 
                         img {
-                            margin-right: 5px;
+                            margin-right: 8px;
                         }
 
                         @include medium-small-screen {
                             margin-right: 0;
+                            margin-bottom: 0;
+                            max-width: unset;
                         }
                     }
 
@@ -309,6 +320,7 @@ body {
                     margin: 0;
                     overflow: clip;
                     text-overflow: ellipsis;
+                    height: 48px;
 
                     @include large-screen {
                         font-size: 24px;
@@ -317,7 +329,6 @@ body {
 
                     @include medium-small-screen {
                         font-size: 16px;
-                        height: 48px;
                     }
                 }
             }

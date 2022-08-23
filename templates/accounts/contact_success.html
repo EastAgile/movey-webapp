@@ -2,24 +2,25 @@
 
 {% block title %}Confirm Request | Movey{% endblock %}
 {% block css %}
-<link href="/static/css/reset_password.css" rel="stylesheet"/>
+<link href="/static/css/accounts/reset_password.css" rel="stylesheet"/>
 {% endblock %}
 {% block content %}
-<a href="/"><div class="logo"></div></a>
-<div class="form-wrapper">
-    <div class="email-form">
-        <h1>Thank You</h1>
-        <div id="description">
-            
-            <p class="dark">
-                Thank you for getting in touch! We appreciate you contacting us about <b>Movey</b>. We will be getting back to you shortly.
-            </p>
-            <p class="dark">Thanks in advance for your patience.</p>
-            <p class="dark"><br/>Have a great day!</p>
+<div class="reset-password-wrapper">
+    <a href="/" class="logo-wrapper"><div class="logo"></div></a>
+    <div class="form-wrapper">
+        <div class="email-form">
+            <h1>Thank You</h1>
+            <div id="description">
+                <p class="dark">
+                    Thank you for getting in touch! We appreciate you contacting us about <b>Movey</b>. We will be getting back to you shortly.
+                </p>
+                <p class="dark">Thanks in advance for your patience.</p>
+                <p class="dark"><br/>Have a great day!</p>
+            </div>
+            <a href ="/" class="dark redirect">
+                Back to home
+            </a>
         </div>
-        <a href ="/" class="dark redirect">
-            Back to home
-        </a>
     </div>
 </div>
 {% endblock %}

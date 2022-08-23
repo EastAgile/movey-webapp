@@ -1,0 +1,15 @@
+{% extends "email/layout.html" %}
+{% block content %}
+<p>Hello Admin,</p>
+
+<p>A message was sent from {{name}}</p>
+<p>Contact Email: {{email}} </p>
+<p>Contact reason: {{category}}</p>
+
+<p>Description: {{description}}</p>
+
+<p>Thanks,</p>
+<p><a href="mailto:{{ JELLY_SUPPORT_EMAIL }}">The Movey Team</a></p>
+{% endblock %}
+
+

@@ -41,7 +41,11 @@ class Header {
                     $(".header-container .sign-in-li").removeClass('hide');
                     $(".header-container .sign-up-li").removeClass('hide');
                 }
-            }
+            },
+            error: () => {
+                $(".header-container .sign-in-li").removeClass('hide');
+                $(".header-container .sign-up-li").removeClass('hide');
+            },
         })
     }
 }

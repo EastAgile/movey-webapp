@@ -1,8 +1,5 @@
 use jelly::accounts::User;
-use jelly::actix_web::{
-    web::{Form, Path},
-    HttpRequest,
-};
+use jelly::actix_web::web::{Form, Path};
 use jelly::prelude::*;
 use jelly::Result;
 
@@ -10,6 +7,11 @@ use crate::accounts::forms::{ChangePasswordViaEmailForm, EmailForm};
 use crate::accounts::jobs::{SendPasswordWasResetEmail, SendResetPasswordEmail};
 use crate::accounts::views::utils::validate_token;
 use crate::accounts::Account;
+#[cfg(test)]
+use crate::test::mock::MockHttpRequest as HttpRequest;
+use crate::utils::presenter;
+#[cfg(not(test))]
+use jelly::actix_web::HttpRequest;
 
 /// Just renders a standard "Enter Your Email" password reset page.
 pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
@@ -39,15 +41,12 @@ pub async fn request_reset(request: HttpRequest, form: Form<EmailForm>) -> Resul
         to: form.email.value.clone(),
     })?;
 
-    let email = form.email.value;
-    let mut censored_email = String::new();
-    censored_email.push_str(&email[0..1]);
-    censored_email.push_str("***");
-    censored_email.push_str(&email[email.find('@').ok_or(Error::Generic("Invalid email".to_string()))?..]);
-
     request.render(200, "accounts/reset_password/requested.html", {
         let mut context = Context::new();
-        context.insert("censored_email", &censored_email);
+        context.insert(
+            "censored_email",
+            &presenter::censor_email(&form.email.value)?,
+        );
         context.insert("sent", &true);
         context
     })
@@ -126,4 +125,34 @@ pub async fn reset(
     request.render(200, "accounts/invalid_token.html", Context::new())
 }
 
+#[cfg(test)]
+mod tests {
+    use crate::accounts::forms::EmailForm;
+    use crate::accounts::views::reset_password::request_reset;
+    use crate::test::{mock, DB_POOL};
+    use jelly::actix_web::web::Form;
+    use jelly::actix_web::HttpResponse;
+    use jelly::email::Context;
+    use jelly::forms::EmailField;
 
+    #[actix_rt::test]
+    async fn request_reset_returns_error_with_invalid_email_form() {
+        let mut mock_http_request = mock::MockHttpRequest::new();
+        mock_http_request
+            .expect_db_pool()
+            .returning(|| Ok(&DB_POOL));
+        mock_http_request
+            .expect_render()
+            .withf(|code: &usize, template: &str, _context: &Context| {
+                code == &400 && template == "accounts/reset_password/index.html"
+            })
+            .returning(|_, _, _| Ok(HttpResponse::Ok().finish()));
+        let form = Form(EmailForm {
+            email: EmailField {
+                value: "invalid".to_string(),
+                errors: vec![],
+            },
+        });
+        request_reset(mock_http_request, form).await.unwrap();
+    }
+}

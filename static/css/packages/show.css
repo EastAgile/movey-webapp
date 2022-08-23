@@ -308,11 +308,19 @@
   color: var(--dark-blue-color);
   background-color: var(--gray-background-color);
   border-radius: 4px;
-  margin: 10px 0;
-  padding: 10px 16px;
-  display: block;
+  margin: 0;
+  padding: 5px 8px;
   border: none;
   white-space: pre;
+}
+.package-show-container .package-content-container .package-detail-container .package-readme-content pre {
+  background-color: var(--gray-background-color);
+  margin: 10px 0;
+  padding: 10px 16px;
+  border-radius: 4px;
+}
+.package-show-container .package-content-container .package-detail-container .package-readme-content pre code {
+  display: block;
 }
 .package-show-container .package-content-container .package-detail-container .package-readme-content h1, .package-show-container .package-content-container .package-detail-container .package-readme-content h2, .package-show-container .package-content-container .package-detail-container .package-readme-content h3 {
   font-weight: 700;
@@ -389,7 +397,7 @@
 }
 .package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-install .package-repo {
   display: flex;
-  justify-content: baseline;
+  justify-content: start;
   align-items: center;
   margin-bottom: 32px;
 }

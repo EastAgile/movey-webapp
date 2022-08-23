@@ -1,34 +1,53 @@
+use diesel::result::Error as DBError;
 use jelly::accounts::User;
 use jelly::actix_session::UserSession;
 use jelly::actix_web::{HttpMessage, HttpRequest};
+use jelly::anyhow::anyhow;
+use jelly::error::Error;
 use jelly::prelude::*;
 use jelly::Result;
-use jelly::anyhow::anyhow;
 
 use crate::accounts::Account;
 
 pub async fn is_authenticated(request: &HttpRequest) -> Result<bool> {
-    if request.is_authenticated()? {
-        return renew_token(request).await;
-    }
-    Ok(false)
+    Ok(request.is_authenticated()? && renew_token(request).await?)
 }
 
 pub async fn renew_token(request: &HttpRequest) -> Result<bool> {
-    if let None = request.get_session().get::<User>("sku")? {
-        let remember_me_cookie = request.cookie("remember_me_token");
-        if let Some(cookie) = remember_me_cookie {
+    if request.get_session().get::<User>("sku")?.is_none() {
+        if let Some(cookie) = request.cookie("remember_me_token") {
             let cookie = cookie.value();
-            let index = cookie.find("=")
-                .ok_or(anyhow!("Error parsing cookie: Should be key=value."))?;
-            let uid = &cookie[index + 1..].parse::<i32>()
+            let index = cookie
+                .find('=')
+                .ok_or_else(|| anyhow!("Error parsing cookie: Should be key=value."))?;
+            let uid = &cookie[index + 1..]
+                .parse::<i32>()
                 .map_err(|e| anyhow!("Error parsing user id from cookie: {:?}", e))?;
 
-            let acc = Account::get(*uid, request.db_pool()?).await?;
+            let account = match Account::get(*uid, request.db_pool()?).await {
+                Ok(account) => account,
+                Err(Error::Database(DBError::NotFound)) => {
+                    error!(
+                        "Account from remember me token doesn't exist or have been removed. uid={}",
+                        uid
+                    );
+                    return Ok(false);
+                }
+                Err(e) => {
+                    error!(
+                        "Error getting account from remember me token: {:?}. uid={}",
+                        e, uid
+                    );
+                    return Err(Error::Anyhow(anyhow!(
+                        "Error getting account from remember me token"
+                    )));
+                }
+            };
+
             let user = User {
-                id: acc.id,
-                name: acc.name,
-                is_admin: acc.is_admin,
+                id: account.id,
+                name: account.name,
+                is_admin: account.is_admin,
                 is_anonymous: false,
             };
             request.set_user(user)?;
