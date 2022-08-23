@@ -12,7 +12,7 @@ use diesel::result::Error::NotFound;
 use jelly::chrono::{DateTime, NaiveDateTime, Utc};
 use jelly::error::Error;
 use jelly::serde::{Deserialize, Serialize};
-use jelly::DieselPgPool;
+use jelly::{DieselPgConnection, DieselPgPool};
 
 use crate::github_service::GithubRepoData;
 use jelly::Result;
@@ -365,6 +365,18 @@ impl Package {
             .first::<PackageVersion>(&connection)?;
 
         Ok(result)
+    }
+
+    pub fn change_owner(
+        package_id_: i32,
+        new_owner_id: i32,
+        conn: &DieselPgConnection,
+    ) -> Result<()> {
+        diesel::update(packages)
+            .filter(packages::id.eq(package_id_))
+            .set(account_id.eq(new_owner_id))
+            .execute(conn)?;
+        Ok(())
     }
 
     pub async fn increase_download_count(

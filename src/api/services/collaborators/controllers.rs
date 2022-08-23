@@ -1,3 +1,4 @@
+use diesel::Connection;
 use crate::accounts::jobs::{SendCollaboratorInvitationEmail, SendRegisterToCollabEmail};
 use crate::accounts::Account;
 use crate::api::services::collaborators::views::{CollaboratorJson, InvitationResponse};
@@ -196,9 +197,15 @@ pub async fn handle_invite(
         ));
     }
     if json.accepted {
-        invitation
-            .accept(&conn)
-            .map_err(|e| ApiUnauthorized(MSG_UNEXPECTED_ERROR, Box::new(e)))?;
+        conn.transaction(|| -> Result<()> {
+            invitation
+                .accept(&conn)
+                .map_err(|e| ApiUnauthorized(MSG_UNEXPECTED_ERROR, Box::new(e)))?;
+            if invitation.is_transferring {
+                Package::change_owner(invitation.package_id, invitation.invited_user_id, &conn)?;
+            }
+            Ok(())
+        })?
     } else {
         invitation
             .delete(&conn)
