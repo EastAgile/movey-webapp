@@ -1,5 +1,6 @@
 {% extends "layout.html" %} {% block title %}Contact Us | Movey{% endblock %} {%
 block css %}
+{% block meta_description %}Contact page of Movey website{% endblock %}
 <link
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"
@@ -46,6 +47,19 @@ block css %}
     </select>
     <div class="packages-sort-chevron"></div>
 
+        <form action="/accounts/contact/" method="POST" class="package-search-sort">
+            <select name="category"
+                    class="packages-sort"
+                    data-sort=""
+                    data-url="/packages/"
+                    placeholder="Select category"      
+            >
+                <option value="" disabled  selected></option>
+                {% for category in categories %}
+                    <option name = "category"> {{category}}</option>
+                {% endfor %}
+            </select>
+            <div class="packages-sort-chevron"></div>
     <label class="contact-label" for="name">Name</label>
     {% if name %}
     <input type="text" id="name" name="name" value="{{ name }}" readonly />

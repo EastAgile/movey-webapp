@@ -49,7 +49,7 @@
                 </div>
                 <div class="right-wrapper">
                     <div class='download-count'>
-                        <img src='/static/resources/download_icon.svg'>
+                        <img src='/static/resources/download_icon.svg' alt="Download icon of Movey website">
                         <b>{{ package.total_downloads_count }}</b>
                     </div>
                     {% if sort_type == 'newly_added' %}
@@ -59,7 +59,7 @@
                     </div>
                     {% else %}
                     <div class='update-timestamp'>
-                        <img src='/static/resources/reload_icon.svg'>
+                        <img src='/static/resources/reload_icon.svg' alt = "Reload icon of Movey website">
                         <time datetime='{{ package.updated_at | date(format="%FT%TZ") }}'>{{ package.updated_at }}</time>
                     </div>
                     {% endif %}
