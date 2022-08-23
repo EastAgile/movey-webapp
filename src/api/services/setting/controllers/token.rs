@@ -1,12 +1,10 @@
 use crate::accounts::Account;
 use crate::api::services::setting::views::EncodableApiTokenWithToken;
-use crate::constants;
-use crate::request;
 use crate::settings::models::token::ApiToken;
+use crate::utils::request_utils;
 use diesel::result::DatabaseErrorKind;
 use diesel::result::Error::DatabaseError;
-use jelly::actix_session::UserSession;
-use jelly::actix_web::http::header::{self, ContentType};
+use jelly::actix_web::http::header::ContentType;
 use jelly::actix_web::{web, web::Path};
 use jelly::anyhow::anyhow;
 use jelly::forms::TextField;
@@ -26,11 +24,8 @@ pub async fn create_token(
     if !req.name.is_valid() {
         return Ok(HttpResponse::BadRequest().body(&req.name.errors[0]));
     }
-    if !request::is_authenticated(&request).await? {
-        request.get_session().clear();
-        return Ok(HttpResponse::Unauthorized()
-            .header(header::SET_COOKIE, constants::REMEMBER_ME_TOKEN_INVALIDATE)
-            .body(""));
+    if !request_utils::is_authenticated(&request).await? {
+        return Ok(request_utils::clear_cookie(&request));
     }
     let user = request.user()?;
     let db = request.db_pool()?;
@@ -53,11 +48,8 @@ pub async fn revoke_token(
     request: HttpRequest,
     Path(token_id): Path<String>,
 ) -> Result<HttpResponse> {
-    if !request::is_authenticated(&request).await? {
-        request.get_session().clear();
-        return Ok(HttpResponse::Unauthorized()
-            .header(header::SET_COOKIE, constants::REMEMBER_ME_TOKEN_INVALIDATE)
-            .body(""));
+    if !request_utils::is_authenticated(&request).await? {
+        return Ok(request_utils::clear_cookie(&request));
     }
     let user = request.user()?;
     let db = request.db_pool()?;

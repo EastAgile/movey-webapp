@@ -1,0 +1,1 @@
+TRUNCATE owner_invitations CASCADE;

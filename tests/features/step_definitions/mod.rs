@@ -1,3 +1,4 @@
+pub mod collaborators_steps;
 pub mod contact_form_steps;
 pub mod homepage_steps;
 pub mod layouts_steps;

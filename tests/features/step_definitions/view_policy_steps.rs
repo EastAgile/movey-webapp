@@ -59,7 +59,7 @@ async fn name_email_filled_in(world: &mut TestWorld) {
     let email_field = world.driver.find_element(By::Id("email")).await.unwrap();
     assert_eq!(
         email_field.get_attribute("value").await.unwrap(),
-        Some(world.account.email.clone())
+        Some(world.first_account.email.clone())
     );
 }
 

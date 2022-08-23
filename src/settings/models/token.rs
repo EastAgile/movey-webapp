@@ -116,37 +116,21 @@ pub struct CreatedApiToken {
 
 #[cfg(test)]
 mod tests {
-    use crate::accounts::forms::NewAccountForm;
     use crate::accounts::Account;
     use crate::settings::models::token::ApiToken;
     use crate::test::{DatabaseTestContext, DB_POOL};
     use diesel::result::DatabaseErrorKind;
     use diesel::result::Error::DatabaseError;
     use jelly::error::Error;
-    use jelly::forms::{EmailField, PasswordField};
-
-    async fn setup_user() -> Account {
-        let form = NewAccountForm {
-            email: EmailField {
-                value: "email@host.com".to_string(),
-                errors: vec![],
-            },
-            password: PasswordField {
-                value: "So$trongpas0word!".to_string(),
-                errors: vec![],
-                hints: vec![],
-            },
-        };
-        let uid = Account::register(&form, &DB_POOL).await.unwrap();
-        Account::get(uid, &DB_POOL).await.unwrap()
-    }
+    use crate::test::util::setup_user;
 
     #[actix_rt::test]
     async fn api_token_insert_works() {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
 
-        let account = setup_user().await;
+        let uid = setup_user(None, None).await;
+        let account = Account::get(uid, &DB_POOL).await.unwrap();
         let new_api_token = ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
         assert_eq!(new_api_token.plaintext.len(), 32);
         assert_eq!(new_api_token.model.account_id, account.id);
@@ -158,7 +142,8 @@ mod tests {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
 
-        let account = setup_user().await;
+        let uid = setup_user(None, None).await;
+        let account = Account::get(uid, &DB_POOL).await.unwrap();
         ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
         match ApiToken::insert(&account, "name1", &DB_POOL).await {
             Err(Error::Database(DatabaseError(DatabaseErrorKind::UniqueViolation, _))) => (),
@@ -171,7 +156,8 @@ mod tests {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
 
-        let account = setup_user().await;
+        let uid = setup_user(None, None).await;
+        let account = Account::get(uid, &DB_POOL).await.unwrap();
 
         let result = ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
 
@@ -189,8 +175,8 @@ mod tests {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
 
-        let account = setup_user().await;
-
+        let uid = setup_user(None, None).await;
+        let account = Account::get(uid, &DB_POOL).await.unwrap();
         ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
         ApiToken::insert(&account, "name2", &DB_POOL).await.unwrap();
 
@@ -207,7 +193,8 @@ mod tests {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
 
-        let account = setup_user().await;
+        let uid = setup_user(None, None).await;
+        let account = Account::get(uid, &DB_POOL).await.unwrap();
 
         let new_api_token = ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
         let token_id = ApiToken::get(&new_api_token.plaintext, &DB_POOL)
@@ -221,7 +208,8 @@ mod tests {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
 
-        let account = setup_user().await;
+        let uid = setup_user(None, None).await;
+        let account = Account::get(uid, &DB_POOL).await.unwrap();
 
         let token1 = ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
         ApiToken::insert(&account, "name2", &DB_POOL).await.unwrap();
@@ -246,7 +234,8 @@ mod tests {
         crate::test::init();
         let _ctx = DatabaseTestContext::new();
 
-        let account = setup_user().await;
+        let uid = setup_user(None, None).await;
+        let account = Account::get(uid, &DB_POOL).await.unwrap();
 
         ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
         ApiToken::insert(&account, "name2", &DB_POOL).await.unwrap();
