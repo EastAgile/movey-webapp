@@ -34,12 +34,21 @@ pub async fn register_package(
     request: HttpRequest,
     mut req: web::Json<PackageRequest>,
 ) -> Result<HttpResponse> {
-    let db = request.db_pool()?;
+    let db = match request.db_pool() {
+        Ok(pool) => pool,
+        Err(_) => {
+            return Ok(HttpResponse::InternalServerError()
+                .body("Something went wrong, please try again later."))
+        }
+    };
     if ApiToken::get(&req.token, db).await.is_err() {
-        return Ok(HttpResponse::BadRequest().body("Invalid Api Token"));
+        return Ok(HttpResponse::BadRequest().body("Invalid API token."));
     }
 
-    let token_account_id = ApiToken::associated_account(&req.token, db).await?.id;
+    let token_account_id = match ApiToken::associated_account(&req.token, db).await {
+        Ok(account) => account.id,
+        Err(_) => return Ok(HttpResponse::BadRequest().body("Invalid API token.")),
+    };
     let service = GithubService::new();
     if req.subdir.ends_with('\n') {
         req.subdir.pop();
@@ -51,7 +60,10 @@ pub async fn register_package(
         subdir.push_str("Move.toml");
         Some(subdir)
     };
-    let github_data = service.fetch_repo_data(&req.github_repo_url, subdir, None)?;
+    let github_data = match service.fetch_repo_data(&req.github_repo_url, subdir, None) {
+        Ok(data) => data,
+        Err(_) => return Ok(HttpResponse::NotFound().body("Cannot get package info from Github.")),
+    };
     if !req.subdir.is_empty() {
         req.github_repo_url = format!(
             "{}/blob/{}/{}",
@@ -107,17 +119,23 @@ pub async fn increase_download_count(
 ) -> Result<HttpResponse> {
     let mut form = form.into_inner();
     if !form.is_valid() {
-        return Ok(HttpResponse::BadRequest().body("invalid git info"));
+        return Ok(HttpResponse::BadRequest().body("Invalid git info."));
     }
 
-    let db = request.db_pool()?;
+    let db = match request.db_pool() {
+        Ok(pool) => pool,
+        Err(_) => {
+            return Ok(HttpResponse::InternalServerError()
+                .body("Something went wrong, please try again later."))
+        }
+    };
     let service = GithubService::new();
     if let Ok(res) =
         Package::increase_download_count(&form.url, &form.rev, &form.subdir, &service, db).await
     {
         Ok(HttpResponse::Ok().body(res.to_string()))
     } else {
-        Ok(HttpResponse::NotFound().body("Cannot find url or rev"))
+        Ok(HttpResponse::NotFound().body("Cannot find url or rev."))
     }
 }
 

@@ -8,6 +8,7 @@ use crate::test::util::create_test_token;
 use jelly::actix_web::body::Body;
 use jelly::actix_web::http::StatusCode;
 use jelly::actix_web::web;
+use jelly::prelude::Error;
 
 fn init_form() -> web::Form<DownloadInfo> {
     web::Form(DownloadInfo {
@@ -65,7 +66,7 @@ async fn register_package_returns_error_with_invalid_token() {
     assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
     assert_eq!(
         resp.body().as_ref().unwrap(),
-        &Body::from("Invalid Api Token")
+        &Body::from("Invalid API token.")
     );
     assert_eq!(Package::count(&DB_POOL).await.unwrap(), 0);
 }
@@ -144,7 +145,7 @@ async fn increase_download_count_returns_error_with_empty_rev() {
     assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
     assert_eq!(
         resp.body().as_ref().unwrap(),
-        &Body::from("invalid git info")
+        &Body::from("Invalid git info.")
     );
     assert_eq!(Package::count(&DB_POOL).await.unwrap(), 0);
     assert_eq!(PackageVersion::count(&DB_POOL).await.unwrap(), 0);
@@ -168,8 +169,50 @@ async fn increase_download_count_returns_error_with_empty_url() {
     assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
     assert_eq!(
         resp.body().as_ref().unwrap(),
-        &Body::from("invalid git info")
+        &Body::from("Invalid git info.")
     );
     assert_eq!(Package::count(&DB_POOL).await.unwrap(), 0);
     assert_eq!(PackageVersion::count(&DB_POOL).await.unwrap(), 0);
+}
+
+#[actix_rt::test]
+async fn register_package_returns_error_when_database_is_not_available() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    let mut mock_http_request = mock::MockHttpRequest::new();
+    mock_http_request
+        .expect_db_pool()
+        .returning(|| Err(Error::Generic("Cannot get db pool".to_string())));
+    let package_request = package_request().await;
+
+    let response = register_package(mock_http_request, package_request).await;
+    assert!(response.is_ok());
+    let resp = response.unwrap();
+    assert_eq!(resp.status(), StatusCode::INTERNAL_SERVER_ERROR);
+    assert_eq!(
+        resp.body().as_ref().unwrap(),
+        &Body::from("Something went wrong, please try again later.")
+    );
+}
+
+#[actix_rt::test]
+async fn increase_download_count_returns_error_when_database_is_not_available() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    let mut mock_http_request = mock::MockHttpRequest::new();
+    mock_http_request
+        .expect_db_pool()
+        .returning(|| Err(Error::Generic("Cannot get db pool".to_string())));
+    let form = init_form();
+
+    let response = increase_download_count(mock_http_request, form).await;
+    assert!(response.is_ok());
+    let resp = response.unwrap();
+    assert_eq!(resp.status(), StatusCode::INTERNAL_SERVER_ERROR);
+    assert_eq!(
+        resp.body().as_ref().unwrap(),
+        &Body::from("Something went wrong, please try again later.")
+    );
 }
