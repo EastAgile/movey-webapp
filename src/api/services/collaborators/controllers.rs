@@ -2,7 +2,7 @@ use crate::accounts::jobs::{SendCollaboratorInvitationEmail, SendRegisterToColla
 use crate::accounts::Account;
 use crate::api::services::collaborators::views::{AddCollaboratorJson, InvitationResponse};
 use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
-use crate::package_collaborators::models::pending_invitation::PendingInvitation;
+use crate::package_collaborators::models::external_invitation::ExternalInvitation;
 use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
 use crate::packages::Package;
 use crate::utils::request_utils;
@@ -30,12 +30,14 @@ pub async fn add_collaborators(
         .await
         .map_err(|e| ApiNotFound(MSG_PACKAGE_NOT_FOUND, Box::new(e)))?;
     let user = request.user().map_err(|e| ApiServerError(Box::new(e)))?;
-    let invited_account = Account::get_by_email_or_gh_login(&json.user, db)
-        .await
-        .map_err(|e| {
+
+    let invited_account = Account::get_by_email_or_gh_login(&json.user, db).await;
+    let invited_account = match invited_account {
+        Ok(account) => account,
+        Err(e) => {
             if matches!(e, Error::Database(DBError::NotFound))
                 && json.user.contains('@')
-                && PendingInvitation::create(&json.user, user.id, package.id, &conn).is_ok()
+                && ExternalInvitation::create(&json.user, user.id, package.id, &conn).is_ok()
             {
                 // TODO: Handle error for this line
                 let _ = request.queue(SendRegisterToCollabEmail {
@@ -43,8 +45,13 @@ pub async fn add_collaborators(
                     package_name: package.name.clone(),
                 });
             }
-            ApiNotFound(MSG_ACCOUNT_NOT_FOUND_INVITING, Box::new(e))
-        })?;
+            // Inviting email is not in system, return a message that will send email to them.
+            return Ok(HttpResponse::Ok().json(json!({
+                "ok": false,
+                "msg": MSG_ACCOUNT_NOT_FOUND_INVITING
+            })));
+        }
+    };
 
     let ids = vec![user.id, invited_account.id];
     let collaborators = PackageCollaborator::get_in_bulk_order_by_role(package.id, ids, &conn)
@@ -149,7 +156,7 @@ pub async fn transfer_ownership(
 
     Ok(HttpResponse::Ok().json(&json!({
         "ok": true,
-        "msg": MSG_SUCCESSFULLY_INVITED_COLLABORATOR,
+        "msg": MSG_SUCCESSFULLY_TRANSFER_OWNERSHIP,
     })))
 }
 

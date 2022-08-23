@@ -81,6 +81,7 @@ pub async fn main() -> io::Result<()> {
 
 async fn start_server() -> io::Result<(dev::Server, DieselPgPool)> {
     Server::new()
+        .register_service(package_collaborators::configure)
         .register_service(pages::configure)
         .register_service(accounts::configure)
         .register_jobs(accounts::jobs::configure)

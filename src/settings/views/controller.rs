@@ -126,8 +126,8 @@ pub async fn show_invitations(request: HttpRequest) -> Result<HttpResponse> {
     let conn = db.get()?;
 
     if let Ok(user) = request.user() {
-        let invitations = OwnerInvitation::find_by_invited_account(user.id, &conn)
-            .unwrap_or(vec![]);
+        let invitations =
+            OwnerInvitation::find_by_invited_account(user.id, &conn).unwrap_or(vec![]);
 
         request.render(200, "settings/invitations.html", {
             let mut ctx = Context::new();

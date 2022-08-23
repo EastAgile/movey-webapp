@@ -1,7 +1,7 @@
 use crate::accounts::views::utils::validate_token;
 use crate::accounts::Account;
 use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
-use crate::package_collaborators::models::pending_invitation::PendingInvitation;
+use crate::package_collaborators::models::external_invitation::ExternalInvitation;
 #[cfg(test)]
 use crate::test::mock::MockHttpRequest as HttpRequest;
 use diesel::result::Error as DBError;
@@ -52,7 +52,7 @@ pub async fn with_token(
 
         // Shift all pending invitations to this verified account
         let conn = db.get()?;
-        let pending_invitations = PendingInvitation::find_by_email(&account.email, &conn)?;
+        let pending_invitations = ExternalInvitation::find_by_email(&account.email, &conn)?;
         if pending_invitations.is_empty() {
             return request.redirect("/settings/profile");
         } else {
@@ -67,7 +67,7 @@ pub async fn with_token(
                 )?;
                 invitation.delete(&conn)?;
             }
-            return request.redirect("/settings/profile/invitations");
+            return request.redirect("/settings/invitations");
         }
     }
 

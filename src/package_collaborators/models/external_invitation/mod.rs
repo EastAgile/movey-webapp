@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests;
 
-use crate::schema::pending_invitations;
+use crate::schema::external_invitations;
 use diesel::prelude::*;
 use diesel::{Identifiable, Insertable, Queryable};
 use jelly::chrono::{NaiveDateTime, Utc};
@@ -10,37 +10,36 @@ use jelly::{chrono, DieselPgConnection};
 use std::env;
 
 #[derive(Clone, Debug, PartialEq, Eq, Identifiable, Queryable)]
-#[primary_key(pending_user_email, package_id)]
-pub struct PendingInvitation {
-    pub pending_user_email: String,
+#[primary_key(external_user_email, package_id)]
+pub struct ExternalInvitation {
+    pub external_user_email: String,
     pub invited_by_user_id: i32,
     pub package_id: i32,
     pub created_at: NaiveDateTime,
 }
 
 #[derive(Insertable, Clone, Debug)]
-#[table_name = "pending_invitations"]
+#[table_name = "external_invitations"]
 struct NewRecord {
-    pending_user_email: String,
+    external_user_email: String,
     invited_by_user_id: i32,
     package_id: i32,
 }
 
-impl PendingInvitation {
+impl ExternalInvitation {
     pub fn create(
-        pending_user_email: &str,
+        external_user_email: &str,
         invited_by_user_id: i32,
         package_id: i32,
         conn: &DieselPgConnection,
     ) -> Result<Self> {
         conn.transaction(|| -> Result<()> {
-            let existing: Option<PendingInvitation> = pending_invitations::table
-                .find((pending_user_email, package_id))
+            let existing = external_invitations::table
+                .find((external_user_email, package_id))
                 .for_update()
-                .first(conn)
-                .optional()?;
+                .first::<ExternalInvitation>(conn);
 
-            if let Some(existing) = existing {
+            if let Ok(existing) = existing {
                 if existing.is_expired() {
                     diesel::delete(&existing).execute(conn)?;
                 }
@@ -48,9 +47,9 @@ impl PendingInvitation {
             Ok(())
         })?;
 
-        let res: PendingInvitation = diesel::insert_into(pending_invitations::table)
+        let res: ExternalInvitation = diesel::insert_into(external_invitations::table)
             .values(&NewRecord {
-                pending_user_email: String::from(pending_user_email),
+                external_user_email: String::from(external_user_email),
                 invited_by_user_id,
                 package_id,
             })
@@ -61,24 +60,31 @@ impl PendingInvitation {
     }
 
     pub fn find_by_id(
-        pending_user_email: &str,
+        external_user_email: &str,
         package_id: i32,
         conn: &DieselPgConnection,
     ) -> Result<Self> {
-        Ok(pending_invitations::table
-            .find((pending_user_email, package_id))
+        Ok(external_invitations::table
+            .find((external_user_email, package_id))
             .first::<Self>(conn)?)
     }
 
-    pub fn find_by_email(pending_user_email: &str, conn: &DieselPgConnection) -> Result<Vec<Self>> {
-        Ok(pending_invitations::table
-            .filter(pending_invitations::pending_user_email.eq(pending_user_email))
-            .load::<Self>(conn)?)
+    pub fn find_by_email(external_user_email: &str, conn: &DieselPgConnection) -> Result<Vec<Self>> {
+        Ok(external_invitations::table
+            .filter(external_invitations::external_user_email.eq(external_user_email))
+            .get_results::<Self>(conn)?)
     }
 
     pub fn delete(&self, conn: &DieselPgConnection) -> Result<()> {
         diesel::delete(self).execute(conn)?;
         Ok(())
+    }
+
+    pub fn find_by_package_id(package_id: i32, conn: &DieselPgConnection) -> Result<Vec<String>> {
+        Ok(external_invitations::table
+            .filter(external_invitations::package_id.eq(package_id))
+            .select(external_invitations::external_user_email)
+            .load::<String>(conn)?)
     }
 
     pub fn is_expired(&self) -> bool {

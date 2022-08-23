@@ -94,56 +94,72 @@
   border: 1px solid #e9ecef;
   width: 900px;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row {
   width: 900px;
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
   justify-content: space-around;
   height: 80px;
+  position: relative;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row.header {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row.header {
   height: 50px;
   background: #d9dde7;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .email_address {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .email_address {
   width: 29%;
   font-weight: 300;
   font-size: 18px;
   line-height: 24px;
   color: var(--dark-blue-color);
+  display: flex;
+  flex-direction: column;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .email_address.header {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .email_address.header {
   font-weight: 500;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .roles {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .email_address span {
+  color: var(--gray-color);
+  opacity: 80%;
+  font-size: 18px;
+}
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .sending_status {
+  position: absolute;
+  left: 16px;
+  top: 48px;
+}
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles {
   width: 19%;
   font-weight: 300;
   font-size: 18px;
   line-height: 24px;
   color: var(--dark-blue-color);
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .roles.header {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles.header {
   font-weight: 500;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .permission {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles .collaborator {
+  margin-bottom: 0px;
+}
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission {
   width: 49%;
   font-weight: 500;
   font-size: 18px;
   line-height: 24px;
   color: var(--dark-blue-color);
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .permission.header {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.header {
   font-weight: 500;
   width: 380px;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .permission.collaborators_settings {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings {
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
   width: 380px;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .permission.collaborators_settings .ownership_btn {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings .ownership_btn {
   padding: 15px 55px;
   font-weight: 700;
   font-size: 14px;
@@ -155,11 +171,11 @@
   cursor: pointer;
   text-transform: uppercase;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .permission.collaborators_settings .ownership_btn.transfer {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings .ownership_btn.transfer {
   color: #658f72;
   background-color: #effff4;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborators_row .permission.collaborators_settings .ownership_btn.remove {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings .ownership_btn.remove {
   color: #eb5757;
   background: none;
 }
@@ -169,13 +185,15 @@
 }
 
 #new_collaborator_modal,
-#transfer_owner_modal {
+#transfer_owner_modal,
+#remove_owner_modal {
   color: var(--dark-blue-color);
   padding: 40px;
 }
 @media screen and (max-width: 39.99875em) {
   #new_collaborator_modal,
-#transfer_owner_modal {
+#transfer_owner_modal,
+#remove_owner_modal {
     top: 50%;
     transform: translateY(-50%);
     height: unset;
@@ -183,7 +201,8 @@
   }
 }
 #new_collaborator_modal .message,
-#transfer_owner_modal .message {
+#transfer_owner_modal .message,
+#remove_owner_modal .message {
   font-weight: 400;
   font-size: 18px;
   letter-spacing: -0.02em;
@@ -191,7 +210,8 @@
   color: var(--gray-color);
 }
 #new_collaborator_modal .owner_message,
-#transfer_owner_modal .owner_message {
+#transfer_owner_modal .owner_message,
+#remove_owner_modal .owner_message {
   font-weight: 700;
   font-size: 24px;
   line-height: 54px;
@@ -199,7 +219,8 @@
   margin-bottom: 4px;
 }
 #new_collaborator_modal .warning,
-#transfer_owner_modal .warning {
+#transfer_owner_modal .warning,
+#remove_owner_modal .warning {
   font-weight: 300;
   font-size: 18px;
   display: flex;
@@ -208,31 +229,36 @@
   margin-bottom: 36px;
 }
 #new_collaborator_modal .package-name-version,
-#transfer_owner_modal .package-name-version {
+#transfer_owner_modal .package-name-version,
+#remove_owner_modal .package-name-version {
   display: flex;
   align-items: baseline;
   line-height: 24px;
   margin-bottom: 32px;
 }
 #new_collaborator_modal .package-name-version .package-name,
-#transfer_owner_modal .package-name-version .package-name {
+#transfer_owner_modal .package-name-version .package-name,
+#remove_owner_modal .package-name-version .package-name {
   color: var(--dark-blue-color);
   font-size: 32px;
   font-weight: 700;
 }
 #new_collaborator_modal .package-name-version .package-version,
-#transfer_owner_modal .package-name-version .package-version {
+#transfer_owner_modal .package-name-version .package-version,
+#remove_owner_modal .package-name-version .package-version {
   margin-left: 20px;
   font-size: 24px;
   color: var(--gray-color);
 }
 #new_collaborator_modal .new-token-container,
-#transfer_owner_modal .new-token-container {
+#transfer_owner_modal .new-token-container,
+#remove_owner_modal .new-token-container {
   display: flex;
   align-items: center;
 }
 #new_collaborator_modal .new-token-container .new-token-name,
-#transfer_owner_modal .new-token-container .new-token-name {
+#transfer_owner_modal .new-token-container .new-token-name,
+#remove_owner_modal .new-token-container .new-token-name {
   height: 48px;
   border: 1px solid #e5e7eb;
   box-shadow: 0px 1px 2px rgba(31, 41, 55, 0.08);
@@ -245,13 +271,15 @@
   margin-right: 8px;
 }
 #new_collaborator_modal .new-token-container .new-token-name input,
-#transfer_owner_modal .new-token-container .new-token-name input {
+#transfer_owner_modal .new-token-container .new-token-name input,
+#remove_owner_modal .new-token-container .new-token-name input {
   outline: none;
   border: none;
   width: 100%;
 }
 #new_collaborator_modal .new-token-container .collaborators_btn,
-#transfer_owner_modal .new-token-container .collaborators_btn {
+#transfer_owner_modal .new-token-container .collaborators_btn,
+#remove_owner_modal .new-token-container .collaborators_btn {
   padding: 15px 40px;
   font-weight: 700;
   font-size: 14px;
@@ -265,15 +293,39 @@
 }
 #new_collaborator_modal .new-token-container .collaborators_btn.submit, #new_collaborator_modal .new-token-container .collaborators_btn.add,
 #transfer_owner_modal .new-token-container .collaborators_btn.submit,
-#transfer_owner_modal .new-token-container .collaborators_btn.add {
+#transfer_owner_modal .new-token-container .collaborators_btn.add,
+#remove_owner_modal .new-token-container .collaborators_btn.submit,
+#remove_owner_modal .new-token-container .collaborators_btn.add {
   color: #fff;
   background-color: var(--blue-color);
 }
 #new_collaborator_modal .new-token-container .collaborators_btn.cancel,
-#transfer_owner_modal .new-token-container .collaborators_btn.cancel {
+#transfer_owner_modal .new-token-container .collaborators_btn.cancel,
+#remove_owner_modal .new-token-container .collaborators_btn.cancel {
   color: #fff;
   background-color: #9e9e9e;
   margin-left: 20px;
+}
+
+#success_modal {
+  background-color: #effff4;
+  border-radius: 4px;
+  margin: auto;
+}
+#success_modal .message {
+  color: #333333;
+}
+#error_modal {
+  background-color: #FFFFFF;
+  border-radius: 4px;
+  margin: auto;
+}
+#error_modal .message {
+  color: #eb5757;
+}
+
+.hidden-btn {
+  visibility: hidden;
 }
 
 /*# sourceMappingURL=owner_settings.css.map */
