@@ -36,6 +36,45 @@ table! {
     use diesel::sql_types::*;
     use diesel_full_text_search::{TsVector as Tsvector};
 
+    external_invitations (external_user_email, package_id) {
+        external_user_email -> Text,
+        invited_by_user_id -> Int4,
+        package_id -> Int4,
+        created_at -> Timestamp,
+    }
+}
+
+table! {
+    use diesel::sql_types::*;
+    use diesel_full_text_search::{TsVector as Tsvector};
+
+    owner_invitations (invited_user_id, package_id) {
+        invited_user_id -> Int4,
+        invited_by_user_id -> Int4,
+        package_id -> Int4,
+        token -> Text,
+        is_transferring -> Bool,
+        created_at -> Timestamp,
+    }
+}
+
+table! {
+    use diesel::sql_types::*;
+    use diesel_full_text_search::{TsVector as Tsvector};
+
+    package_collaborators (package_id, account_id) {
+        package_id -> Int4,
+        account_id -> Int4,
+        role -> Int4,
+        created_by -> Int4,
+        created_at -> Timestamptz,
+    }
+}
+
+table! {
+    use diesel::sql_types::*;
+    use diesel_full_text_search::{TsVector as Tsvector};
+
     package_versions (id) {
         id -> Int4,
         package_id -> Int4,
@@ -69,7 +108,19 @@ table! {
 }
 
 joinable!(api_tokens -> accounts (account_id));
+joinable!(external_invitations -> accounts (invited_by_user_id));
+joinable!(external_invitations -> packages (package_id));
+joinable!(owner_invitations -> packages (package_id));
+joinable!(package_collaborators -> packages (package_id));
 joinable!(package_versions -> packages (package_id));
 joinable!(packages -> accounts (account_id));
 
-allow_tables_to_appear_in_same_query!(accounts, api_tokens, package_versions, packages,);
+allow_tables_to_appear_in_same_query!(
+    accounts,
+    api_tokens,
+    external_invitations,
+    owner_invitations,
+    package_collaborators,
+    package_versions,
+    packages,
+);

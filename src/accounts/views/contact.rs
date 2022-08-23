@@ -4,8 +4,7 @@ use jelly::Result;
 use reqwest::Url;
 
 use crate::accounts::forms::ContactForm;
-use crate::accounts::jobs::SendContactEmail;
-use crate::accounts::jobs::SendContactRequestEmail;
+use crate::accounts::jobs::{SendContactEmail, SendContactRequestEmail};
 
 #[derive(Debug, serde::Deserialize)]
 pub struct RecaptchaResponse {

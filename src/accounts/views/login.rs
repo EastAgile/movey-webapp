@@ -6,7 +6,7 @@ use jelly::Result;
 use oauth2::{basic::BasicClient, CsrfToken, Scope};
 use serde::Deserialize;
 
-use crate::request;
+use crate::utils::request_utils;
 use jelly::actix_web::{
     cookie::{Cookie, CookieJar, Key},
     http::header,
@@ -18,7 +18,7 @@ use crate::accounts::Account;
 
 /// The login form.
 pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
-    if request::is_authenticated(&request).await? {
+    if request_utils::is_authenticated(&request).await? {
         return request.redirect("/settings/profile");
     }
     request.render(200, "accounts/login.html", {
@@ -34,7 +34,7 @@ pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
 
 /// POST-handler for logging in.
 pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result<HttpResponse> {
-    if request::is_authenticated(&request).await? {
+    if request_utils::is_authenticated(&request).await? {
         return request.redirect("/settings/profile");
     }
 

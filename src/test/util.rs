@@ -19,8 +19,18 @@ fn new_account_form() -> NewAccountForm {
     }
 }
 
-pub async fn setup_user() -> i32 {
-    let form = new_account_form();
+pub async fn setup_user(email: Option<String>, password: Option<String>) -> i32 {
+    let form = NewAccountForm {
+        email: EmailField {
+            value: email.unwrap_or_else(|| "email@host.com".to_string()),
+            errors: vec![],
+        },
+        password: PasswordField {
+            value: password.unwrap_or_else(|| "So$trongpas0word!".to_string()),
+            errors: vec![],
+            hints: vec![],
+        },
+    };
     let uid = Account::register(&form, &DB_POOL).await.unwrap();
     let _ = Account::mark_verified(uid, &DB_POOL).await;
     uid

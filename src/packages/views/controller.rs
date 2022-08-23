@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use jelly::actix_web::{web::Path, web::Query, HttpRequest};
 use jelly::anyhow::anyhow;
 use jelly::forms::TextField;
@@ -5,9 +6,15 @@ use jelly::prelude::*;
 use jelly::request::DatabasePool;
 use jelly::Result;
 
+use crate::accounts::Account;
+use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
+use crate::package_collaborators::models::external_invitation::ExternalInvitation;
+use crate::package_collaborators::package_collaborator::PackageCollaborator;
 use crate::packages::models::{PackageSortField, PackageSortOrder, PACKAGES_PER_PAGE};
 use crate::packages::{Package, PackageVersion, PackageVersionSort};
 use crate::utils::presenter;
+
+use super::serializer::{SerializableInvitation, Status};
 
 #[derive(serde::Serialize, serde::Deserialize)]
 struct PackageShowParams {
@@ -87,6 +94,116 @@ pub async fn show_package_versions(
         ctx.insert("versions", &package_versions);
         ctx.insert("package_tab", "versions");
         ctx.insert("sort_type", &sort_type_text);
+        ctx
+    })
+}
+
+pub async fn show_package_settings(
+    request: HttpRequest,
+    Path(package_name): Path<String>,
+) -> Result<HttpResponse> {
+    let db_pool = request.db_pool()?;
+    let db_connection = db_pool.get()?;
+    let package = Package::get_by_name(&package_name, db_pool).await?;
+    let package_latest_version =
+        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db_pool).await?
+            [0];
+
+    // get movey account that is already a collaborator
+    let accepted_ids: Vec<i32> = PackageCollaborator::get_by_package_id(package.id, &db_connection)?;
+    let owner_id = accepted_ids[0];
+    // need hashset to find PendingOwner
+    let accepted_ids: HashSet<i32> = accepted_ids.into_iter().collect();
+    let mut all_invitations: Vec<SerializableInvitation>;
+
+    let mut is_current_user_owner = false;
+    let user = request.user()?;
+    if accepted_ids.contains(&user.id) {
+        if owner_id == user.id {
+            is_current_user_owner = true;
+        }
+        // get movey account that received an collaborator invitation
+        let pending_ids: HashSet<i32> = OwnerInvitation::find_by_package_id(package.id, &db_connection)?.into_iter().collect();
+        let pending_owners_ids: HashSet<i32> = accepted_ids.intersection(&pending_ids)
+            // convert &i32 to i32
+            .map(|id| *id)
+            .collect();
+        let all_invitation_ids: Vec<i32> = accepted_ids.union(&pending_ids)
+            .map(|id| *id)
+            .collect();
+        all_invitations =
+            Account::get_accounts(&all_invitation_ids, &db_connection)?
+                .iter()
+                .map(|account| {
+                    let email_or_gh_login = if account.is_generated_email() {
+                        account.github_login.as_ref().unwrap_or(&account.email).clone()
+                    } else {
+                        account.email.clone()
+                    };
+                    if account.id == owner_id {
+                        SerializableInvitation {
+                            status: Status::Owner,
+                            email: email_or_gh_login,
+                        }
+                    } else if pending_owners_ids.contains(&account.id) {
+                        SerializableInvitation {
+                            status: Status::PendingOwner,
+                            email: email_or_gh_login,
+                        }
+                    } else if accepted_ids.contains(&account.id) {
+                        SerializableInvitation {
+                            status: Status::Collaborator,
+                            email: email_or_gh_login,
+                        }
+                    } else {
+                        SerializableInvitation {
+                            status: Status::PendingCollaborator,
+                            email: email_or_gh_login,
+                        }
+                    }
+                })
+                .collect();
+        let mut external_email: Vec<SerializableInvitation> = ExternalInvitation::find_by_package_id(
+            package.id,
+            &db_connection
+        )
+            .unwrap()
+            .iter()
+            .map(|email| SerializableInvitation {
+                status: Status::External,
+                email: email.clone()
+            })
+            .collect();
+        all_invitations.append(&mut external_email);
+    } else {
+        all_invitations =
+            Account::get_accounts(&accepted_ids.into_iter().collect(), &db_connection)?
+                .iter()
+                .map(|account| {
+                    if account.id == owner_id {
+                        SerializableInvitation {
+                            status: Status::Owner,
+                            email: account.email.clone(),
+                        }
+                    } else {
+                        SerializableInvitation {
+                            status: Status::Collaborator,
+                            email: account.email.clone(),
+                        }
+                    }
+                })
+                .collect();
+    }
+    // Owner -> Collaborator -> PendingCollaborator -> PendingOwner -> External
+    all_invitations.sort_by_key(|invitation| invitation.status.clone());
+    request.render(200, "packages/owner_settings.html", {
+        let mut ctx = Context::new();
+        ctx.insert("package", &package);
+        ctx.insert("package_tab", "settings");
+        // owner_list = owner + accepted_collaborator + pending_collaborator + external
+        ctx.insert("owner_list", &all_invitations);
+        ctx.insert("package_version", &package_latest_version);
+        ctx.insert("is_current_user_owner", &is_current_user_owner);
         ctx
     })
 }

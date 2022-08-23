@@ -1,0 +1,13 @@
+Register To Collaborate
+
+A user on Movey invited you to collaborate on the package {{ package_name }}, but it looks like you haven't sign up yet.
+
+To start collaborating, please create your account and start working on this.
+
+{{ action_url }}
+
+If you have any questions, feel free to email our support team:
+{{ JELLY_SUPPORT_EMAIL }}.
+
+Thanks,
+- The Team

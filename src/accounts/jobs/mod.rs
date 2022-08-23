@@ -13,13 +13,19 @@ pub use odd_registration_attempt::build_context as build_odd_registration_attemp
 pub use odd_registration_attempt::SendAccountOddRegisterAttemptEmail;
 
 mod contact;
-pub use contact::*;
+pub use contact::SendContactRequestEmail;
+pub use contact::SendContactEmail;
+
+mod invite_collaborator;
+pub use invite_collaborator::{SendCollaboratorInvitationEmail, SendRegisterToCollabEmail};
 
 pub fn configure(config: WorkerConfig<JobState>) -> WorkerConfig<JobState> {
     let mut config = config.register::<SendResetPasswordEmail>();
     config = config.register::<SendPasswordWasResetEmail>();
     config = config.register::<SendAccountOddRegisterAttemptEmail>();
     config = config.register::<SendContactRequestEmail>();
+    config = config.register::<SendCollaboratorInvitationEmail>();
+    config = config.register::<SendRegisterToCollabEmail>();
     config = config.register::<SendContactEmail>();
     config.register::<SendVerifyAccountEmail>()
 }
