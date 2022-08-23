@@ -111,6 +111,9 @@ pub async fn show_package_settings(
 
     // get movey account that is already a collaborator
     let accepted_ids: Vec<i32> = PackageCollaborator::get_by_package_id(package.id, &db_connection)?;
+    if accepted_ids.is_empty() {
+        return Err(Error::Generic("This package doesn't have an owner".to_string()));
+    }
     let owner_id = accepted_ids[0];
     // need hashset to find PendingOwner
     let accepted_ids: HashSet<i32> = accepted_ids.into_iter().collect();
