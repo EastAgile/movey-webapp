@@ -42,8 +42,6 @@ class Header {
                     x.setAttribute("id","account-icon");
                     x.setAttribute("alt", "Avatar of Movey website");
                     $(".header-container #account-dropdown #account-icon").append(x);
-                    
-                    // $(".header-container #account-dropdown #account-icon").text(char);
                     $(".search-btn").addClass('log');
                 } else {
                     $(".header-container .sign-in-li").removeClass('hide');
