@@ -15,6 +15,7 @@ table! {
         updated -> Timestamptz,
         github_login -> Nullable<Text>,
         github_id -> Nullable<Int8>,
+        avatar -> Nullable<Text>,
     }
 }
 
@@ -72,4 +73,9 @@ joinable!(api_tokens -> accounts (account_id));
 joinable!(package_versions -> packages (package_id));
 joinable!(packages -> accounts (account_id));
 
-allow_tables_to_appear_in_same_query!(accounts, api_tokens, package_versions, packages,);
+allow_tables_to_appear_in_same_query!(
+    accounts,
+    api_tokens,
+    package_versions,
+    packages,
+);
