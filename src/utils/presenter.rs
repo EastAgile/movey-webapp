@@ -61,11 +61,10 @@ pub fn make_package_install_instruction(repo_url: &str) -> (String, String) {
 pub fn validate_name_and_version(package_name: &str, package_version: &str) -> Vec<&'static str> {
     let mut hints = vec![];
     let name_regex = regex::Regex::new(r"^[a-zA-Z0-9_-]+$").unwrap();
-    match name_regex.captures(package_name) {
-        Some(capture) if package_name == capture.get(0).unwrap().as_str() => {}
-        _ => hints.push(
+    if !name_regex.is_match(package_name) {
+        hints.push(
             "Package name should only contain alphanumeric characters, hyphens or underscores",
-        ),
+        );
     }
     if semver::Version::parse(package_version).is_err() {
         hints.push("Package version should adhere to semantic versioning (see https://semver.org)");
