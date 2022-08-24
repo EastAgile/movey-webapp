@@ -1,10 +1,11 @@
 #[cfg(test)]
 use crate::test::mock::MockHttpRequest as HttpRequest;
+#[cfg(not(test))]
+use jelly::actix_web::HttpRequest;
+
 use diesel::result::DatabaseErrorKind;
 use diesel::result::Error as DBError;
 use jelly::actix_web::web;
-#[cfg(not(test))]
-use jelly::actix_web::HttpRequest;
 use jelly::prelude::*;
 use jelly::Result;
 use serde::{Deserialize, Serialize};
@@ -17,8 +18,7 @@ use crate::test::mock::GithubService;
 use crate::api::services::package::view::PackageBadgeRespond;
 use crate::packages::Package;
 use crate::settings::models::token::ApiToken;
-
-use super::view::validate_name_and_version;
+use crate::utils::presenter::validate_name_and_version;
 
 #[derive(Serialize, Deserialize)]
 pub struct PackageRequest {
@@ -73,8 +73,7 @@ pub async fn register_package(
             req.github_repo_url, github_data.rev, req.subdir
         );
     }
-    let package_name = github_data.name.clone();
-    let hints = validate_name_and_version(&package_name, &github_data.version);
+    let hints = validate_name_and_version(&github_data.name, &github_data.version);
     if !hints.is_empty() {
         return Ok(HttpResponse::BadRequest().body(format!(
             "Cannot upload package.\nHints: {}.",
@@ -82,6 +81,7 @@ pub async fn register_package(
         )));
     }
 
+    let package_name = github_data.name.clone();
     let result = Package::create_from_crawled_data(
         &req.github_repo_url,
         &github_data.description.clone(),
