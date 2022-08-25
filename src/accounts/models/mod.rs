@@ -21,7 +21,7 @@ use crate::schema::accounts::dsl::*;
 use crate::schema::api_tokens::dsl::{
     account_id as api_tokens_account_id, api_tokens, name as api_tokens_name,
 };
-use crate::schema::packages::dsl::{account_id as packages_account_id, packages};
+use crate::schema::package_collaborators;
 
 #[cfg(test)]
 mod tests;
@@ -240,8 +240,9 @@ impl Account {
         let conn = pool.get()?;
 
         conn.build_transaction().run::<_, _, _>(|| {
-            diesel::update(packages.filter(packages_account_id.eq(gh_account_id)))
-                .set(packages_account_id.eq(movey_account_id))
+            diesel::update(package_collaborators::table
+                .filter(package_collaborators::account_id.eq(gh_account_id)))
+                .set(package_collaborators::account_id.eq(movey_account_id))
                 .execute(&conn)?;
 
             diesel::update(api_tokens.filter(api_tokens_account_id.eq(movey_account_id)))
