@@ -3,15 +3,13 @@
 //! error formats into the one we use for responding.
 
 use actix_web::{HttpResponse, ResponseError};
-use std::{error, fmt};
-use diesel::{
-    r2d2::PoolError,
-    result::{Error as DBError},
-};
-use tera::{Context, Tera};
-use std::sync::{Arc, RwLock};
-use std::env;
+use diesel::{r2d2::PoolError, result::Error as DBError};
 use lazy_static::lazy_static;
+use std::env;
+use std::f32::consts::E;
+use std::sync::{Arc, RwLock};
+use std::{error, fmt};
+use tera::{Context, Tera};
 
 /// This enum represents the largest classes of errors we can expect to
 /// encounter in the lifespan of our application. Feel free to add to this
@@ -108,13 +106,13 @@ impl From<djangohashers::HasherError> for Error {
 }
 
 impl From<reqwest::Error> for Error {
-  fn from(e: reqwest::Error) -> Self {
-      Error::Reqwest(e)
-  }
+    fn from(e: reqwest::Error) -> Self {
+        Error::Reqwest(e)
+    }
 }
 
 lazy_static! {
-   pub static ref TERA: Arc<RwLock<Tera>> = {
+    pub static ref TERA: Arc<RwLock<Tera>> = {
         let templates_glob = env::var("TEMPLATES_GLOB").expect("TEMPLATES_GLOB not set!");
         Arc::new(RwLock::new(
             Tera::new(&templates_glob).expect("Unable to compile templates!"),
@@ -124,15 +122,34 @@ lazy_static! {
 
 impl ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
+        let (template, mut response) = match self {
+            Error::Anyhow(_) | Error::Generic(_) | Error::Database(DBError::NotFound) => {
+                ("404.html", HttpResponse::NotFound())
+            }
+            Error::ActixWeb(_)
+            | Error::Json(_)
+            | Error::InvalidPassword
+            | Error::InvalidAccountToken => ("400.html", HttpResponse::BadRequest()),
+
+            Error::Pool(_)
+            | Error::Database(_)
+            | Error::Template(_)
+            | Error::Radix(_)
+            | Error::PasswordHasher(_)
+            | Error::Reqwest(_) => {
+                // TODO: Log the error using error!()
+                ("503.html", HttpResponse::InternalServerError())
+            }
+        };
         match TERA.read() {
             Ok(engine) => {
-                match engine.render("404.html", &Context::new())
-                    .map_err(Error::from) {
-                    Ok(body) => {
-                        HttpResponse::NotFound()
-                            .content_type("text/html; charset=utf-8")
-                            .body(&body)
-                    }
+                match engine
+                    .render(template, &Context::new())
+                    .map_err(Error::from)
+                {
+                    Ok(body) => response
+                        .content_type("text/html; charset=utf-8")
+                        .body(&body),
                     Err(error) => {
                         error!("Error reading file content: {:?}", error);
                         HttpResponse::InternalServerError().body("")
@@ -141,10 +158,13 @@ impl ResponseError for Error {
             }
             Err(error) => {
                 error!("Error acquiring template read lock: {:?}", error);
-                HttpResponse::InternalServerError()
-                    .body("")
+                HttpResponse::InternalServerError().body("")
             }
         }
+    }
+
+    fn status_code(&self) -> reqwest::StatusCode {
+        reqwest::StatusCode::INTERNAL_SERVER_ERROR
     }
 }
 

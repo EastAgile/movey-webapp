@@ -10,48 +10,69 @@ $header-and-footer-height: 350px;
   justify-content: center;
   flex-direction: column;
 
-  .message {
-    font-family: var(--sub-title-font);
+  .large-message {
     color: var(--dark-blue-color);
-    font-size: 48px;
-    line-height: 72px;
-    font-weight: 700;
+    font-style: normal;
+    font-weight: 900;
+    font-size: 64px;
+    line-height: 80px;
+    margin-bottom: 16px;
 
     @include medium-screen {
-      font-size: 32px;
-      line-height: 48px;
+      font-size: 64px;
+      line-height: 80px;
     }
 
     @include small-screen {
-      font-size: 24px;
-      line-height: 48px;
+      font-size: 48px;
+      line-height: 60px;
     }
   }
-  //Future update return icon if needs
-  // .return-home-wrapper {
-  //   display: flex;
-  //   flex-direction: row;
-  //   align-items: center;
-  //   margin-top: 16px;
-  //   cursor: pointer;
 
-  //   .return-icon {
-  //     background-image: url("/static/resources/return-home-icon.svg");
-  //     background-repeat: no-repeat;
-  //     width: 35px;
-  //     height: 35px;
-  //   }
-    
-  //   a {
-  //     color: var(--blue-color);
-  //     font-weight: 400;
-  //     font-size: 24px;
-  //     line-height: 30px;
-  //     text-transform: capitalize;
+  .title {
+    font-weight: 300;
+    font-size: 36px;
+    line-height: 45px;
+    color: #02143a;
 
-  //     &:hover {
-  //       text-decoration: underline;
-  //     }
-  //   }
-  // }
+    @include small-screen {
+      font-size: 24px;
+      line-height: 30px;
+    }
+  }
+
+  .error-code {
+    font-weight: 1000;
+    font-size: 500px;
+    line-height: 628px;
+    letter-spacing: 0.05em;
+    color: #b7dfff;
+
+    @include medium-screen {
+      font-size: 340px;
+      line-height: 428px;
+    }
+
+    @include small-screen {
+      font-size: 180px;
+      line-height: 226px;
+    }
+  }
+
+  .small-message {
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 30px;
+    color: #808fb0;
+
+    @include medium-screen {
+      font-size: 24px;
+      line-height: 36px;
+    }
+
+    @include small-screen {
+      font-size: 16px;
+      line-height: 24px;
+    }
+  }
 }
