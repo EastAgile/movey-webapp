@@ -5,7 +5,8 @@ use jelly::prelude::*;
 use crate::test::util::setup_user;
 
 async fn setup_collaborator() -> (i32, i32) {
-    let uid = setup_user(None, None).await;
+    let owner_id = setup_user(Some(String::from("user1@host.com")), None).await;
+    let collaborator_id = setup_user(Some(String::from("user2@host.com")), None).await;
     let pid = Package::create_test_package(
         &"package1".to_string(),
         &"".to_string(),
@@ -15,14 +16,14 @@ async fn setup_collaborator() -> (i32, i32) {
         &"".to_string(),
         -1,
         -1,
-        Some(uid),
+        Some(owner_id),
         &DB_POOL,
     )
         .await
         .unwrap();
 
-    PackageCollaborator::new_collaborator(pid, uid, uid, &DB_POOL.get().unwrap()).unwrap();
-    (pid, uid)
+    PackageCollaborator::new_collaborator(pid, collaborator_id, owner_id, &DB_POOL.get().unwrap()).unwrap();
+    (pid, collaborator_id)
 }
 #[actix_rt::test]
 async fn new_collaborator_works() {

@@ -242,7 +242,10 @@ impl Account {
         conn.build_transaction().run::<_, _, _>(|| {
             diesel::update(package_collaborators::table
                 .filter(package_collaborators::account_id.eq(gh_account_id)))
-                .set(package_collaborators::account_id.eq(movey_account_id))
+                .set((
+                    package_collaborators::account_id.eq(movey_account_id),
+                    package_collaborators::created_by.eq(movey_account_id)
+                ))
                 .execute(&conn)?;
 
             diesel::update(api_tokens.filter(api_tokens_account_id.eq(movey_account_id)))
