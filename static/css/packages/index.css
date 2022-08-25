@@ -137,6 +137,7 @@
 .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper {
   display: flex;
   align-items: center;
+  margin-top: 8px;
 }
 @media screen and (min-width: 769px) {
   .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper {
@@ -147,31 +148,41 @@
 @media screen and (min-width: 240px) and (max-width: 768px) {
   .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper {
     width: 100%;
-    flex-direction: column;
-    justify-content: space-around;
+    flex-direction: row;
+    align-items: baseline;
   }
 }
 .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper .update-timestamp {
   color: var(--gray-color);
   display: flex;
   align-items: center;
+  flex-grow: 1;
+  max-width: 250px;
 }
 .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper .update-timestamp img {
-  margin-right: 5px;
+  margin-right: 8px;
+}
+@media screen and (min-width: 240px) and (max-width: 768px) {
+  .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper .update-timestamp {
+    max-width: unset;
+  }
 }
 .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper .download-count {
   color: var(--dark-blue-color);
   margin-right: 25px;
   display: flex;
   align-items: center;
+  max-width: 150px;
+  flex-grow: 1;
 }
 .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper .download-count img {
-  margin-right: 5px;
+  margin-right: 8px;
 }
 @media screen and (min-width: 240px) and (max-width: 768px) {
   .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper .download-count {
     margin-right: 0;
-    margin-bottom: 8px;
+    margin-bottom: 0;
+    max-width: unset;
   }
 }
 @media screen and (min-width: 769px) {
@@ -306,6 +317,8 @@
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-height: fit-content;
+  height: 48px;
 }
 @media screen and (min-width: 769px) {
   .content-wrapper #package-list-container .package-list .left-wrapper .package-summary {
@@ -315,9 +328,7 @@
 }
 @media screen and (min-width: 240px) and (max-width: 768px) {
   .content-wrapper #package-list-container .package-list .left-wrapper .package-summary {
-    overflow: hidden;
     font-size: 16px;
-    height: 48px;
   }
 }
 .content-wrapper #package-list-container .paginationjs {

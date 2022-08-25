@@ -84,6 +84,7 @@ impl Server {
                 .secure(false)
                 .path("/");
 
+            #[allow(unused_variables)]
             let is_secure_cookie = env::var("IS_SECURE_COOKIE").unwrap_or_else(|_| "".to_string());
             #[cfg(feature = "production")]
             let session_storage = CookieSession::signed(key.as_bytes())

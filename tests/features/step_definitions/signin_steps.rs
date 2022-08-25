@@ -1,19 +1,20 @@
+use crate::features::world::AccountInformation;
 use cucumber::{given, then, when};
 use jelly::forms::{EmailField, PasswordField};
 use mainlib::accounts::forms::NewAccountForm;
 use mainlib::accounts::Account;
 use mainlib::test::DB_POOL;
 use thirtyfour::prelude::*;
-use crate::features::world::AccountInformation;
 
 use super::super::world::TestWorld;
 use super::signup_steps::*;
 
 #[given("I am a user on Movey")]
-async fn an_user(world: &mut TestWorld) {
-    let account = AccountInformation {
+pub async fn an_user(world: &mut TestWorld) {
+    let mut account = AccountInformation {
         email: "email@host.com".to_string(),
         password: "So$trongpas0word!".to_string(),
+        id: -1,
     };
     let form = NewAccountForm {
         email: EmailField {
@@ -26,14 +27,19 @@ async fn an_user(world: &mut TestWorld) {
             hints: vec![],
         },
     };
-    world.account = account;
     let uid = Account::register(&form, &DB_POOL).await.unwrap();
     Account::mark_verified(uid, &DB_POOL).await.unwrap();
+    account.id = uid;
+    world.account = account;
 }
 
 #[given("I am not signed in")]
 async fn non_signed_in_user(world: &mut TestWorld) {
-    world.driver.delete_cookie("sessionid").await.unwrap_or_default();
+    world
+        .driver
+        .delete_cookie("sessionid")
+        .await
+        .unwrap_or_default();
 }
 
 #[given("I am signed in")]
@@ -49,17 +55,23 @@ async fn signed_in_with_remember_me(world: &mut TestWorld) {
     let email_field = world.driver.find_element(By::Name("email")).await.unwrap();
     email_field.send_keys("email@host.com").await.unwrap();
 
-    let password_field = world.driver
+    let password_field = world
+        .driver
         .find_element(By::Name("password"))
-        .await.unwrap();
+        .await
+        .unwrap();
     password_field.send_keys("So$trongpas0word!").await.unwrap();
-    let remember_me = world.driver
+    let remember_me = world
+        .driver
         .find_element(By::Name("remember_me"))
-        .await.unwrap();
+        .await
+        .unwrap();
     remember_me.click().await.unwrap();
-    let create_account_button = world.driver
+    let create_account_button = world
+        .driver
         .find_element(By::ClassName("login-btn"))
-        .await.unwrap();
+        .await
+        .unwrap();
     create_account_button.click().await.unwrap();
 }
 #[given("I registered an account and have not activated it")]
@@ -70,9 +82,11 @@ async fn register_an_account(world: &mut TestWorld) {
 }
 #[when("I click on the Sign in button on the home page")]
 async fn click_on_sign_in_button(world: &mut TestWorld) {
-    let sign_in_button = world.driver
+    let sign_in_button = world
+        .driver
         .find_element(By::ClassName("sign-in"))
-        .await.unwrap();
+        .await
+        .unwrap();
     sign_in_button.click().await.unwrap();
 }
 
@@ -81,13 +95,17 @@ pub async fn fill_in_sign_in_form(world: &mut TestWorld) {
     let email_field = world.driver.find_element(By::Name("email")).await.unwrap();
     email_field.send_keys("email@host.com").await.unwrap();
 
-    let password_field = world.driver
+    let password_field = world
+        .driver
         .find_element(By::Name("password"))
-        .await.unwrap();
+        .await
+        .unwrap();
     password_field.send_keys("So$trongpas0word!").await.unwrap();
-    let login_button = world.driver
+    let login_button = world
+        .driver
         .find_element(By::ClassName("login-btn"))
-        .await.unwrap();
+        .await
+        .unwrap();
     login_button.click().await.unwrap();
 }
 
@@ -96,13 +114,17 @@ async fn fill_in_wrong_email(world: &mut TestWorld) {
     let email_field = world.driver.find_element(By::Name("email")).await.unwrap();
     email_field.send_keys("wrong@host.com").await.unwrap();
 
-    let password_field = world.driver
+    let password_field = world
+        .driver
         .find_element(By::Name("password"))
-        .await.unwrap();
+        .await
+        .unwrap();
     password_field.send_keys("So$trongpas0word!").await.unwrap();
-    let create_account_button = world.driver
+    let create_account_button = world
+        .driver
         .find_element(By::ClassName("login-btn"))
-        .await.unwrap();
+        .await
+        .unwrap();
     create_account_button.click().await.unwrap();
 }
 
@@ -111,13 +133,17 @@ async fn fill_in_blank_email(world: &mut TestWorld) {
     let email_field = world.driver.find_element(By::Name("email")).await.unwrap();
     email_field.send_keys("").await.unwrap();
 
-    let password_field = world.driver
+    let password_field = world
+        .driver
         .find_element(By::Name("password"))
-        .await.unwrap();
+        .await
+        .unwrap();
     password_field.send_keys("So$trongpas0word!").await.unwrap();
-    let create_account_button = world.driver
+    let create_account_button = world
+        .driver
         .find_element(By::ClassName("login-btn"))
-        .await.unwrap();
+        .await
+        .unwrap();
     create_account_button.click().await.unwrap();
 }
 
@@ -126,13 +152,17 @@ async fn fill_in_wrong_password(world: &mut TestWorld) {
     let email_field = world.driver.find_element(By::Name("email")).await.unwrap();
     email_field.send_keys("email@host.com").await.unwrap();
 
-    let password_field = world.driver
+    let password_field = world
+        .driver
         .find_element(By::Name("password"))
-        .await.unwrap();
+        .await
+        .unwrap();
     password_field.send_keys("wrongpassword").await.unwrap();
-    let create_account_button = world.driver
+    let create_account_button = world
+        .driver
         .find_element(By::ClassName("login-btn"))
-        .await.unwrap();
+        .await
+        .unwrap();
     create_account_button.click().await.unwrap();
 }
 
@@ -141,45 +171,51 @@ async fn fill_in_blank_password(world: &mut TestWorld) {
     let email_field = world.driver.find_element(By::Name("email")).await.unwrap();
     email_field.send_keys("email@host.com").await.unwrap();
 
-    let password_field = world.driver
+    let password_field = world
+        .driver
         .find_element(By::Name("password"))
-        .await.unwrap();
+        .await
+        .unwrap();
     password_field.send_keys("").await.unwrap();
-    let create_account_button = world.driver
+    let create_account_button = world
+        .driver
         .find_element(By::ClassName("login-btn"))
-        .await.unwrap();
+        .await
+        .unwrap();
     create_account_button.click().await.unwrap();
 }
 
 #[when("I access the Sign in page")]
 async fn visit_sign_in_page(world: &mut TestWorld) {
-    world.driver
+    world
+        .driver
         .get("http://localhost:17002/accounts/login/")
-        .await.unwrap()
+        .await
+        .unwrap()
 }
 
 #[when("I access the Dashboard page")]
 async fn visit_dashboard_page(world: &mut TestWorld) {
-    world.driver
+    world
+        .driver
         .get("http://localhost:17002/accounts/login/")
-        .await.unwrap()
+        .await
+        .unwrap()
 }
 
 #[when("I close all browser tabs and reopen my browser")]
 async fn clear_default_session(world: &mut TestWorld) {
-    world.driver
-        .delete_cookie("sessionid")
-        .await.unwrap()
+    world.driver.delete_cookie("sessionid").await.unwrap()
 }
 
-#[when("my permanent session is expired")]
+#[when("My permanent session is expired")]
 async fn clear_permanent_session(world: &mut TestWorld) {
-    world.driver
-        .delete_cookie("sessionid")
-        .await.unwrap();
-    world.driver
+    world.driver.delete_cookie("sessionid").await.unwrap();
+    world
+        .driver
         .delete_cookie("remember_me_token")
-        .await.unwrap()
+        .await
+        .unwrap()
 }
 
 #[when("I sign in into my account")]
@@ -200,9 +236,11 @@ async fn see_sign_up_page(world: &mut TestWorld) {
     let heading_text = heading.text().await.unwrap();
     assert_eq!(heading_text, "Login");
 
-    world.driver
+    world
+        .driver
         .find_element(By::ClassName("login-form"))
-        .await.unwrap();
+        .await
+        .unwrap();
 }
 
 #[then("I should see that Im logged in")]

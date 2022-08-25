@@ -2,6 +2,7 @@ use std::env::var;
 
 use anyhow::Result;
 
+#[allow(unused_imports)]
 use super::common::{env_exists_and_not_empty, Email};
 use lettre::message::MultiPart;
 use lettre::{Message, Transport, FileTransport};

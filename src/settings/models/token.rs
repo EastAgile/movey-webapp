@@ -46,12 +46,9 @@ impl ApiToken {
     }
 
     /// Check and return an account with given plaintext api token
-    pub async fn associated_account(
-        plaintext_token: &str,
-        pool: &DieselPgPool,
-    ) -> Result<Account> {
+    pub async fn associated_account(plaintext_token: &str, pool: &DieselPgPool) -> Result<Account> {
         let connection = pool.get()?;
-        let formatted_sha256 = SecureToken::hash(&plaintext_token.to_string());
+        let formatted_sha256 = SecureToken::hash(plaintext_token);
 
         let matched_token = api_tokens
             .filter(api_tokens::token.eq(formatted_sha256))
@@ -64,11 +61,13 @@ impl ApiToken {
         Ok(account)
     }
 
-    pub async fn get(api_token: &String, pool: &DieselPgPool) -> Result<i32> {
+    pub async fn get(api_token: &str, pool: &DieselPgPool) -> Result<i32> {
         let connection = pool.get()?;
         let sha256 = SecureToken::hash(api_token);
-        let result = api_tokens.filter(api_tokens::token.eq(sha256))
-            .select(api_tokens::id).first::<i32>(&connection)?;
+        let result = api_tokens
+            .filter(api_tokens::token.eq(sha256))
+            .select(api_tokens::id)
+            .first::<i32>(&connection)?;
         Ok(result)
     }
 
@@ -96,8 +95,7 @@ impl ApiToken {
     pub async fn revoke(token_id: i32, pool: &DieselPgPool) -> Result<()> {
         let connection = pool.get()?;
 
-        diesel::delete(api_tokens.filter(api_tokens::dsl::id.eq(token_id)))
-            .execute(&connection)?;
+        diesel::delete(api_tokens.filter(api_tokens::dsl::id.eq(token_id))).execute(&connection)?;
 
         Ok(())
     }
@@ -105,8 +103,7 @@ impl ApiToken {
     pub async fn revoke_by_id(owner_id: i32, pool: &DieselPgPool) -> Result<()> {
         let connection = pool.get()?;
 
-        diesel::delete(api_tokens.filter(account_id.eq(owner_id)))
-            .execute(&connection)?;
+        diesel::delete(api_tokens.filter(account_id.eq(owner_id))).execute(&connection)?;
 
         Ok(())
     }
@@ -178,7 +175,9 @@ mod tests {
 
         let result = ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
 
-        if let Ok(associated_account) = ApiToken::associated_account(&result.plaintext, &DB_POOL).await {
+        if let Ok(associated_account) =
+            ApiToken::associated_account(&result.plaintext, &DB_POOL).await
+        {
             assert_eq!(associated_account.id, account.id)
         } else {
             panic!("Associated account not found!")
@@ -195,7 +194,9 @@ mod tests {
         ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
         ApiToken::insert(&account, "name2", &DB_POOL).await.unwrap();
 
-        let results = ApiToken::get_by_account(account.id, &DB_POOL).await.unwrap();
+        let results = ApiToken::get_by_account(account.id, &DB_POOL)
+            .await
+            .unwrap();
         assert_eq!(results.len(), 2);
         assert_eq!(results[0].name, "name2");
         assert_eq!(results[1].name, "name1");
@@ -209,7 +210,9 @@ mod tests {
         let account = setup_user().await;
 
         let new_api_token = ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
-        let token_id = ApiToken::get(&new_api_token.plaintext, &DB_POOL).await.unwrap();
+        let token_id = ApiToken::get(&new_api_token.plaintext, &DB_POOL)
+            .await
+            .unwrap();
         assert_eq!(token_id, 1);
     }
 
@@ -222,10 +225,18 @@ mod tests {
 
         let token1 = ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
         ApiToken::insert(&account, "name2", &DB_POOL).await.unwrap();
-        assert_eq!(ApiToken::get_by_account(account.id, &DB_POOL).await.unwrap().len(), 2);
-        
+        assert_eq!(
+            ApiToken::get_by_account(account.id, &DB_POOL)
+                .await
+                .unwrap()
+                .len(),
+            2
+        );
+
         ApiToken::revoke(token1.model.id, &DB_POOL).await.unwrap();
-        let tokens = ApiToken::get_by_account(account.id, &DB_POOL).await.unwrap();
+        let tokens = ApiToken::get_by_account(account.id, &DB_POOL)
+            .await
+            .unwrap();
         assert_eq!(tokens.len(), 1);
         assert_eq!(tokens[0].name, "name2");
     }
@@ -239,9 +250,21 @@ mod tests {
 
         ApiToken::insert(&account, "name1", &DB_POOL).await.unwrap();
         ApiToken::insert(&account, "name2", &DB_POOL).await.unwrap();
-        assert_eq!(ApiToken::get_by_account(account.id, &DB_POOL).await.unwrap().len(), 2);
-        
+        assert_eq!(
+            ApiToken::get_by_account(account.id, &DB_POOL)
+                .await
+                .unwrap()
+                .len(),
+            2
+        );
+
         ApiToken::revoke_by_id(account.id, &DB_POOL).await.unwrap();
-        assert_eq!(ApiToken::get_by_account(account.id, &DB_POOL).await.unwrap().len(), 0);
+        assert_eq!(
+            ApiToken::get_by_account(account.id, &DB_POOL)
+                .await
+                .unwrap()
+                .len(),
+            0
+        );
     }
 }

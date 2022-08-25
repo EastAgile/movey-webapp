@@ -30,13 +30,13 @@
     <div class="horizontal-line"></div>
     <div class="package-content-container">
         <div class="package-content-tabs">
-            <div class="content-tab tab-readme {% if package_tab == 'readme' %}active{% endif %}">
+            <div onclick="location.href='/packages/{{package.name}}';" class="content-tab tab-readme {% if package_tab == 'readme' %}active{% endif %}">
                 <a href="/packages/{{package.name}}">
                     <div class="tab-icon tab-icon-readme" title="move package readme tab"></div>
                     <div class="tab-name">Readme</div>
                 </a>
             </div>
-            <div class="content-tab tab-versions {% if package_tab == 'versions' %}active{% endif %}">
+            <div onclick="location.href='/packages/{{package.name}}/versions';" class="content-tab tab-versions {% if package_tab == 'versions' %}active{% endif %}">
                 <a href="/packages/{{package.name}}/versions">
                     <div class="tab-icon tab-icon-versions" title="move package versions tab"></div>
                     <div class="tab-name">Versions</div>

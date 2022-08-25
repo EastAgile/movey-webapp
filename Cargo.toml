@@ -14,7 +14,7 @@ path = "src/main.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-actix-rt = "*"
+actix-rt = "1.1.1"
 base64-url = "1.4.8"
 convert_case = "0.5.0"
 diesel = { version = "1.4.8", features = ["postgres", "r2d2", "chrono"] }
@@ -23,7 +23,7 @@ diesel_migrations = "1.4.0"
 dotenv = "0.15.0"
 jelly = { path = "jelly", features = ["email-local"] }
 lazy_static = "1.4.0"
-log = "*"
+log = "0.4.17"
 mockall_double = "0.1.0"
 reqwest = { version = "0.11", features = ["blocking", "json", "multipart"] }
 sentry = "0.26.0"
@@ -38,6 +38,7 @@ sha2 = "0.9"
 rayon = "1.5"
 futures = "0.3"
 strip_markdown = "0.2.0"
+md5 = "0.7.0"
 
 [features]
 default = ["jelly/template_watcher", "jelly/static"]
@@ -56,6 +57,8 @@ test-log = "0.2.8"
 thirtyfour = "0.28.1"
 tokio = { version = "1.17.0", features = ["macros", "rt-multi-thread", "time"] }
 regex = "1.5.5"
+urlencoding = "2.1.0"
+httpmock = "0.6.6"
 
 [[test]]
 name = "integration_tests"

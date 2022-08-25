@@ -2,7 +2,7 @@
 
 {% block package_content %}
 <div class="package-detail-container">
-    <div class="package-readme-content">{{package_version.readme_content}}</div>
+    <div class="package-readme-content">{{ package_version.readme_content }}</div>
     <div class="package-sidebar">
         <div class="package-information">
             <div class="package-install">
@@ -10,7 +10,12 @@
                     Install
                 </div>
                 <div class="package-install-instruction">
-                    <span class="instruction-command">{{package.name}} = { git = "{{package.repository_url}}", rev = "{{package_version.rev}}" }</span><div class="copy-icon"></div>
+                    {% if instruction_subdir %}
+                    <span class="instruction-command">{{ package.name }} = { git = "{{ instruction_repo_url }}", rev = "{{ package_version.rev }}", subdir = "{{ instruction_subdir }}" }</span>
+                    {% else %}
+                    <span class="instruction-command">{{ package.name }} = { git = "{{ instruction_repo_url }}", rev = "{{ package_version.rev }}" }</span>
+                    {% endif %}
+                    <div class="copy-icon"></div>
                 <p class="copy-tooltip">Copied</p>
                 </div>
                 <div class="package-information-title">
@@ -19,7 +24,7 @@
                 <div class="package-repo">
                     <div class="package-repo-icon"></div>
                     <div class="package-repo-url">
-                        <a href="{{package.repository_url}}">{{package.repository_url}}</a>
+                        <a href="{{package.repository_url}}" target="_blank">{{ package.repository_url }}</a>
                     </div>
                 </div>
                 <div class="horizontal-line"></div>
@@ -31,7 +36,7 @@
                 </div>
                 <div class="package-download-info">
                     <div class="package-download-number">
-                        {{package_version.downloads_count}}
+                        {{ package_version.downloads_count }}
                     </div>
                     <div class="package-download-figure"></div>
                 </div>
@@ -40,7 +45,7 @@
                         Version
                     </div>
                     <div class="package-metadata-value">
-                        {{package_version.version}}
+                        {{ package_version.version }}
                     </div>
                 </div>
                 <div class="package-metadata-content">
@@ -48,7 +53,7 @@
                         License
                     </div>
                     <div class="package-metadata-value">
-                        {{package_version.license}}
+                        {{ package_version.license }}
                     </div>
                 </div>
 
@@ -68,7 +73,7 @@
                         Total Files
                     </div>
                     <div class="package-metadata-value">
-                        {{package_version.total_files}}
+                        {{ package_version.total_files }}
                     </div>
                 </div>
                 {% endif %}
@@ -81,7 +86,7 @@
                     Owners
                 </div>
                 <div class="package-owners-info">
-                    {{account_name}}
+                    {{ account_name }}
                 </div>
             </div>
             {% endif %}
