@@ -38,7 +38,28 @@
     line-height: 30px;
   }
 }
-.not-found-wrapper .error-code {
+.not-found-wrapper .error-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.not-found-wrapper .error-wrapper .error-illustration {
+  position: absolute;
+  width: 380px;
+  margin-right: 20px;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .not-found-wrapper .error-wrapper .error-illustration {
+    width: 238px;
+  }
+}
+@media screen and (max-width: 843px) {
+  .not-found-wrapper .error-wrapper .error-illustration {
+    width: 166px;
+  }
+}
+.not-found-wrapper .error-wrapper .error-code {
   font-weight: 1000;
   font-size: 500px;
   line-height: 628px;
@@ -46,13 +67,13 @@
   color: #b7dfff;
 }
 @media screen and (min-width: 844px) and (max-width: 1280px) {
-  .not-found-wrapper .error-code {
+  .not-found-wrapper .error-wrapper .error-code {
     font-size: 340px;
     line-height: 428px;
   }
 }
 @media screen and (max-width: 843px) {
-  .not-found-wrapper .error-code {
+  .not-found-wrapper .error-wrapper .error-code {
     font-size: 180px;
     line-height: 226px;
   }

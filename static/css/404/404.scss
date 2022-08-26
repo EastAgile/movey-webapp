@@ -41,21 +41,42 @@ $header-and-footer-height: 350px;
     }
   }
 
-  .error-code {
-    font-weight: 1000;
-    font-size: 500px;
-    line-height: 628px;
-    letter-spacing: 0.05em;
-    color: #b7dfff;
+  .error-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    @include medium-screen {
-      font-size: 340px;
-      line-height: 428px;
+    .error-illustration {
+      position: absolute;
+      width: 380px;
+      margin-right: 20px;
+
+      @include medium-screen {
+        width: 238px;
+      }
+
+      @include small-screen {
+        width: 166px;
+      }
     }
 
-    @include small-screen {
-      font-size: 180px;
-      line-height: 226px;
+    .error-code {
+      font-weight: 1000;
+      font-size: 500px;
+      line-height: 628px;
+      letter-spacing: 0.05em;
+      color: #b7dfff;
+
+      @include medium-screen {
+        font-size: 340px;
+        line-height: 428px;
+      }
+
+      @include small-screen {
+        font-size: 180px;
+        line-height: 226px;
+      }
     }
   }
 

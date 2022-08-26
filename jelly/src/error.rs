@@ -5,8 +5,8 @@
 use actix_web::{HttpResponse, ResponseError};
 use diesel::{r2d2::PoolError, result::Error as DBError};
 use lazy_static::lazy_static;
+use reqwest::StatusCode;
 use std::env;
-use std::f32::consts::E;
 use std::sync::{Arc, RwLock};
 use std::{error, fmt};
 use tera::{Context, Tera};
@@ -47,12 +47,12 @@ impl error::Error for Error {
             Error::Template(e) => Some(e),
             Error::Json(e) => Some(e),
             Error::Radix(e) => Some(e),
+            Error::Reqwest(e) => Some(e),
 
             Error::Generic(_)
             | Error::InvalidPassword
             | Error::InvalidAccountToken
-            | Error::PasswordHasher(_)
-            | Error::Reqwest(_) => None,
+            | Error::PasswordHasher(_) => None,
         }
     }
 }
@@ -122,24 +122,32 @@ lazy_static! {
 
 impl ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
+        // Returning an Internal Server Error will trigger actix
+        // to log the error automatically
         let (template, mut response) = match self {
+            Error::ActixWeb(e) => {
+                let status_code = e.as_response_error().status_code();
+                if status_code.is_server_error() {
+                    ("503.html", HttpResponse::InternalServerError())
+                } else if status_code == StatusCode::NOT_FOUND {
+                    ("404.html", HttpResponse::NotFound())
+                } else {
+                    ("400.html", HttpResponse::BadRequest())
+                }
+            }
+
             Error::Anyhow(_) | Error::Generic(_) | Error::Database(DBError::NotFound) => {
                 ("404.html", HttpResponse::NotFound())
             }
-            Error::ActixWeb(_)
-            | Error::Json(_)
-            | Error::InvalidPassword
-            | Error::InvalidAccountToken => ("400.html", HttpResponse::BadRequest()),
-
+            Error::Json(_) | Error::InvalidPassword | Error::InvalidAccountToken => {
+                ("400.html", HttpResponse::BadRequest())
+            }
             Error::Pool(_)
             | Error::Database(_)
             | Error::Template(_)
             | Error::Radix(_)
             | Error::PasswordHasher(_)
-            | Error::Reqwest(_) => {
-                // TODO: Log the error using error!()
-                ("503.html", HttpResponse::InternalServerError())
-            }
+            | Error::Reqwest(_) => ("503.html", HttpResponse::InternalServerError()),
         };
         match TERA.read() {
             Ok(engine) => {
@@ -163,8 +171,8 @@ impl ResponseError for Error {
         }
     }
 
-    fn status_code(&self) -> reqwest::StatusCode {
-        reqwest::StatusCode::INTERNAL_SERVER_ERROR
+    fn status_code(&self) -> StatusCode {
+        StatusCode::INTERNAL_SERVER_ERROR
     }
 }
 
