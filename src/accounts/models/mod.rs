@@ -15,6 +15,7 @@ use jelly::serde::{Deserialize, Serialize};
 use jelly::{DieselPgConnection, DieselPgPool};
 
 use super::forms::{LoginForm, NewAccountForm};
+use super::views::avatar::Gravatar;
 use super::views::verify::GithubOauthUser;
 use crate::schema::accounts;
 use crate::schema::accounts::dsl::*;
@@ -41,6 +42,7 @@ pub struct Account {
     pub updated: DateTime<Utc>,
     pub github_login: Option<String>,
     pub github_id: Option<i64>,
+    pub avatar: Option<String>,
 }
 
 impl Account {
@@ -60,11 +62,18 @@ impl Account {
         Ok(result)
     }
 
-    pub async fn get_by_email_or_gh_login(search_term: &str, pool: &DieselPgPool) -> Result<Self, Error> {
+    pub async fn get_by_email_or_gh_login(
+        search_term: &str,
+        pool: &DieselPgPool,
+    ) -> Result<Self, Error> {
         let connection = pool.get()?;
         let trimmed_search_term = search_term.trim();
         let result = accounts
-            .filter(email.eq(trimmed_search_term).or(github_login.eq(trimmed_search_term)))
+            .filter(
+                email
+                    .eq(trimmed_search_term)
+                    .or(github_login.eq(trimmed_search_term)),
+            )
             .first::<Account>(&connection)?;
 
         Ok(result)
@@ -203,6 +212,13 @@ impl Account {
                 ))
                 .execute(&connection)?;
 
+            diesel::update(accounts.filter(id.eq(record.id)))
+                .set(avatar.eq(Some(format!(
+                    "https://avatars.githubusercontent.com/u/{}",
+                    oauth_user.id
+                ))))
+                .execute(&connection)?;
+
             record
         } else {
             // create a new account via github
@@ -240,13 +256,15 @@ impl Account {
         let conn = pool.get()?;
 
         conn.build_transaction().run::<_, _, _>(|| {
-            diesel::update(package_collaborators::table
-                .filter(package_collaborators::account_id.eq(gh_account_id)))
-                .set((
-                    package_collaborators::account_id.eq(movey_account_id),
-                    package_collaborators::created_by.eq(movey_account_id)
-                ))
-                .execute(&conn)?;
+            diesel::update(
+                package_collaborators::table
+                    .filter(package_collaborators::account_id.eq(gh_account_id)),
+            )
+            .set((
+                package_collaborators::account_id.eq(movey_account_id),
+                package_collaborators::created_by.eq(movey_account_id),
+            ))
+            .execute(&conn)?;
 
             diesel::update(api_tokens.filter(api_tokens_account_id.eq(movey_account_id)))
                 .set(api_tokens_name.eq(api_tokens_name.concat("__movey")))
@@ -265,6 +283,14 @@ impl Account {
                 .set((github_id.eq(gh_id), github_login.eq(gh_login)))
                 .execute(&conn)?;
 
+            // Github avatar is prioritized over Gravatar
+            diesel::update(accounts.filter(id.eq(movey_account_id)))
+                .set(avatar.eq(Some(format!(
+                    "https://avatars.githubusercontent.com/u/{}",
+                    gh_id
+                ))))
+                .execute(&conn)?;
+
             Ok(())
         })
     }
@@ -278,6 +304,13 @@ impl Account {
         let conn = pool.get()?;
         diesel::update(accounts.filter(id.eq(movey_id)))
             .set((github_id.eq(gh_id), github_login.eq(gh_login)))
+            .execute(&conn)?;
+
+        diesel::update(accounts.filter(id.eq(movey_id)))
+            .set(avatar.eq(Some(format!(
+                "https://avatars.githubusercontent.com/u/{}",
+                gh_id
+            ))))
             .execute(&conn)?;
 
         Ok(())
@@ -331,16 +364,19 @@ pub struct NewAccount {
     pub name: String,
     pub email: String,
     pub password: String,
+    pub avatar: Option<String>,
 }
 
 impl NewAccount {
     fn from_form(form: &NewAccountForm) -> Self {
         let email_ = form.email.value.clone();
         let name_from_email = email_.split('@').next().unwrap();
+        let gravatar = Gravatar::new(&email_, None);
         NewAccount {
             name: String::from(name_from_email),
             email: form.email.value.clone(),
             password: "".to_string(),
+            avatar: Some(gravatar.image_url()),
         }
     }
 }
@@ -354,6 +390,7 @@ pub struct NewGithubAccount {
     pub password: String,
     pub has_verified_email: bool,
     pub github_id: i64,
+    pub avatar: Option<String>,
 }
 
 impl NewGithubAccount {
@@ -369,6 +406,10 @@ impl NewGithubAccount {
             },
             has_verified_email: true,
             github_id: oauth_user.id,
+            avatar: Some(format!(
+                "https://avatars.githubusercontent.com/u/{}",
+                oauth_user.id
+            )),
         }
     }
 }

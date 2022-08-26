@@ -216,6 +216,11 @@
 .package-search-sort .select2-container .select2-selection .select2-selection__arrow {
   display: none;
 }
+.package-search-sort .select2-hidden-accessible,
+.package-search-sort .select2-hidden-accessible:focus {
+  left: 50% !important;
+  top: 55px !important;
+}
 .package-search-sort .contact-instruction {
   margin-top: 24px;
   margin-bottom: 24px;
