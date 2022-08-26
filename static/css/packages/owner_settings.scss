@@ -18,6 +18,11 @@
         font-size: 36px;
         line-height: 45px;
         color: var(--dark-blue-color);
+
+        @include mobile-screen {
+          font-size: 24px;
+          line-height: 32px;
+        }
       }
 
       .add_collaborators_btn {
@@ -33,6 +38,11 @@
         justify-content: center;
         border-radius: 4px;
         cursor: pointer;
+
+        @include mobile-screen {
+          width: 32px;
+          height: 24px;
+        }
       }
     }
 
@@ -106,14 +116,30 @@
       border: 1px solid #e9ecef;
       width: 900px;
 
+      @include medium-screen {
+        width: 800px;
+      }
+
+      @include tablet-screen {
+        width: 440px;
+      }
+
+      @include mobile-screen {
+        width: 300px;
+      }
+
       .collaborator_row {
-        width: 900px;
+        width: 100%;
         display: flex;
         flex-flow: row nowrap;
         align-items: center;
         justify-content: space-around;
         height: 80px;
         position: relative;
+
+        @include small-screen {
+          flex-flow: row wrap;
+        }
 
         &.header {
           height: 50px;
@@ -169,6 +195,10 @@
           line-height: 24px;
           color: var(--dark-blue-color);
 
+          @include small-screen {
+            margin-top: 8px;
+          }
+
           &.header {
             font-weight: 500;
             width: 380px;
@@ -200,6 +230,11 @@
               &.remove {
                 color: #eb5757;
                 background: none;
+              }
+
+              @include mobile-screen {
+                height: 24px;
+                width: 32px;
               }
             }
           }

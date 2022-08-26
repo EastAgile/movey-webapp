@@ -129,6 +129,11 @@
   justify-content: space-between;
   width: 380px;
 }
+@media screen and (max-width: 843px) {
+  .package-settings-container .collaborators_wrapper .collaborators_content .collaborators_settings {
+    margin-top: 8px;
+  }
+}
 .package-settings-container .collaborators_wrapper .collaborators_content .collaborators_settings .ownership_btn {
   padding: 15px 55px;
   font-weight: 700;
@@ -157,6 +162,12 @@
   color: #fff;
   background-color: #9e9e9e;
   margin-left: 20px;
+}
+@media screen and (min-width: 258px) and (max-width: 455px) {
+  .package-settings-container .collaborators_wrapper .collaborators_content .collaborators_settings .ownership_btn {
+    height: 24px;
+    width: 32px;
+  }
 }
 
 /*# sourceMappingURL=invitations.css.map */
