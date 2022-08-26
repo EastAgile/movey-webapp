@@ -340,16 +340,15 @@ impl Account {
     pub fn get_by_slug(slug_: &str, pool: &DieselPgPool) -> Result<Self, Error> {
         let connection = pool.get()?;
         Ok(accounts
-            .filter(slug.eq(slug_))
-            .first::<Account>(&connection)?)
+            .filter(accounts::slug.eq(slug_))
+            .first(&connection)?)
     }
 
     pub fn make_slug(&self) -> String {
         let before_slugify = if self.name.is_empty() {
-            self.github_login.clone().unwrap_or_else(|| {
-                let local_part = self.email.split('@').next().unwrap();
-                local_part.to_string()
-            })
+            self.github_login
+                .clone()
+                .unwrap_or_else(|| self.email.split('@').next().unwrap().to_string())
         } else {
             self.name.clone()
         };
