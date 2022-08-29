@@ -1,5 +1,5 @@
 use cucumber::{given, then, when};
-use std::fs;
+use std::{env, fs};
 use thirtyfour::prelude::*;
 
 use super::super::world::TestWorld;
@@ -113,12 +113,14 @@ async fn receive_thankyou_email(_world: &mut TestWorld) {
 
     for email in fs::read_dir("./emails").unwrap() {
         let content = fs::read_to_string(email.unwrap().path()).unwrap();
-        if content.contains("Subject: New Contact Request") {
+        let environment = env::var("SENTRY_ALERT_ENVIRONMENT").unwrap_or_else(|_| "".to_string());
+        let subject = format!("[{}] New Contact Request", environment);
+        if content.contains(&format!("Subject: {}", &subject)) {
             assert!(content.contains("To: movey@eastagile.com"));
             assert!(content.contains("Hello Admin,"));
             assert!(content.contains("A message was sent from John Doe"));
             assert!(content.contains("Contact Email: email@host.com"));
-            assert!(content.contains("Contact for: Account"));
+            assert!(content.contains("Contact reason: Account"));
             assert!(content.contains("Description: Hello this is a test."));
         } else if content.contains("Subject: Thank you for contacting us") {
             assert!(content.contains("To: email@host.com"));

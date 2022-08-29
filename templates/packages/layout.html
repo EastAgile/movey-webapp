@@ -2,8 +2,7 @@
 
 {% block title %}Package {{package.name}} | Movey{% endblock %}
 
-{% block meta_description %}{% if package.description != '' %}{{package.description}}{% else %}Package {{package.name}}
-on Movey{% endif %}{% endblock %}
+{% block meta_description %}{% if package.description != '' %}{{package.description}} - Move package of Movey website{% else %}Package {{package.name}} on Movey{% endif %}{% endblock %}
 {% block og_title %}Package {{package.name}}{% endblock %}
 {% block og_description %}{% if package.description != '' %}{{package.description}}{% else %}Package {{package.name}} on
 Movey{% endif %}{% endblock %}
@@ -36,14 +35,14 @@ Movey{% endif %}{% endblock %}
             <div onclick="location.href='/packages/{{package.name}}';"
                 class="content-tab tab-readme {% if package_tab == 'readme' %}active{% endif %}">
                 <a href="/packages/{{package.name}}">
-                    <div class="tab-icon tab-icon-readme"></div>
+                    <div class="tab-icon tab-icon-readme" title="move package readme tab"></div>
                     <div class="tab-name">Readme</div>
                 </a>
             </div>
             <div onclick="location.href='/packages/{{package.name}}/versions';"
                 class="content-tab tab-versions {% if package_tab == 'versions' %}active{% endif %}">
                 <a href="/packages/{{package.name}}/versions">
-                    <div class="tab-icon tab-icon-versions"></div>
+                    <div class="tab-icon tab-icon-versions" title="move package versions tab"></div>
                     <div class="tab-name">Versions</div>
                 </a>
             </div>

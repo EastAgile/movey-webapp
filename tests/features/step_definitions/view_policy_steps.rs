@@ -79,6 +79,13 @@ async fn name_email_disabled(world: &mut TestWorld) {
 
 #[when("I access the Contact us page")]
 async fn visit_contact_us_page(world: &mut TestWorld) {
+    // Default key provided by Google
+    // Refs: https://developers.google.com/recaptcha/docs/faq
+    std::env::set_var(
+        "JELLY_CAPTCHA_SITE_KEY",
+        "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
+    );
+
     world
         .driver
         .get(format!("{}/contact", world.root_url).as_str())
