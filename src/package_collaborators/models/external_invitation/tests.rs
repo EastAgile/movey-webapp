@@ -168,3 +168,34 @@ async fn external_invitation_find_by_email_works() {
     let not_found = ExternalInvitation::find_by_email("not_existed@random_email", &conn);
     assert!(not_found.unwrap().is_empty());
 }
+
+async fn external_invitation_delete_by_id_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    let db = &DB_POOL;
+    let conn = db.get().unwrap();
+
+    let res = ExternalInvitation::delete_by_id("not_existed@mail.com", 1, &conn).unwrap();
+    assert_eq!(res, 0);
+
+    let external_invitation = setup_external_invitation().await;
+
+    let res = ExternalInvitation::delete_by_id(
+        &external_invitation.external_user_email,
+        external_invitation.package_id,
+        &conn
+    )
+        .unwrap();
+    assert_eq!(res, 1);
+    let not_found = ExternalInvitation::find_by_id(
+        &external_invitation.external_user_email,
+        external_invitation.package_id,
+        &conn,
+    );
+    assert!(not_found.is_err());
+    if let Err(Error::Database(diesel::NotFound)) = not_found {
+    } else {
+        panic!()
+    }
+}

@@ -8,6 +8,8 @@ pub const MSG_ACCOUNT_NOT_FOUND_INVITING: &str = "Account not found. If you ente
 
 pub const MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR: &str =
     "Sorry, only the owner can add collaborators to this package.";
+pub const MSG_UNAUTHORIZED_TO_REMOVE_COLLABORATOR: &str =
+    "Sorry, only the owner can remove collaborators to this package.";
 pub const MSG_UNAUTHORIZED_TO_TRANSFER_OWNERSHIP: &str =
     "Sorry, only the owner can transfer ownership to another collaborator.";
 pub const MSG_FAILURE_INVITING_COLLABORATOR: &str = "Error creating collaborator invite.";
@@ -16,6 +18,7 @@ pub const MSG_SUCCESSFULLY_INVITED_COLLABORATOR: &str =
 pub const MSG_SUCCESSFULLY_TRANSFER_OWNERSHIP: &str =
     "Ownership transfer invitation is created successfully.";
 pub const MSG_SUCCESSFULLY_ADDED_COLLABORATOR: &str = "Collaborator is added successfully.";
+pub const MSG_SUCCESSFULLY_REMOVED_COLLABORATOR: &str = "Collaborator is removed successfully.";
 pub const MSG_INVITATION_EXPIRED: &str = "Invitation expired.";
 pub const MSG_INVITATION_ALREADY_EXISTED: &str = "Invitation already sent.";
 pub const MSG_COLLABORATOR_ALREADY_EXISTED: &str = "Collaborator already existed.";

@@ -1,6 +1,7 @@
+use diesel::Connection;
 use crate::accounts::jobs::{SendCollaboratorInvitationEmail, SendRegisterToCollabEmail};
 use crate::accounts::Account;
-use crate::api::services::collaborators::views::{AddCollaboratorJson, InvitationResponse};
+use crate::api::services::collaborators::views::{CollaboratorJson, InvitationResponse};
 use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
 use crate::package_collaborators::models::external_invitation::ExternalInvitation;
 use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
@@ -18,7 +19,7 @@ use serde_json::json;
 pub async fn add_collaborators(
     request: HttpRequest,
     Path(package_name): Path<String>,
-    json: web::Json<AddCollaboratorJson>,
+    json: web::Json<CollaboratorJson>,
 ) -> Result<HttpResponse> {
     if !request_utils::is_authenticated(&request).await? {
         return Ok(request_utils::clear_cookie(&request));
@@ -29,7 +30,19 @@ pub async fn add_collaborators(
     let package = Package::get_by_name(&package_name, db)
         .await
         .map_err(|e| ApiNotFound(MSG_PACKAGE_NOT_FOUND, Box::new(e)))?;
+
     let user = request.user().map_err(|e| ApiServerError(Box::new(e)))?;
+    let collaborator = PackageCollaborator::get(package.id, user.id, &conn)
+        .map_err(|e| ApiForbidden(MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR, Box::new(e)))?;
+    if collaborator.role != Role::Owner as i32 {
+        return Err(ApiForbidden(
+            MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR,
+            Box::new(Error::Generic(format!(
+                "Non-owner is trying to add collaborator. uid: {}, package id: {}",
+                collaborator.account_id, collaborator.package_id
+            ))),
+        ));
+    }
 
     let invited_account = Account::get_by_email_or_gh_login(&json.user, db).await;
     let invited_account = match invited_account {
@@ -97,7 +110,7 @@ pub async fn add_collaborators(
 pub async fn transfer_ownership(
     request: HttpRequest,
     Path(package_name): Path<String>,
-    json: web::Json<AddCollaboratorJson>,
+    json: web::Json<CollaboratorJson>,
 ) -> Result<HttpResponse> {
     if !request_utils::is_authenticated(&request).await? {
         return Ok(request_utils::clear_cookie(&request));
@@ -117,13 +130,13 @@ pub async fn transfer_ownership(
     let ids = vec![user.id, invited_account.id];
     let collaborators = PackageCollaborator::get_in_bulk_order_by_role(package.id, ids, &conn)
         .map_err(|e| ApiForbidden(MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR, Box::new(e)))?;
-    let unauthoried_error = Box::new(Error::Generic(String::from(
+    let unauthorized_error = Box::new(Error::Generic(String::from(
         "Unauthorized to transfer ownership.",
     )));
     if collaborators.len() != 2 {
         return Err(ApiBadRequest(
             MSG_UNAUTHORIZED_TO_TRANSFER_OWNERSHIP,
-            unauthoried_error,
+            unauthorized_error,
         ));
     }
     if collaborators.get(0).unwrap().role != Role::Owner as i32
@@ -131,7 +144,7 @@ pub async fn transfer_ownership(
     {
         return Err(ApiForbidden(
             MSG_UNAUTHORIZED_TO_TRANSFER_OWNERSHIP,
-            unauthoried_error,
+            unauthorized_error,
         ));
     }
 
@@ -184,9 +197,15 @@ pub async fn handle_invite(
         ));
     }
     if json.accepted {
-        invitation
-            .accept(&conn)
-            .map_err(|e| ApiUnauthorized(MSG_UNEXPECTED_ERROR, Box::new(e)))?;
+        conn.transaction(|| -> Result<()> {
+            invitation
+                .accept(&conn)
+                .map_err(|e| ApiUnauthorized(MSG_UNEXPECTED_ERROR, Box::new(e)))?;
+            if invitation.is_transferring {
+                Package::change_owner(invitation.package_id, invitation.invited_user_id, &conn)?;
+            }
+            Ok(())
+        })?
     } else {
         invitation
             .delete(&conn)
@@ -195,5 +214,62 @@ pub async fn handle_invite(
     Ok(HttpResponse::Ok().json(json!({
         "ok": true,
         "msg": MSG_SUCCESSFULLY_ADDED_COLLABORATOR
+    })))
+}
+
+pub async fn remove_collaborator(
+    request: HttpRequest,
+    Path(package_name): Path<String>,
+    json: web::Json<CollaboratorJson>,
+) -> Result<HttpResponse> {
+    if !request_utils::is_authenticated(&request).await? {
+        return Ok(request_utils::clear_cookie(&request));
+    }
+    let db = request.db_pool().map_err(|e| ApiServerError(Box::new(e)))?;
+    let conn = db.get().map_err(|e| ApiServerError(Box::new(e)))?;
+
+    let package = Package::get_by_name(&package_name, db)
+        .await
+        .map_err(|e| ApiNotFound(MSG_PACKAGE_NOT_FOUND, Box::new(e)))?;
+    let user = request.user().map_err(|e| ApiServerError(Box::new(e)))?;
+    let collaborator = PackageCollaborator::get(package.id, user.id, &conn)
+        .map_err(|e| ApiForbidden(MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR, Box::new(e)))?;
+    if collaborator.role != Role::Owner as i32 {
+        return Err(ApiForbidden(
+            MSG_UNAUTHORIZED_TO_REMOVE_COLLABORATOR,
+            Box::new(Error::Generic(format!(
+                "Non-owner is trying to remove a collaborator. uid: {}, package id: {}",
+                collaborator.account_id, collaborator.package_id
+            ))),
+        ));
+    }
+    let removed_account = Account::get_by_email_or_gh_login(
+        &json.user,
+        db
+    )
+        .await;
+    match removed_account {
+        Ok(account) => {
+            // if account is a PendingOwner, only delete the invitation
+            let res = OwnerInvitation::delete_by_id(account.id, package.id, &conn)
+                .map_err(|e| ApiServerError(Box::new(e)));
+            if let Ok(0) = res {
+                PackageCollaborator::delete_by_id(account.id, package.id, &conn)
+                    .map_err(|e| ApiNotFound(MSG_ACCOUNT_NOT_FOUND, Box::new(e)))?;
+            }
+        }
+        Err(e) => {
+            // an external account must have a valid email address
+            if !json.user.contains('@') {
+                return Err(ApiNotFound(MSG_ACCOUNT_NOT_FOUND, Box::new(e)));
+            }
+            ExternalInvitation::delete_by_id(&json.user, package.id, &conn)
+                .map_err(|e| ApiNotFound(MSG_ACCOUNT_NOT_FOUND, Box::new(e)))?;
+        }
+    }
+
+    Ok(HttpResponse::Ok().json(&json!({
+        "ok": true,
+        "msg": MSG_SUCCESSFULLY_REMOVED_COLLABORATOR,
     })))
 }

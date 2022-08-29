@@ -287,3 +287,35 @@ async fn find_by_invited_account_returns_err_if_invitation_expired() {
         OwnerInvitation::find_by_invited_account(owner_invitation.invited_user_id, &conn).unwrap();
     assert_eq!(invited_account.len(), 0);
 }
+
+#[actix_rt::test]
+async fn delete_by_id_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    let db = &DB_POOL;
+    let conn = db.get().unwrap();
+
+    let res = OwnerInvitation::delete_by_id(1, 1, &conn).unwrap();
+    assert_eq!(res, 0);
+
+    let owner_invitation = setup_invitation(None).await;
+
+    let res = OwnerInvitation::delete_by_id(
+        owner_invitation.invited_user_id,
+        owner_invitation.package_id,
+        &conn
+    )
+        .unwrap();
+    assert_eq!(res, 1);
+    let not_found = OwnerInvitation::find_by_id(
+        owner_invitation.invited_user_id,
+        owner_invitation.package_id,
+        &conn,
+    );
+    assert!(not_found.is_err());
+    if let Err(Error::Database(diesel::NotFound)) = not_found {
+    } else {
+        panic!()
+    }
+}

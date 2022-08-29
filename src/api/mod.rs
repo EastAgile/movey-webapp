@@ -38,23 +38,19 @@ pub fn configure(config: &mut ServiceConfig) {
                             .route(get().to(services::package::controller::package_badge_info))
                     )
                     .service(
-                        resource("/collaborators")
-                            .route(post().to(services::collaborators::controllers::add_collaborators))
+                        resource("/collaborators/create")
+							.route(post().to(services::collaborators::controllers::add_collaborators))
+                    )
+                    .service(
+                        resource("/collaborators/remove")
+							.route(delete().to(services::collaborators::controllers::remove_collaborator))
                     )
                     .service(resource("/transfer")
-                        .route(post().to(services::collaborators::controllers::transfer_ownership))
-                    )
+						.route(post().to(services::collaborators::controllers::transfer_ownership))
+					),
             )
-            .service(
-                scope("/owner_invitations")
-                    .service(
-                        resource("")
-                            .route(post().to(services::collaborators::controllers::handle_invite))
-                    ),
+            .service(resource("/owner_invitations/handle")
+				.route(post().to(services::collaborators::controllers::handle_invite))
             )
-			.service(
-                resource("/badge")
-                    .route(get().to(services::package::controller::package_badge_info))
-            ),
     );
 }

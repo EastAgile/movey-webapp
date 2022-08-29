@@ -13,6 +13,7 @@ use jelly::Result;
 use jelly::{chrono, DieselPgConnection};
 use serde::Serialize;
 use std::env;
+use crate::schema;
 
 #[derive(Clone, Debug, Eq, Identifiable, Queryable)]
 #[primary_key(invited_user_id, package_id)]
@@ -164,29 +165,34 @@ impl OwnerInvitation {
         Ok(())
     }
 
+    pub fn delete_by_id(invited_user_id_: i32, package_id_: i32, conn: &DieselPgConnection) -> Result<usize> {
+        use schema::owner_invitations::dsl::*;
+        let no_deleted_rows = diesel::delete(owner_invitations.filter(
+            invited_user_id.eq(invited_user_id_)
+                .and(package_id.eq(package_id_))
+        )).execute(conn)?;
+        Ok(no_deleted_rows)
+    }
+
     pub fn accept(&self, conn: &DieselPgConnection) -> Result<()> {
         if self.is_transferring {
-            conn.transaction(|| -> Result<()> {
-                diesel::update(package_collaborators::table)
-                    .set(package_collaborators::role.eq(Role::Collaborator as i32))
-                    .filter(package_collaborators::account_id.eq(self.invited_by_user_id))
-                    .execute(conn)?;
-                diesel::update(package_collaborators::table)
-                    .set(package_collaborators::role.eq(Role::Owner as i32))
-                    .filter(package_collaborators::account_id.eq(self.invited_user_id))
-                    .execute(conn)?;
-                self.delete(conn)
-            })?
+            diesel::update(package_collaborators::table)
+                .set(package_collaborators::role.eq(Role::Collaborator as i32))
+                .filter(package_collaborators::account_id.eq(self.invited_by_user_id))
+                .execute(conn)?;
+            diesel::update(package_collaborators::table)
+                .set(package_collaborators::role.eq(Role::Owner as i32))
+                .filter(package_collaborators::account_id.eq(self.invited_user_id))
+                .execute(conn)?;
+            self.delete(conn)?
         } else {
-            conn.transaction(|| -> Result<()> {
-                PackageCollaborator::new_collaborator(
-                    self.package_id,
-                    self.invited_user_id,
-                    self.invited_by_user_id,
-                    conn,
-                )?;
-                self.delete(conn)
-            })?
+            PackageCollaborator::new_collaborator(
+                self.package_id,
+                self.invited_user_id,
+                self.invited_by_user_id,
+                conn,
+            )?;
+            self.delete(conn)?
         }
         Ok(())
     }

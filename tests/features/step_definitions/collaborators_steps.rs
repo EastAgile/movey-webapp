@@ -698,6 +698,14 @@ async fn see_invited_collaborator_email(world: &mut TestWorld) {
         .unwrap();
     assert_eq!(sending_statuses.len(), 1);
     assert_eq!(sending_statuses[0].text().await.unwrap(), "collaborator invitation sent");
+
+    let rows = world
+        .driver
+        .find_elements(By::ClassName("collaborator_row"))
+        .await
+        .unwrap();
+    // include the header    
+    assert_eq!(rows.len(), 3);
 }
 
 #[then("I should see the invited external email")]
@@ -717,6 +725,14 @@ async fn see_invited_external_email(world: &mut TestWorld) {
         .unwrap();
     assert_eq!(sending_statuses.len(), 1);
     assert_eq!(sending_statuses[0].text().await.unwrap(), "external invitation sent");
+
+    let rows = world
+        .driver
+        .find_elements(By::ClassName("collaborator_row"))
+        .await
+        .unwrap();
+    // include the header    
+    assert_eq!(rows.len(), 3);
 }
 
 #[then("I should not see the list of pending collaborators")]
@@ -739,4 +755,69 @@ async fn not_see_external_list(world: &mut TestWorld) {
         .unwrap();
 
     assert!(external_names.is_empty());
+}
+
+#[when("I click the 'Remove' button")]
+async fn click_remove_button(world: &mut TestWorld) {
+    let remove_btns = world
+        .driver
+        .find_elements(By::ClassName("remove"))
+        .await
+        .unwrap();
+
+    assert_eq!(remove_btns.len(), 1);
+    remove_btns[0].click().await.unwrap();
+}
+
+#[when("I click the 'Confirm' button")]
+async fn click_confirm_button(world: &mut TestWorld) {
+    let confirm_btn = world
+        .driver
+        .find_element(By::Id("confirm_delete"))
+        .await
+        .unwrap();
+
+    confirm_btn.click().await.unwrap();
+}
+
+#[then(regex = r"^I should see a remove owner modal with text '(.+)'$")]
+async fn see_remove_modal(world: &mut TestWorld, message: String) {
+    let modal = world
+        .driver
+        .find_element(By::Css("#remove_owner_modal .message"))
+        .await
+        .unwrap();
+    let msg = modal.text().await.unwrap();
+    assert_eq!(msg, message);
+}
+
+#[then("I should see the invitation is deleted")]
+async fn deleted_pending_invitation(world: &mut TestWorld) {
+    sleep(Duration::from_millis(500)).await;
+    let rows = world
+        .driver
+        .find_elements(By::ClassName("collaborator_row"))
+        .await
+        .unwrap();
+    // include the header
+    assert_eq!(rows.len(), 2);
+}
+
+#[then("I should see the ownership transfer invitation is deleted")]
+async fn deleted_transfer_invitation(world: &mut TestWorld) {
+    sleep(Duration::from_millis(500)).await;
+    let rows = world
+        .driver
+        .find_elements(By::ClassName("collaborator_row"))
+        .await
+        .unwrap();
+    // change from PendingOwner to Collaborator so the row is not deleted
+    assert_eq!(rows.len(), 3);
+
+    let transfer_btns = world
+        .driver
+        .find_elements(By::Css(".ownership_btn.transfer"))
+        .await
+        .unwrap();
+    assert_eq!(transfer_btns.len(), 1);
 }

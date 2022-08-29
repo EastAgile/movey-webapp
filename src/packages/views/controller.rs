@@ -111,6 +111,9 @@ pub async fn show_package_settings(
 
     // get movey account that is already a collaborator
     let accepted_ids: Vec<i32> = PackageCollaborator::get_by_package_id(package.id, &db_connection)?;
+    if accepted_ids.is_empty() {
+        return Err(Error::Generic("This package doesn't have an owner".to_string()));
+    }
     let owner_id = accepted_ids[0];
     // need hashset to find PendingOwner
     let accepted_ids: HashSet<i32> = accepted_ids.into_iter().collect();
@@ -135,25 +138,30 @@ pub async fn show_package_settings(
             Account::get_accounts(&all_invitation_ids, &db_connection)?
                 .iter()
                 .map(|account| {
+                    let email_or_gh_login = if account.is_generated_email() {
+                        account.github_login.as_ref().unwrap_or(&account.email).clone()
+                    } else {
+                        account.email.clone()
+                    };
                     if account.id == owner_id {
                         SerializableInvitation {
                             status: Status::Owner,
-                            email: account.email.clone(),
+                            email: email_or_gh_login,
                         }
                     } else if pending_owners_ids.contains(&account.id) {
                         SerializableInvitation {
                             status: Status::PendingOwner,
-                            email: account.email.clone(),
+                            email: email_or_gh_login,
                         }
                     } else if accepted_ids.contains(&account.id) {
                         SerializableInvitation {
                             status: Status::Collaborator,
-                            email: account.email.clone(),
+                            email: email_or_gh_login,
                         }
                     } else {
                         SerializableInvitation {
                             status: Status::PendingCollaborator,
-                            email: account.email.clone(),
+                            email: email_or_gh_login,
                         }
                     }
                 })

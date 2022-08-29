@@ -40,12 +40,10 @@ class Collaborator {
 
     this.transfer_owner_btn.click(e => {
       this.current_transfer_target = $(e.target)
-      $('#collaborator_email').text(e.target.parentElement.parentElement.querySelector('.collaborator_name').innerText)
-      $("#transfer_owner_modal").foundation("open")
+      $('#collaborator_email').text(e.target.parentElement.parentElement.querySelector('.email_address').innerText)
+      this.transfer_modal.foundation("open")
     });
-    this.remove_btn.click(() => {
-        $("#remove_owner_modal").foundation("open")
-    });
+    this.remove_btn.click(this.removeBtnListener);
 
     this.transfer_modal.find(".submit").on("click", () => {
       this.transferOwnership()
@@ -56,6 +54,7 @@ class Collaborator {
     });
 
     this.remove_modal.find(".submit").on("click", () => {
+      this.removeCollaborator()
       this.remove_modal.foundation("close");
     });
     this.remove_modal.find(".cancel").on("click", () => {
@@ -76,7 +75,7 @@ class Collaborator {
     const collaboratorEmail = $(".collaborators_input").val();
     if (!collaboratorEmail || !this.userName) return;
     let collaboratorUrl =
-      "/api/v1/packages/" + this.packageName.innerHTML + "/collaborators";
+      "/api/v1/packages/" + this.packageName.innerHTML + "/collaborators/create";
     $.ajax({
       type: "POST",
       dataType: "json",
@@ -100,7 +99,6 @@ class Collaborator {
   };
 
   transferOwnership = () => {
-
     let collaboratorUrl =
       "/api/v1/packages/" + this.packageName.innerHTML + "/transfer";
 
@@ -118,10 +116,35 @@ class Collaborator {
         this.current_transfer_target.attr('class', 'hidden-btn')
         this.current_transfer_target.parent().parent()
             .find('.collaborator_name')
-            .append(`
-                <div className="sending_status">ownership invitation sent</div>
+            .after(`
+                <div class="sending_status">ownership invitation sent</div>
             `)
         this.current_transfer_target = undefined
+      },
+      error: (data) => {
+        $('#success_modal_message').text(data.responseJSON.msg);
+        this.success_modal.foundation("open");
+      },
+    });
+  };
+
+  removeCollaborator = () => {
+    let collaboratorUrl =
+        "/api/v1/packages/" + this.packageName.innerHTML + "/collaborators/remove";
+
+    $.ajax({
+      type: "DELETE",
+      dataType: "json",
+      url: collaboratorUrl,
+      contentType: "application/json",
+      processData: false,
+      headers: {},
+      data: JSON.stringify({ user: $('#removed_email').text() }),
+      success: (data) => {
+        $('#success_modal_message').text(data.msg);
+        this.success_modal.foundation("open");
+        window.location.reload()
+        // TODO: show `transfer` button if it is a PendingOwner, otherwise delete the row
       },
       error: (data) => {
         $('#success_modal_message').text(data.responseJSON.msg);
@@ -150,5 +173,13 @@ class Collaborator {
           </button>
         </div>
     `);
+    let remove_btn = $(".ownership_btn.remove").last()
+    remove_btn.click(this.removeBtnListener);
   };
+
+  removeBtnListener = e => {
+    console.log(e.target.parentElement.parentElement.querySelector('.email_address.collaborator_name'))
+    $('#removed_email').text(e.target.parentElement.parentElement.querySelector('.email_address').innerText)
+    this.remove_modal.foundation("open")
+  }
 }
