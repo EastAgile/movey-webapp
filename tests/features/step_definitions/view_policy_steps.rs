@@ -48,6 +48,29 @@ async fn see_policy_page(world: &mut TestWorld) {
     assert_eq!(page_name.text().await.unwrap(), "Privacy Policy");
 }
 
+#[when("I access the About us page")]
+async fn visit_about_us_page(world: &mut TestWorld) {
+    world
+        .driver
+        .get(format!("{}/about", world.root_url).as_str())
+        .await
+        .unwrap();
+}
+
+#[then("I should see the About us page")]
+async fn see_about_us_page(world: &mut TestWorld) {
+    assert_eq!(
+        world.driver.current_url().await.unwrap(),
+        format!("{}/about", world.root_url).as_str()
+    );
+    let page_name = world
+        .driver
+        .find_element(By::ClassName("page_name"))
+        .await
+        .unwrap();
+    assert_eq!(page_name.text().await.unwrap(), "About Movey");
+}
+
 #[then("I should see my name and email filled in textbox")]
 async fn name_email_filled_in(world: &mut TestWorld) {
     let name_field = world.driver.find_element(By::Id("name")).await.unwrap();
