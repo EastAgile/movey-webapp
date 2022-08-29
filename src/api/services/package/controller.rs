@@ -1,8 +1,11 @@
 #[cfg(test)]
 use crate::test::mock::MockHttpRequest as HttpRequest;
-use jelly::actix_web::web;
 #[cfg(not(test))]
 use jelly::actix_web::HttpRequest;
+
+use diesel::result::DatabaseErrorKind;
+use diesel::result::Error as DBError;
+use jelly::actix_web::web;
 use jelly::prelude::*;
 use jelly::Result;
 use serde::{Deserialize, Serialize};
@@ -15,6 +18,8 @@ use crate::test::mock::GithubService;
 use crate::api::services::package::view::PackageBadgeRespond;
 use crate::packages::Package;
 use crate::settings::models::token::ApiToken;
+use crate::utils::presenter::validate_name_and_version;
+
 #[derive(Serialize, Deserialize)]
 pub struct PackageRequest {
     pub github_repo_url: String,
@@ -32,12 +37,21 @@ pub async fn register_package(
     request: HttpRequest,
     mut req: web::Json<PackageRequest>,
 ) -> Result<HttpResponse> {
-    let db = request.db_pool()?;
+    let db = match request.db_pool() {
+        Ok(pool) => pool,
+        Err(_) => {
+            return Ok(HttpResponse::InternalServerError()
+                .body("Something went wrong, please try again later."))
+        }
+    };
     if ApiToken::get(&req.token, db).await.is_err() {
-        return Ok(HttpResponse::BadRequest().body("Invalid Api Token"));
+        return Ok(HttpResponse::BadRequest().body("Invalid API token."));
     }
 
-    let token_account_id = ApiToken::associated_account(&req.token, db).await?.id;
+    let token_account_id = match ApiToken::associated_account(&req.token, db).await {
+        Ok(account) => account.id,
+        Err(_) => return Ok(HttpResponse::BadRequest().body("Invalid API token.")),
+    };
     let service = GithubService::new();
     if req.subdir.ends_with('\n') {
         req.subdir.pop();
@@ -46,18 +60,29 @@ pub async fn register_package(
         None
     } else {
         let mut subdir = req.subdir.clone();
-        subdir.push_str("/Move.toml");
+        subdir.push_str("Move.toml");
         Some(subdir)
     };
-    let github_data = service.fetch_repo_data(&req.github_repo_url, subdir, None)?;
+    let github_data = match service.fetch_repo_data(&req.github_repo_url, subdir, None) {
+        Ok(data) => data,
+        Err(_) => return Ok(HttpResponse::NotFound().body("Cannot get package info from Github.")),
+    };
     if !req.subdir.is_empty() {
         req.github_repo_url = format!(
             "{}/blob/{}/{}",
             req.github_repo_url, github_data.rev, req.subdir
         );
     }
+    let hints = validate_name_and_version(&github_data.name, &github_data.version);
+    if !hints.is_empty() {
+        return Ok(HttpResponse::BadRequest().body(format!(
+            "Cannot upload package.\nHints: {}.",
+            hints.join("; ")
+        )));
+    }
+
     let package_name = github_data.name.clone();
-    Package::create_from_crawled_data(
+    let result = Package::create_from_crawled_data(
         &req.github_repo_url,
         &github_data.description.clone(),
         &github_data.rev.clone(),
@@ -67,7 +92,25 @@ pub async fn register_package(
         github_data,
         db,
     )
-    .await?;
+    .await;
+    if let Err(Error::Database(DBError::DatabaseError(kind, _))) = result {
+        let domain = std::env::var("JELLY_DOMAIN").expect("JELLY_DOMAIN is not set");
+        let error_message = format!(
+            "Cannot upload package.\n{}",
+            match kind {
+                DatabaseErrorKind::UniqueViolation => format!(
+                    "Version already exists for package at {domain}/packages/{package_name}. \
+                    Please commit your changes to Github and try again."
+                ),
+                DatabaseErrorKind::ForeignKeyViolation => format!(
+                    "Only owners can update new versions. Please check the package information at \
+                    {domain}/packages/{package_name}."
+                ),
+                _ => "Something went wrong, please try again later.".to_string(),
+            }
+        );
+        return Ok(HttpResponse::BadRequest().body(error_message));
+    }
 
     Ok(HttpResponse::Ok().body(package_name))
 }
@@ -91,17 +134,23 @@ pub async fn increase_download_count(
 ) -> Result<HttpResponse> {
     let mut form = form.into_inner();
     if !form.is_valid() {
-        return Ok(HttpResponse::BadRequest().body("invalid git info"));
+        return Ok(HttpResponse::BadRequest().body("Invalid git info."));
     }
 
-    let db = request.db_pool()?;
+    let db = match request.db_pool() {
+        Ok(pool) => pool,
+        Err(_) => {
+            return Ok(HttpResponse::InternalServerError()
+                .body("Something went wrong, please try again later."))
+        }
+    };
     let service = GithubService::new();
     if let Ok(res) =
         Package::increase_download_count(&form.url, &form.rev, &form.subdir, &service, db).await
     {
         Ok(HttpResponse::Ok().body(res.to_string()))
     } else {
-        Ok(HttpResponse::NotFound().body("Cannot find url or rev"))
+        Ok(HttpResponse::NotFound().body("Cannot find url or rev."))
     }
 }
 
