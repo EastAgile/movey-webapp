@@ -13,6 +13,7 @@ pub struct LoggedInUser {
     pub id: i32,
     pub name: String,
     pub email: String,
+    pub avatar: Option<String>,
 }
 
 pub async fn get_logged_in_user(request: HttpRequest) -> Result<HttpResponse> {
@@ -33,6 +34,7 @@ pub async fn get_logged_in_user(request: HttpRequest) -> Result<HttpResponse> {
                 id: account.id,
                 name: account.name,
                 email: account.email,
+                avatar: account.avatar,
             }))
     } else {
         request.get_session().clear();
