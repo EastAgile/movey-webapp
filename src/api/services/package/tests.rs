@@ -4,7 +4,6 @@ use crate::api::services::package::controller::{
 use crate::packages::{Package, PackageVersion};
 use crate::test::util::create_test_token;
 use crate::test::{mock, DatabaseTestContext, DB_POOL};
-use crate::utils::presenter::validate_name_and_version;
 
 use jelly::actix_web::body::Body;
 use jelly::actix_web::http::StatusCode;
@@ -170,7 +169,7 @@ async fn increase_download_count_returns_error_with_empty_url() {
     assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
     assert_eq!(
         resp.body().as_ref().unwrap(),
-        &Body::from("invalid git info.")
+        &Body::from("Invalid git info.")
     );
     assert_eq!(Package::count(&DB_POOL).await.unwrap(), 0);
     assert_eq!(PackageVersion::count(&DB_POOL).await.unwrap(), 0);

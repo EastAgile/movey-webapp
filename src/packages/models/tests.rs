@@ -480,7 +480,7 @@ async fn create_package_works() {
             })
         });
 
-    let uid = Package::create(
+    let result = Package::create(
         "repo_url",
         "package_description",
         "1",
@@ -491,10 +491,9 @@ async fn create_package_works() {
         None,
         &DB_POOL,
     )
-    .await
-    .unwrap();
+    .await;
+    assert!(result.is_err());
 
-    assert_eq!(package.id, uid);
     let versions = PackageVersion::from_package_id(uid, &PackageVersionSort::Latest, &DB_POOL)
         .await
         .unwrap();

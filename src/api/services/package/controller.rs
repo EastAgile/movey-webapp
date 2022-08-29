@@ -102,6 +102,10 @@ pub async fn register_package(
                     "Version already exists for package at {domain}/packages/{package_name}. \
                     Please commit your changes to Github and try again."
                 ),
+                DatabaseErrorKind::ForeignKeyViolation => format!(
+                    "Only owners can update new versions. Please check the package information at \
+                    {domain}/packages/{package_name}."
+                ),
                 _ => "Something went wrong, please try again later.".to_string(),
             }
         );

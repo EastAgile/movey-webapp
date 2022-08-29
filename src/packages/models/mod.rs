@@ -260,7 +260,7 @@ impl Package {
         };
 
         // Only creates new version if same user with package owner
-        if record.account_id == account_id_ || record.account_id.is_none() {
+        if record.account_id == account_id_ {
             let pakage_dont_exist = record.get_version(&github_data.version, pool).await;
             if pakage_dont_exist.is_err() {
                 let e = pakage_dont_exist.unwrap_err();
@@ -286,6 +286,11 @@ impl Package {
                     Box::new(String::from("Version already exists")),
                 )));
             }
+        } else {
+            return Err(Error::Database(DBError::DatabaseError(
+                DatabaseErrorKind::ForeignKeyViolation,
+                Box::new(String::from("Only owners can update new versions")),
+            )));
         }
 
         Ok(record.id)
