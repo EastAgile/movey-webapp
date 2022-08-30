@@ -647,7 +647,7 @@ async fn see_owner(world: &mut TestWorld) {
 #[then("She should see that I am a collaborator of the package")]
 async fn see_first_user_as_collaborator(world: &mut TestWorld) {
     world
-        .go_to_url("packages/test%20package/owner_settings")
+        .go_to_url("packages/test%20package/collaborators")
         .await;
     let collaborator_names = world
         .driver
