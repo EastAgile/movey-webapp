@@ -1,5 +1,5 @@
-use std::hash::{Hash, Hasher};
 use serde::Serialize;
+use std::hash::{Hash, Hasher};
 
 #[derive(Serialize, Eq)]
 pub struct SerializableInvitation {

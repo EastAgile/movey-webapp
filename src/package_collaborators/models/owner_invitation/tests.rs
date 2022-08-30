@@ -1,12 +1,11 @@
-
 use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
+use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
 use crate::packages::Package;
+use crate::test::util::setup_user;
 use crate::test::{DatabaseTestContext, DB_POOL};
 use crate::utils::token::TOKEN_LENGTH;
 use jelly::prelude::*;
 use std::env;
-use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
-use crate::test::util::setup_user;
 
 async fn setup_invitation(is_transferring: Option<bool>) -> OwnerInvitation {
     let invited_uid = setup_user(None, None).await;
@@ -106,7 +105,8 @@ async fn accept_collaborator_works() {
         owner_invitation.package_id,
         owner_invitation.invited_user_id,
         &DB_POOL.get().unwrap(),
-    ).unwrap();
+    )
+    .unwrap();
     assert_eq!(package_collaborator.role, Role::Collaborator as i32);
 }
 
@@ -118,16 +118,17 @@ async fn accept_owner_works() {
 
     let owner_invitation = setup_invitation(Some(true)).await;
     let _ = PackageCollaborator::new_collaborator(
-        owner_invitation.package_id, 
+        owner_invitation.package_id,
         owner_invitation.invited_user_id,
         owner_invitation.invited_user_id,
-            &DB_POOL.get().unwrap()
-        );
+        &DB_POOL.get().unwrap(),
+    );
     let invited_collaborator = PackageCollaborator::get(
         owner_invitation.package_id,
         owner_invitation.invited_user_id,
         &DB_POOL.get().unwrap(),
-    ).unwrap();
+    )
+    .unwrap();
     assert_eq!(invited_collaborator.role, Role::Collaborator as i32);
 
     owner_invitation.accept(&conn).unwrap();
@@ -142,7 +143,8 @@ async fn accept_owner_works() {
         owner_invitation.package_id,
         owner_invitation.invited_user_id,
         &DB_POOL.get().unwrap(),
-    ).unwrap();
+    )
+    .unwrap();
     assert_eq!(package_collaborator.role, Role::Owner as i32);
 }
 
@@ -304,9 +306,9 @@ async fn delete_by_id_works() {
     let res = OwnerInvitation::delete_by_id(
         owner_invitation.invited_user_id,
         owner_invitation.package_id,
-        &conn
+        &conn,
     )
-        .unwrap();
+    .unwrap();
     assert_eq!(res, 1);
     let not_found = OwnerInvitation::find_by_id(
         owner_invitation.invited_user_id,

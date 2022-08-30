@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod tests;
 
+use crate::schema;
 use crate::schema::external_invitations;
 use diesel::prelude::*;
 use diesel::{Identifiable, Insertable, Queryable};
@@ -8,7 +9,6 @@ use jelly::chrono::{NaiveDateTime, Utc};
 use jelly::Result;
 use jelly::{chrono, DieselPgConnection};
 use std::env;
-use crate::schema;
 
 #[derive(Clone, Debug, PartialEq, Eq, Identifiable, Queryable)]
 #[primary_key(external_user_email, package_id)]
@@ -70,7 +70,10 @@ impl ExternalInvitation {
             .first::<Self>(conn)?)
     }
 
-    pub fn find_by_email(external_user_email: &str, conn: &DieselPgConnection) -> Result<Vec<Self>> {
+    pub fn find_by_email(
+        external_user_email: &str,
+        conn: &DieselPgConnection,
+    ) -> Result<Vec<Self>> {
         Ok(external_invitations::table
             .filter(external_invitations::external_user_email.eq(external_user_email))
             .get_results::<Self>(conn)?)
@@ -81,12 +84,20 @@ impl ExternalInvitation {
         Ok(())
     }
 
-    pub fn delete_by_id(external_user_email_: &str, package_id_: i32, conn: &DieselPgConnection) -> Result<usize> {
+    pub fn delete_by_id(
+        external_user_email_: &str,
+        package_id_: i32,
+        conn: &DieselPgConnection,
+    ) -> Result<usize> {
         use schema::external_invitations::dsl::*;
-        let no_deleted_rows = diesel::delete(external_invitations.filter(
-            external_user_email.eq(external_user_email_)
-                .and(package_id.eq(package_id_))
-        )).execute(conn)?;
+        let no_deleted_rows = diesel::delete(
+            external_invitations.filter(
+                external_user_email
+                    .eq(external_user_email_)
+                    .and(package_id.eq(package_id_)),
+            ),
+        )
+        .execute(conn)?;
         Ok(no_deleted_rows)
     }
 

@@ -17,6 +17,12 @@
   line-height: 45px;
   color: var(--dark-blue-color);
 }
+@media screen and (min-width: 258px) and (max-width: 455px) {
+  .package-settings-container .owner_settings_wrapper .owner_header .owner_settings_title {
+    font-size: 24px;
+    line-height: 32px;
+  }
+}
 .package-settings-container .owner_settings_wrapper .owner_header .add_collaborators_btn {
   float: right;
   padding: 15px 55px;
@@ -30,6 +36,12 @@
   justify-content: center;
   border-radius: 4px;
   cursor: pointer;
+}
+@media screen and (min-width: 258px) and (max-width: 455px) {
+  .package-settings-container .owner_settings_wrapper .owner_header .add_collaborators_btn {
+    width: 32px;
+    height: 24px;
+  }
 }
 .package-settings-container .owner_settings_wrapper .add_collaborators_form {
   display: flex;
@@ -94,14 +106,34 @@
   border: 1px solid #e9ecef;
   width: 900px;
 }
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .package-settings-container .collaborators_wrapper .collaborators_table {
+    width: 800px;
+  }
+}
+@media screen and (min-width: 456px) and (max-width: 843px) {
+  .package-settings-container .collaborators_wrapper .collaborators_table {
+    width: 440px;
+  }
+}
+@media screen and (min-width: 258px) and (max-width: 455px) {
+  .package-settings-container .collaborators_wrapper .collaborators_table {
+    width: 300px;
+  }
+}
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row {
-  width: 900px;
+  width: 100%;
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
   justify-content: space-around;
   height: 80px;
   position: relative;
+}
+@media screen and (min-width: 258px) and (max-width: 843px) {
+  .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row {
+    flex-flow: row wrap;
+  }
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row.header {
   height: 50px;
@@ -139,7 +171,8 @@
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles.header {
   font-weight: 500;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles .collaborator {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles .collaborator,
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles .owner {
   margin-bottom: 0px;
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission {
@@ -148,6 +181,11 @@
   font-size: 18px;
   line-height: 24px;
   color: var(--dark-blue-color);
+}
+@media screen and (min-width: 258px) and (max-width: 843px) {
+  .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission {
+    margin-top: 8px;
+  }
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.header {
   font-weight: 500;
@@ -179,6 +217,12 @@
   color: #eb5757;
   background: none;
 }
+@media screen and (min-width: 258px) and (max-width: 455px) {
+  .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings .ownership_btn {
+    height: 24px;
+    width: 32px;
+  }
+}
 
 .reveal {
   top: 25% !important;
@@ -203,11 +247,25 @@
 #new_collaborator_modal .message,
 #transfer_owner_modal .message,
 #remove_owner_modal .message {
+  margin-top: 12px;
   font-weight: 400;
-  font-size: 18px;
+  font-size: 16px;
   letter-spacing: -0.02em;
-  margin-bottom: 4px;
   color: var(--gray-color);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+#new_collaborator_modal .message.success,
+#transfer_owner_modal .message.success,
+#remove_owner_modal .message.success {
+  color: #27ae60;
+  background-color: #effff4;
+}
+#new_collaborator_modal .message.error,
+#transfer_owner_modal .message.error,
+#remove_owner_modal .message.error {
+  color: #eb5757;
+  background-color: rgba(235, 87, 87, 0.15);
 }
 #new_collaborator_modal .owner_message,
 #transfer_owner_modal .owner_message,
@@ -316,7 +374,7 @@
   color: #333333;
 }
 #error_modal {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   border-radius: 4px;
   margin: auto;
 }

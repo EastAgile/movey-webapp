@@ -576,10 +576,7 @@ impl PackageVersion {
         Ok(result)
     }
 
-    pub async fn delete_by_package_id(
-        package_id_: i32,
-        pool: &DieselPgPool,
-    ) -> Result<usize> {
+    pub async fn delete_by_package_id(package_id_: i32, pool: &DieselPgPool) -> Result<usize> {
         let connection = pool.get()?;
         let result = diesel::delete(package_versions.filter(package_id.eq(package_id_)))
             .execute(&connection)?;
