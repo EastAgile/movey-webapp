@@ -135,19 +135,13 @@ impl ResponseError for Error {
                     ("400.html", HttpResponse::BadRequest())
                 }
             }
-
             Error::Anyhow(_) | Error::Generic(_) | Error::Database(DBError::NotFound) => {
                 ("404.html", HttpResponse::NotFound())
             }
             Error::Json(_) | Error::InvalidPassword | Error::InvalidAccountToken => {
                 ("400.html", HttpResponse::BadRequest())
             }
-            Error::Pool(_)
-            | Error::Database(_)
-            | Error::Template(_)
-            | Error::Radix(_)
-            | Error::PasswordHasher(_)
-            | Error::Reqwest(_) => ("503.html", HttpResponse::InternalServerError()),
+            _ => ("503.html", HttpResponse::InternalServerError()),
         };
         match TERA.read() {
             Ok(engine) => {
@@ -169,10 +163,6 @@ impl ResponseError for Error {
                 HttpResponse::InternalServerError().body("")
             }
         }
-    }
-
-    fn status_code(&self) -> StatusCode {
-        StatusCode::INTERNAL_SERVER_ERROR
     }
 }
 
