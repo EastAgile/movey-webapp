@@ -57,3 +57,93 @@ pub fn make_package_install_instruction(repo_url: &str) -> (String, String) {
     instruction_repo_url.push_str(".git");
     (instruction_repo_url, instruction_subdir)
 }
+
+pub fn validate_name_and_version(package_name: &str, package_version: &str) -> Vec<&'static str> {
+    let mut hints = vec![];
+    let name_regex = regex::Regex::new(r"^[a-zA-Z0-9_-]+$").unwrap();
+    if !name_regex.is_match(package_name) {
+        hints.push(
+            "Package name should only contain alphanumeric characters, hyphens or underscores",
+        );
+    }
+    if semver::Version::parse(package_version).is_err() {
+        hints.push("Package version should adhere to semantic versioning (see https://semver.org)");
+    }
+    hints
+}
+
+#[cfg(test)]
+
+mod tests {
+    use super::*;
+
+    #[actix_rt::test]
+    async fn validate_name_and_version_works_for_names() {
+        let valid_package_names = vec![
+            "MoveStdLib",
+            "A_Certain_Package",
+            "package103",
+            "package-in-kebab-case",
+            "101-dalmatians",
+            "up-and_down__and--up",
+            "-package-name-",
+            "-_-_-zigzag-package-name-_-_-",
+        ];
+        for name in valid_package_names {
+            let hints = validate_name_and_version(name, "0.1.0");
+            assert!(hints.is_empty());
+        }
+        let invalid_package_names = vec![
+            "special_package!",
+            "package_歷要人",
+            "@MystenLabs/Sui",
+            "new.package.dot.com",
+            "package-1.0.3",
+            "invalid/package",
+        ];
+        for name in invalid_package_names {
+            let hints = validate_name_and_version(name, "0.1.0");
+            assert_eq!(hints.len(), 1);
+            assert_eq!(
+                hints[0],
+                "Package name should only contain alphanumeric characters, hyphens or underscores"
+            );
+        }
+    }
+
+    #[actix_rt::test]
+    async fn validate_name_and_version_works_for_versions() {
+        let valid_versions = vec![
+            "1.0.0-alpha",
+            "1.0.0-alpha.1",
+            "1.0.0-alpha.beta",
+            "1.0.0-beta",
+            "1.0.0-beta.2",
+            "1.0.0-beta.11",
+            "1.0.0-rc.1",
+            "1.0.0",
+        ];
+        for version in valid_versions {
+            let hints = validate_name_and_version("valid_name", version);
+            assert!(hints.is_empty());
+        }
+        let invalid_versions = vec![
+            "1.0.0-",
+            "1.0.0-alpha+pre+release",
+            "1.0.0*beta",
+            "1.01.100",
+            "1.0",
+            "new.version",
+        ];
+        for version in invalid_versions {
+            let hints = validate_name_and_version("valid_name", version);
+            assert_eq!(hints.len(), 1, "version: {}", version);
+            assert_eq!(
+                hints[0],
+                "Package version should adhere to semantic versioning (see https://semver.org)",
+                "version: {}",
+                version
+            );
+        }
+    }
+}

@@ -2,13 +2,13 @@ use crate::api::services::package::controller::{
     increase_download_count, register_package, DownloadInfo, PackageRequest,
 };
 use crate::packages::{Package, PackageVersion};
+use crate::test::util::create_test_token;
 use crate::test::{mock, DatabaseTestContext, DB_POOL};
 
-use crate::test::util::create_test_token;
 use jelly::actix_web::body::Body;
 use jelly::actix_web::http::StatusCode;
 use jelly::actix_web::web;
-use jelly::prelude::Error;
+use jelly::error::Error;
 
 fn init_form() -> web::Form<DownloadInfo> {
     web::Form(DownloadInfo {
