@@ -87,6 +87,55 @@
         margin: 35px 0;
     }
 
+    .package-banner-wrapper {
+        max-width: 1574px;
+        padding: 0 30px;
+        margin: 0 auto 60px;
+
+        @include medium-screen {
+            padding: 0 20px;
+            margin: 0 auto 30px;
+        }
+
+        @include small-screen {
+            padding: 0 20px;
+            margin: 0 auto 30px;
+        }
+
+        .package-banner {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 10px 16px;
+            background-color: #FFFED9;
+            border-radius: 5px;
+            border: 1px solid var(--geyser-color);
+
+            .package-banner-content {
+                font-weight: 700;
+                font-size: 20px;
+                line-height: 30px;
+                margin: 10px 0;
+
+                a {
+                    text-decoration: underline;
+                }
+
+                @include medium-screen {
+                    font-size: 14px;
+                    line-height: 20px;
+                    margin: 5px 0;
+                }
+        
+                @include small-screen {
+                    font-size: 14px;
+                    line-height: 20px;
+                    margin: 5px 0;
+                }
+            }
+        }
+    }
+
     .package-content-container {
         max-width: 1574px;
         margin: 0 auto;
@@ -437,7 +486,7 @@
                                 position: absolute;
                                 right: -30px;
                                 top: -10px;
-                                background-color: #D9DDE7;
+                                background-color: var(--geyser-color);
                                 border-radius: 8px;
                                 padding: 4px;
                                 display: none;
@@ -815,7 +864,7 @@
 }
 
 .versions-sort-dropdown {
-    border: 1px solid #D9DDE7;
+    border: 1px solid var(--geyser-color);
     box-sizing: border-box;
     box-shadow: 0px 8px 12px rgba(2, 20, 58, 0.15);
     border-radius: 4px;
