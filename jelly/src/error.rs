@@ -122,13 +122,11 @@ lazy_static! {
 
 impl ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
-        // Returning an Internal Server Error will trigger actix
-        // to log the error automatically
         let (template, mut response) = match self {
             Error::ActixWeb(e) => {
                 let status_code = e.as_response_error().status_code();
                 if status_code.is_server_error() {
-                    ("503.html", HttpResponse::InternalServerError())
+                    ("500.html", HttpResponse::InternalServerError())
                 } else if status_code == StatusCode::NOT_FOUND {
                     ("404.html", HttpResponse::NotFound())
                 } else {
@@ -141,8 +139,13 @@ impl ResponseError for Error {
             Error::Json(_) | Error::InvalidPassword | Error::InvalidAccountToken => {
                 ("400.html", HttpResponse::BadRequest())
             }
-            _ => ("503.html", HttpResponse::InternalServerError()),
+            _ => ("500.html", HttpResponse::InternalServerError()),
         };
+        // Returning an Internal Server Error will trigger actix
+        // to log the error automatically so we don't have to
+        if template != "500.html" {
+            error!("{:?}", error::Error::source(&self));
+        }
         match TERA.read() {
             Ok(engine) => {
                 match engine
