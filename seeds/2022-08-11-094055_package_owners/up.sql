@@ -15,3 +15,4 @@ INSERT INTO package_collaborators(package_id, account_id, role, created_by, crea
     (13, 3, 0, 3, CURRENT_TIMESTAMP),
     (14, 4, 0, 4, CURRENT_TIMESTAMP),
     (15, 5, 0, 5, CURRENT_TIMESTAMP);
+    

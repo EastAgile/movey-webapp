@@ -1,5 +1,5 @@
 Feature: Delete collaborators
-@wip
+
   Scenario: Delete pending collaborator invitation
     Given I am a user on Movey
     And I am signed in
@@ -19,7 +19,7 @@ Feature: Delete collaborators
     Then I should see a remove owner modal with text 'You are remove this collaborator collaborator@host.com from package'
     When I click the 'Confirm' button
     Then I should see the invitation is deleted
-@wip
+
   Scenario: Delete external invitation
     Given I am a user on Movey
       And I am signed in
@@ -36,7 +36,7 @@ Feature: Delete collaborators
       Then I should see a remove owner modal with text 'You are remove this collaborator not_in_system@host.com from package'
       When I click the 'Confirm' button
       Then I should see the invitation is deleted
-@wip
+
   Scenario: Delete ownership transfer invitation
     Given I am a user on Movey
     And I am signed in
