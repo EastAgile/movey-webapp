@@ -62,11 +62,18 @@ impl Account {
         Ok(result)
     }
 
-    pub async fn get_by_email_or_gh_login(search_term: &str, pool: &DieselPgPool) -> Result<Self, Error> {
+    pub async fn get_by_email_or_gh_login(
+        search_term: &str,
+        pool: &DieselPgPool,
+    ) -> Result<Self, Error> {
         let connection = pool.get()?;
         let trimmed_search_term = search_term.trim();
         let result = accounts
-            .filter(email.eq(trimmed_search_term).or(github_login.eq(trimmed_search_term)))
+            .filter(
+                email
+                    .eq(trimmed_search_term)
+                    .or(github_login.eq(trimmed_search_term)),
+            )
             .first::<Account>(&connection)?;
 
         Ok(result)
@@ -127,7 +134,6 @@ impl Account {
         let record = diesel::insert_into(accounts::table)
             .values(new_record)
             .get_result::<Account>(&connection)?;
-
 
         Ok(record.id)
     }
@@ -212,7 +218,7 @@ impl Account {
                     oauth_user.id
                 ))))
                 .execute(&connection)?;
-            
+
             record
         } else {
             // create a new account via github
@@ -298,7 +304,7 @@ impl Account {
             .set(avatar.eq(Some(format!(
                 "https://avatars.githubusercontent.com/u/{}",
                 gh_id
-            ))))    
+            ))))
             .execute(&conn)?;
 
         Ok(())
