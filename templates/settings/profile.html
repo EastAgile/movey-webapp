@@ -11,15 +11,19 @@
 {% block settings_content %}
 <div class="content-wrapper">
     <div class="avatar">
-        <img class="avatar-image" src="/static/resources/associated_photo.png" alt = "Avatar of Movey user ">
-        <button class="upload-button"></button>
+        {% if account.avatar != ""%}
+            <img class="avatar-image" src={{account.avatar}}>
+        {% else %}
+            <img class="avatar-image" src="/static/resources/associated_photo.png">    
+        {% endif %}
+        <!-- <button class="upload-button"></button> -->
     </div>
     <div class="profile-wrapper">
         <div class="profile-form">
             <p>Account data</p>
-
+            
             {% set is_disabled = account.name == "" %}
-
+            
             <form action="/settings/profile" method="POST">
                 <label class="label_title" for="email">Email address</label>
                 <input  class="email disabled" disabled id="email" name="email" placeholder="{{ account.email }}" type="email">

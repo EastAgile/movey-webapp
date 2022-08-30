@@ -99,6 +99,15 @@
 .contact-container .contact-content ul li {
   margin-top: 24px;
 }
+.contact-container .contact-content code {
+  color: var(--dark-blue-color);
+  background-color: var(--gray-background-color);
+  border-radius: 4px;
+  margin: 0;
+  padding: 5px 8px;
+  border: none;
+  white-space: normal;
+}
 .contact-container .form-cta {
   margin: 40px auto;
   font-style: normal;
@@ -215,6 +224,11 @@
 }
 .package-search-sort .select2-container .select2-selection .select2-selection__arrow {
   display: none;
+}
+.package-search-sort .select2-hidden-accessible,
+.package-search-sort .select2-hidden-accessible:focus {
+  left: 50% !important;
+  top: 55px !important;
 }
 .package-search-sort .contact-instruction {
   margin-top: 24px;

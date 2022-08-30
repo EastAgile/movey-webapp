@@ -94,6 +94,16 @@
         margin-top: 24px;
       }
     }
+
+    code {
+      color: var(--dark-blue-color);
+      background-color: var(--gray-background-color);
+      border-radius: 4px;
+      margin: 0;
+      padding: 5px 8px;
+      border: none;
+      white-space: normal;
+    }
   }
 
   .form-cta {
@@ -213,6 +223,12 @@
         display: none;
       }
     }
+  }
+
+  .select2-hidden-accessible,
+  .select2-hidden-accessible:focus {
+    left: 50% !important;
+    top: 55px !important;
   }
 
   .contact-instruction {

@@ -176,27 +176,23 @@ impl OwnerInvitation {
 
     pub fn accept(&self, conn: &DieselPgConnection) -> Result<()> {
         if self.is_transferring {
-            conn.transaction(|| -> Result<()> {
-                diesel::update(package_collaborators::table)
-                    .set(package_collaborators::role.eq(Role::Collaborator as i32))
-                    .filter(package_collaborators::account_id.eq(self.invited_by_user_id))
-                    .execute(conn)?;
-                diesel::update(package_collaborators::table)
-                    .set(package_collaborators::role.eq(Role::Owner as i32))
-                    .filter(package_collaborators::account_id.eq(self.invited_user_id))
-                    .execute(conn)?;
-                self.delete(conn)
-            })?
+            diesel::update(package_collaborators::table)
+                .set(package_collaborators::role.eq(Role::Collaborator as i32))
+                .filter(package_collaborators::account_id.eq(self.invited_by_user_id))
+                .execute(conn)?;
+            diesel::update(package_collaborators::table)
+                .set(package_collaborators::role.eq(Role::Owner as i32))
+                .filter(package_collaborators::account_id.eq(self.invited_user_id))
+                .execute(conn)?;
+            self.delete(conn)?
         } else {
-            conn.transaction(|| -> Result<()> {
-                PackageCollaborator::new_collaborator(
-                    self.package_id,
-                    self.invited_user_id,
-                    self.invited_by_user_id,
-                    conn,
-                )?;
-                self.delete(conn)
-            })?
+            PackageCollaborator::new_collaborator(
+                self.package_id,
+                self.invited_user_id,
+                self.invited_by_user_id,
+                conn,
+            )?;
+            self.delete(conn)?
         }
         Ok(())
     }

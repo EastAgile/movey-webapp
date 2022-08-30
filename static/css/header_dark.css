@@ -178,7 +178,7 @@ header .header-container nav #account-dropdown #account-icon .place-holder {
   width: 32px;
   height: 32px;
   margin: auto;
-  padding: initial;
+  padding: auto;
 }
 header .header-container nav #account-dropdown #account-dropdown-toggle {
   height: 24px;
@@ -219,7 +219,7 @@ header .header-container nav #account-dropdown #account-dropdown-list li a {
   width: 198px;
 }
 header .header-container nav #account-dropdown #account-dropdown-list li:hover {
-  background-color: #7086B2;
+  background-color: #7086b2;
 }
 header .header-container #right-wrapper {
   height: 100%;
