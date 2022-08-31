@@ -245,6 +245,46 @@
           }
         }
 
+        &.tab-owner {
+          border-bottom-color: #757575;
+
+          a {
+            color: #757575;
+
+            .tab-name {
+              @include medium-screen {
+                display: none;
+              }
+
+              @include small-screen {
+                display: none;
+              }
+            }
+          }
+
+          &.active {
+            background-color: #f3f3f3;
+
+            .tab-name {
+              @include medium-screen {
+                display: block;
+              }
+
+              @include small-screen {
+                display: block;
+              }
+            }
+
+            @include medium-screen {
+              flex-basis: 50%;
+            }
+
+            @include small-screen {
+              flex-basis: 40%;
+            }
+          }
+        }
+
         &.tab-dependency {
           border-bottom-color: #5d5fef;
 

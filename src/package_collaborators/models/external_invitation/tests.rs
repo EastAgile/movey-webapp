@@ -173,6 +173,7 @@ async fn external_invitation_find_by_email_works() {
     assert!(not_found.unwrap().is_empty());
 }
 
+#[actix_rt::test]
 async fn external_invitation_delete_by_id_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();

@@ -7,7 +7,7 @@ use crate::features::world::TestWorld;
 async fn access_public_profile(world: &mut TestWorld) {
     world
         .driver
-        .get(format!("{}users/{}", world.root_url, world.account.slug))
+        .get(format!("{}users/{}", world.root_url, world.first_account.slug))
         .await
         .unwrap()
 }
@@ -37,7 +37,7 @@ async fn see_public_profile(world: &mut TestWorld) {
     world.driver.switch_to().window(&handles[1]).await.unwrap();
     assert_eq!(
         world.driver.current_url().await.unwrap(),
-        format!("{}users/{}", world.root_url, world.account.slug)
+        format!("{}users/{}", world.root_url, world.first_account.slug)
     );
 
     let owner_display = world
@@ -51,7 +51,7 @@ async fn see_public_profile(world: &mut TestWorld) {
         .find_element(By::ClassName("owner-name"))
         .await
         .unwrap();
-    let name = world.account.email.split('@').next().unwrap();
+    let name = world.first_account.email.split('@').next().unwrap();
     assert_eq!(owner_name.text().await.unwrap(), name)
 }
 
