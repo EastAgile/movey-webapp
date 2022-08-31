@@ -103,16 +103,9 @@
     }
     .package-banner-wrapper {
       max-width: 1574px;
-      padding: 0 30px;
       margin: 0 auto 60px;
 
-      @include medium-screen {
-        padding: 0 20px;
-        margin: 0 auto 30px;
-      }
-
-      @include small-screen {
-        padding: 0 20px;
+      @include medium-small-screen {
         margin: 0 auto 30px;
       }
 

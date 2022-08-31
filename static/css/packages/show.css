@@ -92,18 +92,10 @@
 }
 .package-show-container .package-content-container .package-banner-wrapper {
   max-width: 1574px;
-  padding: 0 30px;
   margin: 0 auto 60px;
 }
-@media screen and (min-width: 844px) and (max-width: 1280px) {
+@media screen and (max-width: 1280px) {
   .package-show-container .package-content-container .package-banner-wrapper {
-    padding: 0 20px;
-    margin: 0 auto 30px;
-  }
-}
-@media screen and (max-width: 843px) {
-  .package-show-container .package-content-container .package-banner-wrapper {
-    padding: 0 20px;
     margin: 0 auto 30px;
   }
 }
