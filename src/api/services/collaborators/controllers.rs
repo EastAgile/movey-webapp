@@ -1,12 +1,13 @@
 use crate::accounts::jobs::{SendCollaboratorInvitationEmail, SendRegisterToCollabEmail};
 use crate::accounts::Account;
 use crate::api::services::collaborators::views::{CollaboratorJson, InvitationResponse};
-use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
 use crate::package_collaborators::models::external_invitation::ExternalInvitation;
+use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
 use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
 use crate::packages::Package;
 use crate::utils::request_utils;
 use diesel::result::Error as DBError;
+use diesel::Connection;
 use jelly::actix_web::web;
 use jelly::actix_web::web::Path;
 use jelly::prelude::Error::*;
@@ -73,9 +74,8 @@ pub async fn add_collaborators(
             MSG_COLLABORATOR_ALREADY_EXISTED,
             Box::new(Error::Generic(format!(
                 "Collaborator already existed. uid: {}, package id: {}",
-                invited_account.id,
-                package.id,
-            )))
+                invited_account.id, package.id,
+            ))),
         ));
     }
     // we know that the owner will be the first item
@@ -196,9 +196,15 @@ pub async fn handle_invite(
         ));
     }
     if json.accepted {
-        invitation
-            .accept(&conn)
-            .map_err(|e| ApiUnauthorized(MSG_UNEXPECTED_ERROR, Box::new(e)))?;
+        conn.transaction(|| -> Result<()> {
+            invitation
+                .accept(&conn)
+                .map_err(|e| ApiUnauthorized(MSG_UNEXPECTED_ERROR, Box::new(e)))?;
+            if invitation.is_transferring {
+                Package::change_owner(invitation.package_id, invitation.invited_user_id, &conn)?;
+            }
+            Ok(())
+        })?
     } else {
         invitation
             .delete(&conn)
@@ -236,11 +242,7 @@ pub async fn remove_collaborator(
             ))),
         ));
     }
-    let removed_account = Account::get_by_email_or_gh_login(
-        &json.user,
-        db
-    )
-        .await;
+    let removed_account = Account::get_by_email_or_gh_login(&json.user, db).await;
     match removed_account {
         Ok(account) => {
             // if account is a PendingOwner, only delete the invitation

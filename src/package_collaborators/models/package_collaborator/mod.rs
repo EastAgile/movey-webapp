@@ -84,10 +84,7 @@ impl PackageCollaborator {
             .first::<Self>(conn)?)
     }
 
-    pub fn get_by_package_id(
-        package_id: i32,
-        conn: &DieselPgConnection,
-    ) -> Result<Vec<i32>> {
+    pub fn get_by_package_id(package_id: i32, conn: &DieselPgConnection) -> Result<Vec<i32>> {
         Ok(package_collaborators::table
             .filter(package_collaborators::package_id.eq(package_id))
             .select(package_collaborators::account_id)
@@ -111,12 +108,17 @@ impl PackageCollaborator {
             .load::<Self>(conn)?)
     }
 
-    pub fn delete_by_id(account_id_: i32, package_id_: i32, conn: &DieselPgConnection) -> Result<usize> {
+    pub fn delete_by_id(
+        account_id_: i32,
+        package_id_: i32,
+        conn: &DieselPgConnection,
+    ) -> Result<usize> {
         use schema::package_collaborators::dsl::*;
-        let no_deleted_rows = diesel::delete(package_collaborators.filter(
-            account_id.eq(account_id_)
-                .and(package_id.eq(package_id_))
-        )).execute(conn)?;
+        let no_deleted_rows = diesel::delete(
+            package_collaborators
+                .filter(account_id.eq(account_id_).and(package_id.eq(package_id_))),
+        )
+        .execute(conn)?;
         Ok(no_deleted_rows)
     }
 }

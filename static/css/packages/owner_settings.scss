@@ -183,7 +183,8 @@
             font-weight: 500;
           }
 
-          .collaborator {
+          .collaborator,
+          .owner {
             margin-bottom: 0px;
           }
         }
@@ -262,11 +263,25 @@
   }
 
   .message {
+    margin-top: 12px;
     font-weight: 400;
-    font-size: 18px;
+    font-size: 16px;
     letter-spacing: -0.02em;
-    margin-bottom: 4px;
     color: var(--gray-color);
+    // width: fit-content;
+    // max-width: fit-content;
+    padding: 2px 4px;
+    border-radius: 4px;
+
+    &.success {
+      color: #27ae60;
+      background-color: #effff4;
+    }
+
+    &.error {
+      color: #eb5757;
+      background-color: rgba(235, 87, 87, 0.15);
+    }
   }
 
   .owner_message {
@@ -368,7 +383,7 @@
 }
 
 #error_modal {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   border-radius: 4px;
   margin: auto;
 
@@ -378,5 +393,5 @@
 }
 
 .hidden-btn {
-  visibility: hidden
+  visibility: hidden;
 }

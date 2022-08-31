@@ -101,11 +101,11 @@ async fn access_package_settings_page(world: &mut TestWorld) {
 
 #[when("I click on add button")]
 async fn click_on_add_collaborator(world: &mut TestWorld) {
-    assert!(world.driver
+    assert!(world
+        .driver
         .find_element(By::ClassName("new_collaborator_modal"))
         .await
-        .is_err()
-    );
+        .is_err());
     let add_btn = world
         .driver
         .find_element(By::ClassName("add_collaborators_btn"))
@@ -116,14 +116,14 @@ async fn click_on_add_collaborator(world: &mut TestWorld) {
 
 #[then("I should see an overlay for inviting a collaborator")]
 async fn see_an_invitation_overlay(world: &mut TestWorld) {
-    assert!(world.driver
+    assert!(world
+        .driver
         .find_element(By::Id("new_collaborator_modal"))
         .await
         .unwrap()
         .is_displayed()
         .await
-        .unwrap()
-    );
+        .unwrap());
 }
 
 #[when("I invite a user to become a collaborator of the package")]
@@ -151,6 +151,17 @@ async fn invite_collaborator(world: &mut TestWorld) {
     fs::remove_dir_all("./emails").unwrap_or(());
 
     invite_btn.click().await.unwrap();
+}
+
+#[when("I close the invite modal")]
+async fn close_invite_modal(world: &mut TestWorld) {
+    let close_modal_btn = world
+        .driver
+        .find_element(By::ClassName("close-button"))
+        .await
+        .unwrap();
+
+    close_modal_btn.click().await.unwrap();
 }
 
 #[when("I close the modal")]
@@ -647,7 +658,7 @@ async fn see_owner(world: &mut TestWorld) {
 #[then("She should see that I am a collaborator of the package")]
 async fn see_first_user_as_collaborator(world: &mut TestWorld) {
     world
-        .go_to_url("packages/test%20package/owner_settings")
+        .go_to_url("packages/test%20package/collaborators")
         .await;
     let collaborator_names = world
         .driver
@@ -681,6 +692,18 @@ async fn see_success_message(world: &mut TestWorld, message: String) {
     assert_eq!(msg, message);
 }
 
+#[then(regex = r"^I should see text '(.+)'$")]
+async fn see_return_message(world: &mut TestWorld, message: String) {
+    sleep(Duration::from_millis(100)).await;
+    let modal = world
+        .driver
+        .find_element(By::Id("return-message"))
+        .await
+        .unwrap();
+    let msg = modal.text().await.unwrap();
+    assert_eq!(msg, message);
+}
+
 #[then("I should see the invited collaborator email")]
 async fn see_invited_collaborator_email(world: &mut TestWorld) {
     let names = world
@@ -690,21 +713,21 @@ async fn see_invited_collaborator_email(world: &mut TestWorld) {
         .unwrap();
     assert_eq!(names.len(), 1);
     assert_eq!(names[0].text().await.unwrap(), world.second_account.email);
-    
-    let sending_statuses = world
-        .driver
-        .find_elements(By::ClassName("sending_status"))
-        .await
-        .unwrap();
-    assert_eq!(sending_statuses.len(), 1);
-    assert_eq!(sending_statuses[0].text().await.unwrap(), "collaborator invitation sent");
+
+    // let sending_statuses = world
+    //     .driver
+    //     .find_elements(By::ClassName("sending_status"))
+    //     .await
+    //     .unwrap();
+    // assert_eq!(sending_statuses.len(), 1);
+    // assert_eq!(sending_statuses[0].text().await.unwrap(), "collaborator invitation sent");
 
     let rows = world
         .driver
         .find_elements(By::ClassName("collaborator_row"))
         .await
         .unwrap();
-    // include the header    
+    // include the header
     assert_eq!(rows.len(), 3);
 }
 
@@ -716,22 +739,25 @@ async fn see_invited_external_email(world: &mut TestWorld) {
         .await
         .unwrap();
     assert_eq!(names.len(), 1);
-    assert_eq!(names[0].text().await.unwrap(), "not_in_system@host.com".to_string());
-    
-    let sending_statuses = world
-        .driver
-        .find_elements(By::ClassName("sending_status"))
-        .await
-        .unwrap();
-    assert_eq!(sending_statuses.len(), 1);
-    assert_eq!(sending_statuses[0].text().await.unwrap(), "external invitation sent");
+    assert_eq!(
+        names[0].text().await.unwrap(),
+        "not_in_system@host.com".to_string()
+    );
+
+    // let sending_statuses = world
+    //     .driver
+    //     .find_elements(By::ClassName("sending_status"))
+    //     .await
+    //     .unwrap();
+    // assert_eq!(sending_statuses.len(), 1);
+    // assert_eq!(sending_statuses[0].text().await.unwrap(), "external invitation sent");
 
     let rows = world
         .driver
         .find_elements(By::ClassName("collaborator_row"))
         .await
         .unwrap();
-    // include the header    
+    // include the header
     assert_eq!(rows.len(), 3);
 }
 

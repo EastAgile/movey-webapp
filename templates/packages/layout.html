@@ -24,12 +24,28 @@ Movey{% endif %}{% endblock %}
 <div class="package-show-container">
     <div class="package-info-container">
         <div class="package-name-version">
-            <div class="package-name">{{package.name}}</div>
+        <div class="package-name">{{package.name}}</div>
             <div class="package-version">{{package_version.version}}</div>
         </div>
         <div class="package-description">{{package.description}}</div>
     </div>
     <div class="horizontal-line"></div>
+
+    {% if is_crawled %}
+    <div class="package-banner-wrapper">
+        <div class="package-banner">
+            <div class="package-banner-content">
+                This package was crawled and has not been assigned owners yet. 
+                {% if is_anonymous %}
+                Please <a href="/accounts/register" target="_blank">create an account</a> to claim your package ownership.
+                {% else %}
+                Please contact us to <a href="/contact" target="_blank">claim your package ownership</a>.
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <div class="package-content-container">
         <div class="package-content-tabs">
             <div onclick="location.href='/packages/{{package.name}}';"
@@ -46,9 +62,9 @@ Movey{% endif %}{% endblock %}
                     <div class="tab-name">Versions</div>
                 </a>
             </div>
-            <div onclick="location.href='/packages/{{package.name}}/owner_settings';"
+            <div onclick="location.href='/packages/{{package.name}}/collaborators';"
                 class="content-tab tab-owner {% if package_tab == 'settings' %}active{% endif %}">
-                <a href="/packages/{{package.name}}/owner_settings">
+                <a href="/packages/{{package.name}}/collaborators">
                     <div class="tab-icon tab-icon-owner"></div>
                     <div class="tab-name">Collaborators</div>
                 </a>

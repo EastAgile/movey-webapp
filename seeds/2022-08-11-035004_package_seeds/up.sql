@@ -76,6 +76,3 @@ INSERT INTO packages(name, total_downloads_count, description, repository_url, a
 
 INSERT INTO packages(name, total_downloads_count, description, repository_url, account_id)
     VALUES ('rand04_compat', 15995, 'Wrappers for compatibility with rand 0.4.', 'https://github.com/rust-random/rand', NULL);
-
-
-    

@@ -12,7 +12,7 @@ use diesel::result::{DatabaseErrorKind, Error as DBError};
 use jelly::chrono::{DateTime, NaiveDateTime, Utc};
 use jelly::error::Error;
 use jelly::serde::{Deserialize, Serialize};
-use jelly::DieselPgPool;
+use jelly::{DieselPgConnection, DieselPgPool};
 
 use crate::github_service::GithubRepoData;
 use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
@@ -408,6 +408,18 @@ impl Package {
         Ok(result)
     }
 
+    pub fn change_owner(
+        package_id_: i32,
+        new_owner_id: i32,
+        conn: &DieselPgConnection,
+    ) -> Result<()> {
+        diesel::update(packages)
+            .filter(packages::id.eq(package_id_))
+            .set(account_id.eq(new_owner_id))
+            .execute(conn)?;
+        Ok(())
+    }
+
     pub async fn increase_download_count(
         url: &String,
         rev_: &String,
@@ -605,10 +617,7 @@ impl PackageVersion {
         Ok(result)
     }
 
-    pub async fn delete_by_package_id(
-        package_id_: i32,
-        pool: &DieselPgPool,
-    ) -> Result<usize> {
+    pub async fn delete_by_package_id(package_id_: i32, pool: &DieselPgPool) -> Result<usize> {
         let connection = pool.get()?;
         let result = diesel::delete(package_versions.filter(package_id.eq(package_id_)))
             .execute(&connection)?;
