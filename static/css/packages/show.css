@@ -527,6 +527,55 @@
     flex-basis: 40%;
   }
 }
+.package-show-container .package-content-container .package-banner-wrapper {
+  max-width: 1574px;
+  padding: 0 30px;
+  margin: 0 auto 60px;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .package-show-container .package-content-container .package-banner-wrapper {
+    padding: 0 20px;
+    margin: 0 auto 30px;
+  }
+}
+@media screen and (min-width: 258px) and (max-width: 843px) {
+  .package-show-container .package-content-container .package-banner-wrapper {
+    padding: 0 20px;
+    margin: 0 auto 30px;
+  }
+}
+.package-show-container .package-content-container .package-banner-wrapper .package-banner {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 16px;
+  background-color: #FFFED9;
+  border-radius: 5px;
+  border: 1px solid var(--geyser-color);
+}
+.package-show-container .package-content-container .package-banner-wrapper .package-banner .package-banner-content {
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 30px;
+  margin: 10px 0;
+}
+.package-show-container .package-content-container .package-banner-wrapper .package-banner .package-banner-content a {
+  text-decoration: underline;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .package-show-container .package-content-container .package-banner-wrapper .package-banner .package-banner-content {
+    font-size: 14px;
+    line-height: 20px;
+    margin: 5px 0;
+  }
+}
+@media screen and (min-width: 258px) and (max-width: 843px) {
+  .package-show-container .package-content-container .package-banner-wrapper .package-banner .package-banner-content {
+    font-size: 14px;
+    line-height: 20px;
+    margin: 5px 0;
+  }
+}
 .package-show-container .package-content-container .package-detail-container {
   display: flex;
   justify-content: space-between;
@@ -1387,7 +1436,7 @@
 }
 
 .versions-sort-dropdown {
-  border: 1px solid #d9dde7;
+  border: 1px solid var(--geyser-color);
   box-sizing: border-box;
   box-shadow: 0px 8px 12px rgba(2, 20, 58, 0.15);
   border-radius: 4px;

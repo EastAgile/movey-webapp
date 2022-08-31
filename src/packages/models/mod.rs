@@ -9,6 +9,7 @@ use diesel::{AsChangeset, Associations, Identifiable, Insertable, Queryable};
 use diesel_full_text_search::{plainto_tsquery, TsVectorExtensions};
 
 use diesel::result::Error::NotFound;
+use diesel::result::{DatabaseErrorKind, Error as DBError};
 use jelly::chrono::{DateTime, NaiveDateTime, Utc};
 use jelly::error::Error;
 use jelly::serde::{Deserialize, Serialize};
@@ -259,23 +260,37 @@ impl Package {
         };
 
         // Only creates new version if same user with package owner
-        if (record.account_id == account_id_ || record.account_id.is_none())
-            && record
-                .get_version(&github_data.version, pool)
-                .await
-                .is_err()
-        {
-            PackageVersion::create(
-                record.id,
-                github_data.version,
-                github_data.readme_content,
-                version_rev.to_string(),
-                version_files,
-                version_size,
-                None,
-                pool,
-            )
-            .await?;
+        if record.account_id == account_id_ {
+            let pakage_dont_exist = record.get_version(&github_data.version, pool).await;
+            if pakage_dont_exist.is_err() {
+                let e = pakage_dont_exist.unwrap_err();
+                if let Error::Database(DBError::NotFound) = e {
+                    PackageVersion::create(
+                        record.id,
+                        github_data.version,
+                        github_data.readme_content,
+                        version_rev.to_string(),
+                        version_files,
+                        version_size,
+                        None,
+                        pool,
+                    )
+                    .await?;
+                } else {
+                    return Err(e);
+                }
+            } else {
+                // return package version already exists error
+                return Err(Error::Database(DBError::DatabaseError(
+                    DatabaseErrorKind::UniqueViolation,
+                    Box::new(String::from("Version already exists")),
+                )));
+            }
+        } else {
+            return Err(Error::Database(DBError::DatabaseError(
+                DatabaseErrorKind::ForeignKeyViolation,
+                Box::new(String::from("Only owners can update new versions")),
+            )));
         }
 
         Ok(record.id)
@@ -300,6 +315,18 @@ impl Package {
             .first::<Package>(&connection)?;
 
         Ok(result)
+    }
+
+    pub async fn get_by_name_case_insensitive(
+        package_name: &str,
+        pool: &DieselPgPool,
+    ) -> Result<Vec<Self>> {
+        let connection = pool.get()?;
+
+        Ok(packages
+            .filter(lower(name).eq(package_name.to_lowercase()))
+            .select(PACKAGE_COLUMNS)
+            .load::<Package>(&connection)?)
     }
 
     pub async fn get_badge_info(

@@ -589,7 +589,54 @@
         }
       }
     }
+    .package-banner-wrapper {
+      max-width: 1574px;
+      padding: 0 30px;
+      margin: 0 auto 60px;
 
+      @include medium-screen {
+          padding: 0 20px;
+          margin: 0 auto 30px;
+      }
+
+      @include small-screen {
+          padding: 0 20px;
+          margin: 0 auto 30px;
+      }
+
+      .package-banner {
+          display: flex;
+          align-items: center;
+          width: 100%;
+          padding: 10px 16px;
+          background-color: #FFFED9;
+          border-radius: 5px;
+          border: 1px solid var(--geyser-color);
+
+          .package-banner-content {
+              font-weight: 700;
+              font-size: 20px;
+              line-height: 30px;
+              margin: 10px 0;
+
+              a {
+                  text-decoration: underline;
+              }
+
+              @include medium-screen {
+                  font-size: 14px;
+                  line-height: 20px;
+                  margin: 5px 0;
+              }
+      
+              @include small-screen {
+                  font-size: 14px;
+                  line-height: 20px;
+                  margin: 5px 0;
+              }
+          }
+      }
+  }
     .package-detail-container {
       display: flex;
       justify-content: space-between;
@@ -1567,18 +1614,18 @@
 }
 
 .versions-sort-dropdown {
-  border: 1px solid #d9dde7;
-  box-sizing: border-box;
-  box-shadow: 0px 8px 12px rgba(2, 20, 58, 0.15);
-  border-radius: 4px;
+    border: 1px solid var(--geyser-color);
+    box-sizing: border-box;
+    box-shadow: 0px 8px 12px rgba(2, 20, 58, 0.15);
+    border-radius: 4px;
 
-  .select2-results {
-    .select2-results__option {
-      padding-left: 20px;
-      font-size: 24px;
-      line-height: 50px;
-      color: var(--dark-blue-color);
-    }
+    .select2-results {
+        .select2-results__option {
+            padding-left: 20px;
+            font-size: 24px;
+            line-height: 50px;
+            color: var(--dark-blue-color);
+        }
 
     .select2-results__option[aria-selected="true"] {
       background-color: transparent;
