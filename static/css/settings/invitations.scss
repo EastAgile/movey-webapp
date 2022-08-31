@@ -84,6 +84,12 @@
       margin-bottom: 48px;
       align-items: center;
 
+      @include small-screen {
+        flex-flow: row wrap;
+        padding-bottom: 160px;
+        margin-bottom: 24px;
+      }
+
       .collaborators_info {
         display: flex;
         flex-flow: row nowrap;
@@ -99,12 +105,28 @@
             color: var(--dark-blue-color);
             font-size: 32px;
             font-weight: 700;
+
+            @include medium-screen {
+              font-size: 28px;
+            }
+
+            @include small-screen {
+              font-size: 24px;
+            }
           }
 
           .package-version {
             margin-left: 20px;
             font-size: 24px;
             color: var(--gray-color);
+
+            @include medium-screen {
+              font-size: 24px;
+            }
+
+            @include small-screen {
+              font-size: 22px;
+            }
           }
         }
 
@@ -137,6 +159,14 @@
           font-weight: 700;
           color: #001f60;
         }
+
+        @include medium-screen {
+          font-size: 16px;
+        }
+
+        @include small-screen {
+          font-size: 16px;
+        }
       }
 
       .collaborators_settings {
@@ -145,8 +175,13 @@
         justify-content: space-between;
         width: 380px;
 
+        @include medium-screen {
+          width: 264px;
+          justify-content: flex-start
+        }
+
         @include small-screen {
-          margin-top: 8px;
+          margin-top: 16px;
         }
 
         .ownership_btn {
@@ -182,9 +217,14 @@
             margin-left: 20px;
           }
 
+          @include medium-screen {
+            height: 36px;
+            width: 100px;
+          }
+
           @include mobile-screen {
-            height: 24px;
-            width: 32px;
+            height: 32px;
+            width: 80px;
           }
         }
       }
