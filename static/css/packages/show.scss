@@ -101,6 +101,54 @@
       max-width: 100%;
       padding: 0 20px;
     }
+    .package-banner-wrapper {
+      max-width: 1574px;
+      padding: 0 30px;
+      margin: 0 auto 60px;
+
+      @include medium-screen {
+          padding: 0 20px;
+          margin: 0 auto 30px;
+      }
+
+      @include small-screen {
+          padding: 0 20px;
+          margin: 0 auto 30px;
+      }
+
+      .package-banner {
+          display: flex;
+          align-items: center;
+          width: 100%;
+          padding: 4px 16px;
+          background-color: #FFFED9;
+          border-radius: 5px;
+          border: 1px solid var(--geyser-color);
+
+          .package-banner-content {
+              font-weight: 400;
+              font-size: 16px;
+              line-height: 30px;
+              margin: 10px 0;
+
+              a {
+                  text-decoration: underline;
+              }
+
+              @include medium-screen {
+                  font-size: 14px;
+                  line-height: 20px;
+                  margin: 5px 0;
+              }
+      
+              @include small-screen {
+                  font-size: 14px;
+                  line-height: 20px;
+                  margin: 5px 0;
+              }
+          }
+      }
+    } 
 
     .package-content-tabs {
       display: flex;
@@ -589,54 +637,7 @@
         }
       }
     }
-    .package-banner-wrapper {
-      max-width: 1574px;
-      padding: 0 30px;
-      margin: 0 auto 60px;
-
-      @include medium-screen {
-          padding: 0 20px;
-          margin: 0 auto 30px;
-      }
-
-      @include small-screen {
-          padding: 0 20px;
-          margin: 0 auto 30px;
-      }
-
-      .package-banner {
-          display: flex;
-          align-items: center;
-          width: 100%;
-          padding: 10px 16px;
-          background-color: #FFFED9;
-          border-radius: 5px;
-          border: 1px solid var(--geyser-color);
-
-          .package-banner-content {
-              font-weight: 700;
-              font-size: 20px;
-              line-height: 30px;
-              margin: 10px 0;
-
-              a {
-                  text-decoration: underline;
-              }
-
-              @include medium-screen {
-                  font-size: 14px;
-                  line-height: 20px;
-                  margin: 5px 0;
-              }
-      
-              @include small-screen {
-                  font-size: 14px;
-                  line-height: 20px;
-                  margin: 5px 0;
-              }
-          }
-      }
-  }
+    
     .package-detail-container {
       display: flex;
       justify-content: space-between;
