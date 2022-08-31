@@ -104,7 +104,6 @@ table! {
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
         tsv -> Tsvector,
-        account_id -> Nullable<Int4>,
     }
 }
 
@@ -114,7 +113,6 @@ joinable!(external_invitations -> packages (package_id));
 joinable!(owner_invitations -> packages (package_id));
 joinable!(package_collaborators -> packages (package_id));
 joinable!(package_versions -> packages (package_id));
-joinable!(packages -> accounts (account_id));
 
 allow_tables_to_appear_in_same_query!(
     accounts,

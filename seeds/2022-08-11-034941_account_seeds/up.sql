@@ -2,7 +2,7 @@ INSERT INTO accounts(name, email, password, is_active, is_admin, has_verified_em
 (
     'user1',
     'test1@email.com',
-    'pbkdf2_sha256$320000$SM5bpMPapQvs$E8wXPRdc51UM6It9Fqfb5cojOgN1wMzbvcYnWQa3D3A=',
+    'pbkdf2_sha256$320000$TtPNrS5mLj93$lKzC3OG/GYKBsWxDLhImqIH6Yz/8PHphSEL9NAOTkWU=',
     TRUE,
     FALSE,
     TRUE,
@@ -12,7 +12,7 @@ INSERT INTO accounts(name, email, password, is_active, is_admin, has_verified_em
 (
     'user2',
     'test2@email.com',
-    'pbkdf2_sha256$320000$SM5bpMPapQvs$E8wXPRdc51UM6It9Fqfb5cojOgN1wMzbvcYnWQa3D3A=',
+    'pbkdf2_sha256$320000$TtPNrS5mLj93$lKzC3OG/GYKBsWxDLhImqIH6Yz/8PHphSEL9NAOTkWU=',
     TRUE,
     FALSE,
     TRUE,
@@ -22,7 +22,7 @@ INSERT INTO accounts(name, email, password, is_active, is_admin, has_verified_em
 (
     'user3',
     'test3@email.com',
-    'pbkdf2_sha256$320000$SM5bpMPapQvs$E8wXPRdc51UM6It9Fqfb5cojOgN1wMzbvcYnWQa3D3A=',
+    'pbkdf2_sha256$320000$TtPNrS5mLj93$lKzC3OG/GYKBsWxDLhImqIH6Yz/8PHphSEL9NAOTkWU=',
     TRUE,
     FALSE,
     TRUE,
@@ -32,7 +32,7 @@ INSERT INTO accounts(name, email, password, is_active, is_admin, has_verified_em
 (
     'user4',
     'test4@email.com',
-    'pbkdf2_sha256$320000$SM5bpMPapQvs$E8wXPRdc51UM6It9Fqfb5cojOgN1wMzbvcYnWQa3D3A=',
+    'pbkdf2_sha256$320000$TtPNrS5mLj93$lKzC3OG/GYKBsWxDLhImqIH6Yz/8PHphSEL9NAOTkWU=',
     TRUE,
     FALSE,
     TRUE,
@@ -42,7 +42,7 @@ INSERT INTO accounts(name, email, password, is_active, is_admin, has_verified_em
 (
     'user5',
     'test5@email.com',
-    'pbkdf2_sha256$320000$SM5bpMPapQvs$E8wXPRdc51UM6It9Fqfb5cojOgN1wMzbvcYnWQa3D3A=',
+    'pbkdf2_sha256$320000$TtPNrS5mLj93$lKzC3OG/GYKBsWxDLhImqIH6Yz/8PHphSEL9NAOTkWU=',
     TRUE,
     FALSE,
     TRUE,

@@ -1,10 +1,9 @@
-use crate::accounts::Account;
 use crate::sql::lower;
 
 use diesel::dsl::{count, now, sum};
 use diesel::prelude::*;
 use diesel::sql_types::{Integer, Text, Timestamptz};
-use diesel::{AsChangeset, Associations, Identifiable, Insertable, Queryable};
+use diesel::{AsChangeset, Identifiable, Insertable, Queryable};
 
 use diesel_full_text_search::{plainto_tsquery, TsVectorExtensions};
 
@@ -16,6 +15,7 @@ use jelly::serde::{Deserialize, Serialize};
 use jelly::{DieselPgConnection, DieselPgPool};
 
 use crate::github_service::GithubRepoData;
+use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
 use jelly::Result;
 use mockall_double::double;
 #[cfg(test)]
@@ -27,6 +27,7 @@ use crate::schema::package_versions;
 use crate::schema::package_versions::dsl::*;
 use crate::schema::packages;
 use crate::schema::packages::dsl::*;
+use crate::schema::package_collaborators;
 use crate::utils::paginate::LoadPaginated;
 
 pub const PACKAGES_PER_PAGE: i64 = 10;
@@ -39,10 +40,8 @@ pub const PACKAGES_PER_PAGE: i64 = 10;
     Identifiable,
     AsChangeset,
     QueryableByName,
-    Associations,
 )]
 #[table_name = "packages"]
-#[belongs_to(Account)]
 pub struct Package {
     pub id: i32,
     pub name: String,
@@ -51,7 +50,6 @@ pub struct Package {
     pub total_downloads_count: i32,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub account_id: Option<i32>,
 }
 
 type PackageColumns = (
@@ -62,7 +60,6 @@ type PackageColumns = (
     packages::total_downloads_count,
     packages::created_at,
     packages::updated_at,
-    packages::account_id,
 );
 
 pub const PACKAGE_COLUMNS: PackageColumns = (
@@ -73,7 +70,6 @@ pub const PACKAGE_COLUMNS: PackageColumns = (
     packages::total_downloads_count,
     packages::created_at,
     packages::updated_at,
-    packages::account_id,
 );
 
 #[derive(Debug, Serialize, Deserialize, QueryableByName, Queryable)]
@@ -100,7 +96,6 @@ pub struct NewPackage {
     pub name: String,
     pub description: String,
     pub repository_url: String,
-    pub account_id: Option<i32>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -242,25 +237,42 @@ impl Package {
         pool: &DieselPgPool,
     ) -> Result<i32> {
         let connection = pool.get()?;
-        let record = match Package::get_by_name(&github_data.name, pool).await {
-            Ok(package) => package,
+        let (record, package_owner_id) = match Package::get_by_name(&github_data.name, pool).await {
+            Ok(package) => {
+                let collaborators = PackageCollaborator::get_by_package_id(package.id, &connection)?;
+                let owner_id = if collaborators.len() > 0 {
+                    Some(collaborators[0])
+                } else {
+                    None
+                };
+                (package, owner_id)
+            },
             Err(_) => {
                 let new_package = NewPackage {
                     name: github_data.name,
                     description: package_description.to_string(),
                     repository_url: repo_url.to_string(),
-                    account_id: account_id_,
                 };
-
-                diesel::insert_into(packages::table)
+                
+                let new_record = diesel::insert_into(packages::table)
                     .values(new_package)
                     .returning(PACKAGE_COLUMNS)
-                    .get_result::<Package>(&connection)?
+                    .get_result::<Package>(&connection)?;
+                
+                if account_id_.is_some() {
+                    PackageCollaborator::new_owner(
+                        new_record.id,
+                        account_id_.unwrap(),
+                        account_id_.unwrap(),
+                        &connection)?;
+                }
+
+                (new_record, account_id_)
             }
         };
 
         // Only creates new version if same user with package owner
-        if record.account_id == account_id_ {
+        if package_owner_id == account_id_ {
             let pakage_dont_exist = record.get_version(&github_data.version, pool).await;
             if pakage_dont_exist.is_err() {
                 let e = pakage_dont_exist.unwrap_err();
@@ -359,9 +371,10 @@ impl Package {
         let connection = pool.get()?;
 
         let result = packages
+            .inner_join(package_collaborators::table)
+            .filter(package_collaborators::account_id.eq(owner_id).and(package_collaborators::role.eq(Role::Owner as i32)))
             .inner_join(package_versions::table)
             .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
-            .filter(account_id.eq(owner_id))
             .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
             .load::<PackageSearchResult>(&connection)?;
 
@@ -371,8 +384,9 @@ impl Package {
     pub async fn get_downloads(owner_id: i32, pool: &DieselPgPool) -> Result<i64> {
         let connection = pool.get()?;
         let result = packages
+            .inner_join(package_collaborators::table)
+            .filter(package_collaborators::account_id.eq(owner_id).and(package_collaborators::role.eq(Role::Owner as i32)))
             .select(sum(total_downloads_count))
-            .filter(account_id.eq(owner_id))
             .first::<Option<i64>>(&connection)?;
 
         match result {
@@ -399,9 +413,9 @@ impl Package {
         new_owner_id: i32,
         conn: &DieselPgConnection,
     ) -> Result<()> {
-        diesel::update(packages)
-            .filter(packages::id.eq(package_id_))
-            .set(account_id.eq(new_owner_id))
+        diesel::update(package_collaborators::table)
+            .filter(package_collaborators::package_id.eq(package_id_).and(package_collaborators::role.eq(Role::Owner as i32)))
+            .set(package_collaborators::account_id.eq(new_owner_id))
             .execute(conn)?;
         Ok(())
     }
@@ -700,13 +714,20 @@ impl Package {
             name: package_name.to_string(),
             description: package_description.to_string(),
             repository_url: repo_url.to_string(),
-            account_id: account_id_,
         };
 
         let record = diesel::insert_into(packages::table)
             .values(new_package)
             .returning(PACKAGE_COLUMNS)
             .get_result::<Package>(&connection)?;
+
+        if account_id_.is_some() {
+            PackageCollaborator::new_owner(
+                record.id,
+                account_id_.unwrap(),
+                account_id_.unwrap(),
+                &connection)?;
+        }
 
         PackageVersion::create(
             record.id,

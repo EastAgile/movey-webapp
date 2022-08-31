@@ -19,7 +19,7 @@ async fn setup_invitation(is_transferring: Option<bool>) -> OwnerInvitation {
         &"".to_string(),
         -1,
         -1,
-        Some(invited_uid),
+        Some(invited_by_uid),
         &DB_POOL,
     )
     .await
