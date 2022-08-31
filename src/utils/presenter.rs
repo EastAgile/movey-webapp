@@ -18,7 +18,7 @@ pub fn censor_email(email: &str) -> Result<String> {
     Ok(censored_email)
 }
 
-pub async fn make_account_name(package: &Package, db: &DieselPgPool) -> Result<String> {
+pub async fn make_account_name(package: &Package, db: &DieselPgPool) -> Result<(String, String)> {
     let connection = db.get()?;
     let collaborators = PackageCollaborator::get_by_package_id(package.id, &connection)?;
     let package_owner_id = if collaborators.len() > 0 {
@@ -29,21 +29,25 @@ pub async fn make_account_name(package: &Package, db: &DieselPgPool) -> Result<S
 
     Ok(if let Some(uid) = package_owner_id {
         let account = Account::get(uid, db).await?;
-        if account.name.is_empty() {
-            // If account doesn't have a name, it is a Github-only account
-            if let Some(github_login) = account.github_login {
-                github_login
-            } else {
-                account.email
-            }
+        let name = if account.name.is_empty() {
+            account.github_login.as_ref().unwrap_or(&account.email)
         } else {
-            account.name
-        }
+            &account.name
+        };
+        let slug_url = format!(
+            "/users/{}",
+            account.slug.as_ref().ok_or_else(|| Error::Generic(format!(
+                "This account has no slug. uid: {}.",
+                account.id
+            )))?
+        );
+        (name.clone(), slug_url)
     } else {
         // Default account name is derived from https://github.com/<github login>
         let repo_url = package.repository_url.clone();
         let derived_name = repo_url.split('/').collect::<Vec<&str>>()[3];
-        derived_name.to_string()
+        let account_url = repo_url.split('/').collect::<Vec<&str>>()[..4].join("/");
+        (derived_name.to_string(), account_url)
     })
 }
 

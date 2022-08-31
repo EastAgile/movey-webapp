@@ -1,4 +1,4 @@
-@import "static/css/search/queries.scss";
+@import "static/css/queries.scss";
 
 body {
   position: relative;
@@ -16,15 +16,22 @@ body {
     border-bottom: 1px solid rgba(128, 143, 176, 0.5);
 
     @include large-screen {
-      padding: 0 50px 0 175px;
+      padding: 0 175px;
+    }
+
+    @include medium-screen {
+      padding: 0 120px;
     }
 
     @include medium-small-screen {
-      padding: 0 15px 0 15px;
       box-shadow: 0px 4px 8px rgba(2, 20, 58, 0.1);
     }
 
     @include small-screen {
+      padding: 0 15px;
+    }
+
+    @include small-mobile-screen {
       flex-direction: column;
       align-items: flex-start;
     }
@@ -39,7 +46,7 @@ body {
         font-size: 16px;
       }
 
-      @include small-screen {
+      @include small-mobile-screen {
         margin: 33px 0 13px 0;
       }
 
@@ -55,15 +62,11 @@ body {
     width: 100%;
     padding: 70px 175px 265px;
 
-    @media screen and (max-width: 1280px) {
+    @include medium-screen {
       padding: 70px 120px 265px;
     }
 
-    @media screen and (max-width: 860px) {
-      padding: 70px 80px 265px;
-    }
-
-    @include medium-small-screen {
+    @include small-screen {
       padding: 30px 0 70px 0;
     }
 
@@ -150,7 +153,6 @@ body {
           @include medium-small-screen {
             width: 100%;
             flex-direction: row;
-            justify-content: space-around;
             align-items: baseline;
           }
 
@@ -158,9 +160,15 @@ body {
             color: var(--gray-color);
             display: flex;
             align-items: center;
+            flex-grow: 1;
+            max-width: 250px;
 
             img {
               margin-right: 8px;
+            }
+
+            @include medium-small-screen {
+              max-width: unset;
             }
           }
 
@@ -169,6 +177,8 @@ body {
             margin-right: 25px;
             display: flex;
             align-items: center;
+            max-width: 150px;
+            flex-grow: 1;
 
             img {
               margin-right: 8px;
@@ -177,6 +187,7 @@ body {
             @include medium-small-screen {
               margin-right: 0;
               margin-bottom: 0;
+              max-width: unset;
             }
           }
 
@@ -229,9 +240,9 @@ body {
             max-width: 60%;
             white-space: nowrap;
 
-                        @include large-screen {
-                            font-size: 32px;
-                        }
+            @include large-screen {
+              font-size: 32px;
+            }
 
             @include medium-small-screen {
               font-size: 24px;
@@ -388,6 +399,7 @@ body {
 
         .paginationjs-page.active {
           background-color: var(--blue-color);
+
           a {
             color: white;
           }

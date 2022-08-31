@@ -1,0 +1,133 @@
+{% extends "layout_dark.html" %}
+
+{% block title %}{{ account.name }} | Movey{% endblock %}
+{% block css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
+<link href="/static/css/packages/index.css" rel="stylesheet" />
+<link href="/static/css/search/search_results.css" rel="stylesheet">
+<link href="/static/css/accounts/public_profile.css" rel="stylesheet">
+{% endblock %}
+
+{% block javascript %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.0.3/showdown.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.6.7/jquery.timeago.min.js"></script>
+<script src="/static/js/packages/index.js"></script>
+<script src="/static/js/search/pagination.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="owner-display">
+  <div class="owner-avatar">
+    <img src="/static/resources/associated_photo.png" alt="Avatar">
+  </div>
+  <div class="owner-name">
+    {{ account.name }}
+  </div>
+</div>
+
+<div class="content-wrapper">
+  {% if total_count > 0 %}
+  <div class="setting-bar">
+    <div class="package-search-sort">
+      <label for="packages-sort">Sort by</label>
+      <select name="packages-sort" class="packages-sort" data-sort="{{ sort_type }}"
+        data-url="/users/{{ account.slug }}">
+        <option value="name">Name</option>
+        <option value="most_downloads">Most Downloads</option>
+        <option value="newly_added">Newly Added</option>
+        <option value="recently_updated">Recently Updated</option>
+      </select>
+      <div class="packages-sort-chevron"></div>
+    </div>
+  </div>
+  <div id="package-list-container">
+    <div class="package-list">
+      {% for package in packages %}
+      <div class="package-list-item" onclick="location.href='/packages/{{ package.name }}';">
+        <div class="left-wrapper">
+          <div class="package-list-item-title">
+            <div class="package-title">
+              <a href="/packages/{{ package.name }}">
+                <span>
+                  {{ package.name | truncate(length=16) }}
+                </span>
+              </a>
+              &nbsp;
+              <span class="version-number">{{ package.version }}</span>
+            </div>
+          </div>
+          <div class="package-summary">
+            {% if package.description == '' %}
+            No description
+            {% else %}
+            {{ package.description | truncate(length=70)}}
+            {% endif %}
+          </div>
+        </div>
+        <div class="right-wrapper">
+          <div class='download-count'>
+            <img src='/static/resources/download_icon.svg'>
+            <b>{{ package.total_downloads_count }}</b>
+          </div>
+          {% if sort_type == 'newly_added' %}
+          <div class='update-timestamp'>
+            <img src='/static/resources/packages/package_version_icon.svg' alt="upload icon">
+            <time datetime='{{ package.created_at | date(format="%FT%TZ") }}'>
+              {{ package.created_at }}
+            </time>
+          </div>
+          {% else %}
+          <div class='update-timestamp'>
+            <img src='/static/resources/reload_icon.svg'>
+            <time datetime='{{ package.updated_at | date(format="%FT%TZ") }}'>
+              {{ package.updated_at }}
+            </time>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% if display_pagination_start <= display_pagination_end %}
+    <div class="paginationjs">
+      <div class="pagination-info-message">
+        Displaying {{display_pagination_start}} - {{display_pagination_end}} of {{total_count}} total result{{ total_count | pluralize }}
+      </div>
+      <div class="paginationjs-pages">
+        <ul>
+          <li class="paginationjs-prev J-paginationjs-prev">
+            <i class='fa fa-chevron-left'></i>
+          </li>
+
+          <li class="paginationjs-page J-paginationjs-page" data-url="/users/{{ account.slug }}?field={{ sort_type }}">
+          </li>
+
+          <li class="paginationjs-ellipsis J-paginationjs-ellipsis">
+            <i class="fa fa-ellipsis-h"></i>
+          </li>
+
+          <li class="paginationjs-next J-paginationjs-next">
+            <i class='fa fa-chevron-right'></i>
+          </li>
+        </ul>
+      </div>
+  </div>
+  {% endif %}
+</div>
+{% else %}
+<div class="no-result-container">
+  <div class="no-result-illustration"></div>
+  <h1>Nothing to show here...</h1>
+</div>
+{% endif %}
+</div>
+
+<script>
+  $(document).ready(function () {
+    new PackagesIndex();
+    new Pagination({{ current_page }}, {{ total_pages }});
+    })
+</script>
+
+{% endblock %}

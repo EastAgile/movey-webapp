@@ -16,6 +16,7 @@ table! {
         github_login -> Nullable<Text>,
         github_id -> Nullable<Int8>,
         avatar -> Nullable<Text>,
+        slug -> Nullable<Text>,
     }
 }
 

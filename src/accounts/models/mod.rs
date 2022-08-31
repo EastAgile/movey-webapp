@@ -1,6 +1,8 @@
 // Implements a basic Account models, with support for creating/updating/deleting
 // users, along with welcome email and verification.
 
+extern crate slug;
+
 use diesel::prelude::*;
 #[allow(unused_imports)]
 use diesel::result::Error as DBError;
@@ -23,6 +25,7 @@ use crate::schema::api_tokens::dsl::{
     account_id as api_tokens_account_id, api_tokens, name as api_tokens_name,
 };
 use crate::schema::package_collaborators;
+use crate::utils::token::generate_secure_alphanumeric_string;
 
 #[cfg(test)]
 mod tests;
@@ -43,6 +46,7 @@ pub struct Account {
     pub github_login: Option<String>,
     pub github_id: Option<i64>,
     pub avatar: Option<String>,
+    pub slug: Option<String>,
 }
 
 impl Account {
@@ -134,6 +138,8 @@ impl Account {
         let record = diesel::insert_into(accounts::table)
             .values(new_record)
             .get_result::<Account>(&connection)?;
+
+        record.check_and_update_slug(pool)?;
 
         Ok(record.id)
     }
@@ -228,6 +234,8 @@ impl Account {
                 .values(new_record)
                 .get_result::<Account>(&connection)?
         };
+
+        account.check_and_update_slug(pool)?;
 
         Ok(User {
             id: account.id,
@@ -327,6 +335,46 @@ impl Account {
         Ok(accounts::table
             .filter(id.eq_any(account_ids))
             .load::<Self>(conn)?)
+    }
+
+    pub fn get_by_slug(slug_: &str, pool: &DieselPgPool) -> Result<Self, Error> {
+        let connection = pool.get()?;
+        Ok(accounts
+            .filter(accounts::slug.eq(slug_))
+            .first(&connection)?)
+    }
+
+    pub fn make_slug(&self) -> String {
+        let before_slugify = if self.name.is_empty() {
+            self.github_login
+                .clone()
+                .unwrap_or_else(|| self.email.split('@').next().unwrap().to_string())
+        } else {
+            self.name.clone()
+        };
+        slug::slugify(before_slugify)
+    }
+
+    pub fn check_and_update_slug(&self, pool: &DieselPgPool) -> Result<bool, Error> {
+        let conn = pool.get()?;
+        let maximum_allowed_collisions = std::env::var("MAX_COLLISIONS_ALLOWED")
+            .unwrap_or_else(|_| "3".to_string())
+            .parse::<usize>()
+            .unwrap();
+        let slug_ = self.make_slug();
+        let mut extended_slug = slug_.clone();
+        for _ in 0..maximum_allowed_collisions {
+            match diesel::update(accounts.filter(id.eq(self.id)))
+                .set(accounts::slug.eq(&extended_slug))
+                .execute(&conn)
+            {
+                Ok(_) => return Ok(true),
+                Err(_) => {
+                    extended_slug = format!("{}-{}", &slug_, generate_secure_alphanumeric_string(4))
+                }
+            }
+        }
+        Ok(false)
     }
 }
 
