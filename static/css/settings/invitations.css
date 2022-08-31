@@ -75,6 +75,13 @@
   margin-bottom: 48px;
   align-items: center;
 }
+@media screen and (max-width: 843px) {
+  .package-settings-container .collaborators_wrapper .collaborators_content {
+    flex-flow: row wrap;
+    padding-bottom: 160px;
+    margin-bottom: 24px;
+  }
+}
 .package-settings-container .collaborators_wrapper .collaborators_content .collaborators_info {
   display: flex;
   flex-flow: row nowrap;
@@ -91,10 +98,30 @@
   font-size: 32px;
   font-weight: 700;
 }
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .package-settings-container .collaborators_wrapper .collaborators_content .collaborators_info .package-name-version .package-name-view {
+    font-size: 28px;
+  }
+}
+@media screen and (max-width: 843px) {
+  .package-settings-container .collaborators_wrapper .collaborators_content .collaborators_info .package-name-version .package-name-view {
+    font-size: 24px;
+  }
+}
 .package-settings-container .collaborators_wrapper .collaborators_content .collaborators_info .package-name-version .package-version {
   margin-left: 20px;
   font-size: 24px;
   color: var(--gray-color);
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .package-settings-container .collaborators_wrapper .collaborators_content .collaborators_info .package-name-version .package-version {
+    font-size: 24px;
+  }
+}
+@media screen and (max-width: 843px) {
+  .package-settings-container .collaborators_wrapper .collaborators_content .collaborators_info .package-name-version .package-version {
+    font-size: 22px;
+  }
 }
 .package-settings-container .collaborators_wrapper .collaborators_content .collaborators_info .avatar-image {
   width: 60px;
@@ -123,15 +150,31 @@
   font-weight: 700;
   color: #001f60;
 }
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .package-settings-container .collaborators_wrapper .collaborators_content .invitations_owners {
+    font-size: 16px;
+  }
+}
+@media screen and (max-width: 843px) {
+  .package-settings-container .collaborators_wrapper .collaborators_content .invitations_owners {
+    font-size: 16px;
+  }
+}
 .package-settings-container .collaborators_wrapper .collaborators_content .collaborators_settings {
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
   width: 380px;
 }
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .package-settings-container .collaborators_wrapper .collaborators_content .collaborators_settings {
+    width: 264px;
+    justify-content: flex-start;
+  }
+}
 @media screen and (max-width: 843px) {
   .package-settings-container .collaborators_wrapper .collaborators_content .collaborators_settings {
-    margin-top: 8px;
+    margin-top: 16px;
   }
 }
 .package-settings-container .collaborators_wrapper .collaborators_content .collaborators_settings .ownership_btn {
@@ -163,10 +206,16 @@
   background-color: #9e9e9e;
   margin-left: 20px;
 }
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .package-settings-container .collaborators_wrapper .collaborators_content .collaborators_settings .ownership_btn {
+    height: 36px;
+    width: 100px;
+  }
+}
 @media screen and (min-width: 258px) and (max-width: 455px) {
   .package-settings-container .collaborators_wrapper .collaborators_content .collaborators_settings .ownership_btn {
-    height: 24px;
-    width: 32px;
+    height: 32px;
+    width: 80px;
   }
 }
 
