@@ -3,6 +3,7 @@ use jelly::DieselPgPool;
 use jelly::Result;
 
 use crate::accounts::Account;
+use crate::package_collaborators::package_collaborator::PackageCollaborator;
 use crate::packages::Package;
 
 pub fn censor_email(email: &str) -> Result<String> {
@@ -18,7 +19,15 @@ pub fn censor_email(email: &str) -> Result<String> {
 }
 
 pub async fn make_account_name(package: &Package, db: &DieselPgPool) -> Result<String> {
-    Ok(if let Some(uid) = package.account_id {
+    let connection = db.get()?;
+    let collaborators = PackageCollaborator::get_by_package_id(package.id, &connection)?;
+    let package_owner_id = if collaborators.len() > 0 {
+        Some(collaborators[0])
+    } else {
+        None
+    };
+
+    Ok(if let Some(uid) = package_owner_id {
         let account = Account::get(uid, db).await?;
         if account.name.is_empty() {
             // If account doesn't have a name, it is a Github-only account

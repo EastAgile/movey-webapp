@@ -1,4 +1,5 @@
 use super::*;
+use crate::accounts::views::verify::{create_default_account_for_github_user, GithubOauthResponse};
 use crate::test::util::{create_stub_packages, setup_user};
 use crate::{
     packages::models::Package,
@@ -56,7 +57,7 @@ async fn fetch_name_from_email_returns_correct_name() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     let account_email = Account::get(uid, &DB_POOL).await.unwrap();
     let account_name = Account::fetch_name_from_email(&account_email.email, &DB_POOL)
         .await
@@ -69,7 +70,7 @@ async fn fetch_email_returns_correct_email() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     let (name_, email_) = Account::fetch_email(uid, &DB_POOL).await.unwrap();
     let account_email = Account::get(uid, &DB_POOL).await.unwrap();
 
@@ -90,7 +91,7 @@ async fn fetch_email_returns_error_with_non_existent_uid() {
 async fn authenticate_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     Account::mark_verified(uid, &DB_POOL).await.unwrap();
 
     let user = Account::authenticate(&login_form(), &DB_POOL)
@@ -103,7 +104,7 @@ async fn authenticate_works() {
 async fn authenticate_with_wrong_email_return_err() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     Account::mark_verified(uid, &DB_POOL).await.unwrap();
 
     let invalid_login_form = LoginForm {
@@ -129,7 +130,8 @@ async fn authenticate_with_wrong_email_return_err() {
 async fn authenticate_with_wrong_password_return_err() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    setup_user().await;
+    let uid = setup_user(None, None).await;
+    Account::mark_verified(uid, &DB_POOL).await.unwrap();
 
     let invalid_login_form = LoginForm {
         email: EmailField {
@@ -179,7 +181,7 @@ async fn authenticate_with_unverified_account_return_err() {
 async fn register_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     let account = Account::get(uid, &DB_POOL).await.unwrap();
     assert_eq!(account.email, "email@host.com");
 }
@@ -237,7 +239,7 @@ async fn register_with_duplicate_email_throws_exception() {
 async fn change_password_returns_error_if_wrong_current_password() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     Account::mark_verified(uid, &DB_POOL).await.unwrap();
 
     let new_password = String::from("nEw$trongpas0word!");
@@ -255,7 +257,8 @@ async fn change_password_returns_error_if_wrong_current_password() {
 async fn change_password_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
+    Account::mark_verified(uid, &DB_POOL).await.unwrap();
 
     let new_password = String::from("nEw$trongpas0word!");
     Account::change_password(
@@ -301,7 +304,7 @@ async fn register_with_github_new_account_works() {
 async fn register_with_github_existing_account_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    setup_user().await;
+    setup_user(None, None).await;
     let oauth_user = GithubOauthUser {
         email: "email@host.com".to_string(),
         login: "git".to_string(),
@@ -461,7 +464,7 @@ async fn merge_github_account_and_movey_account_should_migrate_api_tokens() {
         .await
         .unwrap();
 
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     let movey_account = Account::get(uid, &DB_POOL).await.unwrap();
     assert_eq!(movey_account.github_id, None);
     assert_eq!(movey_account.github_login, None);
@@ -516,7 +519,7 @@ async fn merge_github_account_and_movey_account_should_aggregate_api_tokens() {
         .await
         .unwrap();
 
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     let movey_account = Account::get(uid, &DB_POOL).await.unwrap();
     ApiToken::insert(&movey_account, "token_1", &DB_POOL)
         .await
@@ -585,7 +588,7 @@ async fn merge_github_account_and_movey_account_should_migrate_packages_ownershi
         .unwrap();
     assert_eq!(github_account_packages.len(), 3);
 
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     let movey_account = Account::get(uid, &DB_POOL).await.unwrap();
     create_stub_packages(movey_account.id, 7).await;
     let movey_account_packages = Package::get_by_account(movey_account.id, &DB_POOL)
@@ -655,4 +658,84 @@ async fn update_movey_account_with_github_info_works() {
     assert_eq!(movey_account.email, "email@host.com".to_string());
     assert_eq!(movey_account.github_id, Some(142_432_554));
     assert_eq!(movey_account.github_login, Some("a_string".to_string()));
+}
+
+#[actix_rt::test]
+async fn get_by_email_or_gh_login_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    let account = Account::get_by_email_or_gh_login("not-existed@host.com", &DB_POOL).await;
+    assert!(account.is_err());
+
+    let real_account = setup_github_account().await;
+    let gh_account = Account::get_by_email_or_gh_login("github_name", &DB_POOL)
+        .await
+        .unwrap();
+
+    assert_eq!(real_account.email, gh_account.email);
+    assert_eq!(
+        real_account.github_login.as_ref().unwrap(),
+        gh_account.github_login.as_ref().unwrap(),
+    );
+    assert_eq!(real_account.id, gh_account.id);
+
+    let uid = setup_user(None, None).await;
+    let real_account = Account::get(uid, &DB_POOL).await.unwrap();
+    let account = Account::get_by_email_or_gh_login("email@host.com", &DB_POOL)
+        .await
+        .unwrap();
+    assert_eq!(real_account.email, account.email);
+    assert_eq!(real_account.github_login, account.github_login);
+    assert_eq!(real_account.id, account.id);
+}
+
+#[actix_rt::test]
+async fn fetch_email_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    let account = Account::fetch_email(1, &DB_POOL).await;
+    assert!(account.is_err());
+
+    let uid = setup_user(None, None).await;
+    let (name_, email_) = Account::fetch_email(uid, &DB_POOL).await.unwrap();
+    assert_eq!(name_, "email".to_string());
+    assert_eq!(email_, "email@host.com".to_string());
+}
+
+#[actix_rt::test]
+async fn fetch_name_from_email_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    let account = Account::fetch_name_from_email("not_existed@host.com", &DB_POOL).await;
+    assert!(account.is_err());
+
+    let _uid = setup_user(None, None).await;
+    let name_ = Account::fetch_name_from_email("email@host.com", &DB_POOL)
+        .await
+        .unwrap();
+    assert_eq!(name_, "email".to_string());
+}
+
+#[actix_rt::test]
+async fn is_generated_email_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    let gh_oauth = GithubOauthResponse {
+        id: 0,
+        login: "".to_string(),
+        email: None,
+    };
+    let gh_account = create_default_account_for_github_user(gh_oauth, &DB_POOL)
+        .await
+        .unwrap();
+    let gh_account = Account::get(gh_account.id, &DB_POOL).await.unwrap();
+    assert!(gh_account.is_generated_email());
+
+    let uid = setup_user(None, None).await;
+    let movey_account = Account::get(uid, &DB_POOL).await.unwrap();
+    assert!(!movey_account.is_generated_email());
 }

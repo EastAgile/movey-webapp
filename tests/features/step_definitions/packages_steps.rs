@@ -17,7 +17,7 @@ async fn package_in_system(world: &mut TestWorld) {
         &"rev".to_string(),
         2,
         100,
-        Some(world.account.id),
+        Some(world.first_account.id),
         &DB_POOL,
     )
     .await
@@ -209,7 +209,7 @@ async fn see_owner_info(world: &mut TestWorld) {
         .find_element(By::ClassName("package-owners-info"))
         .await
         .unwrap();
-    let name_from_email = world.account.email.split('@').next().unwrap();
+    let name_from_email = world.first_account.email.split('@').next().unwrap();
     assert_eq!(package_owner_info.text().await.unwrap(), name_from_email);
 }
 

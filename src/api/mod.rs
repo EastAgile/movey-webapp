@@ -8,16 +8,12 @@ pub fn configure(config: &mut ServiceConfig) {
     config.service(
         scope("/api/v1")
             .service(
-                scope("/packages")
-                    .service(
-                        resource("/upload")
-                            .route(post().to(services::package::controller::register_package)),
-                    )
-                    .service(
-                        resource("/count").route(
-                            post().to(services::package::controller::increase_download_count),
-                        ),
-                    ),
+                resource("/packages/upload")
+                    .route(post().to(services::package::controller::register_package)),
+            )
+            .service(
+                resource("/packages/count")
+                    .route(post().to(services::package::controller::increase_download_count)),
             )
             .service(
                 resource("/search_package")
@@ -36,8 +32,26 @@ pub fn configure(config: &mut ServiceConfig) {
                     .route(get().to(services::setting::controllers::profile::get_logged_in_user)),
             )
             .service(
-                resource("/badge")
-                    .route(get().to(services::package::controller::package_badge_info)),
+                scope("/packages/{package_name}")
+                    .service(
+                        resource("/badge")
+                            .route(get().to(services::package::controller::package_badge_info)),
+                    )
+                    .service(
+                        resource("/collaborators/create").route(
+                            post().to(services::collaborators::controllers::add_collaborators),
+                        ),
+                    )
+                    .service(resource("/collaborators/remove").route(
+                        delete().to(services::collaborators::controllers::remove_collaborator),
+                    ))
+                    .service(resource("/transfer").route(
+                        post().to(services::collaborators::controllers::transfer_ownership),
+                    )),
+            )
+            .service(
+                resource("/owner_invitations/handle")
+                    .route(post().to(services::collaborators::controllers::handle_invite)),
             ),
     );
 }

@@ -7,8 +7,8 @@ use jelly::accounts::User;
 use jelly::actix_session::Session;
 use jelly::actix_web::FromRequest;
 use jelly::jobs::Job;
-use jelly::prelude::*;
 use jelly::DieselPgPool;
+use jelly::{prelude::*, DieselPgConnection};
 use mockall::mock;
 use mockall_double::double;
 use reqwest::blocking::Response;
@@ -31,6 +31,7 @@ mock! {
 
     impl DatabasePool for HttpRequest {
         fn db_pool(&self) -> jelly::Result<&'static DieselPgPool>;
+        fn db_connection(&self) -> Result<DieselPgConnection, Error>;
     }
 
     impl FromRequest for HttpRequest {

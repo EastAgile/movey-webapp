@@ -12,7 +12,7 @@ use jelly::djangohashers::{check_password, make_password};
 use jelly::error::Error;
 use jelly::error::Error::Generic;
 use jelly::serde::{Deserialize, Serialize};
-use jelly::DieselPgPool;
+use jelly::{DieselPgConnection, DieselPgPool};
 
 use super::forms::{LoginForm, NewAccountForm};
 use super::views::avatar::Gravatar;
@@ -22,7 +22,7 @@ use crate::schema::accounts::dsl::*;
 use crate::schema::api_tokens::dsl::{
     account_id as api_tokens_account_id, api_tokens, name as api_tokens_name,
 };
-use crate::schema::packages::dsl::{account_id as packages_account_id, packages};
+use crate::schema::package_collaborators;
 
 #[cfg(test)]
 mod tests;
@@ -57,6 +57,23 @@ impl Account {
         let connection = pool.get()?;
         let result = accounts
             .filter(email.eq(account_email))
+            .first::<Account>(&connection)?;
+
+        Ok(result)
+    }
+
+    pub async fn get_by_email_or_gh_login(
+        search_term: &str,
+        pool: &DieselPgPool,
+    ) -> Result<Self, Error> {
+        let connection = pool.get()?;
+        let trimmed_search_term = search_term.trim();
+        let result = accounts
+            .filter(
+                email
+                    .eq(trimmed_search_term)
+                    .or(github_login.eq(trimmed_search_term)),
+            )
             .first::<Account>(&connection)?;
 
         Ok(result)
@@ -117,7 +134,6 @@ impl Account {
         let record = diesel::insert_into(accounts::table)
             .values(new_record)
             .get_result::<Account>(&connection)?;
-
 
         Ok(record.id)
     }
@@ -202,7 +218,7 @@ impl Account {
                     oauth_user.id
                 ))))
                 .execute(&connection)?;
-            
+
             record
         } else {
             // create a new account via github
@@ -240,8 +256,12 @@ impl Account {
         let conn = pool.get()?;
 
         conn.build_transaction().run::<_, _, _>(|| {
-            diesel::update(packages.filter(packages_account_id.eq(gh_account_id)))
-                .set(packages_account_id.eq(movey_account_id))
+            diesel::update(package_collaborators::table
+                .filter(package_collaborators::account_id.eq(gh_account_id)))
+                .set((
+                    package_collaborators::account_id.eq(movey_account_id),
+                    package_collaborators::created_by.eq(movey_account_id)
+                ))
                 .execute(&conn)?;
 
             diesel::update(api_tokens.filter(api_tokens_account_id.eq(movey_account_id)))
@@ -288,10 +308,25 @@ impl Account {
             .set(avatar.eq(Some(format!(
                 "https://avatars.githubusercontent.com/u/{}",
                 gh_id
-            ))))    
+            ))))
             .execute(&conn)?;
 
         Ok(())
+    }
+
+    pub fn is_generated_email(&self) -> bool {
+        let no_reply_email_domain =
+            std::env::var("NO_REPLY_EMAIL_DOMAIN").expect("NO_REPLY_EMAIL_DOMAIN is not set!");
+        self.email.ends_with(&no_reply_email_domain)
+    }
+
+    pub fn get_accounts(
+        account_ids: &Vec<i32>,
+        conn: &DieselPgConnection,
+    ) -> Result<Vec<Self>, Error> {
+        Ok(accounts::table
+            .filter(id.eq_any(account_ids))
+            .load::<Self>(conn)?)
     }
 }
 

@@ -1,6 +1,6 @@
 use crate::accounts::Account;
 use crate::constants;
-use crate::request;
+use crate::utils::request_utils;
 use jelly::actix_session::UserSession;
 use jelly::actix_web::http::header;
 use jelly::actix_web::http::header::ContentType;
@@ -17,7 +17,7 @@ pub struct LoggedInUser {
 }
 
 pub async fn get_logged_in_user(request: HttpRequest) -> Result<HttpResponse> {
-    if !request::is_authenticated(&request).await? {
+    if !request_utils::is_authenticated(&request).await? {
         request.get_session().clear();
         return Ok(HttpResponse::Ok()
             .set(ContentType::json())

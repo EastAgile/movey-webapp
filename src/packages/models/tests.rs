@@ -4,7 +4,7 @@ use crate::github_service::GithubRepoData;
 use crate::packages::models::*;
 use crate::test::util::{create_stub_packages, setup_user};
 
-async fn setup(account_id_: Option<i32>) -> Result<(), Error> {
+async fn setup(account_id_: Option<i32>) -> Result<()> {
     let pool = &DB_POOL;
     Package::create_test_package(
         &"The first package".to_string(),
@@ -53,7 +53,7 @@ async fn delete_package_version_by_package_id_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     create_stub_packages(uid, 1).await;
     assert_eq!(1, Package::count(&DB_POOL).await.unwrap());
     assert_eq!(1, PackageVersion::count(&DB_POOL).await.unwrap());
@@ -409,7 +409,7 @@ async fn create_package_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
 
     let mut mock_github_service = GithubService::new();
     mock_github_service
@@ -704,7 +704,7 @@ async fn increase_download_count_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let uid = setup_user().await;
+    let uid = setup_user(None, None).await;
     let mut no_downloads = Package::get_downloads(uid, &DB_POOL).await;
     assert_eq!(0, no_downloads.unwrap());
 

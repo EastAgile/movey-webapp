@@ -23,6 +23,7 @@
   @include small-screen {
     float: none;
   }
+
   .avatar-image {
     width: 200px;
     height: 200px;
@@ -99,6 +100,7 @@
     font-size: 16px;
     line-height: 20px;
   }
+
   .connect-button:hover {
     text-decoration: underline 1px solid #9ca3af;
   }
@@ -147,6 +149,7 @@
   @include small-screen {
     width: 90%;
   }
+
   .form-btn {
     margin-top: 32px;
     width: 147px;
