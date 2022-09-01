@@ -86,7 +86,7 @@
 
       @include small-screen {
         flex-flow: row wrap;
-        padding-bottom: 160px;
+        padding-bottom: 180px;
         margin-bottom: 24px;
       }
 
@@ -99,7 +99,11 @@
         .package-name-version {
           display: flex;
           align-items: baseline;
-          line-height: 54px;
+          line-height: 32px;
+          
+          @include small-screen {
+            flex-flow: column nowrap;
+          }
 
           .package-name-view {
             color: var(--dark-blue-color);
@@ -125,6 +129,7 @@
             }
 
             @include small-screen {
+              margin-left: 0px;
               font-size: 22px;
             }
           }
