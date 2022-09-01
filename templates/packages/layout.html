@@ -32,7 +32,7 @@ Movey{% endif %}{% endblock %}
     <div class="horizontal-line"></div>
 
     <div class="package-content-container">
-        {% if is_crawled %}
+    {% if is_crawled %}
     <div class="package-banner-wrapper">
         <div class="package-banner">
             <div class="package-banner-content">
@@ -61,6 +61,7 @@ Movey{% endif %}{% endblock %}
                     <div class="tab-name">Versions</div>
                 </a>
             </div>
+            {% if is_crawled == false %}
             <div onclick="location.href='/packages/{{package.name}}/collaborators';"
                 class="content-tab tab-owner {% if package_tab == 'settings' %}active{% endif %}">
                 <a href="/packages/{{package.name}}/collaborators">
@@ -68,6 +69,7 @@ Movey{% endif %}{% endblock %}
                     <div class="tab-name">Collaborators</div>
                 </a>
             </div>
+            {% endif %}
         </div>
         {% block package_content %}{% endblock %}
     </div>
