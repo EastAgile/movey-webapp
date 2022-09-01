@@ -29,7 +29,7 @@ pub async fn show_package(
     let conn = db.get()?;
     let package = Package::get_by_name(&package_name, db).await?;
     let collaborators = PackageCollaborator::get_by_package_id(package.id, &conn)?;
-    
+
     let default_version: String = String::from("");
     let params = Query::<PackageShowParams>::from_query(request.query_string())
         .map_err(|e| Error::Generic(format!("Error getting query params: {:?}", e)))?;
@@ -115,7 +115,8 @@ pub async fn show_package_settings(
             [0];
 
     // get movey account that is already a collaborator
-    let accepted_ids: Vec<i32> = PackageCollaborator::get_by_package_id(package.id, &db_connection)?;
+    let accepted_ids: Vec<i32> =
+        PackageCollaborator::get_by_package_id(package.id, &db_connection)?;
     let owner_id = if accepted_ids.len() > 0 {
         accepted_ids[0]
     } else {
@@ -126,10 +127,13 @@ pub async fn show_package_settings(
     let mut all_invitations: Vec<SerializableInvitation>;
 
     let mut is_current_user_owner = false;
+    let mut is_current_user_collaborator = false;
     let user = request.user()?;
     if accepted_ids.contains(&user.id) {
         if owner_id == user.id {
             is_current_user_owner = true;
+        } else {
+            is_current_user_collaborator = true;
         }
         // get movey account that received an collaborator invitation
         let pending_ids: HashSet<i32> =
@@ -216,6 +220,10 @@ pub async fn show_package_settings(
         ctx.insert("owner_list", &all_invitations);
         ctx.insert("package_version", &package_latest_version);
         ctx.insert("is_current_user_owner", &is_current_user_owner);
+        ctx.insert(
+            "is_current_user_collaborator",
+            &is_current_user_collaborator,
+        );
         ctx
     })
 }
