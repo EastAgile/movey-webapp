@@ -9,9 +9,11 @@
   <div class="owner_settings_wrapper">
     <div class="owner_header">
       <div class="owner_settings_title">Collaborators</div>
+      {% if is_current_user_owner == true or is_current_user_collaborator == true %}
       <button id="submit-btn" type="submit" class="add_collaborators_btn">
         INVITE
       </button>
+      {% endif %}
     </div>
   </div>
   <div class="collaborators_wrapper">

@@ -151,6 +151,75 @@ async fn invite_collaborator(world: &mut TestWorld) {
     invite_btn.click().await.unwrap();
 }
 
+#[when("She invite another user to become a collaborator of the package")]
+async fn invite_other_collaborator(world: &mut TestWorld) {
+    std::env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "10");
+    fs::remove_dir_all("./emails").unwrap_or(());
+
+    let form = NewAccountForm {
+        email: EmailField {
+            value: "another_user_to_be_invited@host.com".to_string(),
+            errors: vec![],
+        },
+        password: PasswordField {
+            value: "So$trongpas0word!".to_string(),
+            errors: vec![],
+            hints: vec![],
+        },
+    };
+    let uid = Account::register(&form, &DB_POOL).await.unwrap();
+    let _ = Account::mark_verified(uid, &DB_POOL).await;
+
+    let input_username = world
+        .driver
+        .find_element(By::ClassName("collaborators_input"))
+        .await
+        .unwrap();
+
+    input_username.click().await.unwrap();
+    input_username
+        .send_keys("another_user_to_be_invited@host.com")
+        .await
+        .unwrap();
+
+    let invite_btn = world
+        .driver
+        .find_element(By::ClassName("collaborators_btn"))
+        .await
+        .unwrap();
+
+    fs::remove_dir_all("./emails").unwrap_or(());
+
+    invite_btn.click().await.unwrap();
+}
+
+#[when("I invite collaborator with a username that is not in our system")]
+async fn invite_user_not_in_system(world: &mut TestWorld) {
+    std::env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "10");
+    fs::remove_dir_all("./emails").unwrap_or(());
+    let input_username = world
+        .driver
+        .find_element(By::ClassName("collaborators_input"))
+        .await
+        .unwrap();
+
+    input_username.click().await.unwrap();
+    input_username
+        .send_keys("a_username_not_in_the_system")
+        .await
+        .unwrap();
+
+    let invite_btn = world
+        .driver
+        .find_element(By::ClassName("collaborators_btn"))
+        .await
+        .unwrap();
+
+    fs::remove_dir_all("./emails").unwrap_or(());
+
+    invite_btn.click().await.unwrap();
+}
+
 #[when("I close the invite modal")]
 async fn close_invite_modal(world: &mut TestWorld) {
     let close_modal_btn = world
@@ -844,4 +913,18 @@ async fn deleted_transfer_invitation(world: &mut TestWorld) {
         .await
         .unwrap();
     assert_eq!(transfer_btns.len(), 1);
+}
+
+#[then("I should not see the add button")]
+async fn not_see_add_button(world: &mut TestWorld) {
+    assert!(world
+        .driver
+        .find_element(By::ClassName("new_collaborator_modal"))
+        .await
+        .is_err());
+    assert!(world
+        .driver
+        .find_element(By::ClassName("add_collaborators_btn"))
+        .await
+        .is_err());
 }

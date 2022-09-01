@@ -126,10 +126,13 @@ pub async fn show_package_settings(
     let mut all_invitations: Vec<SerializableInvitation>;
 
     let mut is_current_user_owner = false;
+    let mut is_current_user_collaborator = false;
     let user = request.user()?;
     if accepted_ids.contains(&user.id) {
         if owner_id == user.id {
             is_current_user_owner = true;
+        } else {
+            is_current_user_collaborator = true;
         }
         // get movey account that received an collaborator invitation
         let pending_ids: HashSet<i32> =
@@ -216,6 +219,10 @@ pub async fn show_package_settings(
         ctx.insert("owner_list", &all_invitations);
         ctx.insert("package_version", &package_latest_version);
         ctx.insert("is_current_user_owner", &is_current_user_owner);
+        ctx.insert(
+            "is_current_user_collaborator",
+            &is_current_user_collaborator,
+        );
         ctx
     })
 }
