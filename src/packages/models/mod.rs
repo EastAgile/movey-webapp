@@ -413,9 +413,9 @@ impl Package {
         new_owner_id: i32,
         conn: &DieselPgConnection,
     ) -> Result<()> {
-        diesel::update(packages)
-            .filter(packages::id.eq(package_id_))
-            .set(account_id.eq(new_owner_id))
+        diesel::update(package_collaborators::table)
+            .filter(package_collaborators::package_id.eq(package_id_).and(package_collaborators::role.eq(Role::Owner as i32)))
+            .set(package_collaborators::account_id.eq(new_owner_id))
             .execute(conn)?;
         Ok(())
     }

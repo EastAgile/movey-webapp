@@ -26,8 +26,10 @@ pub async fn show_package(
     Path(package_name): Path<String>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
+    let conn = db.get()?;
     let package = Package::get_by_name(&package_name, db).await?;
-
+    let collaborators = PackageCollaborator::get_by_package_id(package.id, &conn)?;
+    
     let default_version: String = String::from("");
     let params = Query::<PackageShowParams>::from_query(request.query_string())
         .map_err(|e| Error::Generic(format!("Error getting query params: {:?}", e)))?;
@@ -52,7 +54,7 @@ pub async fn show_package(
         ctx.insert("package", &package);
         ctx.insert("package_version", &package_version);
         ctx.insert("account_name", &account_name);
-        ctx.insert("is_crawled", &package.account_id.is_none());
+        ctx.insert("is_crawled", &collaborators.is_empty());
         ctx.insert("is_anonymous", &request.user()?.is_anonymous);
         ctx.insert("instruction_subdir", &instruction_subdir);
         ctx.insert("instruction_repo_url", &instruction_repo_url);
@@ -112,9 +114,8 @@ pub async fn show_package_settings(
             [0];
 
     // get movey account that is already a collaborator
-    let accepted_ids: Vec<i32> =
-        PackageCollaborator::get_by_package_id(package.id, &db_connection)?;
-    let mut owner_id = if accepted_ids.len() > 0 {
+    let accepted_ids: Vec<i32> = PackageCollaborator::get_by_package_id(package.id, &db_connection)?;
+    let owner_id = if accepted_ids.len() > 0 {
         accepted_ids[0]
     } else {
         -1

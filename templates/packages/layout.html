@@ -31,7 +31,8 @@ Movey{% endif %}{% endblock %}
     </div>
     <div class="horizontal-line"></div>
 
-    {% if is_crawled %}
+    <div class="package-content-container">
+        {% if is_crawled %}
     <div class="package-banner-wrapper">
         <div class="package-banner">
             <div class="package-banner-content">
@@ -39,14 +40,12 @@ Movey{% endif %}{% endblock %}
                 {% if is_anonymous %}
                 Please <a href="/accounts/register" target="_blank">create an account</a> to claim your package ownership.
                 {% else %}
-                Please contact us to <a href="/contact" target="_blank">claim your package ownership</a>.
+                <b>Please contact us to <a href="/contact" target="_blank">claim your package ownership</a>.</b>
                 {% endif %}
             </div>
         </div>
     </div>
     {% endif %}
-
-    <div class="package-content-container">
         <div class="package-content-tabs">
             <div onclick="location.href='/packages/{{package.name}}';"
                 class="content-tab tab-readme {% if package_tab == 'readme' %}active{% endif %}">
