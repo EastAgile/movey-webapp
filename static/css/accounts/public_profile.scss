@@ -1,0 +1,41 @@
+@import "static/css/queries.scss";
+
+.owner-display {
+  display: flex;
+  align-items: center;
+  background-color: var(--gray-background-color);
+  height: 150px;
+  margin: 50px 175px;
+  border-radius: 4px;
+
+  @include medium-screen {
+    margin: 50px 120px;
+  }
+
+  @include small-screen {
+    margin: 0;
+    border-radius: 0;
+    height: 100px;
+  }
+  
+  .owner-avatar{
+    margin-left: 50px;
+    margin-right: 25px;
+    width: 100px;
+
+    @include small-screen {
+      margin-left: 20px;
+      margin-right: 15px;
+      width: 70px;
+    }
+  }
+
+  .owner-name {
+    font-size: 40px;
+    font-weight: 700;
+
+    @include small-screen {
+      font-size: 24px;
+    }
+  }
+}

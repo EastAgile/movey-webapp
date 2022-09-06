@@ -16,6 +16,7 @@ pub async fn an_user(world: &mut TestWorld) {
         password: "So$trongpas0word!".to_string(),
         owned_package_name: None,
         id: -1,
+        slug: "email".to_string(),
     };
     let form = NewAccountForm {
         email: EmailField {

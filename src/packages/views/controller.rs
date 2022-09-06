@@ -45,7 +45,7 @@ pub async fn show_package(
         package_version = package.get_version(version, db).await?
     }
 
-    let account_name = presenter::make_account_name(&package, db).await?;
+    let (account_name, account_slug_url) = presenter::make_account_name(&package, db).await?;
     let (instruction_repo_url, instruction_subdir) =
         presenter::make_package_install_instruction(&package.repository_url);
 
@@ -56,6 +56,7 @@ pub async fn show_package(
         ctx.insert("account_name", &account_name);
         ctx.insert("is_crawled", &collaborators.is_empty());
         ctx.insert("is_anonymous", &request.user()?.is_anonymous);
+        ctx.insert("account_slug_url", &account_slug_url);
         ctx.insert("instruction_subdir", &instruction_subdir);
         ctx.insert("instruction_repo_url", &instruction_repo_url);
         ctx.insert("package_tab", "readme");

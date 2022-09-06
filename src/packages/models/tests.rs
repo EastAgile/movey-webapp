@@ -1010,3 +1010,40 @@ async fn get_by_name_case_insensitive_works() {
     let packages_list = packages_list.unwrap();
     assert_eq!(packages_list.len(), 0);
 }
+
+#[actix_rt::test]
+async fn get_by_account_with_pagination() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+    let pool = &DB_POOL;
+    let uid = setup_user(None, None).await;
+    setup(Some(uid)).await.unwrap();
+    let (search_result, total_count, total_pages) = Package::get_by_account_paginated(
+        uid,
+        &PackageSortField::Name,
+        &PackageSortOrder::Desc,
+        Some(1),
+        Some(2),
+        pool,
+    )
+    .await
+    .unwrap();
+    assert_eq!(total_count, 3);
+    assert_eq!(total_pages, 2);
+
+    assert_eq!(search_result.len(), 2);
+    assert_eq!(search_result[0].name, "The first package");
+    assert_eq!(search_result[1].name, "The first Diva");
+
+    let (search_result, _total_count, _total_pages) = Package::all_packages(
+        &PackageSortField::Name,
+        &PackageSortOrder::Desc,
+        Some(2),
+        Some(2),
+        pool,
+    )
+    .await
+    .unwrap();
+    assert_eq!(search_result.len(), 1);
+    assert_eq!(search_result[0].name, "Charles Diya");
+}

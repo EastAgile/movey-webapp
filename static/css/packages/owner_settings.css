@@ -130,7 +130,7 @@
   height: 80px;
   position: relative;
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row {
     flex-flow: row wrap;
   }
@@ -182,7 +182,7 @@
   line-height: 24px;
   color: var(--dark-blue-color);
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission {
     margin-top: 8px;
   }

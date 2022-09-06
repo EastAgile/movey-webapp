@@ -381,6 +381,37 @@ impl Package {
         Ok(result)
     }
 
+    pub async fn get_by_account_paginated(
+        owner_id: i32,
+        sort_field: &PackageSortField,
+        sort_order: &PackageSortOrder,
+        page: Option<i64>,
+        per_page: Option<i64>,
+        pool: &DieselPgPool,
+    ) -> Result<(Vec<PackageSearchResult>, i64, i64)> {
+        let connection = pool.get()?;
+        let field = sort_field.to_column_name();
+        let order = sort_order.to_order_direction();
+        let order_query = format!("packages.{} {}", field, order);
+
+        let page = page.unwrap_or(1);
+        let per_page = per_page.unwrap_or(PACKAGES_PER_PAGE);
+        if page < 1 || per_page < 1 {
+            return Err(Error::Generic(String::from("Invalid page number.")));
+        }
+
+        let result: (Vec<PackageSearchResult>, i64, i64) = packages::table
+            .inner_join(package_collaborators::table)
+            .filter(package_collaborators::account_id.eq(owner_id).and(package_collaborators::role.eq(Role::Owner as i32)))
+            .inner_join(package_versions::table)
+            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
+            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
+            .order(diesel::dsl::sql::<diesel::sql_types::Text>(&order_query))
+            .load_with_pagination(&connection, Some(page), Some(per_page))?;
+
+        Ok(result)
+    }
+
     pub async fn get_downloads(owner_id: i32, pool: &DieselPgPool) -> Result<i64> {
         let connection = pool.get()?;
         let result = packages

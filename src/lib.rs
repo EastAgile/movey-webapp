@@ -21,12 +21,12 @@ extern crate core;
 
 pub mod accounts;
 pub mod api;
-// pub mod dashboard;
 pub mod github_service;
 pub mod packages;
 pub mod pages;
 pub mod policy;
 pub mod settings;
+pub mod users;
 mod utils;
 
 #[allow(unused_imports)]
@@ -89,6 +89,7 @@ async fn start_server() -> io::Result<(dev::Server, DieselPgPool)> {
         .register_service(packages::configure)
         .register_service(api::configure)
         .register_service(settings::configure)
+        .register_service(users::configure)
         .register_service(policy::configure)
         .run()
         .await
