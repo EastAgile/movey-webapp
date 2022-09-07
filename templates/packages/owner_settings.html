@@ -33,63 +33,63 @@
           <p class="owner">Owner</p>
         </div>
         {% else %}
-          {% if info.status == "Collaborator"%}
-          <div class="email_address collaborator_name">
-            {{info.email}}
-          </div>
-          <div class="roles">
-            <p class="collaborator">Collaborator</p>
-          </div>
-          {% elif info.status == "PendingOwner"%}
-          <div class="email_address collaborator_name">
-            {{info.email}}
-          </div>
-          <div class="sending_status">ownership invitation sent</div>
-          <div class="roles">
-            <p class="collaborator">Collaborator</p>
-          </div>
-          {% elif info.status == "PendingCollaborator"%}
-          <div class="email_address collaborator_name">
-            {{info.email}}
-          </div>
-          <div class="roles">
-            <p class="collaborator">Pending</p>
-          </div>
-          {% elif info.status == "External"%}
-          <div class="email_address external_name">
-            {{info.email}}
-          </div>
-          <div class="roles">
-            <p class="collaborator">External</p>
-          </div>
-          {% endif %}
+        {% if info.status == "Collaborator"%}
+        <div class="email_address collaborator_name">
+          {{info.email}}
+        </div>
+        <div class="roles">
+          <p class="collaborator">Collaborator</p>
+        </div>
+        {% elif info.status == "PendingOwner"%}
+        <div class="email_address collaborator_name">
+          {{info.email}}
+        </div>
+        <div class="sending_status">ownership invitation sent</div>
+        <div class="roles">
+          <p class="collaborator">Collaborator</p>
+        </div>
+        {% elif info.status == "PendingCollaborator"%}
+        <div class="email_address collaborator_name">
+          {{info.email}}
+        </div>
+        <div class="roles">
+          <p class="collaborator">Pending</p>
+        </div>
+        {% elif info.status == "External"%}
+        <div class="email_address external_name">
+          {{info.email}}
+        </div>
+        <div class="roles">
+          <p class="collaborator">External</p>
+        </div>
+        {% endif %}
         {% endif %}
 
-        {% if info.status == "Owner" %}
-        <div class="permission collaborators_settings"></div>
-        {% elif info.status == "Collaborator"%}
         <div class="permission collaborators_settings">
-          {% if is_current_user_owner == true %}
-          <button type="submit" class="ownership_btn transfer">
-            Transfer
-          </button>
-          <button type="submit" class="ownership_btn remove">
-            Remove
-          </button>
+          {% if info.status == "Owner" %}
+          {% elif info.status == "Collaborator"%}
+            {% if is_current_user_owner %}
+            <button type="submit" class="ownership_btn transfer">
+              Transfer
+            </button>
+            <button type="submit" class="ownership_btn remove">
+              Remove
+            </button>
+            {% elif is_current_user_collaborator %}
+            <button type="submit" class="hidden-btn"></button>
+            <button type="submit" class="ownership_btn remove">
+              Remove
+            </button>
+            {% endif %}
+          {% else %}
+            {% if is_current_user_owner or is_current_user_collaborator %}
+            <button type="submit" class="hidden-btn"></button>
+            <button type="submit" class="ownership_btn remove">
+              Remove
+            </button>
+            {% endif %}
           {% endif %}
         </div>
-        {% else %}
-        <div class="permission collaborators_settings">
-          <button type="submit" class="hidden-btn">
-            Transfer
-          </button>
-          {% if is_current_user_owner == true %}
-          <button type="submit" class="ownership_btn remove">
-            Remove
-          </button>
-          {% endif %}
-        </div>
-        {% endif %}
       </div>
       {% endfor %}
     </div>
@@ -103,7 +103,7 @@
     </div>
     <div class="new-token-container">
       <div class="new-token-name">
-        <input class="collaborators_input" placeholder="Email or Github account" required/>
+        <input class="collaborators_input" placeholder="Email or Github account" required />
       </div>
       <div class="collaborators_btn add">INVITE</div>
     </div>

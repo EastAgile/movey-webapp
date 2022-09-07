@@ -204,27 +204,31 @@ pub async fn remove_collaborator(
 
     let package = Package::get_by_name(&package_name, db)
         .map_err(|e| ApiNotFound(MSG_PACKAGE_NOT_FOUND, Box::new(e)))?;
+
     let user = request.user().map_err(|e| ApiServerError(Box::new(e)))?;
-    let collaborator = PackageCollaborator::get(package.id, user.id, &conn)
+    PackageCollaborator::get(package.id, user.id, &conn)
         .map_err(|e| ApiForbidden(MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR, Box::new(e)))?;
-    if collaborator.role != Role::Owner as i32 {
-        return Err(ApiForbidden(
-            MSG_UNAUTHORIZED_TO_REMOVE_COLLABORATOR,
-            Box::new(Error::Generic(format!(
-                "Non-owner is trying to remove a collaborator. uid: {}, package id: {}",
-                collaborator.account_id, collaborator.package_id
-            ))),
-        ));
-    }
-    let removed_account = Account::get_by_email_or_gh_login(&json.user, db);
-    match removed_account {
+
+    let target_account = Account::get_by_email_or_gh_login(&json.user, db).await;
+    match target_account {
         Ok(account) => {
             // if account is a PendingOwner, only delete the invitation
-            let res = OwnerInvitation::delete_by_id(account.id, package.id, &conn)
-                .map_err(|e| ApiServerError(Box::new(e)));
-            if let Ok(0) = res {
-                PackageCollaborator::delete_by_id(account.id, package.id, &conn)
-                    .map_err(|e| ApiNotFound(MSG_ACCOUNT_NOT_FOUND, Box::new(e)))?;
+            let num_deleted_invitations =
+                OwnerInvitation::delete_by_id(account.id, package.id, &conn)
+                    .map_err(|e| ApiServerError(Box::new(e)))?;
+            if num_deleted_invitations == 0 {
+                let num_deleted_collaborators =
+                    PackageCollaborator::delete_collaborator_by_id(account.id, package.id, &conn)
+                        .map_err(|e| ApiServerError(Box::new(e)))?;
+                if num_deleted_collaborators == 0 {
+                    return Err(ApiNotFound(
+                        MSG_COLLABORATOR_NOT_FOUND,
+                        Box::new(Error::Generic(format!(
+                            "Failure trying to remove collaborator from package. requester id: {}, target id: {}, package id: {}",
+                            user.id, account.id, package.id
+                        ))),
+                    ));
+                }
             }
         }
         Err(e) => {

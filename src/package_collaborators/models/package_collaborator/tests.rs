@@ -63,21 +63,30 @@ async fn get_non_existed_returns_err() {
 }
 
 #[actix_rt::test]
-async fn delete_by_id_works() {
+async fn delete_collaborator_by_id_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
     let db = &DB_POOL;
     let conn = db.get().unwrap();
-    let res = PackageCollaborator::delete_by_id(1, 1, &conn).unwrap();
+    let res = PackageCollaborator::delete_collaborator_by_id(1, 1, &conn).unwrap();
     assert_eq!(res, 0);
-    let (pid, uid) = setup_collaborator();
-    let res = PackageCollaborator::delete_by_id(uid, pid, &conn).unwrap();
+
+    let (pid, uid) = setup_collaborator().await;
+    let collaborator = PackageCollaborator::get(pid, uid, &DB_POOL.get().unwrap());
+    assert!(collaborator.is_ok());
+
+    let res = PackageCollaborator::delete_collaborator_by_id(uid, pid, &conn).unwrap();
     assert_eq!(res, 1);
+
     let not_found = PackageCollaborator::get(pid, uid, &DB_POOL.get().unwrap());
     assert!(not_found.is_err());
     if let Err(Error::Database(diesel::NotFound)) = not_found {
     } else {
         panic!()
     }
+
+    let owner_id = collaborator.unwrap().created_by;
+    let res = PackageCollaborator::delete_collaborator_by_id(owner_id, pid, &conn).unwrap();
+    assert_eq!(res, 0);
 }
