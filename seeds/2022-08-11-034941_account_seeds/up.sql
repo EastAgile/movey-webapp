@@ -1,4 +1,4 @@
-INSERT INTO accounts(name, email, password, is_active, is_admin, has_verified_email, created, updated) VALUES
+INSERT INTO accounts(name, email, password, is_active, is_admin, has_verified_email, created, updated, slug) VALUES
 (
     'user1',
     'test1@email.com',
@@ -7,7 +7,8 @@ INSERT INTO accounts(name, email, password, is_active, is_admin, has_verified_em
     FALSE,
     TRUE,
     CURRENT_TIMESTAMP,
-    CURRENT_TIMESTAMP
+    CURRENT_TIMESTAMP,
+    'user1'
 ),
 (
     'user2',
@@ -17,7 +18,8 @@ INSERT INTO accounts(name, email, password, is_active, is_admin, has_verified_em
     FALSE,
     TRUE,
     CURRENT_TIMESTAMP,
-    CURRENT_TIMESTAMP
+    CURRENT_TIMESTAMP,
+    'user2'
 ),
 (
     'user3',
@@ -27,7 +29,8 @@ INSERT INTO accounts(name, email, password, is_active, is_admin, has_verified_em
     FALSE,
     TRUE,
     CURRENT_TIMESTAMP,
-    CURRENT_TIMESTAMP
+    CURRENT_TIMESTAMP,
+    'user3'
 ),
 (
     'user4',
@@ -37,7 +40,8 @@ INSERT INTO accounts(name, email, password, is_active, is_admin, has_verified_em
     FALSE,
     TRUE,
     CURRENT_TIMESTAMP,
-    CURRENT_TIMESTAMP
+    CURRENT_TIMESTAMP,
+    'user4'
 ),
 (
     'user5',
@@ -47,5 +51,6 @@ INSERT INTO accounts(name, email, password, is_active, is_admin, has_verified_em
     FALSE,
     TRUE,
     CURRENT_TIMESTAMP,
-    CURRENT_TIMESTAMP
+    CURRENT_TIMESTAMP,
+    'user5'
 );
