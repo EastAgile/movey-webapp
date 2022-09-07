@@ -386,6 +386,8 @@
   color: var(--dark-blue-color);
   font-size: 20px;
   margin-bottom: 40px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 .package-show-container .package-content-container .package-detail-container .package-readme-content code {
   color: var(--dark-blue-color);
