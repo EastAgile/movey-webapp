@@ -96,14 +96,14 @@
   </div>
 
   <div class="modal reveal" id="new_collaborator_modal" data-reveal>
-    <div class="message">You are inviting collraborator to package</div>
+    <div class="message">You are inviting collaborator to package</div>
     <div class="package-name-version">
       <div class="package-name">{{package.name}}</div>
       <div class="package-version">{{package_version.version}}</div>
     </div>
     <div class="new-token-container">
       <div class="new-token-name">
-        <input class="collaborators_input" placeholder="Email or Github account" required />
+        <input class="collaborators_input" placeholder="Email or Github login" required />
       </div>
       <div class="collaborators_btn add">INVITE</div>
     </div>
@@ -115,8 +115,8 @@
 
   <div class="modal reveal" id="transfer_owner_modal" data-reveal>
     <div class="message">
-      You are transfering the ownership of this package to
-      <span id="collaborator_email"></span>
+      You are transfering the ownership of package <b>"{{ package.name }}"</b> to
+      <b>"<span id="collaborator_email"></span>"</b>.
     </div>
     <div class="warning">
       This action is irreversible, please make sure that you want to transfer
@@ -132,9 +132,7 @@
   </div>
 
   <div class="modal reveal" id="remove_owner_modal" data-reveal>
-    <div class="message">You are remove this collaborator <span id="removed_email"></span> from package</div>
-    <div class="warning">
-    </div>
+    <div class="message">You are removing this collaborator <b>"<span id="removed_email"></span>"</b> from package <b>"{{ package.name }}"</b></div>.
     <div class="new-token-container">
       <div id="confirm_delete" class="collaborators_btn submit">Confirm</div>
       <div id="cancel_delete" class="collaborators_btn cancel">Cancel</div>
@@ -146,7 +144,7 @@
 
   <div class="modal reveal" id="success_modal" data-reveal>
     <div id="success_modal_message" class="message">
-      Successfully sending collaborator invitation.
+      Successfully sent collaborator invitation.
     </div>
     <button class="close-button" data-close aria-label="Close modal" type="button">
       <span class="close-button-icon" aria-hidden="true">&times;</span>
