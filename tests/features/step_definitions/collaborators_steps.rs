@@ -647,10 +647,9 @@ async fn package_owner(world: &mut TestWorld) {
         .find_element(By::ClassName("owner_name"))
         .await
         .unwrap();
-
     assert_eq!(
         &owner_name.text().await.unwrap(),
-        &world.second_account.email
+        &format!("{}\n(You)",&world.second_account.email)
     );
 }
 
@@ -927,4 +926,61 @@ async fn not_see_add_button(world: &mut TestWorld) {
         .find_element(By::ClassName("add_collaborators_btn"))
         .await
         .is_err());
+}
+
+#[given("I am a collaborator of a package")]
+async fn collaborator_of_package(world: &mut TestWorld) {
+    let pid = Package::create_test_package(
+        &"test package".to_string(),
+        &"https://github.com/Elements-Studio/starswap-core".to_string(),
+        &"package_description".to_string(),
+        &"first_version".to_string(),
+        &"first_readme_content".to_string(),
+        &"rev".to_string(),
+        2,
+        100,
+        None,
+        &DB_POOL,
+    )
+    .await
+    .unwrap();
+
+    PackageVersion::create(
+        pid,
+        "second_version".to_string(),
+        "second_readme_content".to_string(),
+        "rev_2".to_string(),
+        2,
+        100,
+        None,
+        &DB_POOL,
+    )
+    .await
+    .unwrap();
+    PackageCollaborator::new_collaborator(pid, 1, 1, &DB_POOL.get().unwrap()).unwrap();
+    world.first_account.owned_package_name = Some("test package".to_string());
+}
+
+#[when("I click the 'Remove' button of the other collaborator")]
+async fn click_remove_collaborator_button(world: &mut TestWorld) {
+    let remove_btns = world
+        .driver
+        .find_elements(By::ClassName("remove"))
+        .await
+        .unwrap();
+
+    assert_eq!(remove_btns.len(), 1);
+    remove_btns[0].click().await.unwrap();
+}
+
+#[then("I can see the collaborator is removed from table")]
+async fn deleted_collaborator(world: &mut TestWorld) {
+    sleep(Duration::from_millis(500)).await;
+    let rows = world
+        .driver
+        .find_elements(By::ClassName("collaborator_row"))
+        .await
+        .unwrap();
+    // include the header
+    assert_eq!(rows.len(), 2);
 }
