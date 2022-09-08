@@ -23,11 +23,16 @@
         <div class="roles header">Roles</div>
         <div class="permission header"></div>
       </div>
+      
       {% for info in owner_list %}
       <div class="collaborator_row">
         {% if info.status == "Owner" %}
         <div class="email_address owner_name">
-          {{info.email}}
+          {% if current_email == info.email %}
+            <b>{{info.email}}</b>(You)
+          {% else %}
+            {{info.email}}
+          {% endif %}
         </div>
         <div class="roles">
           <p class="owner">Owner</p>
@@ -35,7 +40,11 @@
         {% else %}
         {% if info.status == "Collaborator"%}
         <div class="email_address collaborator_name">
-          {{info.email}}
+          {% if current_email == info.email %}
+            <b>{{info.email}}</b>(You)
+          {% else %}
+            {{info.email}}
+          {% endif %}
         </div>
         <div class="roles">
           <p class="collaborator">Collaborator</p>
@@ -67,20 +76,31 @@
 
         <div class="permission collaborators_settings">
           {% if info.status == "Owner" %}
+          
           {% elif info.status == "Collaborator"%}
-            {% if is_current_user_owner %}
-            <button type="submit" class="ownership_btn transfer">
-              Transfer
-            </button>
-            <button type="submit" class="ownership_btn remove">
-              Remove
-            </button>
-            {% elif is_current_user_collaborator %}
-            <button type="submit" class="hidden-btn"></button>
-            <button type="submit" class="ownership_btn remove">
-              Remove
-            </button>
-            {% endif %}
+              {% if is_current_user_owner %}
+              <button type="submit" class="ownership_btn transfer">
+                Transfer
+              </button>
+              <button type="submit" class="ownership_btn remove">
+                Remove
+              </button>
+              {% elif is_current_user_collaborator %}
+              <button type="submit" class="hidden-btn"></button>
+                {% if current_email == info.email %}
+                  <button type="submit" class="hidden-btn">
+                  </button>
+                  {% else %}
+                  <button type="submit" class="ownership_btn remove">
+                    Remove 
+                  </button>
+                {% endif %}
+              {% else %}
+              <button type="submit" class="hidden-btn"></button>
+              <button type="submit" class="ownership_btn remove">
+                Remove
+              </button>
+              {% endif %}
           {% else %}
             {% if is_current_user_owner or is_current_user_collaborator %}
             <button type="submit" class="hidden-btn"></button>
