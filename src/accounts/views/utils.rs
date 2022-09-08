@@ -1,4 +1,3 @@
-use jelly::accounts::OneTimeUseTokenGenerator;
 use jelly::prelude::*;
 use jelly::request::DatabasePool;
 use jelly::Result;
@@ -8,6 +7,7 @@ use crate::accounts::Account;
 use crate::test::mock::MockHttpRequest as HttpRequest;
 #[cfg(not(test))]
 use jelly::actix_web::HttpRequest;
+use jelly::accounts::OneTimeUseTokenGenerator;
 
 /// Decodes the pieces used in verify and reset-password URL structures,
 /// and validates them. If they're valid, it will return the Account in
@@ -15,7 +15,7 @@ use jelly::actix_web::HttpRequest;
 ///
 /// Flows should silence this error and display a generic message to
 /// the user to avoid leaking information.
-pub async fn validate_token(
+pub fn validate_token(
     request: &HttpRequest,
     uidb64: &str,
     ts: &str,
@@ -26,7 +26,7 @@ pub async fn validate_token(
             if let Ok(uid) = uid_str.parse::<i32>() {
                 let db = request.db_pool()?;
 
-                if let Ok(account) = Account::get(uid, db).await {
+                if let Ok(account) = Account::get(uid, db) {
                     // Actix-web route params are iffy here, so...
                     // we rebuild the full token before passing in.
                     let token = format!("{}-{}", ts, token);

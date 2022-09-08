@@ -27,7 +27,6 @@ impl Job for SendCollaboratorInvitationEmail {
     fn run(self, state: JobState) -> Self::Future {
         Box::pin(async move {
             let account = Account::get_by_email(&self.to, &state.pool)
-                .await
                 .map_err(|e| {
                     anyhow!(
                         "Error fetching account for collaborator invitation: {:?}",

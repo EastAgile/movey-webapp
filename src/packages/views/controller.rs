@@ -27,7 +27,7 @@ pub async fn show_package(
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     let conn = db.get()?;
-    let package = Package::get_by_name(&package_name, db).await?;
+    let package = Package::get_by_name(&package_name, db)?;
     let collaborators = PackageCollaborator::get_by_package_id(package.id, &conn)?;
     
     let default_version: String = String::from("");
@@ -39,13 +39,13 @@ pub async fn show_package(
 
     if version.is_empty() {
         let versions =
-            PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, db).await?;
+            PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, db)?;
         package_version = versions[0].clone();
     } else {
-        package_version = package.get_version(version, db).await?
+        package_version = package.get_version(version, db)?
     }
 
-    let (account_name, account_slug_url) = presenter::make_account_name(&package, db).await?;
+    let (account_name, account_slug_url) = presenter::make_account_name(&package, db)?;
     let (instruction_repo_url, instruction_subdir) =
         presenter::make_package_install_instruction(&package.repository_url);
 
@@ -74,9 +74,9 @@ pub async fn show_package_versions(
     Path(package_name): Path<String>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    let package = Package::get_by_name(&package_name, db).await?;
+    let package = Package::get_by_name(&package_name, db)?;
     let package_latest_version =
-        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, db).await?[0];
+        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, db)?[0];
 
     let params = Query::<VersionParams>::from_query(request.query_string()).map_err(|e| {
         error!("Error parsing params: {:?}", e);
@@ -90,7 +90,7 @@ pub async fn show_package_versions(
         "most_downloads" => PackageVersionSort::MostDownloads,
         _ => PackageVersionSort::Latest,
     };
-    let package_versions = PackageVersion::from_package_id(package.id, &sort_type, db).await?;
+    let package_versions = PackageVersion::from_package_id(package.id, &sort_type, db)?;
 
     request.render(200, "packages/versions.html", {
         let mut ctx = Context::new();
@@ -109,9 +109,9 @@ pub async fn show_package_settings(
 ) -> Result<HttpResponse> {
     let db_pool = request.db_pool()?;
     let db_connection = db_pool.get()?;
-    let package = Package::get_by_name(&package_name, db_pool).await?;
+    let package = Package::get_by_name(&package_name, db_pool)?;
     let package_latest_version =
-        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db_pool).await?
+        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db_pool)?
             [0];
 
     // get movey account that is already a collaborator
@@ -251,7 +251,7 @@ pub async fn show_search_results(
         None,
         db,
     )
-    .await?;
+    ?;
 
     let current_page = search.page.unwrap_or(1);
     if current_page < 1 {
@@ -277,7 +277,7 @@ pub async fn show_search_results(
 pub async fn show_owned_packages(request: HttpRequest) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
-        let packages = Package::get_by_account(user.id, db).await?;
+        let packages = Package::get_by_account(user.id, db)?;
 
         request.render(200, "search/search_results.html", {
             let mut ctx = Context::new();
@@ -318,7 +318,7 @@ pub async fn packages_index(
         None,
         db,
     )
-    .await?;
+    ?;
 
     let current_page = params.page.unwrap_or(1);
     if current_page < 1 {

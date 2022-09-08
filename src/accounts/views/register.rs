@@ -9,7 +9,7 @@ use crate::accounts::Account;
 use crate::utils::request_utils;
 
 pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
-    if request_utils::is_authenticated(&request).await? {
+    if request_utils::is_authenticated(&request)? {
         return request.redirect("/settings/profile");
     }
 
@@ -24,7 +24,7 @@ pub async fn create_account(
     request: HttpRequest,
     form: Form<NewAccountForm>,
 ) -> Result<HttpResponse> {
-    if request_utils::is_authenticated(&request).await? {
+    if request_utils::is_authenticated(&request)? {
         return request.redirect("/settings/profile");
     }
 
@@ -43,7 +43,7 @@ pub async fn create_account(
     //  - pass requesting user through normal "fake" flow to avoid leaking if
     //      an account exists?
     let db = request.db_pool()?;
-    match Account::register(&form, db).await {
+    match Account::register(&form, db) {
         Ok(uid) => {
             request.queue(SendVerifyAccountEmail { to: uid })?;
         }

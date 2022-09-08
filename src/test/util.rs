@@ -19,7 +19,7 @@ fn new_account_form(custom_email: Option<&str>) -> NewAccountForm {
     }
 }
 
-pub async fn setup_user(email: Option<String>, password: Option<String>) -> i32 {
+pub fn setup_user(email: Option<String>, password: Option<String>) -> i32 {
     let form = NewAccountForm {
         email: EmailField {
             value: email.unwrap_or_else(|| "email@host.com".to_string()),
@@ -31,22 +31,22 @@ pub async fn setup_user(email: Option<String>, password: Option<String>) -> i32 
             hints: vec![],
         },
     };
-    let uid = Account::register(&form, &DB_POOL).await.unwrap();
-    let _ = Account::mark_verified(uid, &DB_POOL).await;
+    let uid = Account::register(&form, &DB_POOL).unwrap();
+    let _ = Account::mark_verified(uid, &DB_POOL);
     uid
 }
 
-pub async fn create_test_token() -> String {
+pub fn create_test_token() -> String {
     let form = new_account_form(None);
-    let uid = Account::register(&form, &DB_POOL).await.unwrap();
-    let account = Account::get(uid, &DB_POOL).await.unwrap();
+    let uid = Account::register(&form, &DB_POOL).unwrap();
+    let account = Account::get(uid, &DB_POOL).unwrap();
     ApiToken::insert(&account, "test_key", &DB_POOL)
-        .await
+        
         .unwrap()
         .plaintext
 }
 
-pub async fn create_stub_packages(account_id: i32, num_of_packages: i32) {
+pub fn create_stub_packages(account_id: i32, num_of_packages: i32) {
     for idx in 0..num_of_packages {
         Package::create_test_package(
             &format!("package_{}_{}", idx, account_id),
@@ -60,7 +60,6 @@ pub async fn create_stub_packages(account_id: i32, num_of_packages: i32) {
             Some(account_id),
             &DB_POOL,
         )
-        .await
         .unwrap();
     }
 }

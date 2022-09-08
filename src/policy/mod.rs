@@ -31,7 +31,7 @@ pub async fn contact(request: HttpRequest) -> Result<HttpResponse> {
 
     if let Ok(user_) = user {
         if user_.id != 0 {
-            let account = Account::get(user_.id, request.db_pool()?).await?;
+            let account = Account::get(user_.id, request.db_pool()?)?;
             ctx.insert("name", &account.name);
             ctx.insert(
                 "email",

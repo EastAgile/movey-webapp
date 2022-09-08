@@ -18,7 +18,7 @@ pub fn censor_email(email: &str) -> Result<String> {
     Ok(censored_email)
 }
 
-pub async fn make_account_name(package: &Package, db: &DieselPgPool) -> Result<(String, String)> {
+pub fn make_account_name(package: &Package, db: &DieselPgPool) -> Result<(String, String)> {
     let connection = db.get()?;
     let collaborators = PackageCollaborator::get_by_package_id(package.id, &connection)?;
     let package_owner_id = if collaborators.len() > 0 {
@@ -28,7 +28,7 @@ pub async fn make_account_name(package: &Package, db: &DieselPgPool) -> Result<(
     };
 
     Ok(if let Some(uid) = package_owner_id {
-        let account = Account::get(uid, db).await?;
+        let account = Account::get(uid, db)?;
         let name = if account.name.is_empty() {
             account.github_login.as_ref().unwrap_or(&account.email)
         } else {
@@ -86,7 +86,6 @@ pub fn validate_name_and_version(package_name: &str, package_version: &str) -> V
 }
 
 #[cfg(test)]
-
 mod tests {
     use super::*;
 

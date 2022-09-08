@@ -7,9 +7,9 @@ use crate::utils::token::TOKEN_LENGTH;
 use jelly::prelude::*;
 use std::env;
 
-async fn setup_invitation(is_transferring: Option<bool>) -> OwnerInvitation {
-    let invited_uid = setup_user(None, None).await;
-    let invited_by_uid = setup_user(Some("email1@mail.com".to_string()), None).await;
+fn setup_invitation(is_transferring: Option<bool>) -> OwnerInvitation {
+    let invited_uid = setup_user(None, None);
+    let invited_by_uid = setup_user(Some("email1@mail.com".to_string()), None);
     let pid = Package::create_test_package(
         &"package1".to_string(),
         &"".to_string(),
@@ -22,7 +22,7 @@ async fn setup_invitation(is_transferring: Option<bool>) -> OwnerInvitation {
         Some(invited_by_uid),
         &DB_POOL,
     )
-    .await
+    
     .unwrap();
     OwnerInvitation::create(
         invited_uid,
@@ -41,7 +41,7 @@ async fn find_by_token_works() {
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
-    let owner_invitation1 = setup_invitation(None).await;
+    let owner_invitation1 = setup_invitation(None);
     let owner_invitation2 =
         OwnerInvitation::find_by_token(&owner_invitation1.token, &conn).unwrap();
     assert_eq!(owner_invitation1, owner_invitation2);
@@ -59,7 +59,7 @@ async fn find_by_id_works() {
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
-    let owner_invitation1 = setup_invitation(None).await;
+    let owner_invitation1 = setup_invitation(None);
     let owner_invitation2 = OwnerInvitation::find_by_id(
         owner_invitation1.invited_user_id,
         owner_invitation1.package_id,
@@ -85,7 +85,7 @@ async fn accept_collaborator_works() {
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
-    let owner_invitation = setup_invitation(None).await;
+    let owner_invitation = setup_invitation(None);
     let package_collaborator = PackageCollaborator::get(
         owner_invitation.package_id,
         owner_invitation.invited_user_id,
@@ -116,7 +116,7 @@ async fn accept_owner_works() {
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
-    let owner_invitation = setup_invitation(Some(true)).await;
+    let owner_invitation = setup_invitation(Some(true));
     let _ = PackageCollaborator::new_collaborator(
         owner_invitation.package_id,
         owner_invitation.invited_user_id,
@@ -154,7 +154,7 @@ async fn delete_works() {
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
-    let owner_invitation = setup_invitation(None).await;
+    let owner_invitation = setup_invitation(None);
     owner_invitation.delete(&conn).unwrap();
     let not_found = OwnerInvitation::find_by_token(&owner_invitation.token, &conn);
     assert!(not_found.is_err());
@@ -169,7 +169,7 @@ async fn is_expired_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let owner_invitation = setup_invitation(None).await;
+    let owner_invitation = setup_invitation(None);
     env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "1");
     assert!(!owner_invitation.is_expired());
 
@@ -183,7 +183,7 @@ async fn is_expired_panics_if_expiration_days_is_less_than_0() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let owner_invitation = setup_invitation(None).await;
+    let owner_invitation = setup_invitation(None);
     env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "-1");
     owner_invitation.is_expired();
 }
@@ -194,7 +194,7 @@ async fn is_expired_panics_if_expiration_days_is_not_an_integer() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let owner_invitation = setup_invitation(None).await;
+    let owner_invitation = setup_invitation(None);
     env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "invalid-integer");
     owner_invitation.is_expired();
 }
@@ -204,7 +204,7 @@ async fn create_transfer_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let owner_invitation1 = setup_invitation(Some(true)).await;
+    let owner_invitation1 = setup_invitation(Some(true));
     assert_eq!(owner_invitation1.token.len(), TOKEN_LENGTH);
     assert!(owner_invitation1.is_transferring);
 }
@@ -215,7 +215,7 @@ async fn create_new_invitation_if_existing_one_is_expired() {
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
-    let owner_invitation = setup_invitation(None).await;
+    let owner_invitation = setup_invitation(None);
     let token = owner_invitation.token;
     let created_at = owner_invitation.created_at;
 
@@ -240,7 +240,7 @@ async fn not_create_new_invitation_if_it_already_exists() {
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
-    let owner_invitation = setup_invitation(None).await;
+    let owner_invitation = setup_invitation(None);
     env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "1");
     OwnerInvitation::create(
         owner_invitation.invited_user_id,
@@ -259,7 +259,7 @@ async fn find_by_invited_account_works() {
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
-    let owner_invitation = setup_invitation(None).await;
+    let owner_invitation = setup_invitation(None);
     env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "1");
     let invited_account =
         OwnerInvitation::find_by_invited_account(owner_invitation.invited_user_id, &conn).unwrap();
@@ -282,7 +282,7 @@ async fn find_by_invited_account_returns_err_if_invitation_expired() {
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
-    let owner_invitation = setup_invitation(None).await;
+    let owner_invitation = setup_invitation(None);
     env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "0");
 
     let invited_account =
@@ -301,7 +301,7 @@ async fn delete_by_id_works() {
     let res = OwnerInvitation::delete_by_id(1, 1, &conn).unwrap();
     assert_eq!(res, 0);
 
-    let owner_invitation = setup_invitation(None).await;
+    let owner_invitation = setup_invitation(None);
 
     let res = OwnerInvitation::delete_by_id(
         owner_invitation.invited_user_id,

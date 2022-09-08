@@ -4,7 +4,7 @@ use crate::github_service::GithubRepoData;
 use crate::packages::models::*;
 use crate::test::util::{create_stub_packages, setup_user};
 
-async fn setup(account_id_: Option<i32>) -> Result<()> {
+fn setup(account_id_: Option<i32>) -> Result<()> {
     let pool = &DB_POOL;
     Package::create_test_package(
         &"The first package".to_string(),
@@ -18,7 +18,7 @@ async fn setup(account_id_: Option<i32>) -> Result<()> {
         account_id_,
         pool,
     )
-    .await?;
+    ?;
     Package::create_test_package(
         &"The first Diva".to_string(),
         &"".to_string(),
@@ -31,7 +31,7 @@ async fn setup(account_id_: Option<i32>) -> Result<()> {
         account_id_,
         pool,
     )
-    .await?;
+    ?;
     Package::create_test_package(
         &"Charles Diya".to_string(),
         &"".to_string(),
@@ -43,8 +43,7 @@ async fn setup(account_id_: Option<i32>) -> Result<()> {
         0,
         account_id_,
         pool,
-    )
-    .await?;
+    )?;
     Ok(())
 }
 
@@ -53,15 +52,15 @@ async fn delete_package_version_by_package_id_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let uid = setup_user(None, None).await;
-    create_stub_packages(uid, 1).await;
-    assert_eq!(1, Package::count(&DB_POOL).await.unwrap());
-    assert_eq!(1, PackageVersion::count(&DB_POOL).await.unwrap());
-    let package_ = Package::get_by_account(uid, &DB_POOL).await.unwrap();
+    let uid = setup_user(None, None);
+    create_stub_packages(uid, 1);
+    assert_eq!(1, Package::count(&DB_POOL).unwrap());
+    assert_eq!(1, PackageVersion::count(&DB_POOL).unwrap());
+    let package_ = Package::get_by_account(uid, &DB_POOL).unwrap();
     PackageVersion::delete_by_package_id(package_.get(0).unwrap().id, &DB_POOL)
-        .await
+        
         .unwrap();
-    assert_eq!(0, PackageVersion::count(&DB_POOL).await.unwrap());
+    assert_eq!(0, PackageVersion::count(&DB_POOL).unwrap());
 }
 
 #[actix_rt::test]
@@ -70,7 +69,7 @@ async fn delete_package_version_by_package_id_returns_error_if_not_existed() {
     let _ctx = DatabaseTestContext::new();
 
     let result = PackageVersion::delete_by_package_id(-1, &DB_POOL)
-        .await
+        
         .unwrap();
     assert_eq!(0, result);
 }
@@ -79,7 +78,7 @@ async fn delete_package_version_by_package_id_returns_error_if_not_existed() {
 async fn search_by_single_word_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    setup(None).await.unwrap();
+    setup(None).unwrap();
     let pool = &DB_POOL;
     let search_query = "package";
     let (search_result, total_count, total_pages) = Package::search(
@@ -90,7 +89,7 @@ async fn search_by_single_word_works() {
         None,
         pool,
     )
-    .await
+    
     .unwrap();
     assert_eq!(total_count, 1);
     assert_eq!(total_pages, 1);
@@ -101,7 +100,7 @@ async fn search_by_single_word_works() {
 async fn search_by_multiple_words_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    setup(None).await.unwrap();
+    setup(None).unwrap();
     let pool = &DB_POOL;
     let search_query = "the package";
     let (search_result, total_count, total_pages) = Package::search(
@@ -112,7 +111,7 @@ async fn search_by_multiple_words_works() {
         None,
         pool,
     )
-    .await
+    
     .unwrap();
     assert_eq!(total_count, 1);
     assert_eq!(total_pages, 1);
@@ -123,7 +122,7 @@ async fn search_by_multiple_words_works() {
 async fn search_return_multiple_result() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    setup(None).await.unwrap();
+    setup(None).unwrap();
     let pool = &DB_POOL;
     let search_query = "first";
     let (search_result, total_count, total_pages) = Package::search(
@@ -134,7 +133,7 @@ async fn search_return_multiple_result() {
         Some(1),
         pool,
     )
-    .await
+    
     .unwrap();
     assert_eq!(total_count, 2);
     assert_eq!(total_pages, 2);
@@ -150,7 +149,7 @@ async fn search_return_multiple_result() {
         Some(1),
         pool,
     )
-    .await
+    
     .unwrap();
     assert_eq!(search_result.len(), 1);
     assert_eq!(search_result[0].name, "The first Diva");
@@ -160,7 +159,7 @@ async fn search_return_multiple_result() {
 async fn search_by_partial_name_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    setup(None).await.unwrap();
+    setup(None).unwrap();
     let pool = &DB_POOL;
     let search_query = "charl";
     let (search_result, total_count, total_pages) = Package::search(
@@ -171,7 +170,7 @@ async fn search_by_partial_name_works() {
         Some(2),
         pool,
     )
-    .await
+    
     .unwrap();
     assert_eq!(total_count, 1);
     assert_eq!(total_pages, 1);
@@ -183,7 +182,7 @@ async fn search_by_partial_name_works() {
 async fn search_by_partial_description_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    setup(None).await.unwrap();
+    setup(None).unwrap();
     let pool = &DB_POOL;
     let search_query = "random pick";
     let (search_result, total_count, total_pages) = Package::search(
@@ -194,7 +193,7 @@ async fn search_by_partial_description_works() {
         Some(2),
         pool,
     )
-    .await
+    
     .unwrap();
     assert_eq!(total_count, 2);
     assert_eq!(total_pages, 1);
@@ -207,7 +206,7 @@ async fn search_by_partial_description_works() {
 async fn search_sorted_by_newly_added_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    setup(None).await.unwrap();
+    setup(None).unwrap();
     let pool = &DB_POOL;
     let search_query = "random";
     let (search_result, total_count, total_pages) = Package::search(
@@ -218,7 +217,7 @@ async fn search_sorted_by_newly_added_works() {
         Some(2),
         pool,
     )
-    .await
+    
     .unwrap();
     assert_eq!(total_count, 2);
     assert_eq!(total_pages, 1);
@@ -231,11 +230,11 @@ async fn search_sorted_by_newly_added_works() {
 async fn search_sorted_by_recently_updated_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    setup(None).await.unwrap();
+    setup(None).unwrap();
     let pool = &DB_POOL;
 
     let the_first_package = Package::get_by_name(&"The first package".to_string(), pool)
-        .await
+        
         .unwrap();
     assert!(the_first_package.name.contains("The first package"));
     assert!(the_first_package.description.contains("description 1"));
@@ -250,11 +249,11 @@ async fn search_sorted_by_recently_updated_works() {
         None,
         pool,
     )
-    .await
+    
     .unwrap();
-    let total_packages = Package::count(pool).await.unwrap();
+    let total_packages = Package::count(pool).unwrap();
     assert_eq!(total_packages, 3);
-    let total_versions = PackageVersion::count(pool).await.unwrap();
+    let total_versions = PackageVersion::count(pool).unwrap();
     assert_eq!(total_versions, 4);
 
     let search_query = "first";
@@ -266,7 +265,7 @@ async fn search_sorted_by_recently_updated_works() {
         Some(2),
         pool,
     )
-    .await
+    
     .unwrap();
     assert_eq!(total_count, 2);
     assert_eq!(total_pages, 1);
@@ -279,7 +278,7 @@ async fn search_sorted_by_recently_updated_works() {
 async fn all_packages_with_pagination() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    setup(None).await.unwrap();
+    setup(None).unwrap();
     let pool = &DB_POOL;
     let (search_result, total_count, total_pages) = Package::all_packages(
         &PackageSortField::Name,
@@ -288,7 +287,7 @@ async fn all_packages_with_pagination() {
         Some(2),
         pool,
     )
-    .await
+    
     .unwrap();
     assert_eq!(total_count, 3);
     assert_eq!(total_pages, 2);
@@ -304,7 +303,7 @@ async fn all_packages_with_pagination() {
         Some(2),
         pool,
     )
-    .await
+    
     .unwrap();
     assert_eq!(search_result.len(), 1);
     assert_eq!(search_result[0].name, "Charles Diya");
@@ -314,11 +313,11 @@ async fn all_packages_with_pagination() {
 async fn all_packages_with_pagination_and_sort_by_recently_updated() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    setup(None).await.unwrap();
+    setup(None).unwrap();
     let pool = &DB_POOL;
 
     let the_first_package = Package::get_by_name(&"The first package".to_string(), pool)
-        .await
+        
         .unwrap();
     assert!(the_first_package.name.contains("The first package"));
     assert!(the_first_package.description.contains("description 1"));
@@ -333,11 +332,11 @@ async fn all_packages_with_pagination_and_sort_by_recently_updated() {
         None,
         pool,
     )
-    .await
+    
     .unwrap();
-    let total_packages = Package::count(pool).await.unwrap();
+    let total_packages = Package::count(pool).unwrap();
     assert_eq!(total_packages, 3);
-    let total_versions = PackageVersion::count(pool).await.unwrap();
+    let total_versions = PackageVersion::count(pool).unwrap();
     assert_eq!(total_versions, 4);
 
     let (search_result, total_count, total_pages) = Package::all_packages(
@@ -347,7 +346,7 @@ async fn all_packages_with_pagination_and_sort_by_recently_updated() {
         Some(2),
         pool,
     )
-    .await
+    
     .unwrap();
     assert_eq!(total_count, 3);
     assert_eq!(total_pages, 2);
@@ -362,7 +361,7 @@ async fn all_packages_with_pagination_and_sort_by_recently_updated() {
         Some(2),
         pool,
     )
-    .await
+    
     .unwrap();
     assert_eq!(search_result.len(), 1);
     assert_eq!(search_result[0].name, "The first Diva");
@@ -372,7 +371,7 @@ async fn all_packages_with_pagination_and_sort_by_recently_updated() {
 async fn all_packages_with_pagination_and_sort_by_newly_added() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
-    setup(None).await.unwrap();
+    setup(None).unwrap();
     let pool = &DB_POOL;
 
     let (search_result, total_count, total_pages) = Package::all_packages(
@@ -382,7 +381,7 @@ async fn all_packages_with_pagination_and_sort_by_newly_added() {
         Some(2),
         pool,
     )
-    .await
+    
     .unwrap();
     assert_eq!(total_count, 3);
     assert_eq!(total_pages, 2);
@@ -398,7 +397,7 @@ async fn all_packages_with_pagination_and_sort_by_newly_added() {
         Some(2),
         pool,
     )
-    .await
+    
     .unwrap();
     assert_eq!(search_result.len(), 1);
     assert_eq!(search_result[0].name, "The first package");
@@ -409,7 +408,7 @@ async fn create_package_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let uid = setup_user(None, None).await;
+    let uid = setup_user(None, None);
 
     let mut mock_github_service = GithubService::new();
     mock_github_service
@@ -440,16 +439,16 @@ async fn create_package_works() {
         None,
         &DB_POOL,
     )
-    .await
+    
     .unwrap();
 
-    let package = Package::get(uid, &DB_POOL).await.unwrap();
+    let package = Package::get(uid, &DB_POOL).unwrap();
     assert_eq!(package.name, "name");
     assert_eq!(package.description, "package_description");
 
     let package_version =
         &PackageVersion::from_package_id(uid, &PackageVersionSort::Latest, &DB_POOL)
-            .await
+            
             .unwrap()[0];
     assert_eq!(package_version.version, "version");
     match &package_version.readme_content {
@@ -491,11 +490,11 @@ async fn create_package_works() {
         None,
         &DB_POOL,
     )
-    .await;
+    ;
     assert!(result.is_err());
 
     let versions = PackageVersion::from_package_id(uid, &PackageVersionSort::Latest, &DB_POOL)
-        .await
+        
         .unwrap();
 
     assert_eq!(versions.len(), 1);
@@ -532,7 +531,7 @@ async fn get_versions_by_latest() {
         None,
         &DB_POOL,
     )
-    .await
+    
     .unwrap();
 
     PackageVersion::create(
@@ -545,11 +544,11 @@ async fn get_versions_by_latest() {
         None,
         &DB_POOL,
     )
-    .await
+    
     .unwrap();
 
     let versions = PackageVersion::from_package_id(uid, &PackageVersionSort::Latest, &DB_POOL)
-        .await
+        
         .unwrap();
 
     assert_eq!(versions.len(), 2);
@@ -587,7 +586,7 @@ async fn get_versions_by_oldest() {
         None,
         &DB_POOL,
     )
-    .await
+    
     .unwrap();
 
     PackageVersion::create(
@@ -600,11 +599,11 @@ async fn get_versions_by_oldest() {
         None,
         &DB_POOL,
     )
-    .await
+    
     .unwrap();
 
     let versions = PackageVersion::from_package_id(uid, &PackageVersionSort::Oldest, &DB_POOL)
-        .await
+        
         .unwrap();
 
     assert_eq!(versions.len(), 2);
@@ -642,7 +641,7 @@ async fn get_versions_by_most_downloads() {
         None,
         &DB_POOL,
     )
-    .await
+    
     .unwrap();
 
     let mut version_2 = PackageVersion::create(
@@ -655,7 +654,7 @@ async fn get_versions_by_most_downloads() {
         None,
         &DB_POOL,
     )
-    .await
+    
     .unwrap();
     version_2.downloads_count = 5;
     let _ = &version_2
@@ -664,7 +663,7 @@ async fn get_versions_by_most_downloads() {
 
     let versions =
         PackageVersion::from_package_id(uid, &PackageVersionSort::MostDownloads, &DB_POOL)
-            .await
+            
             .unwrap();
 
     assert_eq!(versions.len(), 2);
@@ -677,12 +676,12 @@ async fn count_package_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    assert_eq!(Package::count(&DB_POOL).await.unwrap(), 0);
-    assert_eq!(PackageVersion::count(&DB_POOL).await.unwrap(), 0);
-    setup(None).await.unwrap();
+    assert_eq!(Package::count(&DB_POOL).unwrap(), 0);
+    assert_eq!(PackageVersion::count(&DB_POOL).unwrap(), 0);
+    setup(None).unwrap();
 
-    assert_eq!(Package::count(&DB_POOL).await.unwrap(), 3);
-    assert_eq!(PackageVersion::count(&DB_POOL).await.unwrap(), 3);
+    assert_eq!(Package::count(&DB_POOL).unwrap(), 3);
+    assert_eq!(PackageVersion::count(&DB_POOL).unwrap(), 3);
 
     PackageVersion::create(
         1,
@@ -694,9 +693,9 @@ async fn count_package_works() {
         None,
         &DB_POOL,
     )
-    .await
+    
     .unwrap();
-    assert_eq!(PackageVersion::count(&DB_POOL).await.unwrap(), 4);
+    assert_eq!(PackageVersion::count(&DB_POOL).unwrap(), 4);
 }
 
 #[actix_rt::test]
@@ -704,8 +703,8 @@ async fn increase_download_count_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let uid = setup_user(None, None).await;
-    let mut no_downloads = Package::get_downloads(uid, &DB_POOL).await;
+    let uid = setup_user(None, None);
+    let mut no_downloads = Package::get_downloads(uid, &DB_POOL);
     assert_eq!(0, no_downloads.unwrap());
 
     let url = &"https://github.com/eadungn/taohe".to_string();
@@ -722,12 +721,12 @@ async fn increase_download_count_works() {
         Some(uid),
         &DB_POOL,
     )
-    .await
+    
     .unwrap();
 
     let package_versions_before =
         PackageVersion::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
-            .await
+            
             .unwrap();
     let package_version_before = package_versions_before.first().unwrap();
     assert_eq!(package_version_before.downloads_count, 0);
@@ -749,19 +748,19 @@ async fn increase_download_count_works() {
         });
 
     Package::increase_download_count(url, rev_, &String::new(), &mock_github_service, &DB_POOL)
-        .await
+        
         .unwrap();
-    no_downloads = Package::get_downloads(uid, &DB_POOL).await;
+    no_downloads = Package::get_downloads(uid, &DB_POOL);
     assert_eq!(1, no_downloads.unwrap());
 
     Package::increase_download_count(url, rev_, &String::new(), &mock_github_service, &DB_POOL)
-        .await
+        
         .unwrap();
-    no_downloads = Package::get_downloads(uid, &DB_POOL).await;
+    no_downloads = Package::get_downloads(uid, &DB_POOL);
     assert_eq!(2, no_downloads.unwrap());
     let package_versions_after =
         PackageVersion::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
-            .await
+            
             .unwrap();
     let package_version_after = package_versions_after.first().unwrap();
     assert_eq!(package_version_after.downloads_count, 2);
@@ -773,13 +772,13 @@ async fn increase_download_count_works() {
         &mock_github_service,
         &DB_POOL,
     )
-    .await;
+    ;
 
-    no_downloads = Package::get_downloads(uid, &DB_POOL).await;
+    no_downloads = Package::get_downloads(uid, &DB_POOL);
     assert_eq!(3, no_downloads.unwrap());
     let package_versions_after =
         PackageVersion::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
-            .await
+            
             .unwrap();
     let package_version_after = package_versions_after.first().unwrap();
     assert_eq!(package_version_after.downloads_count, 3);
@@ -827,10 +826,10 @@ async fn increase_download_count_for_nonexistent_package() {
     assert_eq!(package_version_before, 0);
 
     Package::increase_download_count(url, rev_, &String::new(), &mock_github_service, &DB_POOL)
-        .await
+        
         .unwrap();
     Package::increase_download_count(url, rev_, &String::new(), &mock_github_service, &DB_POOL)
-        .await
+        
         .unwrap();
 
     let package_after = packages
@@ -872,7 +871,7 @@ async fn increase_download_count_for_multiple_versions() {
         None,
         &DB_POOL,
     )
-    .await
+    
     .unwrap();
     PackageVersion::create(
         package_id_,
@@ -884,7 +883,7 @@ async fn increase_download_count_for_multiple_versions() {
         None,
         &DB_POOL,
     )
-    .await
+    
     .unwrap();
 
     let mut mock_github_service = GithubService::new();
@@ -905,26 +904,26 @@ async fn increase_download_count_for_multiple_versions() {
 
     let package_versions_before =
         PackageVersion::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
-            .await
+            
             .unwrap();
     for package_version_before in package_versions_before {
         assert_eq!(package_version_before.downloads_count, 0);
     }
     Package::increase_download_count(&url, &rev1, &String::new(), &mock_github_service, &DB_POOL)
-        .await
+        
         .unwrap();
     Package::increase_download_count(&url, &rev2, &String::new(), &mock_github_service, &DB_POOL)
-        .await
+        
         .unwrap();
     let package_versions_after =
         PackageVersion::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
-            .await
+            
             .unwrap();
     for package_version_after in package_versions_after {
         assert_eq!(package_version_after.downloads_count, 1);
     }
     let package_total_downloads = Package::get(package_id_, &DB_POOL)
-        .await
+        
         .unwrap()
         .total_downloads_count;
     assert_eq!(package_total_downloads, 2);
@@ -936,18 +935,18 @@ async fn increase_download_count_for_multiple_versions() {
         &mock_github_service,
         &DB_POOL,
     )
-    .await
+    
     .unwrap();
     let package_versions_after =
         PackageVersion::from_package_id(package_id_, &PackageVersionSort::Latest, &DB_POOL)
-            .await
+            
             .unwrap();
     let first_package_version_after = package_versions_after.first().unwrap();
     assert_eq!(first_package_version_after.downloads_count, 2);
     let second_package_version_after = package_versions_after.last().unwrap();
     assert_eq!(second_package_version_after.downloads_count, 1);
     let package_total_downloads = Package::get(1, &DB_POOL)
-        .await
+        
         .unwrap()
         .total_downloads_count;
     assert_eq!(package_total_downloads, 3);
@@ -967,7 +966,7 @@ async fn get_badge_info() {
         1500,
         pool,
     )
-    .await
+    
     .unwrap();
     let mut expected: Vec<(String, i32, String, i32)> = vec![(
         "The first package".to_string(),
@@ -981,7 +980,7 @@ async fn get_badge_info() {
         "0.0.2".to_string(),
         1000,
     ));
-    let result = Package::get_badge_info(search_query, pool).await.unwrap();
+    let result = Package::get_badge_info(search_query, pool).unwrap();
     assert_eq!(result.len(), 2);
     assert_eq!(result, expected);
 }
@@ -991,21 +990,21 @@ async fn get_by_name_case_insensitive_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    setup(None).await.unwrap();
+    setup(None).unwrap();
 
-    let packages_list = Package::get_by_name_case_insensitive("the FIRST package", &DB_POOL).await;
+    let packages_list = Package::get_by_name_case_insensitive("the FIRST package", &DB_POOL);
     assert!(packages_list.is_ok());
     let packages_list = packages_list.unwrap();
     assert_eq!(packages_list.len(), 1);
     assert_eq!(packages_list[0].name, "The first package");
 
-    let packages_list = Package::get_by_name_case_insensitive("ChArLeS DiYa", &DB_POOL).await;
+    let packages_list = Package::get_by_name_case_insensitive("ChArLeS DiYa", &DB_POOL);
     assert!(packages_list.is_ok());
     let packages_list = packages_list.unwrap();
     assert_eq!(packages_list.len(), 1);
     assert_eq!(packages_list[0].name, "Charles Diya");
 
-    let packages_list = Package::get_by_name_case_insensitive("Charles D1ya", &DB_POOL).await;
+    let packages_list = Package::get_by_name_case_insensitive("Charles D1ya", &DB_POOL);
     assert!(packages_list.is_ok());
     let packages_list = packages_list.unwrap();
     assert_eq!(packages_list.len(), 0);
@@ -1016,8 +1015,8 @@ async fn get_by_account_with_pagination() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
     let pool = &DB_POOL;
-    let uid = setup_user(None, None).await;
-    setup(Some(uid)).await.unwrap();
+    let uid = setup_user(None, None);
+    setup(Some(uid)).unwrap();
     let (search_result, total_count, total_pages) = Package::get_by_account_paginated(
         uid,
         &PackageSortField::Name,
@@ -1026,7 +1025,7 @@ async fn get_by_account_with_pagination() {
         Some(2),
         pool,
     )
-    .await
+    
     .unwrap();
     assert_eq!(total_count, 3);
     assert_eq!(total_pages, 2);
@@ -1042,7 +1041,7 @@ async fn get_by_account_with_pagination() {
         Some(2),
         pool,
     )
-    .await
+    
     .unwrap();
     assert_eq!(search_result.len(), 1);
     assert_eq!(search_result[0].name, "Charles Diya");

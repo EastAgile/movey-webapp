@@ -18,11 +18,11 @@ fn init_form() -> web::Form<DownloadInfo> {
     })
 }
 
-async fn package_request() -> web::Json<PackageRequest> {
+fn package_request() -> web::Json<PackageRequest> {
     web::Json(PackageRequest {
         github_repo_url: "".to_string(),
         total_files: 0,
-        token: create_test_token().await,
+        token: create_test_token(),
         subdir: "".to_string(),
     })
 }
@@ -36,15 +36,15 @@ async fn register_package_create_new_packages() {
     mock_http_request
         .expect_db_pool()
         .returning(|| Ok(&DB_POOL));
-    let package_request = package_request().await;
-    assert_eq!(Package::count(&DB_POOL).await.unwrap(), 0);
+    let package_request = package_request();
+    assert_eq!(Package::count(&DB_POOL).unwrap(), 0);
 
     let response = register_package(mock_http_request, package_request).await;
     assert!(response.is_ok());
     let resp = response.unwrap();
     assert_eq!(resp.status(), StatusCode::OK);
     assert_eq!(resp.body().as_ref().unwrap(), &Body::from("name1"));
-    assert_eq!(Package::count(&DB_POOL).await.unwrap(), 1);
+    assert_eq!(Package::count(&DB_POOL).unwrap(), 1);
 }
 
 #[actix_rt::test]
@@ -56,9 +56,9 @@ async fn register_package_returns_error_with_invalid_token() {
     mock_http_request
         .expect_db_pool()
         .returning(|| Ok(&DB_POOL));
-    let mut package_request = package_request().await;
+    let mut package_request = package_request();
     package_request.token = "".to_string();
-    assert_eq!(Package::count(&DB_POOL).await.unwrap(), 0);
+    assert_eq!(Package::count(&DB_POOL).unwrap(), 0);
 
     let response = register_package(mock_http_request, package_request).await;
     assert!(response.is_ok());
@@ -68,7 +68,7 @@ async fn register_package_returns_error_with_invalid_token() {
         resp.body().as_ref().unwrap(),
         &Body::from("Invalid API token.")
     );
-    assert_eq!(Package::count(&DB_POOL).await.unwrap(), 0);
+    assert_eq!(Package::count(&DB_POOL).unwrap(), 0);
 }
 
 #[actix_rt::test]
@@ -81,17 +81,15 @@ async fn increase_download_count_creates_shadow_package_when_package_version_not
         .expect_db_pool()
         .returning(|| Ok(&DB_POOL));
     let form = init_form();
-    increase_download_count(mock_http_request, form)
-        .await
-        .unwrap();
+    increase_download_count(mock_http_request, form).await.unwrap();
     let package = Package::get_by_name(&"name1".to_string(), &DB_POOL)
-        .await
+        
         .unwrap();
     PackageVersion::delete_by_package_id(package.id, &DB_POOL)
-        .await
+        
         .unwrap();
-    assert_eq!(Package::count(&DB_POOL).await.unwrap(), 1);
-    assert_eq!(PackageVersion::count(&DB_POOL).await.unwrap(), 0);
+    assert_eq!(Package::count(&DB_POOL).unwrap(), 1);
+    assert_eq!(PackageVersion::count(&DB_POOL).unwrap(), 0);
 
     let mut mock_http_request = mock::MockHttpRequest::new();
     mock_http_request
@@ -101,8 +99,8 @@ async fn increase_download_count_creates_shadow_package_when_package_version_not
     increase_download_count(mock_http_request, form)
         .await
         .unwrap();
-    assert_eq!(Package::count(&DB_POOL).await.unwrap(), 1);
-    assert_eq!(PackageVersion::count(&DB_POOL).await.unwrap(), 1);
+    assert_eq!(Package::count(&DB_POOL).unwrap(), 1);
+    assert_eq!(PackageVersion::count(&DB_POOL).unwrap(), 1);
 }
 
 #[actix_rt::test]
@@ -115,16 +113,16 @@ async fn increase_download_count_works() {
         .expect_db_pool()
         .returning(|| Ok(&DB_POOL));
     let form = init_form();
-    assert_eq!(Package::count(&DB_POOL).await.unwrap(), 0);
-    assert_eq!(PackageVersion::count(&DB_POOL).await.unwrap(), 0);
+    assert_eq!(Package::count(&DB_POOL).unwrap(), 0);
+    assert_eq!(PackageVersion::count(&DB_POOL).unwrap(), 0);
 
     let response = increase_download_count(mock_http_request, form).await;
     assert!(response.is_ok());
     let resp = response.unwrap();
     assert_eq!(resp.status(), StatusCode::OK);
     assert_eq!(resp.body().as_ref().unwrap(), &Body::from("2"));
-    assert_eq!(Package::count(&DB_POOL).await.unwrap(), 1);
-    assert_eq!(PackageVersion::count(&DB_POOL).await.unwrap(), 1);
+    assert_eq!(Package::count(&DB_POOL).unwrap(), 1);
+    assert_eq!(PackageVersion::count(&DB_POOL).unwrap(), 1);
 }
 
 #[actix_rt::test]
@@ -147,8 +145,8 @@ async fn increase_download_count_returns_error_with_empty_rev() {
         resp.body().as_ref().unwrap(),
         &Body::from("Invalid git info.")
     );
-    assert_eq!(Package::count(&DB_POOL).await.unwrap(), 0);
-    assert_eq!(PackageVersion::count(&DB_POOL).await.unwrap(), 0);
+    assert_eq!(Package::count(&DB_POOL).unwrap(), 0);
+    assert_eq!(PackageVersion::count(&DB_POOL).unwrap(), 0);
 }
 
 #[actix_rt::test]
@@ -171,8 +169,8 @@ async fn increase_download_count_returns_error_with_empty_url() {
         resp.body().as_ref().unwrap(),
         &Body::from("Invalid git info.")
     );
-    assert_eq!(Package::count(&DB_POOL).await.unwrap(), 0);
-    assert_eq!(PackageVersion::count(&DB_POOL).await.unwrap(), 0);
+    assert_eq!(Package::count(&DB_POOL).unwrap(), 0);
+    assert_eq!(PackageVersion::count(&DB_POOL).unwrap(), 0);
 }
 
 #[actix_rt::test]
@@ -184,7 +182,7 @@ async fn register_package_returns_error_when_database_is_not_available() {
     mock_http_request
         .expect_db_pool()
         .returning(|| Err(Error::Generic("Cannot get db pool".to_string())));
-    let package_request = package_request().await;
+    let package_request = package_request();
 
     let response = register_package(mock_http_request, package_request).await;
     assert!(response.is_ok());

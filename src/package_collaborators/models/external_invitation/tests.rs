@@ -5,9 +5,9 @@ use crate::utils::tests::setup_user;
 use jelly::prelude::*;
 use std::env;
 
-async fn setup_external_invitation() -> ExternalInvitation {
+fn setup_external_invitation() -> ExternalInvitation {
     let outside_email = String::from("email@not_in_db.com");
-    let uid = setup_user(Some("email1@mail.com".to_string()), None).await;
+    let uid = setup_user(Some("email1@mail.com".to_string()), None);
     let pid = Package::create_test_package(
         &"package1".to_string(),
         &"".to_string(),
@@ -20,7 +20,7 @@ async fn setup_external_invitation() -> ExternalInvitation {
         Some(uid),
         &DB_POOL,
     )
-    .await
+    
     .unwrap();
     ExternalInvitation::create(&outside_email, uid, pid, &DB_POOL.get().unwrap()).unwrap()
 }
@@ -32,7 +32,7 @@ async fn external_invitation_find_by_id_works() {
     let db = &DB_POOL;
     let conn = db.get().unwrap();
 
-    let external_1 = setup_external_invitation().await;
+    let external_1 = setup_external_invitation();
     let external_2 = ExternalInvitation::find_by_id(
         &external_1.external_user_email,
         external_1.package_id,
@@ -56,7 +56,7 @@ async fn external_invitation_delete_works() {
 
     let db = &DB_POOL;
     let conn = db.get().unwrap();
-    let external_invitation = setup_external_invitation().await;
+    let external_invitation = setup_external_invitation();
 
     external_invitation.delete(&conn).unwrap();
     let not_found = ExternalInvitation::find_by_id(
@@ -76,7 +76,7 @@ async fn is_expired_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let external_invitation = setup_external_invitation().await;
+    let external_invitation = setup_external_invitation();
     env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "1");
     assert!(!external_invitation.is_expired());
 
@@ -90,7 +90,7 @@ async fn is_expired_panics_if_expiration_days_is_less_than_0() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let external_invitation = setup_external_invitation().await;
+    let external_invitation = setup_external_invitation();
     env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "-1");
     external_invitation.is_expired();
 }
@@ -101,7 +101,7 @@ async fn is_expired_panics_if_expiration_days_is_not_an_integer() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let external_invitation = setup_external_invitation().await;
+    let external_invitation = setup_external_invitation();
     env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "invalid-integer");
     external_invitation.is_expired();
 }
@@ -112,7 +112,7 @@ async fn create_works() {
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
-    let external1 = setup_external_invitation().await;
+    let external1 = setup_external_invitation();
     let external2 =
         ExternalInvitation::find_by_id(&external1.external_user_email, external1.package_id, &conn)
             .unwrap();
@@ -125,7 +125,7 @@ async fn create_new_invitation_if_existing_one_is_expired() {
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
-    let external1 = setup_external_invitation().await;
+    let external1 = setup_external_invitation();
     let created_at = external1.created_at;
 
     env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "0");
@@ -146,7 +146,7 @@ async fn not_create_new_invitation_if_it_already_exists() {
     let _ctx = DatabaseTestContext::new();
     let conn = DB_POOL.get().unwrap();
 
-    let external = setup_external_invitation().await;
+    let external = setup_external_invitation();
     env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "1");
     ExternalInvitation::create(
         &external.external_user_email,
@@ -164,7 +164,7 @@ async fn external_invitation_find_by_email_works() {
     let db = &DB_POOL;
     let conn = db.get().unwrap();
 
-    let external_1 = setup_external_invitation().await;
+    let external_1 = setup_external_invitation();
     let external_2 =
         ExternalInvitation::find_by_email(&external_1.external_user_email, &conn).unwrap();
     assert_eq!(external_2.len(), 1);
@@ -184,7 +184,7 @@ async fn external_invitation_delete_by_id_works() {
     let res = ExternalInvitation::delete_by_id("not_existed@mail.com", 1, &conn).unwrap();
     assert_eq!(res, 0);
 
-    let external_invitation = setup_external_invitation().await;
+    let external_invitation = setup_external_invitation();
 
     let res = ExternalInvitation::delete_by_id(
         &external_invitation.external_user_email,

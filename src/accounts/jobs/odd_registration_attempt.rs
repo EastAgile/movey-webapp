@@ -46,7 +46,6 @@ impl Job for SendAccountOddRegisterAttemptEmail {
     fn run(self, state: JobState) -> Self::Future {
         Box::pin(async move {
             let name = Account::fetch_name_from_email(&self.to, &state.pool)
-                .await
                 .map_err(|e| {
                     anyhow!(
                         "Error fetching user name for odd registration attempt: {:?}",

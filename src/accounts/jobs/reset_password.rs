@@ -32,7 +32,6 @@ impl Job for SendResetPasswordEmail {
     fn run(self, state: JobState) -> Self::Future {
         Box::pin(async move {
             let account = Account::get_by_email(&self.to, &state.pool)
-                .await
                 .map_err(|e| anyhow!("Error fetching account for password reset: {:?}", e))?;
 
             let domain = env::var("JELLY_DOMAIN").expect("No JELLY_DOMAIN value set!");
