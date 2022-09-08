@@ -480,7 +480,7 @@ async fn create_package_works() {
             })
         });
 
-    let uid = Package::create(
+    let result = Package::create(
         "repo_url",
         "package_description",
         "1",
@@ -491,10 +491,9 @@ async fn create_package_works() {
         None,
         &DB_POOL,
     )
-    .await
-    .unwrap();
+    .await;
+    assert!(result.is_err());
 
-    assert_eq!(package.id, uid);
     let versions = PackageVersion::from_package_id(uid, &PackageVersionSort::Latest, &DB_POOL)
         .await
         .unwrap();
@@ -985,4 +984,66 @@ async fn get_badge_info() {
     let result = Package::get_badge_info(search_query, pool).await.unwrap();
     assert_eq!(result.len(), 2);
     assert_eq!(result, expected);
+}
+
+#[actix_rt::test]
+async fn get_by_name_case_insensitive_works() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+
+    setup(None).await.unwrap();
+
+    let packages_list = Package::get_by_name_case_insensitive("the FIRST package", &DB_POOL).await;
+    assert!(packages_list.is_ok());
+    let packages_list = packages_list.unwrap();
+    assert_eq!(packages_list.len(), 1);
+    assert_eq!(packages_list[0].name, "The first package");
+
+    let packages_list = Package::get_by_name_case_insensitive("ChArLeS DiYa", &DB_POOL).await;
+    assert!(packages_list.is_ok());
+    let packages_list = packages_list.unwrap();
+    assert_eq!(packages_list.len(), 1);
+    assert_eq!(packages_list[0].name, "Charles Diya");
+
+    let packages_list = Package::get_by_name_case_insensitive("Charles D1ya", &DB_POOL).await;
+    assert!(packages_list.is_ok());
+    let packages_list = packages_list.unwrap();
+    assert_eq!(packages_list.len(), 0);
+}
+
+#[actix_rt::test]
+async fn get_by_account_with_pagination() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+    let pool = &DB_POOL;
+    let uid = setup_user(None, None).await;
+    setup(Some(uid)).await.unwrap();
+    let (search_result, total_count, total_pages) = Package::get_by_account_paginated(
+        uid,
+        &PackageSortField::Name,
+        &PackageSortOrder::Desc,
+        Some(1),
+        Some(2),
+        pool,
+    )
+    .await
+    .unwrap();
+    assert_eq!(total_count, 3);
+    assert_eq!(total_pages, 2);
+
+    assert_eq!(search_result.len(), 2);
+    assert_eq!(search_result[0].name, "The first package");
+    assert_eq!(search_result[1].name, "The first Diva");
+
+    let (search_result, _total_count, _total_pages) = Package::all_packages(
+        &PackageSortField::Name,
+        &PackageSortOrder::Desc,
+        Some(2),
+        Some(2),
+        pool,
+    )
+    .await
+    .unwrap();
+    assert_eq!(search_result.len(), 1);
+    assert_eq!(search_result[0].name, "Charles Diya");
 }

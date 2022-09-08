@@ -7,8 +7,8 @@ use jelly::accounts::User;
 use jelly::actix_session::Session;
 use jelly::actix_web::FromRequest;
 use jelly::jobs::Job;
-use jelly::{prelude::*, DieselPgConnection};
 use jelly::DieselPgPool;
+use jelly::{prelude::*, DieselPgConnection};
 use mockall::mock;
 use mockall_double::double;
 use reqwest::blocking::Response;
@@ -54,7 +54,7 @@ impl GithubService {
             .returning(|_, _, _| {
                 Ok(GithubRepoData {
                     name: "name1".to_string(),
-                    version: "version1".to_string(),
+                    version: "0.1.0".to_string(),
                     readme_content: "readme_content1".to_string(),
                     description: "".to_string(),
                     size: 0,

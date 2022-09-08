@@ -118,11 +118,11 @@ pub struct CreatedApiToken {
 mod tests {
     use crate::accounts::Account;
     use crate::settings::models::token::ApiToken;
+    use crate::test::util::setup_user;
     use crate::test::{DatabaseTestContext, DB_POOL};
     use diesel::result::DatabaseErrorKind;
     use diesel::result::Error::DatabaseError;
     use jelly::error::Error;
-    use crate::test::util::setup_user;
 
     #[actix_rt::test]
     async fn api_token_insert_works() {

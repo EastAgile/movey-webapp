@@ -8,10 +8,11 @@ use diesel::{AsChangeset, Identifiable, Insertable, Queryable};
 use diesel_full_text_search::{plainto_tsquery, TsVectorExtensions};
 
 use diesel::result::Error::NotFound;
+use diesel::result::{DatabaseErrorKind, Error as DBError};
 use jelly::chrono::{DateTime, NaiveDateTime, Utc};
 use jelly::error::Error;
 use jelly::serde::{Deserialize, Serialize};
-use jelly::DieselPgPool;
+use jelly::{DieselPgConnection, DieselPgPool};
 
 use crate::github_service::GithubRepoData;
 use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
@@ -271,23 +272,37 @@ impl Package {
         };
 
         // Only creates new version if same user with package owner
-        if (package_owner_id == account_id_ || package_owner_id.is_none())
-            && record
-                .get_version(&github_data.version, pool)
-                .await
-                .is_err()
-        {
-            PackageVersion::create(
-                record.id,
-                github_data.version,
-                github_data.readme_content,
-                version_rev.to_string(),
-                version_files,
-                version_size,
-                None,
-                pool,
-            )
-            .await?;
+        if package_owner_id == account_id_ {
+            let pakage_dont_exist = record.get_version(&github_data.version, pool).await;
+            if pakage_dont_exist.is_err() {
+                let e = pakage_dont_exist.unwrap_err();
+                if let Error::Database(DBError::NotFound) = e {
+                    PackageVersion::create(
+                        record.id,
+                        github_data.version,
+                        github_data.readme_content,
+                        version_rev.to_string(),
+                        version_files,
+                        version_size,
+                        None,
+                        pool,
+                    )
+                    .await?;
+                } else {
+                    return Err(e);
+                }
+            } else {
+                // return package version already exists error
+                return Err(Error::Database(DBError::DatabaseError(
+                    DatabaseErrorKind::UniqueViolation,
+                    Box::new(String::from("Version already exists")),
+                )));
+            }
+        } else {
+            return Err(Error::Database(DBError::DatabaseError(
+                DatabaseErrorKind::ForeignKeyViolation,
+                Box::new(String::from("Only owners can update new versions")),
+            )));
         }
 
         Ok(record.id)
@@ -312,6 +327,18 @@ impl Package {
             .first::<Package>(&connection)?;
 
         Ok(result)
+    }
+
+    pub async fn get_by_name_case_insensitive(
+        package_name: &str,
+        pool: &DieselPgPool,
+    ) -> Result<Vec<Self>> {
+        let connection = pool.get()?;
+
+        Ok(packages
+            .filter(lower(name).eq(package_name.to_lowercase()))
+            .select(PACKAGE_COLUMNS)
+            .load::<Package>(&connection)?)
     }
 
     pub async fn get_badge_info(
@@ -345,11 +372,42 @@ impl Package {
 
         let result = packages
             .inner_join(package_collaborators::table)
-            .filter(package_collaborators::account_id.eq(owner_id).and(package_collaborators::role.eq(Role::Owner as i32)))
+            .filter(package_collaborators::account_id.eq(owner_id))
             .inner_join(package_versions::table)
             .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
             .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
             .load::<PackageSearchResult>(&connection)?;
+
+        Ok(result)
+    }
+
+    pub async fn get_by_account_paginated(
+        owner_id: i32,
+        sort_field: &PackageSortField,
+        sort_order: &PackageSortOrder,
+        page: Option<i64>,
+        per_page: Option<i64>,
+        pool: &DieselPgPool,
+    ) -> Result<(Vec<PackageSearchResult>, i64, i64)> {
+        let connection = pool.get()?;
+        let field = sort_field.to_column_name();
+        let order = sort_order.to_order_direction();
+        let order_query = format!("packages.{} {}", field, order);
+
+        let page = page.unwrap_or(1);
+        let per_page = per_page.unwrap_or(PACKAGES_PER_PAGE);
+        if page < 1 || per_page < 1 {
+            return Err(Error::Generic(String::from("Invalid page number.")));
+        }
+
+        let result: (Vec<PackageSearchResult>, i64, i64) = packages::table
+            .inner_join(package_collaborators::table)
+            .filter(package_collaborators::account_id.eq(owner_id).and(package_collaborators::role.eq(Role::Owner as i32)))
+            .inner_join(package_versions::table)
+            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
+            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
+            .order(diesel::dsl::sql::<diesel::sql_types::Text>(&order_query))
+            .load_with_pagination(&connection, Some(page), Some(per_page))?;
 
         Ok(result)
     }
@@ -379,6 +437,18 @@ impl Package {
             .first::<PackageVersion>(&connection)?;
 
         Ok(result)
+    }
+
+    pub fn change_owner(
+        package_id_: i32,
+        new_owner_id: i32,
+        conn: &DieselPgConnection,
+    ) -> Result<()> {
+        diesel::update(package_collaborators::table)
+            .filter(package_collaborators::package_id.eq(package_id_).and(package_collaborators::role.eq(Role::Owner as i32)))
+            .set(package_collaborators::account_id.eq(new_owner_id))
+            .execute(conn)?;
+        Ok(())
     }
 
     pub async fn increase_download_count(
@@ -578,10 +648,7 @@ impl PackageVersion {
         Ok(result)
     }
 
-    pub async fn delete_by_package_id(
-        package_id_: i32,
-        pool: &DieselPgPool,
-    ) -> Result<usize> {
+    pub async fn delete_by_package_id(package_id_: i32, pool: &DieselPgPool) -> Result<usize> {
         let connection = pool.get()?;
         let result = diesel::delete(package_versions.filter(package_id.eq(package_id_)))
             .execute(&connection)?;

@@ -1,26 +1,4 @@
-@mixin large-screen {
-    @media screen and (min-width: 769px) {
-        @content;
-    }
-}
-
-@mixin medium-screen {
-    @media screen and (min-width: 481px) and (max-width: 768px) {
-        @content;
-    }
-}
-
-@mixin small-screen {
-    @media screen and (min-width: 240px) and (max-width: 480px) {
-        @content;
-    }
-}
-
-@mixin medium-small-screen {
-    @media screen and (min-width: 240px) and (max-width: 768px) {
-        @content;
-    }
-}
+@import "static/css/queries.scss";
 
 .content-wrapper {
     min-height: calc(100vh - 350px);
@@ -34,15 +12,23 @@
         border-bottom: 1px solid rgba(128, 143, 176, .5);
 
         @include large-screen {
-            padding: 0 50px 0 175px;
+            padding: 0 175px;
+        }
+
+        @include medium-screen {
+            padding: 0 120px;
         }
 
         @include medium-small-screen {
-            padding: 0 15px 0 15px;
+            padding: 0 15px;
             box-shadow: 0px 4px 8px rgba(2, 20, 58, 0.1);
         }
-
+        
         @include small-screen {
+            padding: 0 15px;
+        }
+        
+        @include small-mobile-screen {
             flex-direction: column;
             align-items: flex-start;
         }
@@ -51,12 +37,13 @@
             font-size: 24px;
             color: var(--dark-blue-color);
             white-space: nowrap;
+            margin-bottom: 0;
 
             @include medium-small-screen {
                 font-size: 16px;
             }
 
-            @include small-screen {
+            @include small-mobile-screen {
                 margin: 33px 0 13px 0;
             }
 
@@ -72,15 +59,11 @@
         width: 100%;
         padding: 70px 175px 265px;
 
-        @media screen and (max-width: 1280px) {
+        @include medium-screen {
             padding: 70px 120px 265px;
         }
 
-        @media screen and (max-width: 860px) {
-            padding: 70px 80px 265px;
-        }
-
-        @include medium-small-screen {
+        @include small-screen {
             padding: 30px 0 70px 0;
         }
 

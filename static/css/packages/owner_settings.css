@@ -94,6 +94,7 @@
 }
 .package-settings-container .collaborators_wrapper {
   margin-top: 82px;
+  margin-bottom: 50px;
 }
 .package-settings-container .collaborators_wrapper .collaborators_title {
   font-weight: 700;
@@ -130,7 +131,7 @@
   height: 80px;
   position: relative;
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row {
     flex-flow: row wrap;
   }
@@ -171,7 +172,8 @@
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles.header {
   font-weight: 500;
 }
-.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles .collaborator {
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles .collaborator,
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles .owner {
   margin-bottom: 0px;
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission {
@@ -181,7 +183,7 @@
   line-height: 24px;
   color: var(--dark-blue-color);
 }
-@media screen and (min-width: 258px) and (max-width: 843px) {
+@media screen and (max-width: 843px) {
   .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission {
     margin-top: 8px;
   }
@@ -246,11 +248,25 @@
 #new_collaborator_modal .message,
 #transfer_owner_modal .message,
 #remove_owner_modal .message {
+  margin-top: 12px;
   font-weight: 400;
-  font-size: 18px;
+  font-size: 16px;
   letter-spacing: -0.02em;
-  margin-bottom: 4px;
   color: var(--gray-color);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+#new_collaborator_modal .message.success,
+#transfer_owner_modal .message.success,
+#remove_owner_modal .message.success {
+  color: #27ae60;
+  background-color: #effff4;
+}
+#new_collaborator_modal .message.error,
+#transfer_owner_modal .message.error,
+#remove_owner_modal .message.error {
+  color: #eb5757;
+  background-color: rgba(235, 87, 87, 0.15);
 }
 #new_collaborator_modal .owner_message,
 #transfer_owner_modal .owner_message,
@@ -265,7 +281,7 @@
 #transfer_owner_modal .warning,
 #remove_owner_modal .warning {
   font-weight: 300;
-  font-size: 18px;
+  font-size: 16px;
   display: flex;
   align-items: center;
   color: #ec7257;
@@ -359,7 +375,7 @@
   color: #333333;
 }
 #error_modal {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   border-radius: 4px;
   margin: auto;
 }

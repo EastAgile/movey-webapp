@@ -85,8 +85,10 @@
                 <div class="package-information-title">
                     Owners
                 </div>
-                <div class="package-owners-info">
-                    {{ account_name }}
+                <div class="package-owners-info"
+                    onclick="window.open('{{ account_slug_url }}', '_blank');"
+                >
+                    {{account_name}}
                 </div>
             </div>
             {% endif %}

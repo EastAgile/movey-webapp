@@ -1,7 +1,7 @@
 use crate::accounts::views::utils::validate_token;
 use crate::accounts::Account;
-use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
 use crate::package_collaborators::models::external_invitation::ExternalInvitation;
+use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
 #[cfg(test)]
 use crate::test::mock::MockHttpRequest as HttpRequest;
 use diesel::result::Error as DBError;

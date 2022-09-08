@@ -1,8 +1,8 @@
 use crate::package_collaborators::package_collaborator::PackageCollaborator;
 use crate::packages::Package;
+use crate::test::util::setup_user;
 use crate::test::{DatabaseTestContext, DB_POOL};
 use jelly::prelude::*;
-use crate::test::util::setup_user;
 
 async fn setup_collaborator() -> (i32, i32) {
     let owner_id = setup_user(Some(String::from("user1@host.com")), None).await;
@@ -19,8 +19,8 @@ async fn setup_collaborator() -> (i32, i32) {
         Some(owner_id),
         &DB_POOL,
     )
-        .await
-        .unwrap();
+    .await
+    .unwrap();
 
     PackageCollaborator::new_collaborator(pid, collaborator_id, owner_id, &DB_POOL.get().unwrap()).unwrap();
     (pid, collaborator_id)
@@ -42,8 +42,9 @@ async fn new_collaborator_works() {
     let res = PackageCollaborator::get_in_bulk_order_by_role(
         pid,
         vec![uid, uid2],
-        &DB_POOL.get().unwrap()
-    ).unwrap();
+        &DB_POOL.get().unwrap(),
+    )
+    .unwrap();
 
     assert_eq!(res.len(), 2);
 }
@@ -62,22 +63,30 @@ async fn get_non_existed_returns_err() {
 }
 
 #[actix_rt::test]
-async fn delete_by_id_works() {
+async fn delete_collaborator_by_id_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
     let db = &DB_POOL;
     let conn = db.get().unwrap();
-    let res = PackageCollaborator::delete_by_id(1, 1, &conn).unwrap();
+    let res = PackageCollaborator::delete_collaborator_by_id(1, 1, &conn).unwrap();
     assert_eq!(res, 0);
+
     let (pid, uid) = setup_collaborator().await;
-    let res = PackageCollaborator::delete_by_id(uid, pid, &conn).unwrap();
+    let collaborator = PackageCollaborator::get(pid, uid, &DB_POOL.get().unwrap());
+    assert!(collaborator.is_ok());
+
+    let res = PackageCollaborator::delete_collaborator_by_id(uid, pid, &conn).unwrap();
     assert_eq!(res, 1);
+
     let not_found = PackageCollaborator::get(pid, uid, &DB_POOL.get().unwrap());
     assert!(not_found.is_err());
     if let Err(Error::Database(diesel::NotFound)) = not_found {
     } else {
         panic!()
     }
-}
 
+    let owner_id = collaborator.unwrap().created_by;
+    let res = PackageCollaborator::delete_collaborator_by_id(owner_id, pid, &conn).unwrap();
+    assert_eq!(res, 0);
+}

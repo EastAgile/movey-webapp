@@ -233,6 +233,89 @@ async fn not_see_owner_info(world: &mut TestWorld) {
     }
 }
 
+#[then("I should see a banner saying that this package is crawled")]
+async fn see_banner(world: &mut TestWorld) {
+    let package_banner_content = world
+        .driver
+        .find_element(By::ClassName("package-banner-content"))
+        .await;
+    assert!(package_banner_content.is_ok());
+    let package_banner_content = package_banner_content.unwrap().text().await.unwrap();
+    assert!(package_banner_content
+        .contains("This package was crawled and has not been assigned owners yet."))
+}
+
+#[then("I should see that banner tell me to create an account")]
+async fn see_register_cta(world: &mut TestWorld) {
+    let package_banner_content = world
+        .driver
+        .find_element(By::ClassName("package-banner-content"))
+        .await;
+    assert!(package_banner_content.is_ok());
+
+    let package_banner_cta = package_banner_content
+        .unwrap()
+        .find_element(By::Tag("a"))
+        .await;
+    assert!(package_banner_cta.is_ok());
+
+    let package_banner_cta_url = package_banner_cta
+        .as_ref()
+        .unwrap()
+        .get_attribute("href")
+        .await
+        .unwrap();
+    assert!(package_banner_cta_url.is_some());
+    assert_eq!(package_banner_cta_url.unwrap(), "/accounts/register");
+
+    let package_banner_cta_content = package_banner_cta.unwrap().text().await.unwrap();
+    assert!(package_banner_cta_content.contains("create an account"));
+}
+
+#[then("I should see that banner tell me to contact for ownership request")]
+async fn see_contact_us_cta(world: &mut TestWorld) {
+    let package_banner_content = world
+        .driver
+        .find_element(By::ClassName("package-banner-content"))
+        .await;
+    assert!(package_banner_content.is_ok());
+
+    let package_banner_cta = package_banner_content
+        .unwrap()
+        .find_element(By::Tag("a"))
+        .await;
+    assert!(package_banner_cta.is_ok());
+
+    let package_banner_cta_url = package_banner_cta
+        .as_ref()
+        .unwrap()
+        .get_attribute("href")
+        .await
+        .unwrap();
+    assert!(package_banner_cta_url.is_some());
+    assert_eq!(package_banner_cta_url.unwrap(), "/contact");
+
+    let package_banner_cta_content = package_banner_cta.unwrap().text().await.unwrap();
+    assert!(package_banner_cta_content.contains("claim your package ownership"));
+}
+
+#[then("I should not see the Collaborators tab")]
+async fn not_see_collaborators_tab(world: &mut TestWorld) {
+    let content_tabs = world
+        .driver
+        .find_elements(By::ClassName("content-tab"))
+        .await
+        .unwrap();
+    assert_eq!(content_tabs.len(), 2);
+
+    for tab in content_tabs {
+        let class_name = tab.class_name().await.unwrap();
+        if class_name.unwrap().contains("tab-owner") {
+            panic!("tab-owner still exists");
+        }
+    }
+}
+
 #[when("I click on versions of that package")]
 async fn click_on_versions_tab(world: &mut TestWorld) {
     let versions_tab_element = world

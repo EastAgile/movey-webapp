@@ -33,11 +33,15 @@ async fn external_invitation_find_by_id_works() {
     let conn = db.get().unwrap();
 
     let external_1 = setup_external_invitation().await;
-    let external_2 =
-        ExternalInvitation::find_by_id(&external_1.external_user_email, external_1.package_id, &conn)
-            .unwrap();
+    let external_2 = ExternalInvitation::find_by_id(
+        &external_1.external_user_email,
+        external_1.package_id,
+        &conn,
+    )
+    .unwrap();
     assert_eq!(external_1, external_2);
-    let not_found = ExternalInvitation::find_by_id("some@random_email", external_1.package_id, &conn);
+    let not_found =
+        ExternalInvitation::find_by_id("some@random_email", external_1.package_id, &conn);
     assert!(not_found.is_err());
     if let Err(Error::Database(diesel::NotFound)) = not_found {
     } else {
@@ -169,6 +173,7 @@ async fn external_invitation_find_by_email_works() {
     assert!(not_found.unwrap().is_empty());
 }
 
+#[actix_rt::test]
 async fn external_invitation_delete_by_id_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
@@ -184,9 +189,9 @@ async fn external_invitation_delete_by_id_works() {
     let res = ExternalInvitation::delete_by_id(
         &external_invitation.external_user_email,
         external_invitation.package_id,
-        &conn
+        &conn,
     )
-        .unwrap();
+    .unwrap();
     assert_eq!(res, 1);
     let not_found = ExternalInvitation::find_by_id(
         &external_invitation.external_user_email,

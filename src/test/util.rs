@@ -5,10 +5,10 @@ use crate::settings::models::token::ApiToken;
 use crate::test::DB_POOL;
 use jelly::forms::{EmailField, PasswordField};
 
-fn new_account_form() -> NewAccountForm {
+fn new_account_form(custom_email: Option<&str>) -> NewAccountForm {
     NewAccountForm {
         email: EmailField {
-            value: "email@host.com".to_string(),
+            value: custom_email.unwrap_or("email@host.com").to_string(),
             errors: vec![],
         },
         password: PasswordField {
@@ -37,7 +37,7 @@ pub async fn setup_user(email: Option<String>, password: Option<String>) -> i32 
 }
 
 pub async fn create_test_token() -> String {
-    let form = new_account_form();
+    let form = new_account_form(None);
     let uid = Account::register(&form, &DB_POOL).await.unwrap();
     let account = Account::get(uid, &DB_POOL).await.unwrap();
     ApiToken::insert(&account, "test_key", &DB_POOL)
