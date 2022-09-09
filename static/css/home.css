@@ -193,6 +193,9 @@
   padding: 0;
   text-decoration: none;
 }
+.home-container .social-container .social-icons li a:hover {
+  filter: brightness(120%);
+}
 .home-container .social-container .social-icons li:not(:last-child) {
   margin-right: 20px;
 }

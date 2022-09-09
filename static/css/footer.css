@@ -1,5 +1,5 @@
 footer {
-  background: #02143A;
+  background: #02143a;
   height: 250px;
   padding: 30px;
   box-sizing: border-box;
@@ -114,7 +114,7 @@ footer {
   min-width: fit-content;
   text-align: center;
 }
-.footer-container .footer-center .link-container a:link {
+.footer-container .footer-center .link-container a:link:hover {
   text-decoration: underline;
 }
 @media screen and (max-width: 1280px) {

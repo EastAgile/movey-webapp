@@ -46,7 +46,7 @@
   font-size: 14px;
   line-height: 18px;
   color: #fff;
-  background-color: #9e9e9e;
+  background-color: #808fb0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -203,14 +203,26 @@
   color: #eb5757;
   background: rgba(235, 87, 87, 0.15);
 }
+.package-settings-container .collaborators_wrapper .collaborators_content .collaborators_settings .ownership_btn.remove:hover {
+  color: #eb5757;
+  background: rgba(255, 216, 216, 0.15);
+}
 .package-settings-container .collaborators_wrapper .collaborators_content .collaborators_settings .ownership_btn.accept {
   color: #fff;
   background-color: #44a1e7;
 }
+.package-settings-container .collaborators_wrapper .collaborators_content .collaborators_settings .ownership_btn.accept:hover {
+  color: #fff;
+  background-color: var(--blue-color-hover);
+}
 .package-settings-container .collaborators_wrapper .collaborators_content .collaborators_settings .ownership_btn.cancel {
   color: #fff;
-  background-color: #9e9e9e;
+  background-color: #808fb0;
   margin-left: 20px;
+}
+.package-settings-container .collaborators_wrapper .collaborators_content .collaborators_settings .ownership_btn.cancel:hover {
+  color: #fff;
+  background-color: var(--gray-color-hover);
 }
 @media screen and (min-width: 844px) and (max-width: 1280px) {
   .package-settings-container .collaborators_wrapper .collaborators_content .collaborators_settings .ownership_btn {
