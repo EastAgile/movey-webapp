@@ -1,10 +1,11 @@
 use cucumber::{then, when};
 use mainlib::{
-    accounts::Account, api::services::setting::controllers::profile::LoggedInUser, test::DB_POOL,
+    accounts::Account, test::DB_POOL,
 };
 use reqwest::StatusCode;
 use thirtyfour::prelude::*;
 use urlencoding::decode;
+use mainlib::api::setting::controllers::profile::LoggedInUser;
 
 use crate::features::world::TestResponse;
 

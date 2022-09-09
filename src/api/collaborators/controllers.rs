@@ -1,6 +1,6 @@
 use crate::accounts::jobs::{SendCollaboratorInvitationEmail, SendRegisterToCollabEmail};
 use crate::accounts::Account;
-use crate::api::services::collaborators::views::{CollaboratorJson, InvitationResponse};
+use crate::api::collaborators::views::{CollaboratorJson, InvitationResponse};
 use crate::package_collaborators::models::external_invitation::ExternalInvitation;
 use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
 use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};

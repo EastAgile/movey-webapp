@@ -1,5 +1,5 @@
 use crate::accounts::Account;
-use crate::api::services::setting::views::EncodableApiTokenWithToken;
+use crate::api::setting::views::EncodableApiTokenWithToken;
 use crate::settings::models::token::ApiToken;
 use crate::utils::request_utils;
 use diesel::result::DatabaseErrorKind;
