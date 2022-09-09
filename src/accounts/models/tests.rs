@@ -26,11 +26,7 @@ fn login_form() -> LoginForm {
     }
 }
 
-fn setup_github_account(
-    id_: Option<i64>,
-    login: Option<&str>,
-    email_: Option<&str>,
-) -> Account {
+fn setup_github_account(id_: Option<i64>, login: Option<&str>, email_: Option<&str>) -> Account {
     Account::register_from_github(
         &GithubOauthUser {
             id: id_.unwrap_or(132),
@@ -49,9 +45,7 @@ async fn fetch_name_from_email_returns_error_with_non_existent_email() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    Account::fetch_name_from_email("non-existent@mail.com", &DB_POOL)
-        
-        .unwrap();
+    Account::fetch_name_from_email("non-existent@mail.com", &DB_POOL).unwrap();
 }
 
 #[actix_rt::test]
@@ -61,9 +55,7 @@ async fn fetch_name_from_email_returns_correct_name() {
 
     let uid = setup_user(None, None);
     let account_email = Account::get(uid, &DB_POOL).unwrap();
-    let account_name = Account::fetch_name_from_email(&account_email.email, &DB_POOL)
-        
-        .unwrap();
+    let account_name = Account::fetch_name_from_email(&account_email.email, &DB_POOL).unwrap();
     assert_eq!(account_name, account_email.name);
 }
 
@@ -249,7 +241,6 @@ async fn change_password_returns_error_if_wrong_current_password() {
         new_password.clone(),
         &DB_POOL,
     )
-    
     .unwrap();
 }
 
@@ -267,7 +258,6 @@ async fn change_password_works() {
         new_password.clone(),
         &DB_POOL,
     )
-    
     .unwrap();
     let mut login_form = login_form();
     login_form.password.value = new_password.clone();
@@ -376,7 +366,6 @@ async fn merge_github_account_and_movey_account_works() {
         github_account.github_login.as_ref().unwrap().to_string(),
         &DB_POOL,
     )
-    
     .unwrap();
     let movey_account = Account::get(uid, &DB_POOL).unwrap();
 
@@ -398,12 +387,8 @@ async fn merge_github_account_and_movey_account_should_migrate_api_tokens() {
     let _ctx = DatabaseTestContext::new();
 
     let github_account = setup_github_account(None, None, None);
-    ApiToken::insert(&github_account, "old_gh_account_token_1", &DB_POOL)
-        
-        .unwrap();
-    ApiToken::insert(&github_account, "old_gh_account_token_2", &DB_POOL)
-        
-        .unwrap();
+    ApiToken::insert(&github_account, "old_gh_account_token_1", &DB_POOL).unwrap();
+    ApiToken::insert(&github_account, "old_gh_account_token_2", &DB_POOL).unwrap();
 
     let uid = setup_user(None, None);
     let movey_account = Account::get(uid, &DB_POOL).unwrap();
@@ -417,15 +402,12 @@ async fn merge_github_account_and_movey_account_should_migrate_api_tokens() {
         github_account.github_login.as_ref().unwrap().to_string(),
         &DB_POOL,
     )
-    
     .unwrap();
     let movey_account = Account::get(uid, &DB_POOL).unwrap();
     assert_eq!(movey_account.github_id, github_account.github_id);
     assert_eq!(movey_account.github_login, github_account.github_login);
 
-    let movey_account_api_tokens = ApiToken::get_by_account(movey_account.id, &DB_POOL)
-        
-        .unwrap();
+    let movey_account_api_tokens = ApiToken::get_by_account(movey_account.id, &DB_POOL).unwrap();
     assert_eq!(movey_account_api_tokens.len(), 2);
 
     let movey_account_token_names = movey_account_api_tokens
@@ -453,28 +435,16 @@ async fn merge_github_account_and_movey_account_should_aggregate_api_tokens() {
     let _ctx = DatabaseTestContext::new();
 
     let github_account = setup_github_account(None, None, None);
-    ApiToken::insert(&github_account, "token_1", &DB_POOL)
-        
-        .unwrap();
-    ApiToken::insert(&github_account, "token_2", &DB_POOL)
-        
-        .unwrap();
+    ApiToken::insert(&github_account, "token_1", &DB_POOL).unwrap();
+    ApiToken::insert(&github_account, "token_2", &DB_POOL).unwrap();
 
     let uid = setup_user(None, None);
     let movey_account = Account::get(uid, &DB_POOL).unwrap();
-    ApiToken::insert(&movey_account, "token_1", &DB_POOL)
-        
-        .unwrap();
-    ApiToken::insert(&movey_account, "token_2", &DB_POOL)
-        
-        .unwrap();
-    ApiToken::insert(&movey_account, "token_3", &DB_POOL)
-        
-        .unwrap();
+    ApiToken::insert(&movey_account, "token_1", &DB_POOL).unwrap();
+    ApiToken::insert(&movey_account, "token_2", &DB_POOL).unwrap();
+    ApiToken::insert(&movey_account, "token_3", &DB_POOL).unwrap();
 
-    let movey_account_api_tokens = ApiToken::get_by_account(movey_account.id, &DB_POOL)
-        
-        .unwrap();
+    let movey_account_api_tokens = ApiToken::get_by_account(movey_account.id, &DB_POOL).unwrap();
     assert_eq!(movey_account_api_tokens.len(), 3);
 
     Account::merge_github_account_and_movey_account(
@@ -484,15 +454,12 @@ async fn merge_github_account_and_movey_account_should_aggregate_api_tokens() {
         github_account.github_login.as_ref().unwrap().to_string(),
         &DB_POOL,
     )
-    
     .unwrap();
     let movey_account = Account::get(uid, &DB_POOL).unwrap();
     assert_eq!(movey_account.github_id, github_account.github_id);
     assert_eq!(movey_account.github_login, github_account.github_login);
 
-    let movey_account_api_tokens = ApiToken::get_by_account(movey_account.id, &DB_POOL)
-        
-        .unwrap();
+    let movey_account_api_tokens = ApiToken::get_by_account(movey_account.id, &DB_POOL).unwrap();
     assert_eq!(movey_account_api_tokens.len(), 5);
 
     let movey_account_token_names = movey_account_api_tokens
@@ -524,17 +491,13 @@ async fn merge_github_account_and_movey_account_should_migrate_packages_ownershi
 
     let github_account = setup_github_account(None, None, None);
     create_stub_packages(github_account.id, 3);
-    let github_account_packages = Package::get_by_account(github_account.id, &DB_POOL)
-        
-        .unwrap();
+    let github_account_packages = Package::get_by_account(github_account.id, &DB_POOL).unwrap();
     assert_eq!(github_account_packages.len(), 3);
 
     let uid = setup_user(None, None);
     let movey_account = Account::get(uid, &DB_POOL).unwrap();
     create_stub_packages(movey_account.id, 7);
-    let movey_account_packages = Package::get_by_account(movey_account.id, &DB_POOL)
-        
-        .unwrap();
+    let movey_account_packages = Package::get_by_account(movey_account.id, &DB_POOL).unwrap();
     assert_eq!(movey_account_packages.len(), 7);
 
     Account::merge_github_account_and_movey_account(
@@ -544,11 +507,8 @@ async fn merge_github_account_and_movey_account_should_migrate_packages_ownershi
         github_account.github_login.as_ref().unwrap().to_string(),
         &DB_POOL,
     )
-    
     .unwrap();
-    let movey_account_packages = Package::get_by_account(movey_account.id, &DB_POOL)
-        
-        .unwrap();
+    let movey_account_packages = Package::get_by_account(movey_account.id, &DB_POOL).unwrap();
     assert_eq!(movey_account_packages.len(), 10);
 
     let old_github_account = Account::get(github_account.id, &DB_POOL);
@@ -576,7 +536,6 @@ async fn update_movey_account_with_github_info_works() {
         "a_string".to_string(),
         &DB_POOL,
     )
-    
     .unwrap();
     let movey_account = Account::get(uid, &DB_POOL).unwrap();
     assert_eq!(movey_account.name, "email".to_string());
@@ -613,8 +572,7 @@ async fn register_from_github_will_check_and_update_slug() {
         Some(145_346),
         Some("-github__name-"),
         Some("another_email@domain.com"),
-    )
-    ;
+    );
     assert_ne!(another_github_user.id, github_user.id);
     assert_eq!(another_github_user.github_login.unwrap(), "-github__name-");
     assert!(another_github_user
@@ -640,8 +598,7 @@ async fn register_will_check_and_update_slug_to_avoid_collision() {
         Some(145_346),
         Some("-github__name-"),
         Some("another_email@domain.com"),
-    )
-    ;
+    );
     assert!(another_github_user
         .slug
         .as_ref()
@@ -683,14 +640,12 @@ async fn make_slug_works() {
             "__account._++to.be.trailled-very-important+++***{}!!!!!1111!!!!!@host.com".to_string(),
         ),
         None,
-    )
-    ;
+    );
     let account = Account::get(uid, &DB_POOL).unwrap();
     let slug_ = account.make_slug();
     assert_eq!(slug_, "account-to-be-trailled-very-important-1111");
 
-    let account =
-        setup_github_account(Some(10), Some("a_github_username"), Some("aaa@host.com"));
+    let account = setup_github_account(Some(10), Some("a_github_username"), Some("aaa@host.com"));
     let slug_ = account.make_slug();
     assert_eq!(slug_, "a-github-username");
 }

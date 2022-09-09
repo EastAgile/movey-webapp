@@ -20,7 +20,6 @@ fn setup_external_invitation() -> ExternalInvitation {
         Some(uid),
         &DB_POOL,
     )
-    
     .unwrap();
     ExternalInvitation::create(&outside_email, uid, pid, &DB_POOL.get().unwrap()).unwrap()
 }

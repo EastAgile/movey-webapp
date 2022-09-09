@@ -161,9 +161,7 @@ mod tests {
 
         let result = ApiToken::insert(&account, "name1", &DB_POOL).unwrap();
 
-        if let Ok(associated_account) =
-            ApiToken::associated_account(&result.plaintext, &DB_POOL)
-        {
+        if let Ok(associated_account) = ApiToken::associated_account(&result.plaintext, &DB_POOL) {
             assert_eq!(associated_account.id, account.id)
         } else {
             panic!("Associated account not found!")
@@ -180,8 +178,7 @@ mod tests {
         ApiToken::insert(&account, "name1", &DB_POOL).unwrap();
         ApiToken::insert(&account, "name2", &DB_POOL).unwrap();
 
-        let results = ApiToken::get_by_account(account.id, &DB_POOL)
-            .unwrap();
+        let results = ApiToken::get_by_account(account.id, &DB_POOL).unwrap();
         assert_eq!(results.len(), 2);
         assert_eq!(results[0].name, "name2");
         assert_eq!(results[1].name, "name1");
@@ -196,8 +193,7 @@ mod tests {
         let account = Account::get(uid, &DB_POOL).unwrap();
 
         let new_api_token = ApiToken::insert(&account, "name1", &DB_POOL).unwrap();
-        let token_id = ApiToken::get(&new_api_token.plaintext, &DB_POOL)
-            .unwrap();
+        let token_id = ApiToken::get(&new_api_token.plaintext, &DB_POOL).unwrap();
         assert_eq!(token_id, 1);
     }
 
@@ -219,8 +215,7 @@ mod tests {
         );
 
         ApiToken::revoke(token1.model.id, &DB_POOL).unwrap();
-        let tokens = ApiToken::get_by_account(account.id, &DB_POOL)
-            .unwrap();
+        let tokens = ApiToken::get_by_account(account.id, &DB_POOL).unwrap();
         assert_eq!(tokens.len(), 1);
         assert_eq!(tokens[0].name, "name2");
     }

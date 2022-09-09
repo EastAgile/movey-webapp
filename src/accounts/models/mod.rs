@@ -66,10 +66,7 @@ impl Account {
         Ok(result)
     }
 
-    pub fn get_by_email_or_gh_login(
-        search_term: &str,
-        pool: &DieselPgPool,
-    ) -> Result<Self, Error> {
+    pub fn get_by_email_or_gh_login(search_term: &str, pool: &DieselPgPool) -> Result<Self, Error> {
         let connection = pool.get()?;
         let trimmed_search_term = search_term.trim();
         let result = accounts
@@ -245,7 +242,7 @@ impl Account {
         })
     }
 
-    pub  fn get_by_github_id(gid: i64, pool: &DieselPgPool) -> Result<Self, Error> {
+    pub fn get_by_github_id(gid: i64, pool: &DieselPgPool) -> Result<Self, Error> {
         let connection = pool.get()?;
         let result = accounts
             .filter(github_id.eq(gid))
@@ -254,7 +251,7 @@ impl Account {
         Ok(result)
     }
 
-    pub  fn merge_github_account_and_movey_account(
+    pub fn merge_github_account_and_movey_account(
         gh_account_id: i32,
         movey_account_id: i32,
         gh_id: i64,
@@ -264,13 +261,15 @@ impl Account {
         let conn = pool.get()?;
 
         conn.build_transaction().run::<_, _, _>(|| {
-            diesel::update(package_collaborators::table
-                .filter(package_collaborators::account_id.eq(gh_account_id)))
-                .set((
-                    package_collaborators::account_id.eq(movey_account_id),
-                    package_collaborators::created_by.eq(movey_account_id)
-                ))
-                .execute(&conn)?;
+            diesel::update(
+                package_collaborators::table
+                    .filter(package_collaborators::account_id.eq(gh_account_id)),
+            )
+            .set((
+                package_collaborators::account_id.eq(movey_account_id),
+                package_collaborators::created_by.eq(movey_account_id),
+            ))
+            .execute(&conn)?;
 
             diesel::update(api_tokens.filter(api_tokens_account_id.eq(movey_account_id)))
                 .set(api_tokens_name.eq(api_tokens_name.concat("__movey")))
@@ -301,7 +300,7 @@ impl Account {
         })
     }
 
-    pub  fn update_movey_account_with_github_info(
+    pub fn update_movey_account_with_github_info(
         movey_id: i32,
         gh_id: i64,
         gh_login: String,
@@ -380,7 +379,7 @@ impl Account {
 
 #[cfg(any(test, feature = "test"))]
 impl Account {
-    pub  fn delete(account_id: i32) -> Result<(), Error> {
+    pub fn delete(account_id: i32) -> Result<(), Error> {
         let pool = &crate::test::DB_POOL;
         let conn = pool.get()?;
         diesel::delete(accounts.filter(id.eq(account_id))).execute(&conn)?;

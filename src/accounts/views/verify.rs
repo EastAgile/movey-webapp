@@ -202,8 +202,7 @@ fn link_github_to_movey_account(
                 oauth_response.id,
                 oauth_response.login.clone(),
                 pool,
-            )
-            ?;
+            )?;
         }
         Err(e) => {
             error!(
@@ -367,7 +366,6 @@ mod tests {
             },
             &DB_POOL,
         )
-        
         .unwrap();
 
         assert_eq!(existing_gh_account.name, "");

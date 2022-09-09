@@ -29,7 +29,7 @@ pub async fn show_package(
     let conn = db.get()?;
     let package = Package::get_by_name(&package_name, db)?;
     let collaborators = PackageCollaborator::get_by_package_id(package.id, &conn)?;
-    
+
     let default_version: String = String::from("");
     let params = Query::<PackageShowParams>::from_query(request.query_string())
         .map_err(|e| Error::Generic(format!("Error getting query params: {:?}", e)))?;
@@ -111,11 +111,11 @@ pub async fn show_package_settings(
     let db_connection = db_pool.get()?;
     let package = Package::get_by_name(&package_name, db_pool)?;
     let package_latest_version =
-        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db_pool)?
-            [0];
+        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db_pool)?[0];
 
     // get movey account that is already a collaborator
-    let accepted_ids: Vec<i32> = PackageCollaborator::get_by_package_id(package.id, &db_connection)?;
+    let accepted_ids: Vec<i32> =
+        PackageCollaborator::get_by_package_id(package.id, &db_connection)?;
     let owner_id = if accepted_ids.len() > 0 {
         accepted_ids[0]
     } else {
@@ -250,8 +250,7 @@ pub async fn show_search_results(
         search.page,
         None,
         db,
-    )
-    ?;
+    )?;
 
     let current_page = search.page.unwrap_or(1);
     if current_page < 1 {
@@ -317,8 +316,7 @@ pub async fn packages_index(
         params.page,
         None,
         db,
-    )
-    ?;
+    )?;
 
     let current_page = params.page.unwrap_or(1);
     if current_page < 1 {

@@ -22,7 +22,6 @@ fn setup_invitation(is_transferring: Option<bool>) -> OwnerInvitation {
         Some(invited_by_uid),
         &DB_POOL,
     )
-    
     .unwrap();
     OwnerInvitation::create(
         invited_uid,

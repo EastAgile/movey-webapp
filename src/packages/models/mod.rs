@@ -23,24 +23,16 @@ mod tests;
 
 #[double]
 use crate::github_service::GithubService;
+use crate::schema::package_collaborators;
 use crate::schema::package_versions;
 use crate::schema::package_versions::dsl::*;
 use crate::schema::packages;
 use crate::schema::packages::dsl::*;
-use crate::schema::package_collaborators;
 use crate::utils::paginate::LoadPaginated;
 
 pub const PACKAGES_PER_PAGE: i64 = 10;
 
-#[derive(
-    Debug,
-    Serialize,
-    Deserialize,
-    Queryable,
-    Identifiable,
-    AsChangeset,
-    QueryableByName,
-)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset, QueryableByName)]
 #[table_name = "packages"]
 pub struct Package {
     pub id: i32,
@@ -223,7 +215,6 @@ impl Package {
             github_data,
             pool,
         )
-        
     }
 
     pub fn create_from_crawled_data(
@@ -239,32 +230,34 @@ impl Package {
         let connection = pool.get()?;
         let (record, package_owner_id) = match Package::get_by_name(&github_data.name, pool) {
             Ok(package) => {
-                let collaborators = PackageCollaborator::get_by_package_id(package.id, &connection)?;
+                let collaborators =
+                    PackageCollaborator::get_by_package_id(package.id, &connection)?;
                 let owner_id = if collaborators.len() > 0 {
                     Some(collaborators[0])
                 } else {
                     None
                 };
                 (package, owner_id)
-            },
+            }
             Err(_) => {
                 let new_package = NewPackage {
                     name: github_data.name,
                     description: package_description.to_string(),
                     repository_url: repo_url.to_string(),
                 };
-                
+
                 let new_record = diesel::insert_into(packages::table)
                     .values(new_package)
                     .returning(PACKAGE_COLUMNS)
                     .get_result::<Package>(&connection)?;
-                
+
                 if account_id_.is_some() {
                     PackageCollaborator::new_owner(
                         new_record.id,
                         account_id_.unwrap(),
                         account_id_.unwrap(),
-                        &connection)?;
+                        &connection,
+                    )?;
                 }
 
                 (new_record, account_id_)
@@ -286,8 +279,7 @@ impl Package {
                         version_size,
                         None,
                         pool,
-                    )
-                    ?;
+                    )?;
                 } else {
                     return Err(e);
                 }
@@ -364,10 +356,7 @@ impl Package {
         Ok(result)
     }
 
-    pub fn get_by_account(
-        owner_id: i32,
-        pool: &DieselPgPool,
-    ) -> Result<Vec<PackageSearchResult>> {
+    pub fn get_by_account(owner_id: i32, pool: &DieselPgPool) -> Result<Vec<PackageSearchResult>> {
         let connection = pool.get()?;
 
         let result = packages
@@ -416,7 +405,11 @@ impl Package {
         let connection = pool.get()?;
         let result = packages
             .inner_join(package_collaborators::table)
-            .filter(package_collaborators::account_id.eq(owner_id).and(package_collaborators::role.eq(Role::Owner as i32)))
+            .filter(
+                package_collaborators::account_id
+                    .eq(owner_id)
+                    .and(package_collaborators::role.eq(Role::Owner as i32)),
+            )
             .select(sum(total_downloads_count))
             .first::<Option<i64>>(&connection)?;
 
@@ -445,7 +438,11 @@ impl Package {
         conn: &DieselPgConnection,
     ) -> Result<()> {
         diesel::update(package_collaborators::table)
-            .filter(package_collaborators::package_id.eq(package_id_).and(package_collaborators::role.eq(Role::Owner as i32)))
+            .filter(
+                package_collaborators::package_id
+                    .eq(package_id_)
+                    .and(package_collaborators::role.eq(Role::Owner as i32)),
+            )
             .set(package_collaborators::account_id.eq(new_owner_id))
             .execute(conn)?;
         Ok(())
@@ -507,8 +504,7 @@ impl Package {
                             github_data.size,
                             None,
                             pool,
-                        )
-                        ?;
+                        )?;
                     }
                     Err(e) => {
                         return Err(Error::Database(e));
@@ -541,8 +537,7 @@ impl Package {
                     None,
                     github_data,
                     pool,
-                )
-                ?
+                )?
             }
             Err(e) => {
                 return Err(Error::Database(e));
@@ -757,7 +752,8 @@ impl Package {
                 record.id,
                 account_id_.unwrap(),
                 account_id_.unwrap(),
-                &connection)?;
+                &connection,
+            )?;
         }
 
         PackageVersion::create(

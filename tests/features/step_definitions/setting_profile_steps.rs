@@ -41,8 +41,7 @@ async fn get_logged_in_user(world: &mut TestWorld) {
 
 #[when("My account is deleted but my browser is not signed out")]
 async fn delete_account(world: &mut TestWorld) {
-    let account = Account::get_by_email(&world.first_account.email, &DB_POOL)
-        .unwrap();
+    let account = Account::get_by_email(&world.first_account.email, &DB_POOL).unwrap();
     Account::delete(account.id).unwrap();
 }
 

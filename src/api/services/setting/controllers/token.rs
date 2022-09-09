@@ -58,8 +58,7 @@ pub async fn revoke_token(
             .parse::<i32>()
             .map_err(|e| anyhow!("Error parsing token id: {:?}", e))?,
         db,
-    )
-    ?;
+    )?;
 
     // checks if token belongs to account
     if token.account_id == user.id {

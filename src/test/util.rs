@@ -41,7 +41,6 @@ pub fn create_test_token() -> String {
     let uid = Account::register(&form, &DB_POOL).unwrap();
     let account = Account::get(uid, &DB_POOL).unwrap();
     ApiToken::insert(&account, "test_key", &DB_POOL)
-        
         .unwrap()
         .plaintext
 }

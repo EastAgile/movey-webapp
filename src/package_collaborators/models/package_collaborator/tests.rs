@@ -19,10 +19,10 @@ fn setup_collaborator() -> (i32, i32) {
         Some(owner_id),
         &DB_POOL,
     )
-    
     .unwrap();
 
-    PackageCollaborator::new_collaborator(pid, collaborator_id, owner_id, &DB_POOL.get().unwrap()).unwrap();
+    PackageCollaborator::new_collaborator(pid, collaborator_id, owner_id, &DB_POOL.get().unwrap())
+        .unwrap();
     (pid, collaborator_id)
 }
 #[actix_rt::test]

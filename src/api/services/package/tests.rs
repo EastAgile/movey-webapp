@@ -81,13 +81,11 @@ async fn increase_download_count_creates_shadow_package_when_package_version_not
         .expect_db_pool()
         .returning(|| Ok(&DB_POOL));
     let form = init_form();
-    increase_download_count(mock_http_request, form).await.unwrap();
-    let package = Package::get_by_name(&"name1".to_string(), &DB_POOL)
-        
+    increase_download_count(mock_http_request, form)
+        .await
         .unwrap();
-    PackageVersion::delete_by_package_id(package.id, &DB_POOL)
-        
-        .unwrap();
+    let package = Package::get_by_name(&"name1".to_string(), &DB_POOL).unwrap();
+    PackageVersion::delete_by_package_id(package.id, &DB_POOL).unwrap();
     assert_eq!(Package::count(&DB_POOL).unwrap(), 1);
     assert_eq!(PackageVersion::count(&DB_POOL).unwrap(), 0);
 

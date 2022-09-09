@@ -5,9 +5,9 @@ use jelly::Result;
 use crate::accounts::Account;
 #[cfg(test)]
 use crate::test::mock::MockHttpRequest as HttpRequest;
+use jelly::accounts::OneTimeUseTokenGenerator;
 #[cfg(not(test))]
 use jelly::actix_web::HttpRequest;
-use jelly::accounts::OneTimeUseTokenGenerator;
 
 /// Decodes the pieces used in verify and reset-password URL structures,
 /// and validates them. If they're valid, it will return the Account in

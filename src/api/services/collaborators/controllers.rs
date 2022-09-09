@@ -28,7 +28,6 @@ pub async fn add_collaborators(
     let conn = db.get().map_err(|e| ApiServerError(Box::new(e)))?;
 
     let package = Package::get_by_name(&package_name, db)
-        
         .map_err(|e| ApiNotFound(MSG_PACKAGE_NOT_FOUND, Box::new(e)))?;
 
     let user = request.user().map_err(|e| ApiServerError(Box::new(e)))?;
@@ -118,11 +117,9 @@ pub async fn transfer_ownership(
     let conn = db.get().map_err(|e| ApiServerError(Box::new(e)))?;
 
     let package = Package::get_by_name(&package_name, db)
-        
         .map_err(|e| ApiNotFound(MSG_PACKAGE_NOT_FOUND, Box::new(e)))?;
 
     let invited_account = Account::get_by_email_or_gh_login(&json.user, db)
-        
         .map_err(|e| ApiNotFound(MSG_ACCOUNT_NOT_FOUND, Box::new(e)))?;
 
     let user = request.user().map_err(|e| ApiServerError(Box::new(e)))?;
@@ -228,7 +225,6 @@ pub async fn remove_collaborator(
     let conn = db.get().map_err(|e| ApiServerError(Box::new(e)))?;
 
     let package = Package::get_by_name(&package_name, db)
-        
         .map_err(|e| ApiNotFound(MSG_PACKAGE_NOT_FOUND, Box::new(e)))?;
     let user = request.user().map_err(|e| ApiServerError(Box::new(e)))?;
     let collaborator = PackageCollaborator::get(package.id, user.id, &conn)

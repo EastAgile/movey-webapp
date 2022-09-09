@@ -51,8 +51,7 @@ pub async fn change_password(
         form.current_password.value,
         form.new_password.value,
         db,
-    )
-    ;
+    );
     let message;
     let is_ok = match result {
         Ok(_) => {

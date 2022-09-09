@@ -26,13 +26,12 @@ impl Job for SendCollaboratorInvitationEmail {
 
     fn run(self, state: JobState) -> Self::Future {
         Box::pin(async move {
-            let account = Account::get_by_email(&self.to, &state.pool)
-                .map_err(|e| {
-                    anyhow!(
-                        "Error fetching account for collaborator invitation: {:?}",
-                        e
-                    )
-                })?;
+            let account = Account::get_by_email(&self.to, &state.pool).map_err(|e| {
+                anyhow!(
+                    "Error fetching account for collaborator invitation: {:?}",
+                    e
+                )
+            })?;
             let domain = env::var("JELLY_DOMAIN").expect("No JELLY_DOMAIN value set!");
 
             let invitation_url = format!("{}/owner_invitations/accept/{}", domain, self.token);
