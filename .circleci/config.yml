@@ -18,7 +18,8 @@ jobs:
       - run: cargo install cargo-llvm-cov
       - run: cargo install diesel_cli --no-default-features --features "postgres"
       - run: cargo install coveralls
-      - run: cargo install grcov
+      # TODO: version 0.8.12 causes a build error, temporarily lock to 0.8.11
+      - run: cargo install grcov --version 0.8.11
       - browser-tools/install-chrome
       - browser-tools/install-chromedriver
       - run:
