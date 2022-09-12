@@ -3,7 +3,6 @@ version: 2.1
 orbs:
   browser-tools: circleci/browser-tools@1.1.3
   slack: circleci/slack@4.9.3
-
 jobs:
   build:
     docker:
@@ -18,7 +17,8 @@ jobs:
       - run: cargo install cargo-llvm-cov
       - run: cargo install diesel_cli --no-default-features --features "postgres"
       - run: cargo install coveralls
-      - run: cargo install grcov
+      - run: cargo install grcov --version 0.8.11
+
       - browser-tools/install-chrome
       - browser-tools/install-chromedriver
       - run:
