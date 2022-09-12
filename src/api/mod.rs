@@ -7,7 +7,7 @@ pub mod package;
 pub mod setting;
 
 pub fn configure(config: &mut ServiceConfig) {
-    collaborators::configure(config);
     package::configure(config);
     setting::configure(config);
+    collaborators::configure(config);
 }
