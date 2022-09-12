@@ -136,7 +136,14 @@ pub async fn show_package_settings(
     let mut is_user_collaborator = false;
     let user = request.user()?;
 
-    let current_user_email = Account::get(user.id,db_pool).await.unwrap();
+    let current_user_email = if user.is_anonymous {
+        None
+    } else {
+        Account::get(user.id, db_pool)
+            .await
+            .ok()
+            .and_then(|account| Some(account.email))
+    };
 
     if accepted_ids.contains(&user.id) {
         if owner_id == user.id {
@@ -230,7 +237,7 @@ pub async fn show_package_settings(
 
         // owner_list = owner + accepted_collaborator + pending_collaborator + external
         ctx.insert("owner_list", &all_invitations);
-        ctx.insert("current_email",&current_user_email.email);
+        ctx.insert("current_email", &current_user_email);
         ctx.insert("is_current_user_owner", &is_current_user_owner);
         ctx.insert("is_current_user_collaborator", &is_user_collaborator);
         ctx
