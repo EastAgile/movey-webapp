@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   browser-tools: circleci/browser-tools@1.1.3
-
+  slack: circleci/slack@4.9.3
 jobs:
   build:
     docker:
@@ -19,10 +19,6 @@ jobs:
       - run: cargo install coveralls
       - run: cargo install grcov --version 0.8.11
 
-      - run:
-          name: Setup test server for integration tests
-          command: "DATABASE_URL=$DATABASE_URL_TEST diesel setup && PORT=17002 cargo run --features test"
-          background: true
       - browser-tools/install-chrome
       - browser-tools/install-chromedriver
       - run:
@@ -36,3 +32,9 @@ jobs:
       - run: RUSTFLAGS="-C instrument-coverage" LLVM_PROFILE_FILE="movey-%m.profraw" cargo test --features test --test integration_tests -- --concurrency 1
       - run: grcov . --binary-path ./target/debug/ -t coveralls --keep-only "src/*" --keep-only "tests/*" -s . --token $COVERALLS_REPO_TOKEN > coveralls.json
       - run: coveralls --input coveralls.json circleci
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: basic_success_1
