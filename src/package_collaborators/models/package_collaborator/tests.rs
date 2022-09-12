@@ -4,9 +4,9 @@ use crate::test::util::setup_user;
 use crate::test::{DatabaseTestContext, DB_POOL};
 use jelly::prelude::*;
 
-async fn setup_collaborator() -> (i32, i32) {
-    let owner_id = setup_user(Some(String::from("user1@host.com")), None).await;
-    let collaborator_id = setup_user(Some(String::from("user2@host.com")), None).await;
+fn setup_collaborator() -> (i32, i32) {
+    let owner_id = setup_user(Some(String::from("user1@host.com")), None);
+    let collaborator_id = setup_user(Some(String::from("user2@host.com")), None);
     let pid = Package::create_test_package(
         &"package1".to_string(),
         &"".to_string(),
@@ -19,10 +19,10 @@ async fn setup_collaborator() -> (i32, i32) {
         Some(owner_id),
         &DB_POOL,
     )
-    .await
     .unwrap();
 
-    PackageCollaborator::new_collaborator(pid, collaborator_id, owner_id, &DB_POOL.get().unwrap()).unwrap();
+    PackageCollaborator::new_collaborator(pid, collaborator_id, owner_id, &DB_POOL.get().unwrap())
+        .unwrap();
     (pid, collaborator_id)
 }
 #[actix_rt::test]
@@ -30,13 +30,13 @@ async fn new_collaborator_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let (pid, uid) = setup_collaborator().await;
+    let (pid, uid) = setup_collaborator();
     let rel = PackageCollaborator::get(pid, uid, &DB_POOL.get().unwrap());
     assert!(rel.is_ok());
     assert_eq!(rel.as_ref().unwrap().package_id, pid);
     assert_eq!(rel.unwrap().account_id, uid);
 
-    let uid2 = setup_user(Some("second@host.com".to_string()), None).await;
+    let uid2 = setup_user(Some("second@host.com".to_string()), None);
     PackageCollaborator::new_collaborator(pid, uid2, uid, &DB_POOL.get().unwrap()).unwrap();
 
     let res = PackageCollaborator::get_in_bulk_order_by_role(
@@ -71,7 +71,7 @@ async fn delete_by_id_works() {
     let conn = db.get().unwrap();
     let res = PackageCollaborator::delete_by_id(1, 1, &conn).unwrap();
     assert_eq!(res, 0);
-    let (pid, uid) = setup_collaborator().await;
+    let (pid, uid) = setup_collaborator();
     let res = PackageCollaborator::delete_by_id(uid, pid, &conn).unwrap();
     assert_eq!(res, 1);
     let not_found = PackageCollaborator::get(pid, uid, &DB_POOL.get().unwrap());

@@ -19,7 +19,7 @@ async fn test_register() {
             hints: vec![],
         },
     };
-    let uid = Account::register(&form, &DB_POOL).await.unwrap();
-    let account = Account::get(uid, &DB_POOL).await.unwrap();
+    let uid = Account::register(&form, &DB_POOL).unwrap();
+    let account = Account::get(uid, &DB_POOL).unwrap();
     assert_eq!(account.email, "email@host.com");
 }

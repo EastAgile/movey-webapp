@@ -14,7 +14,6 @@ async fn package_in_db(_world: &mut TestWorld) {
         1000,
         &DB_POOL,
     )
-    .await
     .unwrap();
     Package::create_test_package_with_downloads(
         &"random_derive".to_string(),
@@ -24,7 +23,6 @@ async fn package_in_db(_world: &mut TestWorld) {
         5000,
         &DB_POOL,
     )
-    .await
     .unwrap();
     Package::create_test_package_with_downloads(
         &"faker_rand".to_string(),
@@ -33,7 +31,6 @@ async fn package_in_db(_world: &mut TestWorld) {
         2500,
         &DB_POOL,
     )
-    .await
     .unwrap();
     Package::create_test_package_with_downloads(
         &"rand_derive2".to_string(),
@@ -42,7 +39,6 @@ async fn package_in_db(_world: &mut TestWorld) {
         300,
         &DB_POOL,
     )
-    .await
     .unwrap();
 }
 

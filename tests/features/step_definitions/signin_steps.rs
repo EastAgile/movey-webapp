@@ -29,8 +29,8 @@ pub async fn an_user(world: &mut TestWorld) {
             hints: vec![],
         },
     };
-    let uid = Account::register(&form, &DB_POOL).await.unwrap();
-    Account::mark_verified(uid, &DB_POOL).await.unwrap();
+    let uid = Account::register(&form, &DB_POOL).unwrap();
+    Account::mark_verified(uid, &DB_POOL).unwrap();
     account.id = uid;
     world.first_account = account;
 }

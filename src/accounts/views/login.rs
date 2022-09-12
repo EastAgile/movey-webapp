@@ -18,7 +18,7 @@ use crate::accounts::Account;
 
 /// The login form.
 pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
-    if request_utils::is_authenticated(&request).await? {
+    if request_utils::is_authenticated(&request)? {
         return request.redirect("/settings/profile");
     }
     request.render(200, "accounts/login.html", {
@@ -34,7 +34,7 @@ pub async fn form(request: HttpRequest) -> Result<HttpResponse> {
 
 /// POST-handler for logging in.
 pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result<HttpResponse> {
-    if request_utils::is_authenticated(&request).await? {
+    if request_utils::is_authenticated(&request)? {
         return request.redirect("/settings/profile");
     }
 
@@ -49,10 +49,10 @@ pub async fn authenticate(request: HttpRequest, form: Form<LoginForm>) -> Result
     }
 
     let db = request.db_pool()?;
-    let error_message = match Account::authenticate(&form, db).await {
+    let error_message = match Account::authenticate(&form, db) {
         Ok(user) => {
             let user_id = user.id;
-            Account::update_last_login(user_id, db).await?;
+            Account::update_last_login(user_id, db)?;
             request.set_user(user)?;
 
             return if form.remember_me == "off" {

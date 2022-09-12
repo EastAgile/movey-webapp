@@ -62,7 +62,7 @@ pub async fn with_token(
     request: HttpRequest,
     Path((uidb64, ts, token)): Path<(String, String, String)>,
 ) -> Result<HttpResponse> {
-    if let Ok(_account) = validate_token(&request, &uidb64, &ts, &token).await {
+    if let Ok(_account) = validate_token(&request, &uidb64, &ts, &token) {
         return request.render(200, "accounts/reset_password/change_password.html", {
             let mut context = Context::new();
             context.insert("form", &ChangePasswordViaEmailForm::default());
@@ -85,7 +85,7 @@ pub async fn reset(
 ) -> Result<HttpResponse> {
     let mut form = form.into_inner();
 
-    if let Ok(account) = validate_token(&request, &uidb64, &ts, &token).await {
+    if let Ok(account) = validate_token(&request, &uidb64, &ts, &token) {
         // Note! This is a case where we need to fetch the user ahead of form validation.
         // While it would be nice to avoid the DB hit, validating that their password is secure
         // requires pulling some account values...
@@ -104,9 +104,9 @@ pub async fn reset(
         }
 
         let pool = request.db_pool()?;
-        Account::update_password_and_last_login(account.id, &form.password, pool).await?;
+        Account::update_password_and_last_login(account.id, &form.password, pool)?;
         // If they has come this far, assume they have verified their email (or else they won't be able to get to this page at all)
-        Account::mark_verified(account.id, pool).await?;
+        Account::mark_verified(account.id, pool)?;
 
         request.queue(SendPasswordWasResetEmail {
             to: account.email.clone(),
