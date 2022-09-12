@@ -28,7 +28,7 @@
       <div class="collaborator_row">
         {% if info.status == "Owner" %}
         <div class="email_address owner_name">
-          {% if current_email == info.email %}
+          {% if current_email and current_email == info.email %}
             <b>{{info.email}}</b>(You)
           {% else %}
             {{info.email}}
@@ -40,7 +40,7 @@
         {% else %}
         {% if info.status == "Collaborator"%}
         <div class="email_address collaborator_name">
-          {% if current_email == info.email %}
+          {% if current_email and current_email == info.email %}
             <b>{{info.email}}</b>(You)
           {% else %}
             {{info.email}}
@@ -87,7 +87,7 @@
               </button>
               {% elif is_current_user_collaborator %}
               <button type="submit" class="hidden-btn"></button>
-                {% if current_email == info.email %}
+                {% if current_email and current_email == info.email %}
                   <button type="submit" class="hidden-btn">
                   </button>
                   {% else %}
