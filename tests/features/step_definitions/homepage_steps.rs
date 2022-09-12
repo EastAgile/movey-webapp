@@ -68,12 +68,12 @@ async fn dropdown_confirm(world: &mut TestWorld) {
 }
 #[when("I click on an item in the dropdown")]
 async fn click_on_dropdown(world: &mut TestWorld) {
-    let suggesstion = world
+    let suggestion = world
         .driver
         .find_element(By::Id("suggestions"))
         .await
         .unwrap();
-    let suggest = suggesstion
+    let suggest = suggestion
         .find_element(By::Css("#suggestion1 .package-name"))
         .await
         .unwrap();

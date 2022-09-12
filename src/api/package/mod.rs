@@ -17,12 +17,12 @@ pub fn configure(config: &mut ServiceConfig) {
                     .route(post().to(controller::increase_download_count)),
             )
             .service(
+                resource("/search")
+                    .route(post().to(controller::search_package))
+            )
+            .service(
                 resource("{package_name}/badge")
                     .route(get().to(controller::package_badge_info)),
-            )
-    );
-    config.service(
-        resource("/search_package")
-            .route(post().to(controller::search_package)),
+            ),
     );
 }
