@@ -9,6 +9,9 @@
   --cool-gray: #f8f9fb;
   --cool-gray-700: #374151;
   --sub-title-font: 'Syncopate', sans-serif;
+  --blue-color-hover: #48A8F0;
+  --gray-color-hover: rgba(134, 145, 171, 0.95);
+  --green-color-hover: #E5FFED; 
   font-family: 'Mulish', sans-serif;
 }
 body {

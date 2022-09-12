@@ -1,7 +1,7 @@
 @import "queries.scss";
 
 footer {
-  background: #02143A;
+  background: #02143a;
   height: 250px;
   padding: 30px;
   box-sizing: border-box;
@@ -37,12 +37,10 @@ footer {
   }
 
   .footer-about {
-
     @include medium-small-screen {
       text-align: center;
     }
     img {
-
       @include small-screen {
         content: url("/static/resources/logo_small.svg");
         width: 120px;
@@ -69,11 +67,9 @@ footer {
         height: 48px;
         overflow: hidden;
       }
-
     }
   }
   .footer-center {
-
     .link-container {
       display: flex;
       flex-wrap: wrap;
@@ -115,11 +111,12 @@ footer {
         flex-basis: 0;
         min-width: fit-content;
         text-align: center;
-        
-        &:link {
-          text-decoration: underline;
-        }
 
+        &:link {
+          &:hover {
+            text-decoration: underline;
+          }
+        }
       }
 
       span {
@@ -175,7 +172,7 @@ footer {
       text-align: center;
     }
 
-    .copyright{
+    .copyright {
       padding-bottom: 30px;
 
       @include medium-screen {

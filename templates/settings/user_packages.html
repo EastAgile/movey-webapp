@@ -13,7 +13,7 @@
         <div class="total_package">{{packages|length}} Package{{ packages | length | pluralize }}</div>
         {% for package in packages %}
 
-        <div class="package_content">
+        <div onclick="location.href='/packages/{{ package.name }}';" class="package_content">
             <div class="package_title">
                 <a class="package_name" href="/packages/{{ package.name }}"><span>{{ package.name }}</span></a>&nbsp;
                 <p class="package_version">{{package.version}}</p>

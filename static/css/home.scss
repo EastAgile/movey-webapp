@@ -193,6 +193,9 @@
             padding: 0;
             text-decoration: none;
           }
+          &:hover {
+            filter: brightness(120%);
+          }
         }
       }
       li:not(:last-child) {

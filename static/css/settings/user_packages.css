@@ -17,6 +17,15 @@
   border-bottom: 1px solid rgba(128, 143, 176, 0.5);
   margin-bottom: 24px;
 }
+.user_package_container .package_content:hover {
+  background-color: #fbfbfb;
+  background: rgba(68, 161, 231, 0.1);
+  cursor: pointer;
+}
+.user_package_container .package_content:hover .package-title a {
+  transition: color 100ms;
+  color: #44a1e7;
+}
 .user_package_container .package_content .package_title {
   display: flex;
   flex-flow: row nowrap;
