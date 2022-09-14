@@ -1,3 +1,4 @@
+use regex::Regex;
 use crate::test::{DatabaseTestContext, DB_POOL};
 
 use crate::github_service::GithubRepoData;
@@ -392,7 +393,7 @@ async fn create_package_works() {
         })
         .returning(|_, _, _| {
             Ok(GithubRepoData {
-                name: "name".to_string(),
+                name: "My Test String!!!1!1".to_string(),
                 version: "version".to_string(),
                 readme_content: "readme_content".to_string(),
                 description: "".to_string(),
@@ -416,8 +417,44 @@ async fn create_package_works() {
     .unwrap();
 
     let package = Package::get(uid, &DB_POOL).unwrap();
-    assert_eq!(package.name, "name");
+    assert_eq!(package.name, "My Test String!!!1!1");
     assert_eq!(package.description, "package_description");
+    assert_eq!(package.slug, "my-test-string-1-1");
+
+    let mut mock_github_service = GithubService::new();
+    mock_github_service
+        .expect_fetch_repo_data()
+        .withf(|x: &str, y: &Option<String>, z: &Option<String>| {
+            x == "repo_url2" && y.is_none() && z.is_none()
+        })
+        .returning(|_, _, _| {
+            Ok(GithubRepoData {
+                name: "My Test String!!!1!1".to_string(),
+                version: "version".to_string(),
+                readme_content: "readme_content".to_string(),
+                description: "".to_string(),
+                size: 0,
+                url: "".to_string(),
+                rev: "".to_string(),
+            })
+        });
+    let uid2 = Package::create(
+        "repo_url2",
+        "package_description",
+        "1",
+        2,
+        100,
+        Some(uid),
+        &mock_github_service,
+        None,
+        &DB_POOL,
+    )
+        .unwrap();
+    let package = Package::get(uid2, &DB_POOL).unwrap();
+    assert_eq!(package.name, "My Test String!!!1!1");
+    assert_eq!(package.description, "package_description");
+    let re = Regex::new(r"^my-test-string-1-1-[a-zA-Z0-9]{4}$").unwrap();
+    assert!(re.is_match(&package.slug));
 
     let package_version =
         &PackageVersion::from_package_id(uid, &PackageVersionSort::Latest, &DB_POOL).unwrap()[0];
@@ -440,7 +477,7 @@ async fn create_package_works() {
         })
         .returning(|_, _, _| {
             Ok(GithubRepoData {
-                name: "name".to_string(),
+                name: "My Test String!!!1!1".to_string(),
                 version: "version_2".to_string(),
                 readme_content: "readme_content".to_string(),
                 description: "".to_string(),

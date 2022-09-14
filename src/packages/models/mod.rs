@@ -1,3 +1,5 @@
+extern crate slug;
+
 use crate::sql::lower;
 
 use diesel::dsl::{count, now, sum};
@@ -29,6 +31,7 @@ use crate::schema::package_versions::dsl::*;
 use crate::schema::packages;
 use crate::schema::packages::dsl::*;
 use crate::utils::paginate::LoadPaginated;
+use crate::utils::token::generate_secure_alphanumeric_string;
 
 pub const PACKAGES_PER_PAGE: i64 = 10;
 
@@ -42,6 +45,7 @@ pub struct Package {
     pub total_downloads_count: i32,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    pub slug: String,
 }
 
 type PackageColumns = (
@@ -52,6 +56,7 @@ type PackageColumns = (
     packages::total_downloads_count,
     packages::created_at,
     packages::updated_at,
+    packages::slug,
 );
 
 pub const PACKAGE_COLUMNS: PackageColumns = (
@@ -62,6 +67,7 @@ pub const PACKAGE_COLUMNS: PackageColumns = (
     packages::total_downloads_count,
     packages::created_at,
     packages::updated_at,
+    packages::slug,
 );
 
 #[derive(Debug, Serialize, Deserialize, QueryableByName, Queryable)]
@@ -84,10 +90,12 @@ pub struct PackageSearchResult {
 
 #[derive(Insertable)]
 #[table_name = "packages"]
+#[derive(Clone)]
 pub struct NewPackage {
     pub name: String,
     pub description: String,
     pub repository_url: String,
+    pub slug: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -228,7 +236,7 @@ impl Package {
         pool: &DieselPgPool,
     ) -> Result<i32> {
         let connection = pool.get()?;
-        let (record, package_owner_id) = match Package::get_by_name(&github_data.name, pool) {
+        let (record, package_owner_id) = match Package::get_by_name_and_repo_url(&github_data.name, repo_url, pool) {
             Ok(package) => {
                 let collaborators =
                     PackageCollaborator::get_by_package_id(package.id, &connection)?;
@@ -240,27 +248,49 @@ impl Package {
                 (package, owner_id)
             }
             Err(_) => {
-                let new_package = NewPackage {
-                    name: github_data.name,
+                let mut new_package = NewPackage {
+                    name: github_data.name.clone(),
                     description: package_description.to_string(),
                     repository_url: repo_url.to_string(),
+                    slug: slug::slugify(github_data.name),
                 };
-
-                let new_record = diesel::insert_into(packages::table)
-                    .values(new_package)
+                let maximum_allowed_collisions = std::env::var("MAX_COLLISIONS_ALLOWED")
+                    .unwrap_or_else(|_| "3".to_string())
+                    .parse::<usize>()
+                    .unwrap();
+                let mut insert_result = diesel::insert_into(packages::table)
+                    .values(new_package.clone())
+                    .on_conflict(packages::slug)
+                    .do_nothing()
                     .returning(PACKAGE_COLUMNS)
-                    .get_result::<Package>(&connection)?;
-
+                    .get_result::<Package>(&connection);
+                if insert_result.is_err() {
+                    for i in 0..maximum_allowed_collisions {
+                        new_package.slug = format!("{}-{}", &new_package.slug, generate_secure_alphanumeric_string(4));
+                        insert_result = diesel::insert_into(packages::table)
+                            .values(new_package.clone())
+                            .on_conflict(packages::slug)
+                            .do_nothing()
+                            .returning(PACKAGE_COLUMNS)
+                            .get_result::<Package>(&connection);
+                        if insert_result.is_ok() {
+                            break;
+                        };
+                        if i == maximum_allowed_collisions - 1 {
+                            return Err(Error::Generic(String::from("asdz")));
+                        }
+                    }
+                }
+                let inserted_record = insert_result.unwrap();
                 if account_id_.is_some() {
                     PackageCollaborator::new_owner(
-                        new_record.id,
+                        inserted_record.id,
                         account_id_.unwrap(),
                         account_id_.unwrap(),
                         &connection,
                     )?;
                 }
-
-                (new_record, account_id_)
+                (inserted_record, account_id_)
             }
         };
 
@@ -315,6 +345,17 @@ impl Package {
 
         let result = packages
             .filter(name.eq(package_name))
+            .select(PACKAGE_COLUMNS)
+            .first::<Package>(&connection)?;
+
+        Ok(result)
+    }
+
+    pub fn get_by_name_and_repo_url(package_name: &str, repo_url: &str, pool: &DieselPgPool) -> Result<Self> {
+        let connection = pool.get()?;
+
+        let result = packages
+            .filter(name.eq(package_name).and(repository_url.eq(repo_url)))
             .select(PACKAGE_COLUMNS)
             .first::<Package>(&connection)?;
 
@@ -740,6 +781,7 @@ impl Package {
             name: package_name.to_string(),
             description: package_description.to_string(),
             repository_url: repo_url.to_string(),
+            slug: package_name.to_string(),
         };
 
         let record = diesel::insert_into(packages::table)

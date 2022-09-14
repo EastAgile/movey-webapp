@@ -1,0 +1,1 @@
+ALTER TABLE packages ADD slug TEXT UNIQUE NOT NULL;
