@@ -11,6 +11,7 @@ Feature: Transfer ownership
     Then I should see a modal with text 'Ownership transfer invitation is created successfully.'
     When I close the modal
     Then She (the collaborator) should receive an ownership invitation email
+    And She should see that the url to accept the transfer has '/collaborators/accept'
     When She is signed in
     And She accesses her invitation page
     Then She should see an ownership invitation in her profile page

@@ -267,6 +267,17 @@ async fn receive_ownership_invitation_email(_world: &mut TestWorld) {
     assert!(content.contains("You got invited as a collaborator on the package test package."));
 }
 
+#[then(regex = r"^She should see that the url to accept the transfer has '(.+)'$")]
+async fn url_in_transfer_email(world: &mut TestWorld, url: String) {
+    let email_dir = fs::read_dir("./emails").unwrap().next();
+    let content = fs::read_to_string(email_dir.unwrap().unwrap().path()).unwrap();
+
+    // Use JELLY_DOMAIN because it is inserted into the email template
+    let domain = std::env::var("JELLY_DOMAIN").unwrap();
+    let transfer_url = format!("{}{}", domain, url);
+    assert!(content.contains(&transfer_url));
+}
+
 #[when("She is signed in")]
 async fn second_user_sign_in(world: &mut TestWorld) {
     click_log_out(world).await;
@@ -359,10 +370,10 @@ async fn invitation_link_in_email(world: &mut TestWorld) {
     let email_dir = fs::read_dir("./emails").unwrap().next();
     let content = fs::read_to_string(email_dir.unwrap().unwrap().path()).unwrap();
 
-    let re = Regex::new(r"/owner_invitations/accept/([^ \n]+)".to_string().as_str()).unwrap();
+    let re = Regex::new(r"/collaborators/accept/([^ \n]+)".to_string().as_str()).unwrap();
     let caps = re.captures(&content).unwrap();
     let accept_token = caps.get(1).map(|m| m.as_str()).unwrap();
-    let url = &format!("owner_invitations/accept/{}", accept_token);
+    let url = &format!("collaborators/accept/{}", accept_token);
     world.go_to_url(url).await;
 }
 
