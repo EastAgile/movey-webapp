@@ -53,13 +53,14 @@ pub async fn show_package(
         let mut ctx = Context::new();
         ctx.insert("package", &package);
         ctx.insert("package_version", &package_version);
-        ctx.insert("account_name", &account_name);
+        ctx.insert("package_tab", "readme");
         ctx.insert("is_crawled", &collaborators.is_empty());
         ctx.insert("is_anonymous", &request.user()?.is_anonymous);
+
+        ctx.insert("account_name", &account_name);
         ctx.insert("account_slug_url", &account_slug_url);
         ctx.insert("instruction_subdir", &instruction_subdir);
         ctx.insert("instruction_repo_url", &instruction_repo_url);
-        ctx.insert("package_tab", "readme");
         ctx
     })
 }
@@ -74,9 +75,11 @@ pub async fn show_package_versions(
     Path(package_name): Path<String>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
+    let conn = db.get()?;
     let package = Package::get_by_name(&package_name, db)?;
     let package_latest_version =
         &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, db)?[0];
+    let collaborators = PackageCollaborator::get_by_package_id(package.id, &conn)?;
 
     let params = Query::<VersionParams>::from_query(request.query_string()).map_err(|e| {
         error!("Error parsing params: {:?}", e);
@@ -96,8 +99,11 @@ pub async fn show_package_versions(
         let mut ctx = Context::new();
         ctx.insert("package", &package);
         ctx.insert("package_version", &package_latest_version);
-        ctx.insert("versions", &package_versions);
         ctx.insert("package_tab", "versions");
+        ctx.insert("is_crawled", &collaborators.is_empty());
+        ctx.insert("is_anonymous", &request.user()?.is_anonymous);
+
+        ctx.insert("versions", &package_versions);
         ctx.insert("sort_type", &sort_type_text);
         ctx
     })
@@ -126,10 +132,22 @@ pub async fn show_package_settings(
     let mut all_invitations: Vec<SerializableInvitation>;
 
     let mut is_current_user_owner = false;
+    let mut is_user_collaborator = false;
     let user = request.user()?;
+
+    let current_user_email = if user.is_anonymous {
+        None
+    } else {
+        Account::get(user.id, db_pool)
+            .ok()
+            .and_then(|account| Some(account.email))
+    };
+
     if accepted_ids.contains(&user.id) {
         if owner_id == user.id {
             is_current_user_owner = true;
+        } else {
+            is_user_collaborator = true;
         }
         // get movey account that received an collaborator invitation
         let pending_ids: HashSet<i32> =
@@ -211,11 +229,15 @@ pub async fn show_package_settings(
     request.render(200, "packages/owner_settings.html", {
         let mut ctx = Context::new();
         ctx.insert("package", &package);
+        ctx.insert("package_version", &package_latest_version);
         ctx.insert("package_tab", "settings");
+        ctx.insert("is_crawled", &false);
+
         // owner_list = owner + accepted_collaborator + pending_collaborator + external
         ctx.insert("owner_list", &all_invitations);
-        ctx.insert("package_version", &package_latest_version);
+        ctx.insert("current_email", &current_user_email);
         ctx.insert("is_current_user_owner", &is_current_user_owner);
+        ctx.insert("is_current_user_collaborator", &is_user_collaborator);
         ctx
     })
 }

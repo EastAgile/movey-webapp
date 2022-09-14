@@ -290,6 +290,23 @@ async fn see_contact_us_cta(world: &mut TestWorld) {
     assert!(package_banner_cta_content.contains("claim your package ownership"));
 }
 
+#[then("I should not see the Collaborators tab")]
+async fn not_see_collaborators_tab(world: &mut TestWorld) {
+    let content_tabs = world
+        .driver
+        .find_elements(By::ClassName("content-tab"))
+        .await
+        .unwrap();
+    assert_eq!(content_tabs.len(), 2);
+
+    for tab in content_tabs {
+        let class_name = tab.class_name().await.unwrap();
+        if class_name.unwrap().contains("tab-owner") {
+            panic!("tab-owner still exists");
+        }
+    }
+}
+
 #[when("I click on versions of that package")]
 async fn click_on_versions_tab(world: &mut TestWorld) {
     let versions_tab_element = world
