@@ -1,0 +1,1 @@
+ALTER TABLE PACKAGES ADD CONSTRAINT packages_name_key UNIQUE (name);

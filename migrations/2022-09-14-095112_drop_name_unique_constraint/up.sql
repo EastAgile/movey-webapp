@@ -1,0 +1,1 @@
+ALTER TABLE PACKAGES DROP CONSTRAINT packages_name_key;
