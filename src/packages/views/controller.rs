@@ -76,9 +76,9 @@ pub async fn show_package_versions(
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     let conn = db.get()?;
-    let package = Package::get_by_name(&package_name, db).await?;
+    let package = Package::get_by_name(&package_name, db)?;
     let package_latest_version =
-        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, db).await?[0];
+        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, db)?[0];
     let collaborators = PackageCollaborator::get_by_package_id(package.id, &conn)?;
 
     let params = Query::<VersionParams>::from_query(request.query_string()).map_err(|e| {
@@ -139,7 +139,6 @@ pub async fn show_package_settings(
         None
     } else {
         Account::get(user.id, db_pool)
-            .await
             .ok()
             .and_then(|account| Some(account.email))
     };

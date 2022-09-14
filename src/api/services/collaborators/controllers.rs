@@ -34,7 +34,7 @@ pub async fn add_collaborators(
     PackageCollaborator::get(package.id, user.id, &conn)
         .map_err(|e| ApiForbidden(MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR, Box::new(e)))?;
 
-    let invited_account = match Account::get_by_email_or_gh_login(&json.user, db).await {
+    let invited_account = match Account::get_by_email_or_gh_login(&json.user, db) {
         Ok(account) => account,
         Err(e) => {
             if matches!(e, Error::Database(DBError::NotFound)) && json.user.contains('@') {
@@ -209,7 +209,7 @@ pub async fn remove_collaborator(
     PackageCollaborator::get(package.id, user.id, &conn)
         .map_err(|e| ApiForbidden(MSG_UNAUTHORIZED_TO_ADD_COLLABORATOR, Box::new(e)))?;
 
-    let target_account = Account::get_by_email_or_gh_login(&json.user, db).await;
+    let target_account = Account::get_by_email_or_gh_login(&json.user, db);
     match target_account {
         Ok(account) => {
             // if account is a PendingOwner, only delete the invitation

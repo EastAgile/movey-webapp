@@ -167,8 +167,8 @@ async fn invite_other_collaborator(world: &mut TestWorld) {
             hints: vec![],
         },
     };
-    let uid = Account::register(&form, &DB_POOL).await.unwrap();
-    let _ = Account::mark_verified(uid, &DB_POOL).await;
+    let uid = Account::register(&form, &DB_POOL).unwrap();
+    let _ = Account::mark_verified(uid, &DB_POOL);
 
     let input_username = world
         .driver
@@ -942,7 +942,6 @@ async fn collaborator_of_package(world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
 
     PackageVersion::create(
@@ -955,7 +954,6 @@ async fn collaborator_of_package(world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
     PackageCollaborator::new_collaborator(pid, 1, 1, &DB_POOL.get().unwrap()).unwrap();
     world.first_account.owned_package_name = Some("test package".to_string());

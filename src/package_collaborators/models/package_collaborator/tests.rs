@@ -72,7 +72,7 @@ async fn delete_collaborator_by_id_works() {
     let res = PackageCollaborator::delete_collaborator_by_id(1, 1, &conn).unwrap();
     assert_eq!(res, 0);
 
-    let (pid, uid) = setup_collaborator().await;
+    let (pid, uid) = setup_collaborator();
     let collaborator = PackageCollaborator::get(pid, uid, &DB_POOL.get().unwrap());
     assert!(collaborator.is_ok());
 
