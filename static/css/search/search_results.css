@@ -13,7 +13,7 @@ body {
   min-height: 100px;
   border-bottom: 1px solid rgba(128, 143, 176, 0.5);
 }
-@media screen and (min-width: 1280px) and (max-width: 3096px) {
+@media screen and (min-width: 1280px) {
   .content-wrapper .setting-bar {
     padding: 0 175px;
   }
@@ -79,7 +79,7 @@ body {
   display: flex;
   flex-direction: column;
 }
-@media screen and (min-width: 1280px) and (max-width: 3096px) {
+@media screen and (min-width: 1280px) {
   .content-wrapper #package-list-container .package-list {
     margin-bottom: 50px;
   }
@@ -99,7 +99,7 @@ body {
   padding: 12px;
   cursor: pointer;
 }
-@media screen and (min-width: 1280px) and (max-width: 3096px) {
+@media screen and (min-width: 1280px) {
   .content-wrapper #package-list-container .package-list .package-list-item {
     height: 135px;
     padding-bottom: 20px;
@@ -130,7 +130,7 @@ body {
   flex-direction: column;
   justify-content: space-between;
 }
-@media screen and (min-width: 1280px) and (max-width: 3096px) {
+@media screen and (min-width: 1280px) {
   .content-wrapper #package-list-container .package-list .package-list-item .left-wrapper {
     width: 70%;
     height: 100%;
@@ -147,7 +147,7 @@ body {
   align-items: center;
   margin-top: 8px;
 }
-@media screen and (min-width: 1280px) and (max-width: 3096px) {
+@media screen and (min-width: 1280px) {
   .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper {
     width: 30%;
     justify-content: flex-end;
@@ -193,7 +193,7 @@ body {
     max-width: unset;
   }
 }
-@media screen and (min-width: 1280px) and (max-width: 3096px) {
+@media screen and (min-width: 1280px) {
   .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper img {
     width: 20px;
     height: 20px;
@@ -205,7 +205,7 @@ body {
     height: 16px;
   }
 }
-@media screen and (min-width: 1280px) and (max-width: 3096px) {
+@media screen and (min-width: 1280px) {
   .content-wrapper #package-list-container .package-list .package-list-item .right-wrapper div {
     font-size: 24px;
   }
@@ -223,7 +223,7 @@ body {
   align-items: flex-end;
   margin: 0;
 }
-@media screen and (min-width: 1280px) and (max-width: 3096px) {
+@media screen and (min-width: 1280px) {
   .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title {
     height: 55px;
   }
@@ -241,7 +241,7 @@ body {
   max-width: 60%;
   white-space: nowrap;
 }
-@media screen and (min-width: 1280px) and (max-width: 3096px) {
+@media screen and (min-width: 1280px) {
   .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title h1,
 .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title h1 a {
     font-size: 32px;
@@ -257,7 +257,7 @@ body {
   font-weight: normal;
   color: var(--gray-color);
 }
-@media screen and (min-width: 1280px) and (max-width: 3096px) {
+@media screen and (min-width: 1280px) {
   .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title .version-number {
     font-size: 24px;
   }
@@ -277,7 +277,7 @@ body {
   max-width: 30%;
   text-overflow: ellipsis;
 }
-@media screen and (min-width: 1280px) and (max-width: 3096px) {
+@media screen and (min-width: 1280px) {
   .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title .title-tag {
     font-size: 16px;
     padding: 5px 10px;
@@ -306,7 +306,7 @@ body {
   height: 35px;
   color: var(--dark-blue-color);
 }
-@media screen and (min-width: 1280px) and (max-width: 3096px) {
+@media screen and (min-width: 1280px) {
   .content-wrapper #package-list-container .package-list .left-wrapper .sub-tag-list .sub-tag {
     padding: 3px 10px;
     margin: 0 10px;
@@ -330,7 +330,7 @@ body {
   text-overflow: ellipsis;
   height: 48px;
 }
-@media screen and (min-width: 1280px) and (max-width: 3096px) {
+@media screen and (min-width: 1280px) {
   .content-wrapper #package-list-container .package-list .left-wrapper .package-summary {
     font-size: 24px;
     white-space: nowrap;
@@ -351,7 +351,7 @@ body {
     align-items: center;
   }
 }
-@media screen and (min-width: 1280px) and (max-width: 3096px) {
+@media screen and (min-width: 1280px) {
   .content-wrapper #package-list-container .paginationjs .paginationjs-pages {
     max-width: 50%;
     position: absolute;
@@ -408,7 +408,7 @@ body {
   font-style: italic;
   color: var(--dark-blue-color);
 }
-@media screen and (min-width: 1280px) and (max-width: 3096px) {
+@media screen and (min-width: 1280px) {
   .content-wrapper #package-list-container .paginationjs .paginationjs-nav {
     max-width: 45%;
     position: absolute;
@@ -493,7 +493,7 @@ body {
   color: #808fb0;
   line-height: 30px;
 }
-@media screen and (min-width: 1280px) and (max-width: 3096px) {
+@media screen and (min-width: 1280px) {
   .package-search-sort label {
     width: 100px;
     font-size: 24px;
@@ -511,7 +511,7 @@ body {
   margin-bottom: 0;
   color: #001f60;
 }
-@media screen and (min-width: 1280px) and (max-width: 3096px) {
+@media screen and (min-width: 1280px) {
   .package-search-sort select {
     font-size: 24px;
     width: 315px;
@@ -540,7 +540,7 @@ body {
   padding-left: 20px;
   color: var(--dark-blue-color);
 }
-@media screen and (min-width: 1280px) and (max-width: 3096px) {
+@media screen and (min-width: 1280px) {
   .package-search-sort .select2-container .select2-selection .select2-selection__rendered {
     font-size: 24px;
   }
@@ -574,7 +574,7 @@ body {
   line-height: 50px;
   color: var(--dark-blue-color);
 }
-@media screen and (min-width: 1280px) and (max-width: 3096px) {
+@media screen and (min-width: 1280px) {
   .packages-sort-dropdown .select2-results .select2-results__option {
     font-size: 24px;
   }
