@@ -2,13 +2,11 @@ use std::env;
 use std::future::Future;
 use std::pin::Pin;
 
-use jelly::anyhow::{anyhow, Error};
+use jelly::anyhow::Error;
 use jelly::email::Email;
 use jelly::jobs::{Job, JobState, DEFAULT_QUEUE};
 use jelly::serde::{Deserialize, Serialize};
 use jelly::tera::Context;
-
-use crate::accounts::Account;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SendCollaboratorInvitationEmail {
@@ -26,19 +24,13 @@ impl Job for SendCollaboratorInvitationEmail {
 
     fn run(self, state: JobState) -> Self::Future {
         Box::pin(async move {
-            let account = Account::get_by_email(&self.to, &state.pool).map_err(|e| {
-                anyhow!(
-                    "Error fetching account for collaborator invitation: {:?}",
-                    e
-                )
-            })?;
             let domain = env::var("JELLY_DOMAIN").expect("No JELLY_DOMAIN value set!");
 
             let invitation_url = format!("{}/collaborators/accept/{}", domain, self.token);
 
             let email = Email::new(
                 "email/invite-collaborator",
-                &[account.email],
+                &[self.to],
                 &format!(
                     "You have been invited to collaborate on {}",
                     self.package_name

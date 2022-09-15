@@ -1,6 +1,6 @@
 New Collaborator Invitation
 
-You got invited as a collaborator on the package {{ package_name }}. You can accept this invitation by clicking the link below:
+You got invited as a collaborator on the Move package "{{ package_name }}". You can accept this invitation by clicking the link below:
 
 {{ action_url }}
 

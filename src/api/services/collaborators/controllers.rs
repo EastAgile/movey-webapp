@@ -1,4 +1,5 @@
-use crate::accounts::jobs::{SendCollaboratorInvitationEmail, SendRegisterToCollabEmail};
+use crate::package_collaborators::jobs::invite_collaborator::{SendRegisterToCollabEmail, SendCollaboratorInvitationEmail};
+use crate::package_collaborators::jobs::transfer_ownership::SendOwnershipTransferEmail;
 use crate::accounts::Account;
 use crate::api::services::collaborators::views::{CollaboratorJson, InvitationResponse};
 use crate::package_collaborators::models::external_invitation::ExternalInvitation;
@@ -133,8 +134,7 @@ pub async fn transfer_ownership(
     .map_err(|e| ApiBadRequest(MSG_INVITATION_ALREADY_EXISTED, Box::new(e)))?;
 
     if !invited_account.is_generated_email() {
-        // TODO: need a new email for transferring ownership
-        request.queue(SendCollaboratorInvitationEmail {
+        request.queue(SendOwnershipTransferEmail {
             to: invited_account.email,
             package_name: package.name,
             token: invitation.token,
