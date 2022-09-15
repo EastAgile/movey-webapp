@@ -102,8 +102,8 @@
   }
 
   .collaborators_wrapper {
-    margin-top: 82px;
-    margin-bottom: 50px;
+    margin-top: 24px;
+    margin-bottom: 48px;
 
     .collaborators_title {
       font-weight: 700;
@@ -122,11 +122,11 @@
       }
 
       @include tablet-screen {
-        width: 440px;
+        width: 600px;;
       }
 
       @include mobile-screen {
-        width: 300px;
+        width: 330px;
       }
 
       .collaborator_row {
@@ -139,12 +139,27 @@
         position: relative;
 
         @include small-screen {
-          flex-flow: row wrap;
+          flex-flow: row nowrap;
+        }
+
+        @include mobile-screen {
+          flex-flow: column nowrap;
+          justify-content: start;
+          margin-top: 8px;
+          border: 0.5px solid #333333;
+          border-radius: 8px;
+          height: fit-content;
+          padding: 8px;
         }
 
         &.header {
           height: 50px;
           background: #d9dde7;
+      
+          @include mobile-screen {
+            display: none;
+          }
+        
         }
 
         .email_address {
@@ -165,6 +180,21 @@
             opacity: 80%;
             font-size: 18px;
           }
+
+          @include mobile-screen {
+            width: 100%;
+            margin-right: 0px;
+            padding: 2px;
+            overflow-wrap: break-word;
+            display: inline;
+            
+            &:before {
+              content: "Email: ";
+              font-weight: bold;
+              width: fit-content;
+              
+            }
+          }
         }
 
         .sending_status {
@@ -184,10 +214,22 @@
             font-weight: 500;
           }
 
+          @include mobile-screen {
+            width: 100%;
+          }
+
           .collaborator,
           .owner {
             margin-bottom: 0px;
+
+            @include mobile-screen {
+              &:before {
+                content: "Role: ";
+                font-weight: bold;
+              }
+            } 
           }
+
         }
 
         .permission {
@@ -212,6 +254,15 @@
             justify-content: space-between;
             width: 380px;
 
+            @include mobile-screen { 
+              width: 248px;
+              justify-content: space-between;
+            }
+            @include tablet-screen {
+              width: 224px;
+              justify-content: flex-end;
+            }
+
             .ownership_btn {
               padding: 15px 55px;
               font-weight: 700;
@@ -231,12 +282,14 @@
 
               &.remove {
                 color: #eb5757;
-                background: none;
+                background: rgba(235, 87, 87, 0.15);
               }
 
               @include mobile-screen {
-                height: 24px;
-                width: 32px;
+                padding: 8px 24px;
+              }
+              @include tablet-screen {
+                padding: 8px 24px;
               }
             }
           }
@@ -269,8 +322,6 @@
     font-size: 16px;
     letter-spacing: -0.02em;
     color: var(--gray-color);
-    // width: fit-content;
-    // max-width: fit-content;
     padding: 2px 4px;
     border-radius: 4px;
 
