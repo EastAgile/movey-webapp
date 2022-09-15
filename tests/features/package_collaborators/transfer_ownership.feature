@@ -8,7 +8,7 @@ Feature: Transfer ownership
     When I access the package detail page of my package
     And I access the package Settings tab
     And I transfer ownership to a collaborator
-    Then I should see a modal with text 'Ownership transfer invitation is created successfully.'
+    Then I should see a modal with text 'An ownership transfer invitation has been sent to collaborator collaborator@host.com.'
     When I close the modal
     Then She (the collaborator) should receive an ownership invitation email
     And She should see that the url to accept the transfer has '/collaborators/accept'

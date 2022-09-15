@@ -143,7 +143,7 @@ pub async fn transfer_ownership(
 
     Ok(HttpResponse::Ok().json(&json!({
         "ok": true,
-        "msg": MSG_SUCCESSFULLY_TRANSFER_OWNERSHIP,
+        "msg": format!("{} {}.", MSG_SUCCESSFULLY_TRANSFER_OWNERSHIP, json.user),
     })))
 }
 
