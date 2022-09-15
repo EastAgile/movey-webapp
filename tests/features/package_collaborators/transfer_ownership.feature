@@ -41,3 +41,20 @@ Feature: Transfer ownership
     And She click on the collaborators tab
     Then She should see that she is a collaborator of the package
     And She should see that I am the owner of the package
+
+  Scenario: Accept ownership transfer via email works
+    When She clicks on the link in the email to accept the invitation
+    Then She should see that she is on the package details page
+    When She click on the collaborators tab
+    Then She should see that she is the owner of the package
+    Then She should see that I am a collaborator of the package
+
+  Scenario: Expired ownership transfer in email
+    When The transfer ownership invitation is expired
+    When She clicks on the link in the email to accept the invitation
+    Then She should see the Invalid or Expired page
+    When She accesses the package detail page
+    And She click on the collaborators tab
+    Then She should see that she is not the owner of the package
+    And She should see that I am the owner of the package
+    And She should see that she is a collaborator of the package

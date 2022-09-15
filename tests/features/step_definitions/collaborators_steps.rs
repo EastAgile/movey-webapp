@@ -278,6 +278,14 @@ async fn url_in_transfer_email(world: &mut TestWorld, url: String) {
     assert!(content.contains(&transfer_url));
 }
 
+#[then("She should see that she is on the package details page")]
+async fn on_package_details_page(world: &mut TestWorld) {
+    assert_eq!(
+        world.driver.current_url().await.unwrap(),
+        format!("{}{}", world.root_url, "packages/test%20package"),
+    );
+}
+
 #[when("She is signed in")]
 async fn second_user_sign_in(world: &mut TestWorld) {
     click_log_out(world).await;
@@ -418,10 +426,10 @@ async fn expired_owner_invitation(_world: &mut TestWorld) {
 async fn invalid_page_for_expired_invitation(world: &mut TestWorld) {
     let title = world
         .driver
-        .find_element(By::ClassName("title"))
+        .find_element(By::ClassName("verify-card-title"))
         .await
         .unwrap();
-    assert_eq!(&title.text().await.unwrap(), "Invalid Token");
+    assert_eq!(&title.text().await.unwrap(), "Invalid or Expired");
 }
 
 #[when("I invite collaborator with a valid email that is not in our system")]
