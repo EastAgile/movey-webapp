@@ -28,7 +28,6 @@ pub async fn upload_packages(world: &mut TestWorld) {
         Some(world.first_account.id),
         &DB_POOL,
     )
-    .await
     .unwrap();
     Package::create_test_package(
         &"test-package2".to_string(),
@@ -42,7 +41,6 @@ pub async fn upload_packages(world: &mut TestWorld) {
         Some(world.first_account.id),
         &DB_POOL,
     )
-    .await
     .unwrap();
 }
 

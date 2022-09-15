@@ -20,7 +20,6 @@ async fn package_in_system(world: &mut TestWorld) {
         Some(world.first_account.id),
         &DB_POOL,
     )
-    .await
     .unwrap();
     let uid2 = Package::create_test_package(
         &"rand".to_string(),
@@ -34,7 +33,6 @@ async fn package_in_system(world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
     let uid3 = Package::create_test_package(
         &"random_derive".to_string(),
@@ -48,7 +46,6 @@ async fn package_in_system(world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
     PackageVersion::create(
         uid,
@@ -60,7 +57,6 @@ async fn package_in_system(world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
     PackageVersion::create(
         uid2,
@@ -72,7 +68,6 @@ async fn package_in_system(world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
     PackageVersion::create(
         uid3,
@@ -84,7 +79,6 @@ async fn package_in_system(world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
 }
 
@@ -103,7 +97,6 @@ async fn package_in_subdir(world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
     PackageVersion::create(
         uid,
@@ -115,7 +108,6 @@ async fn package_in_subdir(world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
 }
 
@@ -151,7 +143,6 @@ async fn upload_a_package(_world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
 }
 

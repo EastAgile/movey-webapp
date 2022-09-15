@@ -44,11 +44,11 @@ pub async fn register_package(
                 .body("Something went wrong, please try again later."))
         }
     };
-    if ApiToken::get(&req.token, db).await.is_err() {
+    if ApiToken::get(&req.token, db).is_err() {
         return Ok(HttpResponse::BadRequest().body("Invalid API token."));
     }
 
-    let token_account_id = match ApiToken::associated_account(&req.token, db).await {
+    let token_account_id = match ApiToken::associated_account(&req.token, db) {
         Ok(account) => account.id,
         Err(_) => return Ok(HttpResponse::BadRequest().body("Invalid API token.")),
     };
@@ -91,8 +91,7 @@ pub async fn register_package(
         Some(token_account_id),
         github_data,
         db,
-    )
-    .await;
+    );
     if let Err(Error::Database(DBError::DatabaseError(kind, _))) = result {
         let domain = std::env::var("JELLY_DOMAIN").expect("JELLY_DOMAIN is not set");
         let error_message = format!(
@@ -146,7 +145,7 @@ pub async fn increase_download_count(
     };
     let service = GithubService::new();
     if let Ok(res) =
-        Package::increase_download_count(&form.url, &form.rev, &form.subdir, &service, db).await
+        Package::increase_download_count(&form.url, &form.rev, &form.subdir, &service, db)
     {
         Ok(HttpResponse::Ok().body(res.to_string()))
     } else {
@@ -159,7 +158,7 @@ pub async fn search_package(
     res: web::Json<PackageSearch>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    let packages_result = Package::auto_complete_search(&res.search_query, db).await?;
+    let packages_result = Package::auto_complete_search(&res.search_query, db)?;
     Ok(HttpResponse::Ok().json(packages_result))
 }
 
@@ -174,7 +173,7 @@ pub async fn package_badge_info(
 ) -> Result<HttpResponse> {
     let info = info.into_inner();
     let db = request.db_pool()?;
-    let result = Package::get_badge_info(&info.pkg_name, db).await?;
+    let result = Package::get_badge_info(&info.pkg_name, db)?;
     if !result.is_empty() {
         let respond = PackageBadgeRespond::from(result);
         return Ok(HttpResponse::Ok().json(respond));

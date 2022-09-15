@@ -50,14 +50,14 @@ pub struct Account {
 }
 
 impl Account {
-    pub async fn get(uid: i32, pool: &DieselPgPool) -> Result<Self, Error> {
+    pub fn get(uid: i32, pool: &DieselPgPool) -> Result<Self, Error> {
         let connection = pool.get()?;
         let result = accounts.find(uid).first::<Account>(&connection)?;
 
         Ok(result)
     }
 
-    pub async fn get_by_email(account_email: &str, pool: &DieselPgPool) -> Result<Self, Error> {
+    pub fn get_by_email(account_email: &str, pool: &DieselPgPool) -> Result<Self, Error> {
         let connection = pool.get()?;
         let result = accounts
             .filter(email.eq(account_email))
@@ -66,10 +66,7 @@ impl Account {
         Ok(result)
     }
 
-    pub async fn get_by_email_or_gh_login(
-        search_term: &str,
-        pool: &DieselPgPool,
-    ) -> Result<Self, Error> {
+    pub fn get_by_email_or_gh_login(search_term: &str, pool: &DieselPgPool) -> Result<Self, Error> {
         let connection = pool.get()?;
         let trimmed_search_term = search_term.trim();
         let result = accounts
@@ -83,7 +80,7 @@ impl Account {
         Ok(result)
     }
 
-    pub async fn authenticate(form: &LoginForm, pool: &DieselPgPool) -> Result<User, Error> {
+    pub fn authenticate(form: &LoginForm, pool: &DieselPgPool) -> Result<User, Error> {
         let connection = pool.get()?;
         let user = accounts
             .filter(email.eq(&form.email.value))
@@ -105,7 +102,7 @@ impl Account {
         })
     }
 
-    pub async fn fetch_email(uid: i32, pool: &DieselPgPool) -> Result<(String, String), Error> {
+    pub fn fetch_email(uid: i32, pool: &DieselPgPool) -> Result<(String, String), Error> {
         let connection = pool.get()?;
         let result = accounts
             .find(uid)
@@ -115,7 +112,7 @@ impl Account {
         Ok(result)
     }
 
-    pub async fn fetch_name_from_email(
+    pub fn fetch_name_from_email(
         account_email: &str,
         pool: &DieselPgPool,
     ) -> Result<String, Error> {
@@ -128,7 +125,7 @@ impl Account {
         Ok(result)
     }
 
-    pub async fn register(form: &NewAccountForm, pool: &DieselPgPool) -> Result<i32, Error> {
+    pub fn register(form: &NewAccountForm, pool: &DieselPgPool) -> Result<i32, Error> {
         let connection = pool.get()?;
         let hashword = make_password(&form.password);
 
@@ -144,7 +141,7 @@ impl Account {
         Ok(record.id)
     }
 
-    pub async fn mark_verified(uid: i32, pool: &DieselPgPool) -> Result<(), Error> {
+    pub fn mark_verified(uid: i32, pool: &DieselPgPool) -> Result<(), Error> {
         let connection = pool.get()?;
 
         diesel::update(accounts.filter(id.eq(uid)))
@@ -157,7 +154,7 @@ impl Account {
         Ok(())
     }
 
-    pub async fn update_last_login(uid: i32, pool: &DieselPgPool) -> Result<(), Error> {
+    pub fn update_last_login(uid: i32, pool: &DieselPgPool) -> Result<(), Error> {
         let connection = pool.get()?;
 
         diesel::update(accounts.filter(id.eq(uid)))
@@ -167,7 +164,7 @@ impl Account {
         Ok(())
     }
 
-    pub async fn update_password_and_last_login(
+    pub fn update_password_and_last_login(
         uid: i32,
         account_password: &str,
         pool: &DieselPgPool,
@@ -182,7 +179,7 @@ impl Account {
         Ok(())
     }
 
-    pub async fn change_password(
+    pub fn change_password(
         uid: i32,
         current_password: String,
         new_password: String,
@@ -190,7 +187,7 @@ impl Account {
     ) -> Result<(), Error> {
         let connection = pool.get()?;
 
-        let account = Self::get(uid, pool).await?;
+        let account = Self::get(uid, pool)?;
         if !check_password(&current_password, &account.password)? {
             return Err(Error::InvalidPassword);
         }
@@ -202,13 +199,13 @@ impl Account {
         Ok(())
     }
 
-    pub async fn register_from_github(
+    pub fn register_from_github(
         oauth_user: &GithubOauthUser,
         pool: &DieselPgPool,
     ) -> Result<User, Error> {
         let connection = pool.get()?;
 
-        let account = if let Ok(record) = Account::get_by_email(&oauth_user.email, pool).await {
+        let account = if let Ok(record) = Account::get_by_email(&oauth_user.email, pool) {
             // if there already is an account with this email, update it with git info then return
             diesel::update(accounts.filter(id.eq(record.id)))
                 .set((
@@ -245,7 +242,7 @@ impl Account {
         })
     }
 
-    pub async fn get_by_github_id(gid: i64, pool: &DieselPgPool) -> Result<Self, Error> {
+    pub fn get_by_github_id(gid: i64, pool: &DieselPgPool) -> Result<Self, Error> {
         let connection = pool.get()?;
         let result = accounts
             .filter(github_id.eq(gid))
@@ -254,7 +251,7 @@ impl Account {
         Ok(result)
     }
 
-    pub async fn merge_github_account_and_movey_account(
+    pub fn merge_github_account_and_movey_account(
         gh_account_id: i32,
         movey_account_id: i32,
         gh_id: i64,
@@ -264,13 +261,15 @@ impl Account {
         let conn = pool.get()?;
 
         conn.build_transaction().run::<_, _, _>(|| {
-            diesel::update(package_collaborators::table
-                .filter(package_collaborators::account_id.eq(gh_account_id)))
-                .set((
-                    package_collaborators::account_id.eq(movey_account_id),
-                    package_collaborators::created_by.eq(movey_account_id)
-                ))
-                .execute(&conn)?;
+            diesel::update(
+                package_collaborators::table
+                    .filter(package_collaborators::account_id.eq(gh_account_id)),
+            )
+            .set((
+                package_collaborators::account_id.eq(movey_account_id),
+                package_collaborators::created_by.eq(movey_account_id),
+            ))
+            .execute(&conn)?;
 
             diesel::update(api_tokens.filter(api_tokens_account_id.eq(movey_account_id)))
                 .set(api_tokens_name.eq(api_tokens_name.concat("__movey")))
@@ -301,7 +300,7 @@ impl Account {
         })
     }
 
-    pub async fn update_movey_account_with_github_info(
+    pub fn update_movey_account_with_github_info(
         movey_id: i32,
         gh_id: i64,
         gh_login: String,
@@ -380,7 +379,7 @@ impl Account {
 
 #[cfg(any(test, feature = "test"))]
 impl Account {
-    pub async fn delete(account_id: i32) -> Result<(), Error> {
+    pub fn delete(account_id: i32) -> Result<(), Error> {
         let pool = &crate::test::DB_POOL;
         let conn = pool.get()?;
         diesel::delete(accounts.filter(id.eq(account_id))).execute(&conn)?;

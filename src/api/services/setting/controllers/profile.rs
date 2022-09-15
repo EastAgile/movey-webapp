@@ -17,7 +17,7 @@ pub struct LoggedInUser {
 }
 
 pub async fn get_logged_in_user(request: HttpRequest) -> Result<HttpResponse> {
-    if !request_utils::is_authenticated(&request).await? {
+    if !request_utils::is_authenticated(&request)? {
         request.get_session().clear();
         return Ok(HttpResponse::Ok()
             .set(ContentType::json())
@@ -26,7 +26,7 @@ pub async fn get_logged_in_user(request: HttpRequest) -> Result<HttpResponse> {
     }
     let user = request.user()?;
     let db = request.db_pool()?;
-    let account = Account::get(user.id, db).await;
+    let account = Account::get(user.id, db);
     if let Ok(account) = account {
         Ok(HttpResponse::Ok()
             .set(ContentType::json())

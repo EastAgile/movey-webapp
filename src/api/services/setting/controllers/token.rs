@@ -24,13 +24,13 @@ pub async fn create_token(
     if !req.name.is_valid() {
         return Ok(HttpResponse::BadRequest().body(&req.name.errors[0]));
     }
-    if !request_utils::is_authenticated(&request).await? {
+    if !request_utils::is_authenticated(&request)? {
         return Ok(request_utils::clear_cookie(&request));
     }
     let user = request.user()?;
     let db = request.db_pool()?;
-    let account = Account::get(user.id, db).await?;
-    let api_token = ApiToken::insert(&account, &req.name.value, db).await;
+    let account = Account::get(user.id, db)?;
+    let api_token = ApiToken::insert(&account, &req.name.value, db);
 
     let api_token = match api_token {
         Err(Error::Database(DatabaseError(DatabaseErrorKind::UniqueViolation, _))) => {
@@ -48,7 +48,7 @@ pub async fn revoke_token(
     request: HttpRequest,
     Path(token_id): Path<String>,
 ) -> Result<HttpResponse> {
-    if !request_utils::is_authenticated(&request).await? {
+    if !request_utils::is_authenticated(&request)? {
         return Ok(request_utils::clear_cookie(&request));
     }
     let user = request.user()?;
@@ -58,12 +58,11 @@ pub async fn revoke_token(
             .parse::<i32>()
             .map_err(|e| anyhow!("Error parsing token id: {:?}", e))?,
         db,
-    )
-    .await?;
+    )?;
 
     // checks if token belongs to account
     if token.account_id == user.id {
-        ApiToken::revoke(token.id, db).await?;
+        ApiToken::revoke(token.id, db)?;
     }
 
     Ok(HttpResponse::Ok().body(""))
