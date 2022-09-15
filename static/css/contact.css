@@ -107,6 +107,7 @@
   padding: 5px 8px;
   border: none;
   white-space: normal;
+  overflow: scroll;
 }
 .contact-container .form-cta {
   margin: 40px auto;
