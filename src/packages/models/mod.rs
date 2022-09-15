@@ -85,6 +85,8 @@ pub struct PackageSearchResult {
     #[sql_type = "Timestamptz"]
     pub updated_at: NaiveDateTime,
     #[sql_type = "Text"]
+    pub slug: String,
+    #[sql_type = "Text"]
     pub version: String,
 }
 
@@ -404,8 +406,8 @@ impl Package {
             .inner_join(package_collaborators::table)
             .filter(package_collaborators::account_id.eq(owner_id))
             .inner_join(package_versions::table)
-            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
-            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
+            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, packages::slug, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
+            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, packages.slug")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
             .load::<PackageSearchResult>(&connection)?;
 
         Ok(result)
@@ -434,8 +436,8 @@ impl Package {
             .inner_join(package_collaborators::table)
             .filter(package_collaborators::account_id.eq(owner_id).and(package_collaborators::role.eq(Role::Owner as i32)))
             .inner_join(package_versions::table)
-            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
-            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
+            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, packages::slug, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
+            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, packages.slug")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
             .order(diesel::dsl::sql::<diesel::sql_types::Text>(&order_query))
             .load_with_pagination(&connection, Some(page), Some(per_page))?;
 
@@ -635,10 +637,10 @@ impl Package {
 
         let result: (Vec<PackageSearchResult>, i64, i64) = packages::table
             .inner_join(package_versions::table)
-            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
+            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, packages::slug, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
             .filter(name.ilike(format!("%{}%", search_query))
                 .or(tsv.matches(plainto_tsquery(search_query))))
-            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
+            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, packages.slug")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
             .order(diesel::dsl::sql::<diesel::sql_types::Text>(&order_query))
             .load_with_pagination(&connection, Some(page), Some(per_page))?;
 
@@ -665,8 +667,8 @@ impl Package {
 
         let result: (Vec<PackageSearchResult>, i64, i64) = packages::table
             .inner_join(package_versions::table)
-            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
-            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
+            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, packages::slug, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
+            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, packages.slug")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
             .order(diesel::dsl::sql::<diesel::sql_types::Text>(&order_query))
             .load_with_pagination(&connection, Some(page), Some(per_page))?;
 
@@ -759,6 +761,7 @@ pub struct NewTestPackage {
     pub description: String,
     pub repository_url: String,
     pub total_downloads_count: i32,
+    pub slug: String,
 }
 
 #[cfg(any(test, feature = "test"))]
@@ -826,6 +829,7 @@ impl Package {
             description: package_description.to_string(),
             repository_url: repo_url.to_string(),
             total_downloads_count: package_downloads_count,
+            slug: package_name.to_string(),
         };
 
         let record = diesel::insert_into(packages::table)
@@ -862,8 +866,8 @@ impl Package {
             description: package_description.to_string(),
             repository_url: repo_url.to_string(),
             total_downloads_count: package_downloads_count,
+            slug: package_name.to_string(),
         };
-
         let record = diesel::insert_into(packages::table)
             .values(new_package)
             .returning(PACKAGE_COLUMNS)
