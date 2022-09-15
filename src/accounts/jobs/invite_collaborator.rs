@@ -34,7 +34,7 @@ impl Job for SendCollaboratorInvitationEmail {
             })?;
             let domain = env::var("JELLY_DOMAIN").expect("No JELLY_DOMAIN value set!");
 
-            let invitation_url = format!("{}/owner_invitations/accept/{}", domain, self.token);
+            let invitation_url = format!("{}/collaborators/accept/{}", domain, self.token);
 
             let email = Email::new(
                 "email/invite-collaborator",
