@@ -93,8 +93,8 @@
   cursor: pointer;
 }
 .package-settings-container .collaborators_wrapper {
-  margin-top: 82px;
-  margin-bottom: 50px;
+  margin-top: 24px;
+  margin-bottom: 48px;
 }
 .package-settings-container .collaborators_wrapper .collaborators_title {
   font-weight: 700;
@@ -114,12 +114,12 @@
 }
 @media screen and (min-width: 456px) and (max-width: 843px) {
   .package-settings-container .collaborators_wrapper .collaborators_table {
-    width: 440px;
+    width: 600px;
   }
 }
 @media screen and (min-width: 258px) and (max-width: 455px) {
   .package-settings-container .collaborators_wrapper .collaborators_table {
-    width: 300px;
+    width: 330px;
   }
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row {
@@ -133,12 +133,29 @@
 }
 @media screen and (max-width: 843px) {
   .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row {
-    flex-flow: row wrap;
+    flex-flow: row nowrap;
+  }
+}
+@media screen and (min-width: 258px) and (max-width: 455px) {
+  .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row {
+    flex-flow: column nowrap;
+    justify-content: start;
+    margin-top: 8px;
+    border: 0.5px solid #333333;
+    border-radius: 8px;
+    height: fit-content;
+    max-height: 132px;
+    padding: 8px;
   }
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row.header {
   height: 50px;
   background: #d9dde7;
+}
+@media screen and (min-width: 258px) and (max-width: 455px) {
+  .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row.header {
+    display: none;
+  }
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .email_address {
   width: 29%;
@@ -157,6 +174,20 @@
   opacity: 80%;
   font-size: 18px;
 }
+@media screen and (min-width: 258px) and (max-width: 455px) {
+  .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .email_address {
+    width: 90%;
+    margin-right: 0px;
+    padding: 0px;
+    overflow-wrap: break-word;
+    display: inline;
+  }
+  .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .email_address:before {
+    content: "Email: ";
+    font-weight: bold;
+    width: fit-content;
+  }
+}
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .sending_status {
   position: absolute;
   left: 16px;
@@ -172,9 +203,21 @@
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles.header {
   font-weight: 500;
 }
+@media screen and (min-width: 258px) and (max-width: 455px) {
+  .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles {
+    width: 90%;
+  }
+}
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles .collaborator,
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles .owner {
   margin-bottom: 0px;
+}
+@media screen and (min-width: 258px) and (max-width: 455px) {
+  .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles .collaborator:before,
+.package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles .owner:before {
+    content: "Role: ";
+    font-weight: bold;
+  }
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission {
   width: 49%;
@@ -186,6 +229,7 @@
 @media screen and (max-width: 843px) {
   .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission {
     margin-top: 8px;
+    width: 90%;
   }
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.header {
@@ -197,6 +241,18 @@
   flex-flow: row nowrap;
   justify-content: space-between;
   width: 380px;
+}
+@media screen and (min-width: 258px) and (max-width: 455px) {
+  .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings {
+    width: 320px;
+    justify-content: flex-end;
+  }
+}
+@media screen and (min-width: 456px) and (max-width: 843px) {
+  .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings {
+    width: 224px;
+    justify-content: flex-end;
+  }
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings .ownership_btn {
   padding: 15px 55px;
@@ -220,8 +276,12 @@
 }
 @media screen and (min-width: 258px) and (max-width: 455px) {
   .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings .ownership_btn {
-    height: 24px;
-    width: 32px;
+    padding: 15px 40px;
+  }
+}
+@media screen and (min-width: 456px) and (max-width: 843px) {
+  .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings .ownership_btn {
+    padding: 8px 24px;
   }
 }
 
