@@ -175,6 +175,7 @@
   display: block;
   border: none;
   white-space: pre;
+  overflow: scroll;
 }
 .package-show-container .package-content-container .package-content-tabs .content-tab.tab-readme.active .tab-name h1,
 .package-show-container .package-content-container .package-content-tabs .content-tab.tab-readme.active .tab-name h2,
@@ -538,6 +539,7 @@
   display: block;
   border: none;
   white-space: pre;
+  overflow: scroll;
 }
 .package-show-container .package-content-container .package-detail-container .package-readme-content h1,
 .package-show-container .package-content-container .package-detail-container .package-readme-content h2,
@@ -984,6 +986,7 @@
   display: block;
   border: none;
   white-space: pre;
+  overflow: scroll;
 }
 .package-show-container .package-content-container .package-detail-container .package-readme-content h1,
 .package-show-container .package-content-container .package-detail-container .package-readme-content h2,
