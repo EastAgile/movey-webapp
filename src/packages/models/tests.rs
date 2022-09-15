@@ -931,14 +931,13 @@ async fn get_badge_info() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let pool = &DB_POOL;
     let search_query = "The first package";
     Package::create_test_package_with_multiple_versions(
         &"The first package".to_string(),
         &"".to_string(),
         &"description 1".to_string(),
         1500,
-        pool,
+        &DB_POOL,
     )
     .unwrap();
     let mut expected: Vec<(String, i32, String, i32)> = vec![(
@@ -953,7 +952,7 @@ async fn get_badge_info() {
         "0.0.2".to_string(),
         1000,
     ));
-    let result = Package::get_badge_info(search_query, pool).unwrap();
+    let result = Package::get_badge_info(search_query, &DB_POOL).unwrap();
     assert_eq!(result.len(), 2);
     assert_eq!(result, expected);
 }
