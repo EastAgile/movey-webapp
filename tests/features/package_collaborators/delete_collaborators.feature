@@ -45,7 +45,7 @@ Feature: Delete collaborators
     When I access the package detail page of my package
     And I access the package Settings tab
     And I transfer ownership to a collaborator
-    Then I should see a modal with text 'Ownership transfer invitation is created successfully.'
+    Then I should see a modal with text 'An ownership transfer invitation has been sent to collaborator collaborator@host.com.'
     When I close the modal
     When I click the 'Remove' button
     Then I should see a remove owner modal with text 'You are removing this collaborator "collaborator@host.com" from package "test package"'
