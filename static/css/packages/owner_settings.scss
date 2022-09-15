@@ -126,7 +126,7 @@
       }
 
       @include mobile-screen {
-        width: 300px;
+        width: 346px;
       }
 
       .collaborator_row {
@@ -140,6 +140,12 @@
 
         @include small-screen {
           flex-flow: row wrap;
+        }
+
+        @include mobile-screen {
+          flex-flow: row wrap;
+          justify-content: start;
+          margin-top: 8px;
         }
 
         &.header {
@@ -165,6 +171,13 @@
             opacity: 80%;
             font-size: 18px;
           }
+
+          @include mobile-screen {
+            width: 48%;
+            margin-right: 32px;
+            padding: 4px;
+            overflow-wrap: break-word;
+          }
         }
 
         .sending_status {
@@ -184,10 +197,21 @@
             font-weight: 500;
           }
 
+          // @include mobile-screen {
+          //   width: 100%;
+          // }
+
           .collaborator,
           .owner {
             margin-bottom: 0px;
+
+            // @include small-screen {
+            //   &:before {
+            //     content: "Role:";
+            //   }
+            // } 
           }
+
         }
 
         .permission {
@@ -199,6 +223,7 @@
 
           @include small-screen {
             margin-top: 8px;
+            width: 90%;
           }
 
           &.header {
@@ -212,6 +237,10 @@
             justify-content: space-between;
             width: 380px;
 
+            @include mobile-screen { 
+              justify-content: space-around
+            }
+            
             .ownership_btn {
               padding: 15px 55px;
               font-weight: 700;
@@ -233,12 +262,11 @@
                 color: #eb5757;
                 background: none;
               }
-
-              @include mobile-screen {
-                height: 24px;
-                width: 32px;
-              }
             }
+          }
+
+          @include mobile-screen {
+            visibility: hidden;
           }
         }
       }
