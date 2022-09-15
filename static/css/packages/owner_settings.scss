@@ -107,8 +107,8 @@
   }
 
   .collaborators_wrapper {
-    margin-top: 82px;
-    margin-bottom: 50px;
+    margin-top: 24px;
+    margin-bottom: 48px;
 
     .collaborators_title {
       font-weight: 700;
@@ -127,11 +127,11 @@
       }
 
       @include tablet-screen {
-        width: 440px;
+        width: 600px;;
       }
 
       @include mobile-screen {
-        width: 346px;
+        width: 330px;
       }
 
       .collaborator_row {
@@ -144,7 +144,18 @@
         position: relative;
 
         @include small-screen {
-          flex-flow: row wrap;
+          flex-flow: row nowrap;
+        }
+
+        @include mobile-screen {
+          flex-flow: column nowrap;
+          justify-content: start;
+          margin-top: 8px;
+          border: 0.5px solid #333333;
+          border-radius: 8px;
+          height: fit-content;
+          max-height: 132px;
+          padding: 8px;
         }
 
         @include mobile-screen {
@@ -156,6 +167,11 @@
         &.header {
           height: 50px;
           background: #d9dde7;
+      
+          @include mobile-screen {
+            display: none;
+          }
+        
         }
 
         .email_address {
@@ -178,10 +194,18 @@
           }
 
           @include mobile-screen {
-            width: 48%;
-            margin-right: 32px;
-            padding: 4px;
+            width: 90%;
+            margin-right: 0px;
+            padding: 0px;
             overflow-wrap: break-word;
+            display: inline;
+            
+            &:before {
+              content: "Email: ";
+              font-weight: bold;
+              width: fit-content;
+              
+            }
           }
         }
 
@@ -202,19 +226,20 @@
             font-weight: 500;
           }
 
-          // @include mobile-screen {
-          //   width: 100%;
-          // }
+          @include mobile-screen {
+            width: 90%;
+          }
 
           .collaborator,
           .owner {
             margin-bottom: 0px;
 
-            // @include small-screen {
-            //   &:before {
-            //     content: "Role:";
-            //   }
-            // } 
+            @include mobile-screen {
+              &:before {
+                content: "Role: ";
+                font-weight: bold;
+              }
+            } 
           }
 
         }
@@ -243,9 +268,14 @@
             width: 380px;
 
             @include mobile-screen { 
-              justify-content: space-around
+              width: 320px;
+              justify-content: flex-end;
             }
-            
+            @include tablet-screen {
+              width: 224px;
+              justify-content: flex-end;
+            }
+
             .ownership_btn {
               padding: 15px 55px;
               font-weight: 700;
@@ -272,23 +302,20 @@
                 color: #eb5757;
                 background: none;
 
-                &:hover {
-                  color: #eb5757;
-                  background: rgba(255, 216, 216, 0.15);
-                }
+              @include mobile-screen {
+                padding: 15px 40px;
+              }
+              @include tablet-screen {
+                padding: 8px 24px;
               }
             }
-          }
-
-          @include mobile-screen {
-            visibility: hidden;
           }
         }
       }
     }
   }
+  }
 }
-
 .reveal {
   top: 25% !important;
 }
@@ -312,8 +339,6 @@
     font-size: 16px;
     letter-spacing: -0.02em;
     color: var(--gray-color);
-    // width: fit-content;
-    // max-width: fit-content;
     padding: 2px 4px;
     border-radius: 4px;
 
