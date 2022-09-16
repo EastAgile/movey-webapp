@@ -9,7 +9,7 @@ use thirtyfour::prelude::*;
 async fn package_in_system(world: &mut TestWorld) {
     signin_steps::an_user(world).await;
     let uid = Package::create_test_package(
-        &"test-package".to_string(),
+        &"Æúű--cool?".to_string(),
         &"https://github.com/Elements-Studio/starswap-core".to_string(),
         &"package_description".to_string(),
         &"first_version".to_string(),
@@ -55,7 +55,7 @@ async fn package_in_system(world: &mut TestWorld) {
         2,
         100,
         None,
-        &DB_POOL,
+        &DB_POOL.get().unwrap(),
     )
     .unwrap();
     PackageVersion::create(
@@ -66,7 +66,7 @@ async fn package_in_system(world: &mut TestWorld) {
         2,
         100,
         None,
-        &DB_POOL,
+        &DB_POOL.get().unwrap(),
     )
     .unwrap();
     PackageVersion::create(
@@ -77,7 +77,7 @@ async fn package_in_system(world: &mut TestWorld) {
         2,
         100,
         None,
-        &DB_POOL,
+        &DB_POOL.get().unwrap(),
     )
     .unwrap();
 }
@@ -106,7 +106,7 @@ async fn package_in_subdir(world: &mut TestWorld) {
         2,
         100,
         None,
-        &DB_POOL,
+        &DB_POOL.get().unwrap(),
     )
     .unwrap();
 }
@@ -115,7 +115,7 @@ async fn package_in_subdir(world: &mut TestWorld) {
 async fn visit_package_page(world: &mut TestWorld) {
     world
         .driver
-        .get("http://localhost:17002/packages/test-package")
+        .get("http://localhost:17002/packages/aeuu-cool")
         .await
         .unwrap();
 }
@@ -154,7 +154,7 @@ async fn see_package_latest_info(world: &mut TestWorld) {
         .await
         .unwrap();
     let package_name = package_name_element.text().await.unwrap();
-    assert_eq!(package_name, "test-package");
+    assert_eq!(package_name, "Æúű--cool?");
 
     let package_description_element = world
         .driver
@@ -181,7 +181,7 @@ async fn see_package_latest_info(world: &mut TestWorld) {
 
     let expected_result = format!(
         "{} = {{ git = \"{}\", rev = \"{}\" }}",
-        "test-package", "https://github.com/Elements-Studio/starswap-core.git", "rev_2"
+        "Æúű--cool?", "https://github.com/Elements-Studio/starswap-core.git", "rev_2"
     );
     assert_eq!(package_instruction, expected_result);
 }
@@ -425,7 +425,7 @@ async fn stats_after_upload_package(world: &mut TestWorld) {
 async fn visit_subdir_package(world: &mut TestWorld) {
     world
         .driver
-        .get("http://localhost:17002/packages/long_url_package")
+        .get("http://localhost:17002/packages/long-url-package")
         .await
         .unwrap();
 }

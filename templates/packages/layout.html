@@ -56,15 +56,15 @@ Movey{% endif %}{% endblock %}
             </div>
             <div onclick="location.href='/packages/{{package.name}}/versions';"
                 class="content-tab tab-versions {% if package_tab == 'versions' %}active{% endif %}">
-                <a href="/packages/{{package.name}}/versions">
+                <a href="/packages/{{package.slug}}/versions">
                     <div class="tab-icon tab-icon-versions" title="move package versions tab"></div>
                     <div class="tab-name">Versions</div>
                 </a>
             </div>
             {% if is_crawled == false %}
-            <div onclick="location.href='/packages/{{package.name}}/collaborators';"
+            <div onclick="location.href='/packages/{{package.slug}}/collaborators';"
                 class="content-tab tab-owner {% if package_tab == 'settings' %}active{% endif %}">
-                <a href="/packages/{{package.name}}/collaborators">
+                <a href="/packages/{{package.slug}}/collaborators">
                     <div class="tab-icon tab-icon-owner"></div>
                     <div class="tab-name">Collaborators</div>
                 </a>
