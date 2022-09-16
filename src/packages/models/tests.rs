@@ -1,3 +1,4 @@
+use regex::Regex;
 use crate::test::{DatabaseTestContext, DB_POOL};
 
 use crate::github_service::GithubRepoData;
@@ -218,9 +219,9 @@ async fn search_sorted_by_recently_updated_works() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
     setup(None).unwrap();
-    let pool = &DB_POOL;
+    let conn = DB_POOL.get().unwrap();
 
-    let the_first_package = Package::get_by_name(&"The first package".to_string(), pool).unwrap();
+    let the_first_package = Package::get_by_name(&"The first package".to_string(), &DB_POOL).unwrap();
     assert!(the_first_package.name.contains("The first package"));
     assert!(the_first_package.description.contains("description 1"));
 
@@ -232,12 +233,12 @@ async fn search_sorted_by_recently_updated_works() {
         25,
         500,
         None,
-        pool,
+        &conn,
     )
     .unwrap();
-    let total_packages = Package::count(pool).unwrap();
+    let total_packages = Package::count(&DB_POOL).unwrap();
     assert_eq!(total_packages, 3);
-    let total_versions = PackageVersion::count(pool).unwrap();
+    let total_versions = PackageVersion::count(&DB_POOL).unwrap();
     assert_eq!(total_versions, 4);
 
     let search_query = "first";
@@ -247,7 +248,7 @@ async fn search_sorted_by_recently_updated_works() {
         &PackageSortOrder::Desc,
         Some(1),
         Some(2),
-        pool,
+        &DB_POOL,
     )
     .unwrap();
     assert_eq!(total_count, 2);
@@ -296,6 +297,7 @@ async fn all_packages_with_pagination_and_sort_by_recently_updated() {
     let _ctx = DatabaseTestContext::new();
     setup(None).unwrap();
     let pool = &DB_POOL;
+    let conn = pool.get().unwrap();
 
     let the_first_package = Package::get_by_name(&"The first package".to_string(), pool).unwrap();
     assert!(the_first_package.name.contains("The first package"));
@@ -309,7 +311,7 @@ async fn all_packages_with_pagination_and_sort_by_recently_updated() {
         25,
         500,
         None,
-        pool,
+        &conn,
     )
     .unwrap();
     let total_packages = Package::count(pool).unwrap();
@@ -392,7 +394,7 @@ async fn create_package_works() {
         })
         .returning(|_, _, _| {
             Ok(GithubRepoData {
-                name: "name".to_string(),
+                name: "My Test String!!!1!1".to_string(),
                 version: "version".to_string(),
                 readme_content: "readme_content".to_string(),
                 description: "".to_string(),
@@ -413,11 +415,47 @@ async fn create_package_works() {
         None,
         &DB_POOL,
     )
-    .unwrap();
+    .unwrap().id;
 
     let package = Package::get(uid, &DB_POOL).unwrap();
-    assert_eq!(package.name, "name");
+    assert_eq!(package.name, "My Test String!!!1!1");
     assert_eq!(package.description, "package_description");
+    assert_eq!(package.slug, "my-test-string-1-1");
+
+    let mut mock_github_service = GithubService::new();
+    mock_github_service
+        .expect_fetch_repo_data()
+        .withf(|x: &str, y: &Option<String>, z: &Option<String>| {
+            x == "repo_url2" && y.is_none() && z.is_none()
+        })
+        .returning(|_, _, _| {
+            Ok(GithubRepoData {
+                name: "My Test String!!!1!1".to_string(),
+                version: "version".to_string(),
+                readme_content: "readme_content".to_string(),
+                description: "".to_string(),
+                size: 0,
+                url: "".to_string(),
+                rev: "".to_string(),
+            })
+        });
+    let uid2 = Package::create(
+        "repo_url2",
+        "package_description",
+        "1",
+        2,
+        100,
+        Some(uid),
+        &mock_github_service,
+        None,
+        &DB_POOL,
+    )
+        .unwrap().id;
+    let package = Package::get(uid2, &DB_POOL).unwrap();
+    assert_eq!(package.name, "My Test String!!!1!1");
+    assert_eq!(package.description, "package_description");
+    let re = Regex::new(r"^my-test-string-1-1-[a-zA-Z0-9]{4}$").unwrap();
+    assert!(re.is_match(&package.slug));
 
     let package_version =
         &PackageVersion::from_package_id(uid, &PackageVersionSort::Latest, &DB_POOL).unwrap()[0];
@@ -440,7 +478,7 @@ async fn create_package_works() {
         })
         .returning(|_, _, _| {
             Ok(GithubRepoData {
-                name: "name".to_string(),
+                name: "My Test String!!!1!1".to_string(),
                 version: "version_2".to_string(),
                 readme_content: "readme_content".to_string(),
                 description: "".to_string(),
@@ -473,6 +511,7 @@ async fn create_package_works() {
 async fn get_versions_by_latest() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
+    let conn = &DB_POOL.get().unwrap();
 
     let mut mock_github_service = GithubService::new();
     mock_github_service
@@ -500,7 +539,7 @@ async fn get_versions_by_latest() {
         None,
         &DB_POOL,
     )
-    .unwrap();
+    .unwrap().id;
 
     PackageVersion::create(
         uid,
@@ -510,7 +549,7 @@ async fn get_versions_by_latest() {
         2,
         100,
         None,
-        &DB_POOL,
+        &conn,
     )
     .unwrap();
 
@@ -526,6 +565,8 @@ async fn get_versions_by_latest() {
 async fn get_versions_by_oldest() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
+    let conn = DB_POOL.get().unwrap();
+
     let mut mock_github_service = GithubService::new();
     mock_github_service
         .expect_fetch_repo_data()
@@ -552,7 +593,7 @@ async fn get_versions_by_oldest() {
         None,
         &DB_POOL,
     )
-    .unwrap();
+    .unwrap().id;
 
     PackageVersion::create(
         uid,
@@ -562,7 +603,7 @@ async fn get_versions_by_oldest() {
         2,
         3,
         None,
-        &DB_POOL,
+        &conn,
     )
     .unwrap();
 
@@ -604,7 +645,7 @@ async fn get_versions_by_most_downloads() {
         None,
         &DB_POOL,
     )
-    .unwrap();
+    .unwrap().id;
 
     let mut version_2 = PackageVersion::create(
         uid,
@@ -614,7 +655,7 @@ async fn get_versions_by_most_downloads() {
         2,
         3,
         None,
-        &DB_POOL,
+        &DB_POOL.get().unwrap(),
     )
     .unwrap();
     version_2.downloads_count = 5;
@@ -650,7 +691,7 @@ async fn count_package_works() {
         2,
         100,
         None,
-        &DB_POOL,
+        &DB_POOL.get().unwrap(),
     )
     .unwrap();
     assert_eq!(PackageVersion::count(&DB_POOL).unwrap(), 4);
@@ -829,7 +870,7 @@ async fn increase_download_count_for_multiple_versions() {
         40,
         200,
         None,
-        &DB_POOL,
+        &DB_POOL.get().unwrap(),
     )
     .unwrap();
 
@@ -894,14 +935,13 @@ async fn get_badge_info() {
     crate::test::init();
     let _ctx = DatabaseTestContext::new();
 
-    let pool = &DB_POOL;
     let search_query = "The first package";
     Package::create_test_package_with_multiple_versions(
         &"The first package".to_string(),
         &"".to_string(),
         &"description 1".to_string(),
         1500,
-        pool,
+        &DB_POOL,
     )
     .unwrap();
     let mut expected: Vec<(String, i32, String, i32)> = vec![(
@@ -916,7 +956,7 @@ async fn get_badge_info() {
         "0.0.2".to_string(),
         1000,
     ));
-    let result = Package::get_badge_info(search_query, pool).unwrap();
+    let result = Package::get_badge_info(search_query, &DB_POOL).unwrap();
     assert_eq!(result.len(), 2);
     assert_eq!(result, expected);
 }
@@ -979,4 +1019,31 @@ async fn get_by_account_with_pagination() {
     .unwrap();
     assert_eq!(search_result.len(), 1);
     assert_eq!(search_result[0].name, "Charles Diya");
+}
+
+#[actix_rt::test]
+async fn get_package() {
+    crate::test::init();
+    let _ctx = DatabaseTestContext::new();
+    let uid = setup_user(None, None);
+    setup(Some(uid)).unwrap();
+
+    let res = Package::get_by_name_and_repo_url(
+        "The first package",
+        "https://github.com/EastAgile/ea-movey",
+        &DB_POOL.get().unwrap(),
+    );
+    assert!(res.is_ok());
+    let res = res.unwrap();
+    assert_eq!(res.name, "The first package");
+    assert_eq!(res.repository_url, "https://github.com/EastAgile/ea-movey");
+
+    let res = Package::get_by_slug(
+        "the-first-package",
+        &DB_POOL.get().unwrap(),
+    );
+    assert!(res.is_ok());
+    let res = res.unwrap();
+    assert_eq!(res.slug, "the-first-package");
+    assert_eq!(res.name, "The first package");
 }

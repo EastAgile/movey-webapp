@@ -17,6 +17,8 @@ use tokio::time::sleep;
 
 #[given("I am an owner of a package")]
 async fn owner_of_package(world: &mut TestWorld) {
+    let conn = DB_POOL.get().unwrap();
+
     let pid = Package::create_test_package(
         &"test package".to_string(),
         &"https://github.com/Elements-Studio/starswap-core".to_string(),
@@ -39,7 +41,7 @@ async fn owner_of_package(world: &mut TestWorld) {
         2,
         100,
         None,
-        &DB_POOL,
+        &conn,
     )
     .unwrap();
     PackageCollaborator::new_owner(pid, 1, 1, &DB_POOL.get().unwrap()).unwrap();
@@ -84,7 +86,7 @@ async fn other_users(world: &mut TestWorld) {
 
 #[when("I access the package detail page of my package")]
 async fn access_package_details_page(world: &mut TestWorld) {
-    world.go_to_url("packages/test%20package").await
+    world.go_to_url("packages/test-package").await
 }
 
 #[when("I access the package Settings tab")]
@@ -743,7 +745,7 @@ async fn see_owner(world: &mut TestWorld) {
 #[then("She should see that I am a collaborator of the package")]
 async fn see_first_user_as_collaborator(world: &mut TestWorld) {
     world
-        .go_to_url("packages/test%20package/collaborators")
+        .go_to_url("packages/test-package/collaborators")
         .await;
     let collaborator_names = world
         .driver
@@ -762,7 +764,7 @@ async fn see_first_user_as_collaborator(world: &mut TestWorld) {
 
 #[when("She accesses the package detail page")]
 async fn visit_package_detail_page(world: &mut TestWorld) {
-    world.go_to_url("packages/test%20package").await
+    world.go_to_url("packages/test-package").await
 }
 
 #[then(regex = r"^I should see a modal with text '(.+)'$")]
@@ -971,7 +973,7 @@ async fn collaborator_of_package(world: &mut TestWorld) {
         2,
         100,
         None,
-        &DB_POOL,
+        &DB_POOL.get().unwrap(),
     )
     .unwrap();
     PackageCollaborator::new_collaborator(pid, 1, 1, &DB_POOL.get().unwrap()).unwrap();

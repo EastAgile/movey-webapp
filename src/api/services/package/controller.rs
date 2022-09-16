@@ -18,7 +18,7 @@ use crate::test::mock::GithubService;
 use crate::api::services::package::view::PackageBadgeRespond;
 use crate::packages::Package;
 use crate::settings::models::token::ApiToken;
-use crate::utils::presenter::validate_name_and_version;
+use crate::utils::presenter::validate_version;
 
 #[derive(Serialize, Deserialize)]
 pub struct PackageRequest {
@@ -73,14 +73,13 @@ pub async fn register_package(
             req.github_repo_url, github_data.rev, req.subdir
         );
     }
-    let hints = validate_name_and_version(&github_data.name, &github_data.version);
+    let hints = validate_version(&github_data.version);
     if !hints.is_empty() {
         return Ok(HttpResponse::BadRequest().body(format!(
             "Cannot upload package.\nHints: {}.",
             hints.join("; ")
         )));
     }
-
     let package_name = github_data.name.clone();
     let result = Package::create_from_crawled_data(
         &req.github_repo_url,
@@ -92,26 +91,31 @@ pub async fn register_package(
         github_data,
         db,
     );
-    if let Err(Error::Database(DBError::DatabaseError(kind, _))) = result {
-        let domain = std::env::var("JELLY_DOMAIN").expect("JELLY_DOMAIN is not set");
-        let error_message = format!(
-            "Cannot upload package.\n{}",
-            match kind {
-                DatabaseErrorKind::UniqueViolation => format!(
-                    "Version already exists for package at {domain}/packages/{package_name}. \
+    match result {
+        Ok(res) => Ok(HttpResponse::Ok().body(res.slug)),
+        Err(Error::Database(DBError::DatabaseError(kind, _))) => {
+            let domain = std::env::var("JELLY_DOMAIN").expect("JELLY_DOMAIN is not set");
+            let error_message = format!(
+                "Cannot upload package.\n{}",
+                match kind {
+                    DatabaseErrorKind::UniqueViolation => format!(
+                        "Version already exists for package at {domain}/packages/{package_name}. \
                     Please commit your changes to Github and try again."
-                ),
-                DatabaseErrorKind::ForeignKeyViolation => format!(
-                    "Only owners can update new versions. Please check the package information at \
+                    ),
+                    DatabaseErrorKind::ForeignKeyViolation => format!(
+                        "Only owners can update new versions. Please check the package information at \
                     {domain}/packages/{package_name}."
-                ),
-                _ => "Something went wrong, please try again later.".to_string(),
-            }
-        );
-        return Ok(HttpResponse::BadRequest().body(error_message));
+                    ),
+                    _ => "Something went wrong, please try again later.".to_string(),
+                }
+            );
+            Ok(HttpResponse::BadRequest().body(error_message))
+        }
+        Err(_) => Ok(
+            HttpResponse::BadRequest()
+                .body("Something went wrong, please try again later.".to_string())
+        )
     }
-
-    Ok(HttpResponse::Ok().body(package_name))
 }
 
 #[derive(Clone, Deserialize)]
