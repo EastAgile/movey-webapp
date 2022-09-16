@@ -148,15 +148,7 @@
     border: 0.5px solid #333333;
     border-radius: 8px;
     height: fit-content;
-    max-height: 132px;
     padding: 8px;
-  }
-}
-@media screen and (min-width: 258px) and (max-width: 455px) {
-  .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row {
-    flex-flow: row wrap;
-    justify-content: start;
-    margin-top: 8px;
   }
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row.header {
@@ -187,9 +179,9 @@
 }
 @media screen and (min-width: 258px) and (max-width: 455px) {
   .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .email_address {
-    width: 90%;
+    width: 100%;
     margin-right: 0px;
-    padding: 0px;
+    padding: 2px;
     overflow-wrap: break-word;
     display: inline;
   }
@@ -216,7 +208,7 @@
 }
 @media screen and (min-width: 258px) and (max-width: 455px) {
   .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles {
-    width: 90%;
+    width: 100%;
   }
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles .collaborator,
@@ -255,8 +247,8 @@
 }
 @media screen and (min-width: 258px) and (max-width: 455px) {
   .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings {
-    width: 320px;
-    justify-content: flex-end;
+    width: 248px;
+    justify-content: space-between;
   }
 }
 @media screen and (min-width: 456px) and (max-width: 843px) {
@@ -287,15 +279,15 @@
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings .ownership_btn.remove {
   color: #eb5757;
-  background: none;
+  background: rgba(235, 87, 87, 0.15);
 }
 @media screen and (min-width: 258px) and (max-width: 455px) {
-  .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings .ownership_btn.remove {
-    padding: 15px 40px;
+  .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings .ownership_btn {
+    padding: 8px 24px;
   }
 }
 @media screen and (min-width: 456px) and (max-width: 843px) {
-  .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings .ownership_btn.remove {
+  .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings .ownership_btn {
     padding: 8px 24px;
   }
 }

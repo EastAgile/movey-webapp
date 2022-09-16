@@ -154,14 +154,7 @@
           border: 0.5px solid #333333;
           border-radius: 8px;
           height: fit-content;
-          max-height: 132px;
           padding: 8px;
-        }
-
-        @include mobile-screen {
-          flex-flow: row wrap;
-          justify-content: start;
-          margin-top: 8px;
         }
 
         &.header {
@@ -194,9 +187,9 @@
           }
 
           @include mobile-screen {
-            width: 90%;
+            width: 100%;
             margin-right: 0px;
-            padding: 0px;
+            padding: 2px;
             overflow-wrap: break-word;
             display: inline;
             
@@ -227,7 +220,7 @@
           }
 
           @include mobile-screen {
-            width: 90%;
+            width: 100%;
           }
 
           .collaborator,
@@ -268,8 +261,8 @@
             width: 380px;
 
             @include mobile-screen { 
-              width: 320px;
-              justify-content: flex-end;
+              width: 248px;
+              justify-content: space-between;
             }
             @include tablet-screen {
               width: 224px;
@@ -300,10 +293,11 @@
 
               &.remove {
                 color: #eb5757;
-                background: none;
+                background: rgba(235, 87, 87, 0.15);
+              }
 
               @include mobile-screen {
-                padding: 15px 40px;
+                padding: 8px 24px;
               }
               @include tablet-screen {
                 padding: 8px 24px;
@@ -314,8 +308,8 @@
       }
     }
   }
-  }
 }
+
 .reveal {
   top: 25% !important;
 }
