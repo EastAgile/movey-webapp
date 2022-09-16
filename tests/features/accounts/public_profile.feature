@@ -7,7 +7,7 @@ Feature: Public profile
 
     Scenario: Access profile from package details page
         Given There are packages in the system
-        When I access a package details page
+        When I access the package details page
         Then I should see the owner information
         When I click on the owner name
         Then I should see the public profile

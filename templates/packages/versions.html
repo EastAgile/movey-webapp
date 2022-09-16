@@ -6,7 +6,7 @@
         <div class="package-version-summary">All <b>{{versions|length}} version{{ versions | length | pluralize }}</b> of <b>{{package.name}}</b> since <b>{{package_version.created_at | date(format="%B %d, %Y")}}</b></div>
         <div class="package-version-sort">
             <label for="versions-sort">Sort by</label>
-            <select name="versions-sort" class="versions-sort" data-url="/packages/{{package.name}}/versions" data-sort="{{sort_type}}">
+            <select name="versions-sort" class="versions-sort" data-url="/packages/{{package.slug}}/versions" data-sort="{{sort_type}}">
                 <option value="latest">Latest</option>
                 <option value="oldest">Oldest</option>
                 <option value="most_downloads">Most Downloads</option>
@@ -17,7 +17,7 @@
 
     <div class="package-version-list">
         {% for version in versions %}
-        <a href="/packages/{{package.name}}?version={{version.version}}">
+        <a href="/packages/{{package.slug}}?version={{version.version}}">
             <div class="package-version-item">
                 <div class="package-version-number">{{version.version}}</div>
                 <div class="package-download">

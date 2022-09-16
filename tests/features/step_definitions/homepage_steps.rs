@@ -74,7 +74,7 @@ async fn click_on_dropdown(world: &mut TestWorld) {
         .await
         .unwrap();
     let suggest = suggesstion
-        .find_element(By::Css("#suggestion1 .package-name"))
+        .find_element(By::Css("#suggestion0 .package-name"))
         .await
         .unwrap();
 
