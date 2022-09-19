@@ -424,6 +424,12 @@
   font-size: 24px;
   margin-top: 15px;
 }
+.package-show-container .package-content-container .package-detail-container .package-readme-content table thead tr {
+  background-color: var(--gray-color);
+}
+.package-show-container .package-content-container .package-detail-container .package-readme-content table tbody tr:nth-child(even) {
+  background-color: var(--geyser-color);
+}
 .package-show-container .package-content-container .package-detail-container .package-sidebar {
   width: 33%;
 }
