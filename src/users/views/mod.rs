@@ -40,8 +40,7 @@ pub async fn get_public_profile(
         params.page,
         None,
         db,
-    )
-    .await?;
+    )?;
 
     let current_page = params.page.unwrap_or(1);
     if current_page < 1 {

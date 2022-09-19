@@ -94,6 +94,7 @@
 }
 .package-settings-container .collaborators_wrapper {
   margin-top: 82px;
+  margin-bottom: 50px;
 }
 .package-settings-container .collaborators_wrapper .collaborators_title {
   font-weight: 700;
@@ -280,7 +281,7 @@
 #transfer_owner_modal .warning,
 #remove_owner_modal .warning {
   font-weight: 300;
-  font-size: 18px;
+  font-size: 16px;
   display: flex;
   align-items: center;
   color: #ec7257;

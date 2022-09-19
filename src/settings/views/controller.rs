@@ -16,7 +16,7 @@ use jelly::Result;
 pub async fn profile(request: HttpRequest) -> Result<HttpResponse> {
     let user = request.user()?;
     let db = request.db_pool()?;
-    let account = Account::get(user.id, db).await?;
+    let account = Account::get(user.id, db)?;
     request.render(200, "settings/profile.html", {
         let mut context = Context::new();
         context.insert("account", &account);
@@ -32,7 +32,7 @@ pub async fn change_password(
     let mut form = form.into_inner();
     let user = request.user()?;
     let db = request.db_pool()?;
-    let account = Account::get(user.id, db).await?;
+    let account = Account::get(user.id, db)?;
     form.name = Some(account.name.clone());
     form.email = Some(account.email.clone());
 
@@ -51,8 +51,7 @@ pub async fn change_password(
         form.current_password.value,
         form.new_password.value,
         db,
-    )
-    .await;
+    );
     let message;
     let is_ok = match result {
         Ok(_) => {
@@ -92,7 +91,7 @@ pub async fn change_password(
 pub async fn show_packages(request: HttpRequest) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
-        let packages = Package::get_by_account(user.id, db).await?;
+        let packages = Package::get_by_account(user.id, db)?;
 
         request.render(200, "settings/user_packages.html", {
             let mut ctx = Context::new();
@@ -108,7 +107,7 @@ pub async fn show_packages(request: HttpRequest) -> Result<HttpResponse> {
 pub async fn show_downloads(request: HttpRequest) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
-        let download = Package::get_downloads(user.id, db).await?;
+        let download = Package::get_downloads(user.id, db)?;
 
         request.render(200, "settings/downloads.html", {
             let mut ctx = Context::new();
@@ -143,7 +142,7 @@ pub async fn show_invitations(request: HttpRequest) -> Result<HttpResponse> {
 pub async fn show_tokens(request: HttpRequest) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
-        let tokens = ApiToken::get_by_account(user.id, db).await?;
+        let tokens = ApiToken::get_by_account(user.id, db)?;
 
         request.render(200, "settings/tokens.html", {
             let mut ctx = Context::new();

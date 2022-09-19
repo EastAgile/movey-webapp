@@ -15,7 +15,7 @@
     width: 70%;
   }
 }
-@media screen and (min-width: 1280px) and (max-width: 2048px) {
+@media screen and (min-width: 1280px) {
   .document-container {
     width: 60%;
   }

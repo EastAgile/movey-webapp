@@ -27,9 +27,9 @@ pub async fn show_package(
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     let conn = db.get()?;
-    let package = Package::get_by_name(&package_name, db).await?;
+    let package = Package::get_by_name(&package_name, db)?;
     let collaborators = PackageCollaborator::get_by_package_id(package.id, &conn)?;
-    
+
     let default_version: String = String::from("");
     let params = Query::<PackageShowParams>::from_query(request.query_string())
         .map_err(|e| Error::Generic(format!("Error getting query params: {:?}", e)))?;
@@ -39,13 +39,13 @@ pub async fn show_package(
 
     if version.is_empty() {
         let versions =
-            PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, db).await?;
+            PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, db)?;
         package_version = versions[0].clone();
     } else {
-        package_version = package.get_version(version, db).await?
+        package_version = package.get_version(version, db)?
     }
 
-    let (account_name, account_slug_url) = presenter::make_account_name(&package, db).await?;
+    let (account_name, account_slug_url) = presenter::make_account_name(&package, db)?;
     let (instruction_repo_url, instruction_subdir) =
         presenter::make_package_install_instruction(&package.repository_url);
 
@@ -53,13 +53,14 @@ pub async fn show_package(
         let mut ctx = Context::new();
         ctx.insert("package", &package);
         ctx.insert("package_version", &package_version);
-        ctx.insert("account_name", &account_name);
+        ctx.insert("package_tab", "readme");
         ctx.insert("is_crawled", &collaborators.is_empty());
         ctx.insert("is_anonymous", &request.user()?.is_anonymous);
+
+        ctx.insert("account_name", &account_name);
         ctx.insert("account_slug_url", &account_slug_url);
         ctx.insert("instruction_subdir", &instruction_subdir);
         ctx.insert("instruction_repo_url", &instruction_repo_url);
-        ctx.insert("package_tab", "readme");
         ctx
     })
 }
@@ -74,9 +75,11 @@ pub async fn show_package_versions(
     Path(package_name): Path<String>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    let package = Package::get_by_name(&package_name, db).await?;
+    let conn = db.get()?;
+    let package = Package::get_by_name(&package_name, db)?;
     let package_latest_version =
-        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, db).await?[0];
+        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, db)?[0];
+    let collaborators = PackageCollaborator::get_by_package_id(package.id, &conn)?;
 
     let params = Query::<VersionParams>::from_query(request.query_string()).map_err(|e| {
         error!("Error parsing params: {:?}", e);
@@ -90,14 +93,17 @@ pub async fn show_package_versions(
         "most_downloads" => PackageVersionSort::MostDownloads,
         _ => PackageVersionSort::Latest,
     };
-    let package_versions = PackageVersion::from_package_id(package.id, &sort_type, db).await?;
+    let package_versions = PackageVersion::from_package_id(package.id, &sort_type, db)?;
 
     request.render(200, "packages/versions.html", {
         let mut ctx = Context::new();
         ctx.insert("package", &package);
         ctx.insert("package_version", &package_latest_version);
-        ctx.insert("versions", &package_versions);
         ctx.insert("package_tab", "versions");
+        ctx.insert("is_crawled", &collaborators.is_empty());
+        ctx.insert("is_anonymous", &request.user()?.is_anonymous);
+
+        ctx.insert("versions", &package_versions);
         ctx.insert("sort_type", &sort_type_text);
         ctx
     })
@@ -109,13 +115,13 @@ pub async fn show_package_settings(
 ) -> Result<HttpResponse> {
     let db_pool = request.db_pool()?;
     let db_connection = db_pool.get()?;
-    let package = Package::get_by_name(&package_name, db_pool).await?;
+    let package = Package::get_by_name(&package_name, db_pool)?;
     let package_latest_version =
-        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db_pool).await?
-            [0];
+        &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db_pool)?[0];
 
     // get movey account that is already a collaborator
-    let accepted_ids: Vec<i32> = PackageCollaborator::get_by_package_id(package.id, &db_connection)?;
+    let accepted_ids: Vec<i32> =
+        PackageCollaborator::get_by_package_id(package.id, &db_connection)?;
     let owner_id = if accepted_ids.len() > 0 {
         accepted_ids[0]
     } else {
@@ -126,10 +132,22 @@ pub async fn show_package_settings(
     let mut all_invitations: Vec<SerializableInvitation>;
 
     let mut is_current_user_owner = false;
+    let mut is_user_collaborator = false;
     let user = request.user()?;
+
+    let current_user_email = if user.is_anonymous {
+        None
+    } else {
+        Account::get(user.id, db_pool)
+            .ok()
+            .and_then(|account| Some(account.email))
+    };
+
     if accepted_ids.contains(&user.id) {
         if owner_id == user.id {
             is_current_user_owner = true;
+        } else {
+            is_user_collaborator = true;
         }
         // get movey account that received an collaborator invitation
         let pending_ids: HashSet<i32> =
@@ -211,11 +229,15 @@ pub async fn show_package_settings(
     request.render(200, "packages/owner_settings.html", {
         let mut ctx = Context::new();
         ctx.insert("package", &package);
+        ctx.insert("package_version", &package_latest_version);
         ctx.insert("package_tab", "settings");
+        ctx.insert("is_crawled", &false);
+
         // owner_list = owner + accepted_collaborator + pending_collaborator + external
         ctx.insert("owner_list", &all_invitations);
-        ctx.insert("package_version", &package_latest_version);
+        ctx.insert("current_email", &current_user_email);
         ctx.insert("is_current_user_owner", &is_current_user_owner);
+        ctx.insert("is_current_user_collaborator", &is_user_collaborator);
         ctx
     })
 }
@@ -250,8 +272,7 @@ pub async fn show_search_results(
         search.page,
         None,
         db,
-    )
-    .await?;
+    )?;
 
     let current_page = search.page.unwrap_or(1);
     if current_page < 1 {
@@ -277,7 +298,7 @@ pub async fn show_search_results(
 pub async fn show_owned_packages(request: HttpRequest) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if let Ok(user) = request.user() {
-        let packages = Package::get_by_account(user.id, db).await?;
+        let packages = Package::get_by_account(user.id, db)?;
 
         request.render(200, "search/search_results.html", {
             let mut ctx = Context::new();
@@ -317,8 +338,7 @@ pub async fn packages_index(
         params.page,
         None,
         db,
-    )
-    .await?;
+    )?;
 
     let current_page = params.page.unwrap_or(1);
     if current_page < 1 {

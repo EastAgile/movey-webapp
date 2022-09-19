@@ -7,7 +7,10 @@ use crate::features::world::TestWorld;
 async fn access_public_profile(world: &mut TestWorld) {
     world
         .driver
-        .get(format!("{}users/{}", world.root_url, world.first_account.slug))
+        .get(format!(
+            "{}users/{}",
+            world.root_url, world.first_account.slug
+        ))
         .await
         .unwrap()
 }

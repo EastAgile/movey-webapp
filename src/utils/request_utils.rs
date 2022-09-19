@@ -11,8 +11,8 @@ use jelly::Result;
 use crate::accounts::Account;
 use crate::constants;
 
-pub async fn is_authenticated(request: &HttpRequest) -> Result<bool> {
-    Ok(request.is_authenticated()? && renew_token(request).await?)
+pub fn is_authenticated(request: &HttpRequest) -> Result<bool> {
+    Ok(request.is_authenticated()? && renew_token(request)?)
 }
 
 pub fn clear_cookie(request: &HttpRequest) -> HttpResponse {
@@ -22,7 +22,7 @@ pub fn clear_cookie(request: &HttpRequest) -> HttpResponse {
         .body("")
 }
 
-pub async fn renew_token(request: &HttpRequest) -> Result<bool> {
+pub fn renew_token(request: &HttpRequest) -> Result<bool> {
     if request.get_session().get::<User>("sku")?.is_none() {
         if let Some(cookie) = request.cookie("remember_me_token") {
             let cookie = cookie.value();
@@ -33,7 +33,7 @@ pub async fn renew_token(request: &HttpRequest) -> Result<bool> {
                 .parse::<i32>()
                 .map_err(|e| anyhow!("Error parsing user id from cookie: {:?}", e))?;
 
-            let account = match Account::get(*uid, request.db_pool()?).await {
+            let account = match Account::get(*uid, request.db_pool()?) {
                 Ok(account) => account,
                 Err(Error::Database(DBError::NotFound)) => {
                     error!(

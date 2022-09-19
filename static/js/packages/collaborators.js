@@ -23,12 +23,13 @@ class Collaborator {
 
     this.invite_btn.click(() => {
       this.inviteCollaborator();
-      // this.collaborators_modal.foundation("close");
     });
 
     this.add_collaborator_btn.click(() => {
       $("#new_collaborator_modal").foundation("open");
       $("#return-message").text("");
+      $("#return-message").removeClass();
+      $("#return-message").addClass("message");
     });
 
     this.collaborators_modal.find(".submit").on("click", () => {
@@ -122,8 +123,8 @@ class Collaborator {
         this.success_modal.foundation("open");
         this.current_transfer_target.attr('class', 'hidden-btn')
         this.current_transfer_target.parent().parent()
-            .find('.collaborator_name')
-            .after(`
+          .find('.collaborator_name')
+          .after(`
                 <div class="sending_status">ownership invitation sent</div>
             `)
         this.current_transfer_target = undefined
@@ -183,11 +184,6 @@ class Collaborator {
   };
 
   removeBtnListener = (e) => {
-    console.log(
-      e.target.parentElement.parentElement.querySelector(
-        ".email_address.collaborator_name"
-      )
-    );
     $("#removed_email").text(
       e.target.parentElement.parentElement.querySelector(".email_address")
         .innerText
@@ -197,6 +193,6 @@ class Collaborator {
 
   messageReturn = (text, status) => {
     $("#return-message").text(text);
-    $("#return-message").addClass(status == true ? "success" : "error");
+    $("#return-message").addClass(status ? "success" : "error");
   };
 }

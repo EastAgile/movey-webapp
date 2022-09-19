@@ -29,7 +29,6 @@ async fn owner_of_package(world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
 
     PackageVersion::create(
@@ -42,7 +41,6 @@ async fn owner_of_package(world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
     PackageCollaborator::new_owner(pid, 1, 1, &DB_POOL.get().unwrap()).unwrap();
     world.first_account.owned_package_name = Some("test package".to_string());
@@ -55,7 +53,6 @@ async fn other_owners(world: &mut TestWorld) {
         world.first_account.owned_package_name.as_ref().unwrap(),
         &DB_POOL,
     )
-    .await
     .unwrap();
     PackageCollaborator::new_collaborator(package.id, 2, 2, &DB_POOL.get().unwrap()).unwrap();
 }
@@ -81,8 +78,8 @@ async fn other_users(world: &mut TestWorld) {
         },
     };
     world.second_account = account;
-    let uid = Account::register(&form, &DB_POOL).await.unwrap();
-    Account::mark_verified(uid, &DB_POOL).await.unwrap();
+    let uid = Account::register(&form, &DB_POOL).unwrap();
+    Account::mark_verified(uid, &DB_POOL).unwrap();
 }
 
 #[when("I access the package detail page of my package")]
@@ -154,6 +151,75 @@ async fn invite_collaborator(world: &mut TestWorld) {
     invite_btn.click().await.unwrap();
 }
 
+#[when("She invite another user to become a collaborator of the package")]
+async fn invite_other_collaborator(world: &mut TestWorld) {
+    std::env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "10");
+    fs::remove_dir_all("./emails").unwrap_or(());
+
+    let form = NewAccountForm {
+        email: EmailField {
+            value: "another_user_to_be_invited@host.com".to_string(),
+            errors: vec![],
+        },
+        password: PasswordField {
+            value: "So$trongpas0word!".to_string(),
+            errors: vec![],
+            hints: vec![],
+        },
+    };
+    let uid = Account::register(&form, &DB_POOL).unwrap();
+    let _ = Account::mark_verified(uid, &DB_POOL);
+
+    let input_username = world
+        .driver
+        .find_element(By::ClassName("collaborators_input"))
+        .await
+        .unwrap();
+
+    input_username.click().await.unwrap();
+    input_username
+        .send_keys("another_user_to_be_invited@host.com")
+        .await
+        .unwrap();
+
+    let invite_btn = world
+        .driver
+        .find_element(By::ClassName("collaborators_btn"))
+        .await
+        .unwrap();
+
+    fs::remove_dir_all("./emails").unwrap_or(());
+
+    invite_btn.click().await.unwrap();
+}
+
+#[when("I invite collaborator with a username that is not in our system")]
+async fn invite_user_not_in_system(world: &mut TestWorld) {
+    std::env::set_var("OWNERSHIP_INVITATIONS_EXPIRATION_DAYS", "10");
+    fs::remove_dir_all("./emails").unwrap_or(());
+    let input_username = world
+        .driver
+        .find_element(By::ClassName("collaborators_input"))
+        .await
+        .unwrap();
+
+    input_username.click().await.unwrap();
+    input_username
+        .send_keys("a_username_not_in_the_system")
+        .await
+        .unwrap();
+
+    let invite_btn = world
+        .driver
+        .find_element(By::ClassName("collaborators_btn"))
+        .await
+        .unwrap();
+
+    fs::remove_dir_all("./emails").unwrap_or(());
+
+    invite_btn.click().await.unwrap();
+}
+
 #[when("I close the invite modal")]
 async fn close_invite_modal(world: &mut TestWorld) {
     let close_modal_btn = world
@@ -199,6 +265,25 @@ async fn receive_ownership_invitation_email(_world: &mut TestWorld) {
     assert!(content.contains("To: collaborator@host.com"));
     assert!(content.contains("New Collaborator Invitation"));
     assert!(content.contains("You got invited as a collaborator on the package test package."));
+}
+
+#[then(regex = r"^She should see that the url to accept the transfer has '(.+)'$")]
+async fn url_in_transfer_email(world: &mut TestWorld, url: String) {
+    let email_dir = fs::read_dir("./emails").unwrap().next();
+    let content = fs::read_to_string(email_dir.unwrap().unwrap().path()).unwrap();
+
+    // Use JELLY_DOMAIN because it is inserted into the email template
+    let domain = std::env::var("JELLY_DOMAIN").unwrap();
+    let transfer_url = format!("{}{}", domain, url);
+    assert!(content.contains(&transfer_url));
+}
+
+#[then("She should see that she is on the package details page")]
+async fn on_package_details_page(world: &mut TestWorld) {
+    assert_eq!(
+        world.driver.current_url().await.unwrap(),
+        format!("{}{}", world.root_url, "packages/test%20package"),
+    );
 }
 
 #[when("She is signed in")]
@@ -293,10 +378,10 @@ async fn invitation_link_in_email(world: &mut TestWorld) {
     let email_dir = fs::read_dir("./emails").unwrap().next();
     let content = fs::read_to_string(email_dir.unwrap().unwrap().path()).unwrap();
 
-    let re = Regex::new(r"/owner_invitations/accept/([^ \n]+)".to_string().as_str()).unwrap();
+    let re = Regex::new(r"/collaborators/accept/([^ \n]+)".to_string().as_str()).unwrap();
     let caps = re.captures(&content).unwrap();
     let accept_token = caps.get(1).map(|m| m.as_str()).unwrap();
-    let url = &format!("owner_invitations/accept/{}", accept_token);
+    let url = &format!("collaborators/accept/{}", accept_token);
     world.go_to_url(url).await;
 }
 
@@ -341,10 +426,10 @@ async fn expired_owner_invitation(_world: &mut TestWorld) {
 async fn invalid_page_for_expired_invitation(world: &mut TestWorld) {
     let title = world
         .driver
-        .find_element(By::ClassName("title"))
+        .find_element(By::ClassName("verify-card-title"))
         .await
         .unwrap();
-    assert_eq!(&title.text().await.unwrap(), "Invalid Token");
+    assert_eq!(&title.text().await.unwrap(), "Invalid or Expired");
 }
 
 #[when("I invite collaborator with a valid email that is not in our system")]
@@ -581,10 +666,9 @@ async fn package_owner(world: &mut TestWorld) {
         .find_element(By::ClassName("owner_name"))
         .await
         .unwrap();
-
     assert_eq!(
         &owner_name.text().await.unwrap(),
-        &world.second_account.email
+        &format!("{}\n(You)",&world.second_account.email)
     );
 }
 
@@ -847,4 +931,73 @@ async fn deleted_transfer_invitation(world: &mut TestWorld) {
         .await
         .unwrap();
     assert_eq!(transfer_btns.len(), 1);
+}
+
+#[then("I should not see the add button")]
+async fn not_see_add_button(world: &mut TestWorld) {
+    assert!(world
+        .driver
+        .find_element(By::ClassName("new_collaborator_modal"))
+        .await
+        .is_err());
+    assert!(world
+        .driver
+        .find_element(By::ClassName("add_collaborators_btn"))
+        .await
+        .is_err());
+}
+
+#[given("I am a collaborator of a package")]
+async fn collaborator_of_package(world: &mut TestWorld) {
+    let pid = Package::create_test_package(
+        &"test package".to_string(),
+        &"https://github.com/Elements-Studio/starswap-core".to_string(),
+        &"package_description".to_string(),
+        &"first_version".to_string(),
+        &"first_readme_content".to_string(),
+        &"rev".to_string(),
+        2,
+        100,
+        None,
+        &DB_POOL,
+    )
+    .unwrap();
+
+    PackageVersion::create(
+        pid,
+        "second_version".to_string(),
+        "second_readme_content".to_string(),
+        "rev_2".to_string(),
+        2,
+        100,
+        None,
+        &DB_POOL,
+    )
+    .unwrap();
+    PackageCollaborator::new_collaborator(pid, 1, 1, &DB_POOL.get().unwrap()).unwrap();
+    world.first_account.owned_package_name = Some("test package".to_string());
+}
+
+#[when("I click the 'Remove' button of the other collaborator")]
+async fn click_remove_collaborator_button(world: &mut TestWorld) {
+    let remove_btns = world
+        .driver
+        .find_elements(By::ClassName("remove"))
+        .await
+        .unwrap();
+
+    assert_eq!(remove_btns.len(), 1);
+    remove_btns[0].click().await.unwrap();
+}
+
+#[then("I can see the collaborator is removed from table")]
+async fn deleted_collaborator(world: &mut TestWorld) {
+    sleep(Duration::from_millis(500)).await;
+    let rows = world
+        .driver
+        .find_elements(By::ClassName("collaborator_row"))
+        .await
+        .unwrap();
+    // include the header
+    assert_eq!(rows.len(), 2);
 }

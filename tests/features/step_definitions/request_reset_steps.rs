@@ -67,7 +67,7 @@ async fn register_email(_world: &mut TestWorld) {
             hints: vec![],
         },
     };
-    Account::register(&form, &DB_POOL).await.unwrap();
+    Account::register(&form, &DB_POOL).unwrap();
 }
 
 #[when("I fill in a registered email and submit the form on Forgot Password page")]

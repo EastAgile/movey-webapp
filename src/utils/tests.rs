@@ -3,7 +3,7 @@ use crate::accounts::Account;
 use crate::test::DB_POOL;
 use jelly::forms::{EmailField, PasswordField};
 
-pub async fn setup_user(email: Option<String>, password: Option<String>) -> i32 {
+pub fn setup_user(email: Option<String>, password: Option<String>) -> i32 {
     let form = NewAccountForm {
         email: EmailField {
             value: email.unwrap_or_else(|| "email@host.com".to_string()),
@@ -15,5 +15,5 @@ pub async fn setup_user(email: Option<String>, password: Option<String>) -> i32 
             hints: vec![],
         },
     };
-    Account::register(&form, &DB_POOL).await.unwrap()
+    Account::register(&form, &DB_POOL).unwrap()
 }
