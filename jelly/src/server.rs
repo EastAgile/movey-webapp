@@ -97,13 +97,13 @@ impl Server {
             let should_redirect_https =
                 env::var("REDIRECT_HTTPS").unwrap_or_else(|_| "false".to_string()) != "false";
 
-            let query_error_handler = web::QueryConfig::default()
-                .error_handler(|err, req| {
-                    actix_web::error::InternalError::from_response(
-                        err, 
-                        req.render(404, "404.html", tera::Context::new()).unwrap()
-                    ).into()
-                });
+            let query_error_handler = web::QueryConfig::default().error_handler(|err, req| {
+                actix_web::error::InternalError::from_response(
+                    err,
+                    req.render(400, "400.html", tera::Context::new()).unwrap(),
+                )
+                .into()
+            });
 
             let mut app = App::new()
                 .app_data(pool.clone())

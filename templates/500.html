@@ -1,0 +1,20 @@
+{% extends "layout_dark.html" %}
+
+{% block title %}Server Error | Movey{% endblock %}
+
+{% block css %}
+<link href="/static/css/500/500.css" rel="stylesheet" />
+<link href="/static/css/404/404.css" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<div class="not-found-wrapper">
+    <div class="large-message">Oops!</div>
+    <div class="title">Something went wrong...</div>
+    <div class="error-wrapper">
+        <img src="/static/resources/500-page.svg" class="error-illustration" alt="Supprised face">
+        <div class="error-code">500</div>
+    </div>
+    <div class="small-message">We are working on fixing the problem. Please try again.</div>
+</div>
+{% endblock %}

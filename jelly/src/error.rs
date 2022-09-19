@@ -3,15 +3,13 @@
 //! error formats into the one we use for responding.
 
 use actix_web::{HttpResponse, ResponseError};
-use std::{error, fmt};
-use diesel::{
-    r2d2::PoolError,
-    result::{Error as DBError},
-};
-use tera::{Context, Tera};
-use std::sync::{Arc, RwLock};
-use std::env;
+use diesel::{r2d2::PoolError, result::Error as DBError};
 use lazy_static::lazy_static;
+use reqwest::StatusCode;
+use std::env;
+use std::sync::{Arc, RwLock};
+use std::{error, fmt};
+use tera::{Context, Tera};
 
 /// This enum represents the largest classes of errors we can expect to
 /// encounter in the lifespan of our application. Feel free to add to this
@@ -54,17 +52,17 @@ impl error::Error for Error {
             Error::Template(e) => Some(e),
             Error::Json(e) => Some(e),
             Error::Radix(e) => Some(e),
+            Error::Reqwest(e) => Some(e),
 
             Error::Generic(_)
             | Error::InvalidPassword
             | Error::InvalidAccountToken
             | Error::PasswordHasher(_)
-            | Error::Reqwest(_)
             | Error::ApiServerError(_)
             | Error::ApiNotFound(_, _)
             | Error::ApiForbidden(_, _)
             | Error::ApiUnauthorized(_, _)
-            | Error::ApiBadRequest(_, _)=> None,
+            | Error::ApiBadRequest(_, _) => None,
         }
     }
 }
@@ -118,13 +116,13 @@ impl From<djangohashers::HasherError> for Error {
 }
 
 impl From<reqwest::Error> for Error {
-  fn from(e: reqwest::Error) -> Self {
-      Error::Reqwest(e)
-  }
+    fn from(e: reqwest::Error) -> Self {
+        Error::Reqwest(e)
+    }
 }
 
 lazy_static! {
-   pub static ref TERA: Arc<RwLock<Tera>> = {
+    pub static ref TERA: Arc<RwLock<Tera>> = {
         let templates_glob = env::var("TEMPLATES_GLOB").expect("TEMPLATES_GLOB not set!");
         Arc::new(RwLock::new(
             Tera::new(&templates_glob).expect("Unable to compile templates!"),
@@ -136,23 +134,45 @@ impl ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
         use super::utils::api_errors::*;
 
-        match self {
+        let (template, mut response) = match self {
             Error::ApiServerError(e) => return server_error(e),
             Error::ApiNotFound(msg, e) => return not_found(msg, e),
             Error::ApiForbidden(msg, e) => return forbidden(msg, e),
             Error::ApiUnauthorized(msg, e) => return unauthorized(msg, e),
             Error::ApiBadRequest(msg, e) => return bad_request(msg, e),
-            _ => {}
+
+            Error::ActixWeb(e) => {
+                let status_code = e.as_response_error().status_code();
+                if status_code.is_server_error() {
+                    ("500.html", HttpResponse::InternalServerError())
+                } else if status_code == StatusCode::NOT_FOUND {
+                    ("404.html", HttpResponse::NotFound())
+                } else {
+                    ("400.html", HttpResponse::BadRequest())
+                }
+            }
+            Error::Anyhow(_) | Error::Generic(_) | Error::Database(DBError::NotFound) => {
+                ("404.html", HttpResponse::NotFound())
+            }
+            Error::Json(_) | Error::InvalidPassword | Error::InvalidAccountToken => {
+                ("400.html", HttpResponse::BadRequest())
+            }
+            _ => ("500.html", HttpResponse::InternalServerError()),
+        };
+        // Returning an Internal Server Error will trigger actix
+        // to log the error automatically so we don't have to
+        if template != "500.html" {
+            error!("{:?}", error::Error::source(&self));
         }
         match TERA.read() {
             Ok(engine) => {
-                match engine.render("404.html", &Context::new())
-                    .map_err(Error::from) {
-                    Ok(body) => {
-                        HttpResponse::NotFound()
-                            .content_type("text/html; charset=utf-8")
-                            .body(&body)
-                    }
+                match engine
+                    .render(template, &Context::new())
+                    .map_err(Error::from)
+                {
+                    Ok(body) => response
+                        .content_type("text/html; charset=utf-8")
+                        .body(&body),
                     Err(error) => {
                         error!("Error reading file content: {:?}", error);
                         HttpResponse::InternalServerError().body("")
@@ -161,8 +181,7 @@ impl ResponseError for Error {
             }
             Err(error) => {
                 error!("Error acquiring template read lock: {:?}", error);
-                HttpResponse::InternalServerError()
-                    .body("")
+                HttpResponse::InternalServerError().body("")
             }
         }
     }

@@ -6,23 +6,94 @@
   justify-content: center;
   flex-direction: column;
 }
-.not-found-wrapper .message {
-  font-family: var(--sub-title-font);
+.not-found-wrapper .large-message {
   color: var(--dark-blue-color);
-  font-size: 48px;
-  line-height: 72px;
-  font-weight: 700;
+  font-style: normal;
+  font-weight: 900;
+  font-size: 64px;
+  line-height: 80px;
+  margin-bottom: 16px;
 }
 @media screen and (min-width: 844px) and (max-width: 1280px) {
-  .not-found-wrapper .message {
-    font-size: 32px;
-    line-height: 48px;
+  .not-found-wrapper .large-message {
+    font-size: 64px;
+    line-height: 80px;
   }
 }
 @media screen and (max-width: 843px) {
-  .not-found-wrapper .message {
+  .not-found-wrapper .large-message {
+    font-size: 48px;
+    line-height: 60px;
+  }
+}
+.not-found-wrapper .title {
+  font-weight: 300;
+  font-size: 36px;
+  line-height: 45px;
+  color: #02143a;
+}
+@media screen and (max-width: 843px) {
+  .not-found-wrapper .title {
     font-size: 24px;
-    line-height: 48px;
+    line-height: 30px;
+  }
+}
+.not-found-wrapper .error-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.not-found-wrapper .error-wrapper .error-illustration {
+  position: absolute;
+  width: 380px;
+  margin-right: 20px;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .not-found-wrapper .error-wrapper .error-illustration {
+    width: 238px;
+  }
+}
+@media screen and (max-width: 843px) {
+  .not-found-wrapper .error-wrapper .error-illustration {
+    width: 166px;
+  }
+}
+.not-found-wrapper .error-wrapper .error-code {
+  font-weight: 1000;
+  font-size: 500px;
+  line-height: 628px;
+  letter-spacing: 0.05em;
+  color: #b7dfff;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .not-found-wrapper .error-wrapper .error-code {
+    font-size: 340px;
+    line-height: 428px;
+  }
+}
+@media screen and (max-width: 843px) {
+  .not-found-wrapper .error-wrapper .error-code {
+    font-size: 180px;
+    line-height: 226px;
+  }
+}
+.not-found-wrapper .small-message {
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 30px;
+  color: #808fb0;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .not-found-wrapper .small-message {
+    font-size: 24px;
+    line-height: 36px;
+  }
+}
+@media screen and (max-width: 843px) {
+  .not-found-wrapper .small-message {
+    font-size: 16px;
+    line-height: 24px;
   }
 }
 

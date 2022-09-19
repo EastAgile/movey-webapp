@@ -3,11 +3,17 @@
 {% block title %}Not Found | Movey{% endblock %}
 
 {% block css %}
-<link href="/static/css/404/404.css" rel="stylesheet"/>
+<link href="/static/css/404/404.css" rel="stylesheet" />
 {% endblock %}
 
 {% block content %}
 <div class="not-found-wrapper">
-    <p class="message">Uh oh! We couldn't find that page.</p>
+    <div class="large-message">Oops!</div>
+    <div class="title">Page not found...</div>
+    <div class="error-wrapper">
+        <img src="/static/resources/404-page.svg" class="error-illustration" alt="Confused face" />
+        <div class="error-code">404</div>
+    </div>
+    <div class="small-message">The page is missing or you assembled the link incorrectly.</div>
 </div>
 {% endblock %}

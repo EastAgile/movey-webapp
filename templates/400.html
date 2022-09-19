@@ -1,6 +1,6 @@
 {% extends "layout_dark.html" %}
 
-{% block title %}Bad request | Movey{% endblock %}
+{% block title %}Bad Request | Movey{% endblock %}
 
 {% block css %}
 <link href="/static/css/404/404.css" rel="stylesheet" />
@@ -8,6 +8,12 @@
 
 {% block content %}
 <div class="not-found-wrapper">
-    <p class="message">Bad request.</p>
+    <div class="large-message">Oops!</div>
+    <div class="title">Bad request...</div>
+    <div class="error-wrapper">
+        <img src="/static/resources/404-page.svg" class="error-illustration" alt="Confused face" />
+        <div class="error-code">400</div>
+    </div>
+    <div class="small-message">Something is wrong with your request. Please try again.</div>
 </div>
 {% endblock %}
