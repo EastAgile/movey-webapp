@@ -15,7 +15,7 @@ use crate::github_service::GithubService;
 #[cfg(test)]
 use crate::test::mock::GithubService;
 
-use crate::api::services::package::view::PackageBadgeRespond;
+use crate::api::package::view::PackageBadgeRespond;
 use crate::packages::Package;
 use crate::settings::models::token::ApiToken;
 use crate::utils::presenter::validate_name_and_version;

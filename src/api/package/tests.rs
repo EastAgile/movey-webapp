@@ -1,4 +1,4 @@
-use crate::api::services::package::controller::{
+use crate::api::package::controller::{
     increase_download_count, register_package, DownloadInfo, PackageRequest,
 };
 use crate::packages::{Package, PackageVersion};

@@ -80,9 +80,9 @@ class Collaborator {
     const collaboratorEmail = $(".collaborators_input").val();
     if (!collaboratorEmail || !this.userName) return;
     let collaboratorUrl =
-      "/api/v1/packages/" +
+      "/api/v1/collaborators/packages/" +
       this.packageName.innerHTML +
-      "/collaborators/create";
+      "/create";
     $.ajax({
       type: "POST",
       dataType: "json",
@@ -108,7 +108,7 @@ class Collaborator {
 
   transferOwnership = () => {
     let collaboratorUrl =
-      "/api/v1/packages/" + this.packageName.innerHTML + "/transfer";
+      "/api/v1/collaborators/packages/" + this.packageName.innerHTML + "/transfer";
 
     $.ajax({
       type: "POST",
@@ -138,7 +138,7 @@ class Collaborator {
 
   removeCollaborator = () => {
     let collaboratorUrl =
-        "/api/v1/packages/" + this.packageName.innerHTML + "/collaborators/remove";
+        "/api/v1/collaborators/packages/" + this.packageName.innerHTML + "/remove";
 
     $.ajax({
       type: "DELETE",
