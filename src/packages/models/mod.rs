@@ -611,14 +611,14 @@ impl Package {
     pub fn auto_complete_search(
         search_query: &str,
         pool: &DieselPgPool,
-    ) -> Result<Vec<(String, String, String)>> {
+    ) -> Result<Vec<(String, String, String, String)>> {
         let connection = pool.get()?;
-        let result: Vec<(String, String, String)> = packages::table
+        let result: Vec<(String, String, String, String)> = packages::table
             .inner_join(package_versions::table)
             .filter(name.ilike(format!("%{}%", search_query)))
-            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at"))
-            .select((packages::name, packages::description, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
-            .load::<(String, String, String)>(&connection)?;
+            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, slug"))
+            .select((packages::name, packages::description, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version"), packages::slug))
+            .load::<(String, String, String, String)>(&connection)?;
 
         Ok(result)
     }

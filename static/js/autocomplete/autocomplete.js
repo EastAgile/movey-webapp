@@ -14,20 +14,16 @@ class AutoComplete {
     this.container = document.querySelector("#" + id);
     this.getSuggestions = getSuggestions;
     this.selectSuggestion = selectSuggestion;
-    this.isMain = isMain;
     this.suggestions = [];
     this.placeholder = placeholder;
     this.currentChoiceIndex = -1;
     this.inputValue = "";
-    this.defaultSearch = defaultSearch;
-    this.goBackCallback = goBackCallback;
 
     if (isMain) this.displayMain();
   }
 
   reDisplay(hiddenSuggestions = false) {
     const input = this.container.querySelector("input");
-    const button = this.container.querySelector("#button-main");
     const xButton = this.container.querySelector("#button-x");
     const wrapper = this.container.querySelector("div");
     const suggestionsContainer = this.container.querySelector("#suggestions");
@@ -57,8 +53,6 @@ class AutoComplete {
 
     input.classList.add("input-has-item");
     wrapper.classList.add("autocomplete-shadow");
-
-    let total = this.suggestions.length;
 
     let descriptionWidth = $(".autocomplete-main-wrapper").width() - 120;
 
@@ -94,7 +88,8 @@ class AutoComplete {
         node.addEventListener("click", () => {
           input.value = option;
           this.reDisplay(true);
-          this.selectSuggestion(suggestion[0]);
+          // use package slug instead of package name for package detail url
+          this.selectSuggestion(suggestion[3]);
         });
 
         node.addEventListener("mouseover", () => {
@@ -234,8 +229,4 @@ class AutoComplete {
       xButton.classList.add("hidden");
     });
   }
-
-  truncateString(str, length) {
-    return str.length > length ? str.substring(0, length - 3) + '...' : str
- }
 }
