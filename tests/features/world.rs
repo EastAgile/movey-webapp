@@ -8,7 +8,9 @@ use thirtyfour::prelude::*;
 pub struct AccountInformation {
     pub email: String,
     pub password: String,
+    pub owned_package_name: Option<String>,
     pub id: i32,
+    pub slug: String,
 }
 #[derive(Debug)]
 pub struct TestResponse {
@@ -23,7 +25,10 @@ pub struct TestWorld {
     pub root_url: String,
     pub suggestion: String,
     pub reset_token: String,
-    pub account: AccountInformation,
+    // default user used for own package
+    pub first_account: AccountInformation,
+    // second user used for transfer ownership
+    pub second_account: AccountInformation,
     pub response: Option<TestResponse>,
 }
 
@@ -48,7 +53,8 @@ impl World for TestWorld {
             root_url: "http://localhost:17002/".to_string(),
             suggestion: String::from(""),
             reset_token: String::from(""),
-            account: Default::default(),
+            first_account: Default::default(),
+            second_account: Default::default(),
             response: None,
         })
     }
@@ -57,6 +63,13 @@ impl World for TestWorld {
 impl TestWorld {
     pub async fn go_to_root_url(&self) {
         self.driver.get(&self.root_url).await.unwrap()
+    }
+
+    pub async fn go_to_url(&self, relative_url: &str) {
+        self.driver
+            .get(format!("{}{}", &self.root_url, relative_url))
+            .await
+            .unwrap()
     }
 
     pub async fn close_browser(&self) {

@@ -15,6 +15,10 @@ pub async fn policy_(request: HttpRequest) -> Result<HttpResponse> {
     request.render(200, "policy/policy.html", Context::new())
 }
 
+pub async fn about_us(request: HttpRequest) -> Result<HttpResponse> {
+    request.render(200, "policy/about.html", Context::new())
+}
+
 pub async fn contact(request: HttpRequest) -> Result<HttpResponse> {
     let categories_s = env::var("CATEGORIES").unwrap();
     let categories: Vec<String> = serde_json::from_str(categories_s.as_str()).unwrap();
@@ -27,7 +31,7 @@ pub async fn contact(request: HttpRequest) -> Result<HttpResponse> {
 
     if let Ok(user_) = user {
         if user_.id != 0 {
-            let account = Account::get(user_.id, request.db_pool()?).await?;
+            let account = Account::get(user_.id, request.db_pool()?)?;
             ctx.insert("name", &account.name);
             ctx.insert(
                 "email",
@@ -48,6 +52,7 @@ pub fn configure(config: &mut ServiceConfig) {
         scope("/")
             .service(resource("/terms-of-use").to(term_))
             .service(resource("/policy").to(policy_))
+            .service(resource("/about").to(about_us))
             .service(
                 resource("/contact")
                     .app_data(web::FormConfig::default().error_handler(|err, req| {

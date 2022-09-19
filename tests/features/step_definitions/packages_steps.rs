@@ -17,10 +17,9 @@ async fn package_in_system(world: &mut TestWorld) {
         &"rev".to_string(),
         2,
         100,
-        Some(world.account.id),
+        Some(world.first_account.id),
         &DB_POOL,
     )
-    .await
     .unwrap();
     let uid2 = Package::create_test_package(
         &"rand".to_string(),
@@ -34,7 +33,6 @@ async fn package_in_system(world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
     let uid3 = Package::create_test_package(
         &"random_derive".to_string(),
@@ -48,7 +46,6 @@ async fn package_in_system(world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
     PackageVersion::create(
         uid,
@@ -60,7 +57,6 @@ async fn package_in_system(world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
     PackageVersion::create(
         uid2,
@@ -72,7 +68,6 @@ async fn package_in_system(world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
     PackageVersion::create(
         uid3,
@@ -84,7 +79,6 @@ async fn package_in_system(world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
 }
 
@@ -103,7 +97,6 @@ async fn package_in_subdir(world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
     PackageVersion::create(
         uid,
@@ -115,7 +108,6 @@ async fn package_in_subdir(world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
 }
 
@@ -151,7 +143,6 @@ async fn upload_a_package(_world: &mut TestWorld) {
         None,
         &DB_POOL,
     )
-    .await
     .unwrap();
 }
 
@@ -209,7 +200,7 @@ async fn see_owner_info(world: &mut TestWorld) {
         .find_element(By::ClassName("package-owners-info"))
         .await
         .unwrap();
-    let name_from_email = world.account.email.split('@').next().unwrap();
+    let name_from_email = world.first_account.email.split('@').next().unwrap();
     assert_eq!(package_owner_info.text().await.unwrap(), name_from_email);
 }
 
@@ -230,6 +221,89 @@ async fn not_see_owner_info(world: &mut TestWorld) {
     match package_owner_info {
         Ok(element) => assert_eq!(element.text().await.unwrap(), "Elements-Studio"),
         Err(_) => panic!(),
+    }
+}
+
+#[then("I should see a banner saying that this package is crawled")]
+async fn see_banner(world: &mut TestWorld) {
+    let package_banner_content = world
+        .driver
+        .find_element(By::ClassName("package-banner-content"))
+        .await;
+    assert!(package_banner_content.is_ok());
+    let package_banner_content = package_banner_content.unwrap().text().await.unwrap();
+    assert!(package_banner_content
+        .contains("This package was crawled and has not been assigned owners yet."))
+}
+
+#[then("I should see that banner tell me to create an account")]
+async fn see_register_cta(world: &mut TestWorld) {
+    let package_banner_content = world
+        .driver
+        .find_element(By::ClassName("package-banner-content"))
+        .await;
+    assert!(package_banner_content.is_ok());
+
+    let package_banner_cta = package_banner_content
+        .unwrap()
+        .find_element(By::Tag("a"))
+        .await;
+    assert!(package_banner_cta.is_ok());
+
+    let package_banner_cta_url = package_banner_cta
+        .as_ref()
+        .unwrap()
+        .get_attribute("href")
+        .await
+        .unwrap();
+    assert!(package_banner_cta_url.is_some());
+    assert_eq!(package_banner_cta_url.unwrap(), "/accounts/register");
+
+    let package_banner_cta_content = package_banner_cta.unwrap().text().await.unwrap();
+    assert!(package_banner_cta_content.contains("create an account"));
+}
+
+#[then("I should see that banner tell me to contact for ownership request")]
+async fn see_contact_us_cta(world: &mut TestWorld) {
+    let package_banner_content = world
+        .driver
+        .find_element(By::ClassName("package-banner-content"))
+        .await;
+    assert!(package_banner_content.is_ok());
+
+    let package_banner_cta = package_banner_content
+        .unwrap()
+        .find_element(By::Tag("a"))
+        .await;
+    assert!(package_banner_cta.is_ok());
+
+    let package_banner_cta_url = package_banner_cta
+        .as_ref()
+        .unwrap()
+        .get_attribute("href")
+        .await
+        .unwrap();
+    assert!(package_banner_cta_url.is_some());
+    assert_eq!(package_banner_cta_url.unwrap(), "/contact");
+
+    let package_banner_cta_content = package_banner_cta.unwrap().text().await.unwrap();
+    assert!(package_banner_cta_content.contains("claim your package ownership"));
+}
+
+#[then("I should not see the Collaborators tab")]
+async fn not_see_collaborators_tab(world: &mut TestWorld) {
+    let content_tabs = world
+        .driver
+        .find_elements(By::ClassName("content-tab"))
+        .await
+        .unwrap();
+    assert_eq!(content_tabs.len(), 2);
+
+    for tab in content_tabs {
+        let class_name = tab.class_name().await.unwrap();
+        if class_name.unwrap().contains("tab-owner") {
+            panic!("tab-owner still exists");
+        }
     }
 }
 

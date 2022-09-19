@@ -23,7 +23,7 @@ async fn request_reset_link(world: &mut TestWorld) {
             hints: vec![],
         },
     };
-    Account::register(&form, &DB_POOL).await.unwrap();
+    Account::register(&form, &DB_POOL).unwrap();
 
     world
         .driver

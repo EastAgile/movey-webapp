@@ -1,6 +1,8 @@
 // Implements a basic Account models, with support for creating/updating/deleting
 // users, along with welcome email and verification.
 
+extern crate slug;
+
 use diesel::prelude::*;
 #[allow(unused_imports)]
 use diesel::result::Error as DBError;
@@ -12,7 +14,7 @@ use jelly::djangohashers::{check_password, make_password};
 use jelly::error::Error;
 use jelly::error::Error::Generic;
 use jelly::serde::{Deserialize, Serialize};
-use jelly::DieselPgPool;
+use jelly::{DieselPgConnection, DieselPgPool};
 
 use super::forms::{LoginForm, NewAccountForm};
 use super::views::avatar::Gravatar;
@@ -22,7 +24,8 @@ use crate::schema::accounts::dsl::*;
 use crate::schema::api_tokens::dsl::{
     account_id as api_tokens_account_id, api_tokens, name as api_tokens_name,
 };
-use crate::schema::packages::dsl::{account_id as packages_account_id, packages};
+use crate::schema::package_collaborators;
+use crate::utils::token::generate_secure_alphanumeric_string;
 
 #[cfg(test)]
 mod tests;
@@ -43,17 +46,18 @@ pub struct Account {
     pub github_login: Option<String>,
     pub github_id: Option<i64>,
     pub avatar: Option<String>,
+    pub slug: Option<String>,
 }
 
 impl Account {
-    pub async fn get(uid: i32, pool: &DieselPgPool) -> Result<Self, Error> {
+    pub fn get(uid: i32, pool: &DieselPgPool) -> Result<Self, Error> {
         let connection = pool.get()?;
         let result = accounts.find(uid).first::<Account>(&connection)?;
 
         Ok(result)
     }
 
-    pub async fn get_by_email(account_email: &str, pool: &DieselPgPool) -> Result<Self, Error> {
+    pub fn get_by_email(account_email: &str, pool: &DieselPgPool) -> Result<Self, Error> {
         let connection = pool.get()?;
         let result = accounts
             .filter(email.eq(account_email))
@@ -62,7 +66,21 @@ impl Account {
         Ok(result)
     }
 
-    pub async fn authenticate(form: &LoginForm, pool: &DieselPgPool) -> Result<User, Error> {
+    pub fn get_by_email_or_gh_login(search_term: &str, pool: &DieselPgPool) -> Result<Self, Error> {
+        let connection = pool.get()?;
+        let trimmed_search_term = search_term.trim();
+        let result = accounts
+            .filter(
+                email
+                    .eq(trimmed_search_term)
+                    .or(github_login.eq(trimmed_search_term)),
+            )
+            .first::<Account>(&connection)?;
+
+        Ok(result)
+    }
+
+    pub fn authenticate(form: &LoginForm, pool: &DieselPgPool) -> Result<User, Error> {
         let connection = pool.get()?;
         let user = accounts
             .filter(email.eq(&form.email.value))
@@ -84,7 +102,7 @@ impl Account {
         })
     }
 
-    pub async fn fetch_email(uid: i32, pool: &DieselPgPool) -> Result<(String, String), Error> {
+    pub fn fetch_email(uid: i32, pool: &DieselPgPool) -> Result<(String, String), Error> {
         let connection = pool.get()?;
         let result = accounts
             .find(uid)
@@ -94,7 +112,7 @@ impl Account {
         Ok(result)
     }
 
-    pub async fn fetch_name_from_email(
+    pub fn fetch_name_from_email(
         account_email: &str,
         pool: &DieselPgPool,
     ) -> Result<String, Error> {
@@ -107,7 +125,7 @@ impl Account {
         Ok(result)
     }
 
-    pub async fn register(form: &NewAccountForm, pool: &DieselPgPool) -> Result<i32, Error> {
+    pub fn register(form: &NewAccountForm, pool: &DieselPgPool) -> Result<i32, Error> {
         let connection = pool.get()?;
         let hashword = make_password(&form.password);
 
@@ -118,11 +136,12 @@ impl Account {
             .values(new_record)
             .get_result::<Account>(&connection)?;
 
+        record.check_and_update_slug(pool)?;
 
         Ok(record.id)
     }
 
-    pub async fn mark_verified(uid: i32, pool: &DieselPgPool) -> Result<(), Error> {
+    pub fn mark_verified(uid: i32, pool: &DieselPgPool) -> Result<(), Error> {
         let connection = pool.get()?;
 
         diesel::update(accounts.filter(id.eq(uid)))
@@ -135,7 +154,7 @@ impl Account {
         Ok(())
     }
 
-    pub async fn update_last_login(uid: i32, pool: &DieselPgPool) -> Result<(), Error> {
+    pub fn update_last_login(uid: i32, pool: &DieselPgPool) -> Result<(), Error> {
         let connection = pool.get()?;
 
         diesel::update(accounts.filter(id.eq(uid)))
@@ -145,7 +164,7 @@ impl Account {
         Ok(())
     }
 
-    pub async fn update_password_and_last_login(
+    pub fn update_password_and_last_login(
         uid: i32,
         account_password: &str,
         pool: &DieselPgPool,
@@ -160,7 +179,7 @@ impl Account {
         Ok(())
     }
 
-    pub async fn change_password(
+    pub fn change_password(
         uid: i32,
         current_password: String,
         new_password: String,
@@ -168,7 +187,7 @@ impl Account {
     ) -> Result<(), Error> {
         let connection = pool.get()?;
 
-        let account = Self::get(uid, pool).await?;
+        let account = Self::get(uid, pool)?;
         if !check_password(&current_password, &account.password)? {
             return Err(Error::InvalidPassword);
         }
@@ -180,13 +199,13 @@ impl Account {
         Ok(())
     }
 
-    pub async fn register_from_github(
+    pub fn register_from_github(
         oauth_user: &GithubOauthUser,
         pool: &DieselPgPool,
     ) -> Result<User, Error> {
         let connection = pool.get()?;
 
-        let account = if let Ok(record) = Account::get_by_email(&oauth_user.email, pool).await {
+        let account = if let Ok(record) = Account::get_by_email(&oauth_user.email, pool) {
             // if there already is an account with this email, update it with git info then return
             diesel::update(accounts.filter(id.eq(record.id)))
                 .set((
@@ -202,7 +221,7 @@ impl Account {
                     oauth_user.id
                 ))))
                 .execute(&connection)?;
-            
+
             record
         } else {
             // create a new account via github
@@ -213,6 +232,8 @@ impl Account {
                 .get_result::<Account>(&connection)?
         };
 
+        account.check_and_update_slug(pool)?;
+
         Ok(User {
             id: account.id,
             name: account.name,
@@ -221,7 +242,7 @@ impl Account {
         })
     }
 
-    pub async fn get_by_github_id(gid: i64, pool: &DieselPgPool) -> Result<Self, Error> {
+    pub fn get_by_github_id(gid: i64, pool: &DieselPgPool) -> Result<Self, Error> {
         let connection = pool.get()?;
         let result = accounts
             .filter(github_id.eq(gid))
@@ -230,7 +251,7 @@ impl Account {
         Ok(result)
     }
 
-    pub async fn merge_github_account_and_movey_account(
+    pub fn merge_github_account_and_movey_account(
         gh_account_id: i32,
         movey_account_id: i32,
         gh_id: i64,
@@ -240,9 +261,15 @@ impl Account {
         let conn = pool.get()?;
 
         conn.build_transaction().run::<_, _, _>(|| {
-            diesel::update(packages.filter(packages_account_id.eq(gh_account_id)))
-                .set(packages_account_id.eq(movey_account_id))
-                .execute(&conn)?;
+            diesel::update(
+                package_collaborators::table
+                    .filter(package_collaborators::account_id.eq(gh_account_id)),
+            )
+            .set((
+                package_collaborators::account_id.eq(movey_account_id),
+                package_collaborators::created_by.eq(movey_account_id),
+            ))
+            .execute(&conn)?;
 
             diesel::update(api_tokens.filter(api_tokens_account_id.eq(movey_account_id)))
                 .set(api_tokens_name.eq(api_tokens_name.concat("__movey")))
@@ -273,7 +300,7 @@ impl Account {
         })
     }
 
-    pub async fn update_movey_account_with_github_info(
+    pub fn update_movey_account_with_github_info(
         movey_id: i32,
         gh_id: i64,
         gh_login: String,
@@ -288,16 +315,71 @@ impl Account {
             .set(avatar.eq(Some(format!(
                 "https://avatars.githubusercontent.com/u/{}",
                 gh_id
-            ))))    
+            ))))
             .execute(&conn)?;
 
         Ok(())
+    }
+
+    pub fn is_generated_email(&self) -> bool {
+        let no_reply_email_domain =
+            std::env::var("NO_REPLY_EMAIL_DOMAIN").expect("NO_REPLY_EMAIL_DOMAIN is not set!");
+        self.email.ends_with(&no_reply_email_domain)
+    }
+
+    pub fn get_accounts(
+        account_ids: &Vec<i32>,
+        conn: &DieselPgConnection,
+    ) -> Result<Vec<Self>, Error> {
+        Ok(accounts::table
+            .filter(id.eq_any(account_ids))
+            .load::<Self>(conn)?)
+    }
+
+    pub fn get_by_slug(slug_: &str, pool: &DieselPgPool) -> Result<Self, Error> {
+        let connection = pool.get()?;
+        Ok(accounts
+            .filter(accounts::slug.eq(slug_))
+            .first(&connection)?)
+    }
+
+    pub fn make_slug(&self) -> String {
+        let before_slugify = if self.name.is_empty() {
+            self.github_login
+                .clone()
+                .unwrap_or_else(|| self.email.split('@').next().unwrap().to_string())
+        } else {
+            self.name.clone()
+        };
+        slug::slugify(before_slugify)
+    }
+
+    pub fn check_and_update_slug(&self, pool: &DieselPgPool) -> Result<bool, Error> {
+        let conn = pool.get()?;
+        let maximum_allowed_collisions = std::env::var("MAX_COLLISIONS_ALLOWED")
+            .unwrap_or_else(|_| "3".to_string())
+            .parse::<usize>()
+            .unwrap();
+        let slug_ = self.make_slug();
+        let mut extended_slug = slug_.clone();
+        for _ in 0..maximum_allowed_collisions {
+            match diesel::update(accounts.filter(id.eq(self.id)))
+                .set(accounts::slug.eq(&extended_slug))
+                .execute(&conn)
+            {
+                Ok(_) => return Ok(true),
+                Err(_) => {
+                    extended_slug = format!("{}-{}", &slug_, generate_secure_alphanumeric_string(4))
+                }
+            }
+        }
+        Ok(false)
     }
 }
 
 #[cfg(any(test, feature = "test"))]
 impl Account {
-    pub async fn delete(account_id: i32) -> Result<(), Error> {
+    pub fn delete(account_id: i32) -> Result<(), Error> {
         let pool = &crate::test::DB_POOL;
         let conn = pool.get()?;
         diesel::delete(accounts.filter(id.eq(account_id))).execute(&conn)?;

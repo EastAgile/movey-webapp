@@ -1,27 +1,29 @@
-use crate::accounts::Account;
 use crate::sql::lower;
 
 use diesel::dsl::{count, now, sum};
 use diesel::prelude::*;
 use diesel::sql_types::{Integer, Text, Timestamptz};
-use diesel::{AsChangeset, Associations, Identifiable, Insertable, Queryable};
+use diesel::{AsChangeset, Identifiable, Insertable, Queryable};
 
 use diesel_full_text_search::{plainto_tsquery, TsVectorExtensions};
 
 use diesel::result::Error::NotFound;
+use diesel::result::{DatabaseErrorKind, Error as DBError};
 use jelly::chrono::{DateTime, NaiveDateTime, Utc};
 use jelly::error::Error;
 use jelly::serde::{Deserialize, Serialize};
-use jelly::DieselPgPool;
+use jelly::{DieselPgConnection, DieselPgPool};
 
 use crate::github_service::GithubRepoData;
+use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
+use jelly::Result;
 use mockall_double::double;
-
 #[cfg(test)]
 mod tests;
 
 #[double]
 use crate::github_service::GithubService;
+use crate::schema::package_collaborators;
 use crate::schema::package_versions;
 use crate::schema::package_versions::dsl::*;
 use crate::schema::packages;
@@ -30,18 +32,8 @@ use crate::utils::paginate::LoadPaginated;
 
 pub const PACKAGES_PER_PAGE: i64 = 10;
 
-#[derive(
-    Debug,
-    Serialize,
-    Deserialize,
-    Queryable,
-    Identifiable,
-    AsChangeset,
-    QueryableByName,
-    Associations,
-)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset, QueryableByName)]
 #[table_name = "packages"]
-#[belongs_to(Account)]
 pub struct Package {
     pub id: i32,
     pub name: String,
@@ -50,7 +42,6 @@ pub struct Package {
     pub total_downloads_count: i32,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub account_id: Option<i32>,
 }
 
 type PackageColumns = (
@@ -61,7 +52,6 @@ type PackageColumns = (
     packages::total_downloads_count,
     packages::created_at,
     packages::updated_at,
-    packages::account_id,
 );
 
 pub const PACKAGE_COLUMNS: PackageColumns = (
@@ -72,7 +62,6 @@ pub const PACKAGE_COLUMNS: PackageColumns = (
     packages::total_downloads_count,
     packages::created_at,
     packages::updated_at,
-    packages::account_id,
 );
 
 #[derive(Debug, Serialize, Deserialize, QueryableByName, Queryable)]
@@ -99,7 +88,6 @@ pub struct NewPackage {
     pub name: String,
     pub description: String,
     pub repository_url: String,
-    pub account_id: Option<i32>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -195,7 +183,7 @@ pub enum PackageVersionSort {
 }
 
 impl Package {
-    pub async fn count(pool: &DieselPgPool) -> Result<i64, Error> {
+    pub fn count(pool: &DieselPgPool) -> Result<i64> {
         let connection = pool.get()?;
         let result = packages
             .select(count(packages::id))
@@ -204,7 +192,7 @@ impl Package {
         Ok(result)
     }
 
-    pub async fn create(
+    pub fn create(
         repo_url: &str,
         package_description: &str,
         version_rev: &str,
@@ -214,7 +202,7 @@ impl Package {
         service: &GithubService,
         subdir: Option<String>,
         pool: &DieselPgPool,
-    ) -> Result<i32, Error> {
+    ) -> Result<i32> {
         let github_data = service.fetch_repo_data(repo_url, subdir, None)?;
 
         Package::create_from_crawled_data(
@@ -227,10 +215,9 @@ impl Package {
             github_data,
             pool,
         )
-        .await
     }
 
-    pub async fn create_from_crawled_data(
+    pub fn create_from_crawled_data(
         repo_url: &str,
         package_description: &str,
         version_rev: &str,
@@ -239,49 +226,81 @@ impl Package {
         account_id_: Option<i32>,
         github_data: GithubRepoData,
         pool: &DieselPgPool,
-    ) -> Result<i32, Error> {
+    ) -> Result<i32> {
         let connection = pool.get()?;
-        let record = match Package::get_by_name(&github_data.name, pool).await {
-            Ok(package) => package,
+        let (record, package_owner_id) = match Package::get_by_name(&github_data.name, pool) {
+            Ok(package) => {
+                let collaborators =
+                    PackageCollaborator::get_by_package_id(package.id, &connection)?;
+                let owner_id = if collaborators.len() > 0 {
+                    Some(collaborators[0])
+                } else {
+                    None
+                };
+                (package, owner_id)
+            }
             Err(_) => {
                 let new_package = NewPackage {
                     name: github_data.name,
                     description: package_description.to_string(),
                     repository_url: repo_url.to_string(),
-                    account_id: account_id_,
                 };
 
-                diesel::insert_into(packages::table)
+                let new_record = diesel::insert_into(packages::table)
                     .values(new_package)
                     .returning(PACKAGE_COLUMNS)
-                    .get_result::<Package>(&connection)?
+                    .get_result::<Package>(&connection)?;
+
+                if account_id_.is_some() {
+                    PackageCollaborator::new_owner(
+                        new_record.id,
+                        account_id_.unwrap(),
+                        account_id_.unwrap(),
+                        &connection,
+                    )?;
+                }
+
+                (new_record, account_id_)
             }
         };
 
         // Only creates new version if same user with package owner
-        if (record.account_id == account_id_ || record.account_id.is_none())
-            && record
-                .get_version(&github_data.version, pool)
-                .await
-                .is_err()
-        {
-            PackageVersion::create(
-                record.id,
-                github_data.version,
-                github_data.readme_content,
-                version_rev.to_string(),
-                version_files,
-                version_size,
-                None,
-                pool,
-            )
-            .await?;
+        if package_owner_id == account_id_ {
+            let pakage_dont_exist = record.get_version(&github_data.version, pool);
+            if pakage_dont_exist.is_err() {
+                let e = pakage_dont_exist.unwrap_err();
+                if let Error::Database(DBError::NotFound) = e {
+                    PackageVersion::create(
+                        record.id,
+                        github_data.version,
+                        github_data.readme_content,
+                        version_rev.to_string(),
+                        version_files,
+                        version_size,
+                        None,
+                        pool,
+                    )?;
+                } else {
+                    return Err(e);
+                }
+            } else {
+                // return package version already exists error
+                return Err(Error::Database(DBError::DatabaseError(
+                    DatabaseErrorKind::UniqueViolation,
+                    Box::new(String::from("Version already exists")),
+                )));
+            }
+        } else {
+            return Err(Error::Database(DBError::DatabaseError(
+                DatabaseErrorKind::ForeignKeyViolation,
+                Box::new(String::from("Only owners can update new versions")),
+            )));
         }
 
         Ok(record.id)
     }
 
-    pub async fn get(uid: i32, pool: &DieselPgPool) -> Result<Self, Error> {
+    pub fn get(uid: i32, pool: &DieselPgPool) -> Result<Self> {
         let connection = pool.get()?;
         let result = packages
             .find(uid)
@@ -291,7 +310,7 @@ impl Package {
         Ok(result)
     }
 
-    pub async fn get_by_name(package_name: &String, pool: &DieselPgPool) -> Result<Self, Error> {
+    pub fn get_by_name(package_name: &str, pool: &DieselPgPool) -> Result<Self> {
         let connection = pool.get()?;
 
         let result = packages
@@ -302,10 +321,22 @@ impl Package {
         Ok(result)
     }
 
-    pub async fn get_badge_info(
+    pub fn get_by_name_case_insensitive(
         package_name: &str,
         pool: &DieselPgPool,
-    ) -> Result<Vec<(String, i32, String, i32)>, Error> {
+    ) -> Result<Vec<Self>> {
+        let connection = pool.get()?;
+
+        Ok(packages
+            .filter(lower(name).eq(package_name.to_lowercase()))
+            .select(PACKAGE_COLUMNS)
+            .load::<Package>(&connection)?)
+    }
+
+    pub fn get_badge_info(
+        package_name: &str,
+        pool: &DieselPgPool,
+    ) -> Result<Vec<(String, i32, String, i32)>> {
         let connection = pool.get()?;
 
         let result: Vec<(String, i32, String, i32)> = packages::table
@@ -325,27 +356,61 @@ impl Package {
         Ok(result)
     }
 
-    pub async fn get_by_account(
-        owner_id: i32,
-        pool: &DieselPgPool,
-    ) -> Result<Vec<PackageSearchResult>, Error> {
+    pub fn get_by_account(owner_id: i32, pool: &DieselPgPool) -> Result<Vec<PackageSearchResult>> {
         let connection = pool.get()?;
 
         let result = packages
+            .inner_join(package_collaborators::table)
+            .filter(package_collaborators::account_id.eq(owner_id))
             .inner_join(package_versions::table)
             .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
-            .filter(account_id.eq(owner_id))
             .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
             .load::<PackageSearchResult>(&connection)?;
 
         Ok(result)
     }
 
-    pub async fn get_downloads(owner_id: i32, pool: &DieselPgPool) -> Result<i64, Error> {
+    pub fn get_by_account_paginated(
+        owner_id: i32,
+        sort_field: &PackageSortField,
+        sort_order: &PackageSortOrder,
+        page: Option<i64>,
+        per_page: Option<i64>,
+        pool: &DieselPgPool,
+    ) -> Result<(Vec<PackageSearchResult>, i64, i64)> {
+        let connection = pool.get()?;
+        let field = sort_field.to_column_name();
+        let order = sort_order.to_order_direction();
+        let order_query = format!("packages.{} {}", field, order);
+
+        let page = page.unwrap_or(1);
+        let per_page = per_page.unwrap_or(PACKAGES_PER_PAGE);
+        if page < 1 || per_page < 1 {
+            return Err(Error::Generic(String::from("Invalid page number.")));
+        }
+
+        let result: (Vec<PackageSearchResult>, i64, i64) = packages::table
+            .inner_join(package_collaborators::table)
+            .filter(package_collaborators::account_id.eq(owner_id).and(package_collaborators::role.eq(Role::Owner as i32)))
+            .inner_join(package_versions::table)
+            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
+            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
+            .order(diesel::dsl::sql::<diesel::sql_types::Text>(&order_query))
+            .load_with_pagination(&connection, Some(page), Some(per_page))?;
+
+        Ok(result)
+    }
+
+    pub fn get_downloads(owner_id: i32, pool: &DieselPgPool) -> Result<i64> {
         let connection = pool.get()?;
         let result = packages
+            .inner_join(package_collaborators::table)
+            .filter(
+                package_collaborators::account_id
+                    .eq(owner_id)
+                    .and(package_collaborators::role.eq(Role::Owner as i32)),
+            )
             .select(sum(total_downloads_count))
-            .filter(account_id.eq(owner_id))
             .first::<Option<i64>>(&connection)?;
 
         match result {
@@ -354,11 +419,11 @@ impl Package {
         }
     }
 
-    pub async fn get_version(
+    pub fn get_version(
         &self,
         version_name: &String,
         pool: &DieselPgPool,
-    ) -> Result<PackageVersion, Error> {
+    ) -> Result<PackageVersion> {
         let connection = pool.get()?;
         let result = package_versions
             .filter(package_id.eq(self.id).and(version.eq(version_name)))
@@ -367,13 +432,29 @@ impl Package {
         Ok(result)
     }
 
-    pub async fn increase_download_count(
+    pub fn change_owner(
+        package_id_: i32,
+        new_owner_id: i32,
+        conn: &DieselPgConnection,
+    ) -> Result<()> {
+        diesel::update(package_collaborators::table)
+            .filter(
+                package_collaborators::package_id
+                    .eq(package_id_)
+                    .and(package_collaborators::role.eq(Role::Owner as i32)),
+            )
+            .set(package_collaborators::account_id.eq(new_owner_id))
+            .execute(conn)?;
+        Ok(())
+    }
+
+    pub fn increase_download_count(
         url: &String,
         rev_: &String,
         subdir: &String,
         service: &GithubService,
         pool: &DieselPgPool,
-    ) -> Result<usize, Error> {
+    ) -> Result<usize> {
         let connection = pool.get()?;
 
         let mut https_url = url.to_owned();
@@ -423,8 +504,7 @@ impl Package {
                             github_data.size,
                             None,
                             pool,
-                        )
-                        .await?;
+                        )?;
                     }
                     Err(e) => {
                         return Err(Error::Database(e));
@@ -457,8 +537,7 @@ impl Package {
                     None,
                     github_data,
                     pool,
-                )
-                .await?
+                )?
             }
             Err(e) => {
                 return Err(Error::Database(e));
@@ -478,10 +557,10 @@ impl Package {
         Ok(changed_rows)
     }
 
-    pub async fn auto_complete_search(
+    pub fn auto_complete_search(
         search_query: &str,
         pool: &DieselPgPool,
-    ) -> Result<Vec<(String, String, String)>, Error> {
+    ) -> Result<Vec<(String, String, String)>> {
         let connection = pool.get()?;
         let result: Vec<(String, String, String)> = packages::table
             .inner_join(package_versions::table)
@@ -493,14 +572,14 @@ impl Package {
         Ok(result)
     }
 
-    pub async fn search(
+    pub fn search(
         search_query: &str,
         sort_field: &PackageSortField,
         sort_order: &PackageSortOrder,
         page: Option<i64>,
         per_page: Option<i64>,
         pool: &DieselPgPool,
-    ) -> Result<(Vec<PackageSearchResult>, i64, i64), Error> {
+    ) -> Result<(Vec<PackageSearchResult>, i64, i64)> {
         let connection = pool.get()?;
         let field = sort_field.to_column_name();
         let order = sort_order.to_order_direction();
@@ -525,13 +604,13 @@ impl Package {
         Ok(result)
     }
 
-    pub async fn all_packages(
+    pub fn all_packages(
         sort_field: &PackageSortField,
         sort_order: &PackageSortOrder,
         page: Option<i64>,
         per_page: Option<i64>,
         pool: &DieselPgPool,
-    ) -> Result<(Vec<PackageSearchResult>, i64, i64), Error> {
+    ) -> Result<(Vec<PackageSearchResult>, i64, i64)> {
         let connection = pool.get()?;
         let field = sort_field.to_column_name();
         let order = sort_order.to_order_direction();
@@ -555,7 +634,7 @@ impl Package {
 }
 
 impl PackageVersion {
-    pub async fn count(pool: &DieselPgPool) -> Result<i64, Error> {
+    pub fn count(pool: &DieselPgPool) -> Result<i64> {
         let connection = pool.get()?;
         let result = package_versions
             .select(count(package_versions::id))
@@ -564,10 +643,7 @@ impl PackageVersion {
         Ok(result)
     }
 
-    pub async fn delete_by_package_id(
-        package_id_: i32,
-        pool: &DieselPgPool,
-    ) -> Result<usize, Error> {
+    pub fn delete_by_package_id(package_id_: i32, pool: &DieselPgPool) -> Result<usize> {
         let connection = pool.get()?;
         let result = diesel::delete(package_versions.filter(package_id.eq(package_id_)))
             .execute(&connection)?;
@@ -575,7 +651,7 @@ impl PackageVersion {
         Ok(result)
     }
 
-    pub async fn create(
+    pub fn create(
         version_package_id: i32,
         version_name: String,
         version_readme_content: String,
@@ -584,7 +660,7 @@ impl PackageVersion {
         version_size: i32,
         version_download: Option<i32>,
         pool: &DieselPgPool,
-    ) -> Result<PackageVersion, Error> {
+    ) -> Result<PackageVersion> {
         let connection = pool.get()?;
 
         let new_package_version = NewPackageVersion {
@@ -609,11 +685,11 @@ impl PackageVersion {
         Ok(record)
     }
 
-    pub async fn from_package_id(
+    pub fn from_package_id(
         uid: i32,
         sort_type: &PackageVersionSort,
         pool: &DieselPgPool,
-    ) -> Result<Vec<PackageVersion>, Error> {
+    ) -> Result<Vec<PackageVersion>> {
         let connection = pool.get()?;
         let versions = package_versions.filter(package_id.eq(uid));
 
@@ -646,7 +722,7 @@ pub struct NewTestPackage {
 
 #[cfg(any(test, feature = "test"))]
 impl Package {
-    pub async fn create_test_package(
+    pub fn create_test_package(
         package_name: &String,
         repo_url: &String,
         package_description: &String,
@@ -657,20 +733,28 @@ impl Package {
         version_size: i32,
         account_id_: Option<i32>,
         pool: &DieselPgPool,
-    ) -> Result<i32, Error> {
+    ) -> Result<i32> {
         let connection = pool.get()?;
 
         let new_package = NewPackage {
             name: package_name.to_string(),
             description: package_description.to_string(),
             repository_url: repo_url.to_string(),
-            account_id: account_id_,
         };
 
         let record = diesel::insert_into(packages::table)
             .values(new_package)
             .returning(PACKAGE_COLUMNS)
             .get_result::<Package>(&connection)?;
+
+        if account_id_.is_some() {
+            PackageCollaborator::new_owner(
+                record.id,
+                account_id_.unwrap(),
+                account_id_.unwrap(),
+                &connection,
+            )?;
+        }
 
         PackageVersion::create(
             record.id,
@@ -682,18 +766,17 @@ impl Package {
             None,
             pool,
         )
-        .await
         .unwrap();
         Ok(record.id)
     }
 
-    pub async fn create_test_package_with_downloads(
+    pub fn create_test_package_with_downloads(
         package_name: &String,
         repo_url: &String,
         package_description: &String,
         package_downloads_count: i32,
         pool: &DieselPgPool,
-    ) -> Result<i32, Error> {
+    ) -> Result<i32> {
         let connection = pool.get()?;
 
         let new_package = NewTestPackage {
@@ -718,19 +801,18 @@ impl Package {
             None,
             pool,
         )
-        .await
         .unwrap();
 
         Ok(record.id)
     }
 
-    pub async fn create_test_package_with_multiple_versions(
+    pub fn create_test_package_with_multiple_versions(
         package_name: &String,
         repo_url: &String,
         package_description: &String,
         package_downloads_count: i32,
         pool: &DieselPgPool,
-    ) -> Result<i32, Error> {
+    ) -> Result<i32> {
         let connection = pool.get()?;
 
         let new_package = NewTestPackage {
@@ -755,7 +837,6 @@ impl Package {
             Some(500),
             pool,
         )
-        .await
         .unwrap();
 
         PackageVersion::create(
@@ -768,7 +849,6 @@ impl Package {
             Some(1000),
             pool,
         )
-        .await
         .unwrap();
         Ok(record.id)
     }

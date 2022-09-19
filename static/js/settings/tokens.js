@@ -58,7 +58,7 @@ class Tokens {
     $.ajax({
       type: 'PUT',
       dataType: "json",
-      url: '/api/v1/tokens',
+      url: '/api/v1/settings/tokens',
       contentType: "application/json",
       processData: false,
       headers: {},
@@ -84,7 +84,7 @@ class Tokens {
     $.ajax({
       type: 'DELETE',
       dataType: "json",
-      url: '/api/v1/tokens/' + id,
+      url: '/api/v1/settings/tokens/' + id,
       contentType: "application/json",
       processData: false,
       headers: {},

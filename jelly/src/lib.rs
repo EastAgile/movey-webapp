@@ -40,3 +40,4 @@ pub use server::Server;
 
 pub type Result<T> = std::result::Result<T, crate::error::Error>;
 pub type DieselPgPool = diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<diesel::PgConnection>>;
+pub type DieselPgConnection = diesel::r2d2::PooledConnection<diesel::r2d2::ConnectionManager<diesel::PgConnection>>;

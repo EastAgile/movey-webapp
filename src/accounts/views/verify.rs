@@ -1,5 +1,7 @@
 use crate::accounts::views::utils::validate_token;
 use crate::accounts::Account;
+use crate::package_collaborators::models::external_invitation::ExternalInvitation;
+use crate::package_collaborators::models::owner_invitation::OwnerInvitation;
 #[cfg(test)]
 use crate::test::mock::MockHttpRequest as HttpRequest;
 use diesel::result::Error as DBError;
@@ -37,9 +39,9 @@ pub async fn with_token(
     request: HttpRequest,
     Path((uidb64, ts, token)): Path<(String, String, String)>,
 ) -> Result<HttpResponse> {
-    if let Ok(account) = validate_token(&request, &uidb64, &ts, &token).await {
+    if let Ok(account) = validate_token(&request, &uidb64, &ts, &token) {
         let db = request.db_pool()?;
-        Account::mark_verified(account.id, db).await?;
+        Account::mark_verified(account.id, db)?;
 
         request.set_user(User {
             id: account.id,
@@ -48,7 +50,25 @@ pub async fn with_token(
             is_anonymous: false,
         })?;
 
-        return request.redirect("/settings/profile");
+        // Shift all pending invitations to this verified account
+        let conn = db.get()?;
+        let pending_invitations = ExternalInvitation::find_by_email(&account.email, &conn)?;
+        if pending_invitations.is_empty() {
+            return request.redirect("/settings/profile");
+        } else {
+            for invitation in pending_invitations {
+                OwnerInvitation::create(
+                    account.id,
+                    invitation.invited_by_user_id,
+                    invitation.package_id,
+                    None,
+                    Some(invitation.created_at),
+                    &conn,
+                )?;
+                invitation.delete(&conn)?;
+            }
+            return request.redirect("/settings/invitations");
+        }
     }
 
     request.render(200, "accounts/invalid_token.html", Context::new())
@@ -90,9 +110,9 @@ pub async fn callback_github(
                     let db = request.db_pool()?;
 
                     let updated_account =
-                        link_github_to_movey_account(request.user()?, &oauth_response, db).await?;
+                        link_github_to_movey_account(request.user()?, &oauth_response, db)?;
                     let user = if updated_account.is_none() {
-                        create_default_account_for_github_user(oauth_response, db).await?
+                        create_default_account_for_github_user(oauth_response, db)?
                     } else {
                         User {
                             id: updated_account.as_ref().unwrap().id,
@@ -122,7 +142,7 @@ pub async fn callback_github(
     };
 }
 
-async fn link_github_to_movey_account(
+fn link_github_to_movey_account(
     current_user: User,
     oauth_response: &GithubOauthResponse,
     pool: &DieselPgPool,
@@ -130,12 +150,10 @@ async fn link_github_to_movey_account(
     // If id == 0, user is not signed in, therefore we don't need to link
     // we just need to get the account that the user is expecting
     if current_user.is_anonymous || current_user.id == 0 {
-        return Ok(Account::get_by_github_id(oauth_response.id, pool)
-            .await
-            .ok());
+        return Ok(Account::get_by_github_id(oauth_response.id, pool).ok());
     }
 
-    let movey_account = match Account::get(current_user.id, pool).await {
+    let movey_account = match Account::get(current_user.id, pool) {
         Ok(account) => {
             if account.github_id.is_some() || account.github_login.is_some() {
                 error!(
@@ -157,7 +175,7 @@ async fn link_github_to_movey_account(
         }
     };
 
-    let current_github_account = Account::get_by_github_id(oauth_response.id, pool).await;
+    let current_github_account = Account::get_by_github_id(oauth_response.id, pool);
     match current_github_account {
         Ok(current_github_account) => {
             if current_github_account.name != *"" {
@@ -176,8 +194,7 @@ async fn link_github_to_movey_account(
                 oauth_response.id,
                 oauth_response.login.clone(),
                 pool,
-            )
-            .await?;
+            )?;
         }
         Err(Error::Database(DBError::NotFound)) => {
             Account::update_movey_account_with_github_info(
@@ -185,8 +202,7 @@ async fn link_github_to_movey_account(
                 oauth_response.id,
                 oauth_response.login.clone(),
                 pool,
-            )
-            .await?;
+            )?;
         }
         Err(e) => {
             error!(
@@ -196,13 +212,13 @@ async fn link_github_to_movey_account(
             return Err(e);
         }
     }
-    Account::update_last_login(movey_account.id, pool).await?;
+    Account::update_last_login(movey_account.id, pool)?;
 
-    let updated_account = Account::get(movey_account.id, pool).await?;
+    let updated_account = Account::get(movey_account.id, pool)?;
     Ok(Some(updated_account))
 }
 
-async fn create_default_account_for_github_user(
+pub fn create_default_account_for_github_user(
     mut oauth_response: GithubOauthResponse,
     pool: &DieselPgPool,
 ) -> Result<User> {
@@ -225,8 +241,8 @@ async fn create_default_account_for_github_user(
         email: oauth_response.email.unwrap(),
     };
 
-    let user = Account::register_from_github(&oauth_user, pool).await?;
-    Account::update_last_login(user.id, pool).await?;
+    let user = Account::register_from_github(&oauth_user, pool)?;
+    Account::update_last_login(user.id, pool)?;
 
     Ok(user)
 }
@@ -249,7 +265,7 @@ mod tests {
         }
     }
 
-    async fn get_new_movey_account() -> Account {
+    fn get_new_movey_account() -> Account {
         let form = NewAccountForm {
             email: EmailField {
                 value: "email@host.com".to_string(),
@@ -261,8 +277,8 @@ mod tests {
                 hints: vec![],
             },
         };
-        let uid = Account::register(&form, &DB_POOL).await.unwrap();
-        Account::get(uid, &DB_POOL).await.unwrap()
+        let uid = Account::register(&form, &DB_POOL).unwrap();
+        Account::get(uid, &DB_POOL).unwrap()
     }
 
     fn get_user_from_account(account: &Account) -> User {
@@ -280,7 +296,7 @@ mod tests {
         let _ctx = DatabaseTestContext::new();
         let oauth_stub = get_oauth_response();
 
-        let result = link_github_to_movey_account(User::default(), &oauth_stub, &DB_POOL).await;
+        let result = link_github_to_movey_account(User::default(), &oauth_stub, &DB_POOL);
 
         assert!(result.is_ok());
         assert!(result.unwrap().is_none());
@@ -292,12 +308,12 @@ mod tests {
         let _ctx = DatabaseTestContext::new();
 
         let oauth_stub = get_oauth_response();
-        let account = get_new_movey_account().await;
+        let account = get_new_movey_account();
         assert!(account.github_id.is_none());
         assert!(account.github_login.is_none());
 
         let user = get_user_from_account(&account);
-        let result = link_github_to_movey_account(user, &oauth_stub, &DB_POOL).await;
+        let result = link_github_to_movey_account(user, &oauth_stub, &DB_POOL);
         assert!(result.is_ok());
         assert!(result.as_ref().unwrap().is_some());
         assert_eq!(result.unwrap().unwrap().id, account.id);
@@ -308,7 +324,7 @@ mod tests {
             name: "a_gh_username".to_string(),
             is_admin: false,
         };
-        let result = link_github_to_movey_account(user, &oauth_stub, &DB_POOL).await;
+        let result = link_github_to_movey_account(user, &oauth_stub, &DB_POOL);
         assert!(result.is_ok());
         assert!(result.as_ref().unwrap().is_some());
         assert_eq!(result.unwrap().unwrap().id, account.id);
@@ -321,17 +337,17 @@ mod tests {
         let _ctx = DatabaseTestContext::new();
 
         let oauth_stub = get_oauth_response();
-        let account = get_new_movey_account().await;
+        let account = get_new_movey_account();
         assert!(account.github_id.is_none());
         assert!(account.github_login.is_none());
 
         let user = get_user_from_account(&account);
-        let result = link_github_to_movey_account(user, &oauth_stub, &DB_POOL).await;
+        let result = link_github_to_movey_account(user, &oauth_stub, &DB_POOL);
         assert!(result.is_ok());
         assert!(result.as_ref().unwrap().is_some());
         assert_eq!(result.unwrap().unwrap().id, account.id);
 
-        let account = Account::get(account.id, &DB_POOL).await.unwrap();
+        let account = Account::get(account.id, &DB_POOL).unwrap();
         assert_eq!(account.github_id, Some(143_543));
         assert_eq!(account.github_login, Some("a_gh_username".to_string()));
     }
@@ -350,23 +366,22 @@ mod tests {
             },
             &DB_POOL,
         )
-        .await
         .unwrap();
 
         assert_eq!(existing_gh_account.name, "");
 
-        let account = get_new_movey_account().await;
+        let account = get_new_movey_account();
         assert!(account.github_id.is_none());
         assert!(account.github_login.is_none());
 
         let user = get_user_from_account(&account);
         let oauth_stub = get_oauth_response();
-        let result = link_github_to_movey_account(user, &oauth_stub, &DB_POOL).await;
+        let result = link_github_to_movey_account(user, &oauth_stub, &DB_POOL);
         assert!(result.is_ok());
         assert!(result.as_ref().unwrap().is_some());
         assert_eq!(result.unwrap().unwrap().id, account.id);
 
-        let account = Account::get(account.id, &DB_POOL).await.unwrap();
+        let account = Account::get(account.id, &DB_POOL).unwrap();
         assert_eq!(account.name, "email".to_string());
         assert_eq!(account.email, "email@host.com".to_string());
         assert_eq!(account.github_id, Some(143_543));
@@ -381,19 +396,19 @@ mod tests {
 
         let oauth_stub = get_oauth_response();
 
-        let account = get_new_movey_account().await;
+        let account = get_new_movey_account();
         assert!(account.github_id.is_none());
         assert!(account.github_login.is_none());
 
         let user = get_user_from_account(&account);
-        let result = link_github_to_movey_account(user, &oauth_stub, &DB_POOL).await;
+        let result = link_github_to_movey_account(user, &oauth_stub, &DB_POOL);
         assert!(result.is_ok());
         assert!(result.as_ref().unwrap().is_some());
         assert_eq!(result.unwrap().unwrap().id, account.id);
 
-        let account = Account::get(account.id, &DB_POOL).await.unwrap();
+        let account = Account::get(account.id, &DB_POOL).unwrap();
         let user = get_user_from_account(&account);
-        let result = link_github_to_movey_account(user, &oauth_stub, &DB_POOL).await;
+        let result = link_github_to_movey_account(user, &oauth_stub, &DB_POOL);
         assert!(result.is_err());
         if let Err(Error::Generic(message)) = result {
             assert_eq!(
@@ -411,12 +426,12 @@ mod tests {
 
         let oauth_stub = get_oauth_response();
 
-        let account = get_new_movey_account().await;
+        let account = get_new_movey_account();
         assert!(account.github_id.is_none());
         assert!(account.github_login.is_none());
 
         let user = get_user_from_account(&account);
-        let result = link_github_to_movey_account(user, &oauth_stub, &DB_POOL).await;
+        let result = link_github_to_movey_account(user, &oauth_stub, &DB_POOL);
         assert!(result.is_ok());
         assert!(result.as_ref().unwrap().is_some());
         assert_eq!(result.unwrap().unwrap().id, account.id);
@@ -432,10 +447,10 @@ mod tests {
                 hints: vec![],
             },
         };
-        let uid = Account::register(&form, &DB_POOL).await.unwrap();
-        let account = Account::get(uid, &DB_POOL).await.unwrap();
+        let uid = Account::register(&form, &DB_POOL).unwrap();
+        let account = Account::get(uid, &DB_POOL).unwrap();
         let user = get_user_from_account(&account);
-        let result = link_github_to_movey_account(user, &oauth_stub, &DB_POOL).await;
+        let result = link_github_to_movey_account(user, &oauth_stub, &DB_POOL);
         assert!(result.is_err());
         if let Err(Error::Generic(message)) = result {
             assert_eq!(
@@ -451,12 +466,12 @@ mod tests {
         let _ctx = DatabaseTestContext::new();
         let oauth_stub = get_oauth_response();
 
-        let result = create_default_account_for_github_user(oauth_stub, &DB_POOL).await;
+        let result = create_default_account_for_github_user(oauth_stub, &DB_POOL);
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap().name, "".to_string());
 
-        let account = Account::get_by_github_id(143_543, &DB_POOL).await.unwrap();
+        let account = Account::get_by_github_id(143_543, &DB_POOL).unwrap();
         assert_eq!(account.name, "".to_string());
         assert_eq!(account.email, "a_email@github.com".to_string());
         assert_eq!(account.github_login, Some("a_gh_username".to_string()));
@@ -473,12 +488,12 @@ mod tests {
             email: None,
         };
 
-        let result = create_default_account_for_github_user(oauth_stub, &DB_POOL).await;
+        let result = create_default_account_for_github_user(oauth_stub, &DB_POOL);
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap().name, "".to_string());
 
-        let account = Account::get_by_github_id(143_543, &DB_POOL).await.unwrap();
+        let account = Account::get_by_github_id(143_543, &DB_POOL).unwrap();
         let domain = std::env::var("NO_REPLY_EMAIL_DOMAIN").unwrap();
         assert_eq!(account.name, "".to_string());
         assert_eq!(account.email, "143543+a_gh_username@".to_string() + &domain);

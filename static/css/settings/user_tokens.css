@@ -1,9 +1,9 @@
 .settings-tokens-container .tokens-error {
-  color: #EB5757;
+  color: #eb5757;
   font-weight: 700;
 }
 .settings-tokens-container .tokens-banner {
-  background: #F2F2F2;
+  background: #f2f2f2;
   padding: 10px 16px;
   width: fit-content;
   font-weight: 500;
@@ -14,7 +14,8 @@
 .settings-tokens-container .tokens-banner > div:first-child {
   margin-bottom: 10px;
 }
-.settings-tokens-container .tokens-banner .special, .settings-tokens-container .tokens-banner .special a {
+.settings-tokens-container .tokens-banner .special,
+.settings-tokens-container .tokens-banner .special a {
   font-weight: 700;
   color: var(--blue-color);
 }
@@ -120,7 +121,7 @@
   font-weight: 700;
   font-size: 14px;
   line-height: 18px;
-  color: #EB5757;
+  color: #eb5757;
   background-color: rgba(235, 87, 87, 0.15);
   border-radius: 4px;
   cursor: pointer;
@@ -133,7 +134,7 @@
 }
 .settings-tokens-container .tokens-list .token-item .token-content-container {
   margin-top: 20px;
-  background-color: #F2F2F2;
+  background-color: #f2f2f2;
   border-radius: 5px;
   height: 50px;
   display: flex;
@@ -171,7 +172,8 @@
     justify-content: space-between;
     margin-top: 20px;
   }
-  .settings-tokens-container .tokens-list .token-item .small-only .copy-token-btn, .settings-tokens-container .tokens-list .token-item .small-only .revoke-token-btn {
+  .settings-tokens-container .tokens-list .token-item .small-only .copy-token-btn,
+.settings-tokens-container .tokens-list .token-item .small-only .revoke-token-btn {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -180,14 +182,14 @@
     font-weight: 700;
     font-size: 14px;
     line-height: 18px;
-    color: #EB5757;
+    color: #eb5757;
     background-color: rgba(235, 87, 87, 0.15);
     border-radius: 4px;
     cursor: pointer;
   }
   .settings-tokens-container .tokens-list .token-item .small-only .copy-token-btn {
     color: var(--blue-color);
-    background-color: #E3F1FB;
+    background-color: #e3f1fb;
     margin-right: 14px;
   }
   .settings-tokens-container .tokens-list .token-item .token-info {
@@ -253,7 +255,7 @@
 }
 #new_token_modal .new-token-container .new-token-name {
   height: 48px;
-  border: 1px solid #E5E7EB;
+  border: 1px solid #e5e7eb;
   box-shadow: 0px 1px 2px rgba(31, 41, 55, 0.08);
   border-radius: 4px;
   width: 100%;
@@ -314,7 +316,7 @@
   font-weight: 700;
   font-size: 14px;
   line-height: 18px;
-  color: #EB5757;
+  color: #eb5757;
   background-color: rgba(235, 87, 87, 0.15);
   display: flex;
   align-items: center;
@@ -332,7 +334,7 @@
   font-weight: 700;
   font-size: 14px;
   line-height: 18px;
-  color: #EB5757;
+  color: #eb5757;
   border: solid 1px rgba(235, 87, 87, 0.15);
   display: flex;
   align-items: center;

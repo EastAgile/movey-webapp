@@ -1,0 +1,2 @@
+TRUNCATE accounts CASCADE;
+ALTER SEQUENCE accounts_id_seq RESTART;

@@ -1,6 +1,8 @@
 use cucumber::{then, when};
 use mainlib::{
-    accounts::Account, api::services::setting::controllers::profile::LoggedInUser, test::DB_POOL,
+    accounts::Account,
+    api::setting::controllers::profile::LoggedInUser,
+    test::DB_POOL,
 };
 use reqwest::StatusCode;
 use thirtyfour::prelude::*;
@@ -14,7 +16,7 @@ use super::super::world::TestWorld;
 async fn get_logged_in_user(world: &mut TestWorld) {
     let client = reqwest::Client::new();
     let res = client
-        .get(format!("{}api/v1/me", world.root_url))
+        .get(format!("{}api/v1/settings/me", world.root_url))
         .header(
             "Cookie",
             format!(
@@ -41,10 +43,8 @@ async fn get_logged_in_user(world: &mut TestWorld) {
 
 #[when("My account is deleted but my browser is not signed out")]
 async fn delete_account(world: &mut TestWorld) {
-    let account = Account::get_by_email(&world.account.email, &DB_POOL)
-        .await
-        .unwrap();
-    Account::delete(account.id).await.unwrap();
+    let account = Account::get_by_email(&world.first_account.email, &DB_POOL).unwrap();
+    Account::delete(account.id).unwrap();
 }
 
 #[then("I should get information about my profile")]
@@ -56,9 +56,9 @@ async fn see_account_information(world: &mut TestWorld) {
     assert_eq!(response.content_type, "application/json");
 
     let user = serde_json::from_str::<LoggedInUser>(&response.body).unwrap();
-    assert_eq!(user.email, world.account.email);
+    assert_eq!(user.email, world.first_account.email);
 
-    let account = Account::get_by_email(&user.email, &DB_POOL).await.unwrap();
+    let account = Account::get_by_email(&user.email, &DB_POOL).unwrap();
     assert_eq!(account.id, user.id);
     assert_eq!(account.name, user.name);
 }

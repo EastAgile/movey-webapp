@@ -4,44 +4,72 @@
 
 {% block meta_description %}{% if package.description != '' %}{{package.description}} - Move package of Movey website{% else %}Package {{package.name}} on Movey{% endif %}{% endblock %}
 {% block og_title %}Package {{package.name}}{% endblock %}
-{% block og_description %}{% if package.description != '' %}{{package.description}}{% else %}Package {{package.name}} on Movey{% endif %}{% endblock %}
+{% block og_description %}{% if package.description != '' %}{{package.description}}{% else %}Package {{package.name}} on
+Movey{% endif %}{% endblock %}
 {% block css %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"/>
-    <link href="/static/css/packages/show.css" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
+<link href="/static/css/packages/show.css" rel="stylesheet" />
+<link href="/static/css/packages/owner_settings.css" rel="stylesheet" />
 {% endblock %}
 
 {% block javascript %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.0.3/showdown.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.6.7/jquery.timeago.min.js"></script>
-    <script src="/static/js/packages/show.js"></script>
-    <script src="/static/js/packages/versions.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.0.3/showdown.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.6.7/jquery.timeago.min.js"></script>
+<script src="/static/js/packages/show.js"></script>
+<script src="/static/js/packages/versions.js"></script>
 {% endblock %}
 
 {% block content %}
 <div class="package-show-container">
     <div class="package-info-container">
         <div class="package-name-version">
-            <div class="package-name">{{package.name}}</div>
+        <div class="package-name">{{package.name}}</div>
             <div class="package-version">{{package_version.version}}</div>
         </div>
         <div class="package-description">{{package.description}}</div>
     </div>
     <div class="horizontal-line"></div>
+
     <div class="package-content-container">
+    {% if is_crawled %}
+    <div class="package-banner-wrapper">
+        <div class="package-banner">
+            <div class="package-banner-content">
+                This package was crawled and has not been assigned owners yet. 
+                {% if is_anonymous %}
+                Please <a href="/accounts/register" target="_blank">create an account</a> to claim your package ownership.
+                {% else %}
+                <b>Please contact us to <a href="/contact" target="_blank">claim your package ownership</a>.</b>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
         <div class="package-content-tabs">
-            <div onclick="location.href='/packages/{{package.name}}';" class="content-tab tab-readme {% if package_tab == 'readme' %}active{% endif %}">
+            <div onclick="location.href='/packages/{{package.name}}';"
+                class="content-tab tab-readme {% if package_tab == 'readme' %}active{% endif %}">
                 <a href="/packages/{{package.name}}">
                     <div class="tab-icon tab-icon-readme" title="move package readme tab"></div>
                     <div class="tab-name">Readme</div>
                 </a>
             </div>
-            <div onclick="location.href='/packages/{{package.name}}/versions';" class="content-tab tab-versions {% if package_tab == 'versions' %}active{% endif %}">
+            <div onclick="location.href='/packages/{{package.name}}/versions';"
+                class="content-tab tab-versions {% if package_tab == 'versions' %}active{% endif %}">
                 <a href="/packages/{{package.name}}/versions">
                     <div class="tab-icon tab-icon-versions" title="move package versions tab"></div>
                     <div class="tab-name">Versions</div>
                 </a>
             </div>
+            {% if is_crawled == false %}
+            <div onclick="location.href='/packages/{{package.name}}/collaborators';"
+                class="content-tab tab-owner {% if package_tab == 'settings' %}active{% endif %}">
+                <a href="/packages/{{package.name}}/collaborators">
+                    <div class="tab-icon tab-icon-owner"></div>
+                    <div class="tab-name">Collaborators</div>
+                </a>
+            </div>
+            {% endif %}
         </div>
         {% block package_content %}{% endblock %}
     </div>

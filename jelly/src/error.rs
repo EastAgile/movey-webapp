@@ -29,6 +29,11 @@ pub enum Error {
     InvalidAccountToken,
     PasswordHasher(djangohashers::HasherError),
     Reqwest(reqwest::Error),
+    ApiBadRequest(&'static str, Box<dyn std::error::Error>),
+    ApiUnauthorized(&'static str, Box<dyn std::error::Error>),
+    ApiForbidden(&'static str, Box<dyn std::error::Error>),
+    ApiNotFound(&'static str, Box<dyn std::error::Error>),
+    ApiServerError(Box<dyn std::error::Error>),
 }
 
 impl fmt::Display for Error {
@@ -52,7 +57,12 @@ impl error::Error for Error {
             Error::Generic(_)
             | Error::InvalidPassword
             | Error::InvalidAccountToken
-            | Error::PasswordHasher(_) => None,
+            | Error::PasswordHasher(_)
+            | Error::ApiServerError(_)
+            | Error::ApiNotFound(_, _)
+            | Error::ApiForbidden(_, _)
+            | Error::ApiUnauthorized(_, _)
+            | Error::ApiBadRequest(_, _) => None,
         }
     }
 }
@@ -122,7 +132,15 @@ lazy_static! {
 
 impl ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
+        use super::utils::api_errors::*;
+
         let (template, mut response) = match self {
+            Error::ApiServerError(e) => return server_error(e),
+            Error::ApiNotFound(msg, e) => return not_found(msg, e),
+            Error::ApiForbidden(msg, e) => return forbidden(msg, e),
+            Error::ApiUnauthorized(msg, e) => return unauthorized(msg, e),
+            Error::ApiBadRequest(msg, e) => return bad_request(msg, e),
+
             Error::ActixWeb(e) => {
                 let status_code = e.as_response_error().status_code();
                 if status_code.is_server_error() {

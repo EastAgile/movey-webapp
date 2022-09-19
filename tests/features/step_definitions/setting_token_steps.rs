@@ -16,7 +16,7 @@ async fn put_request_to_create_api(world: &mut TestWorld) {
 
     let client = reqwest::Client::new();
     let res = client
-        .put(format!("{}api/v1/tokens", world.root_url))
+        .put(format!("{}api/v1/settings/tokens", world.root_url))
         .header("Cookie", format!("sessionid={}", sessionid.value()))
         .json(&json!({ "name": "a_new_token" }))
         .send()
@@ -40,7 +40,7 @@ async fn delete_request(world: &mut TestWorld) {
 
     let client = reqwest::Client::new();
     let res = client
-        .delete(format!("{}api/v1/tokens/1", world.root_url))
+        .delete(format!("{}api/v1/settings/tokens/1", world.root_url))
         .header("Cookie", format!("sessionid={}", sessionid.value()))
         .send()
         .await

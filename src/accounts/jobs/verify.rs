@@ -33,7 +33,6 @@ impl Job for SendVerifyAccountEmail {
     fn run(self, state: JobState) -> Self::Future {
         Box::pin(async move {
             let account = Account::get(self.to, &state.pool)
-                .await
                 .map_err(|e| anyhow!("Error fetching account for verification: {:?}", e))?;
 
             let domain = env::var("JELLY_DOMAIN").expect("No JELLY_DOMAIN value set!");
