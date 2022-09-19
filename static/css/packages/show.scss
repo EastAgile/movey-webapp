@@ -471,6 +471,22 @@
           font-size: 24px;
           margin-top: 15px;
         }
+
+        table {
+          thead {
+            tr {
+              background-color: var(--gray-color);
+            }
+          }
+
+          tbody {
+            tr {
+              &:nth-child(even) {
+                background-color: var(--geyser-color);
+              }
+            }
+          }
+        }
       }
 
       .package-sidebar {
