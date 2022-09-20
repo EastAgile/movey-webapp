@@ -25,7 +25,7 @@
   display: flex;
 }
 .package-show-container .package-info-container .package-repository-url .icon-vector {
-  content: url("/static/resources/vector.png");
+  content: url("/static/resources/vector.svg");
   margin-right: 8px;
   height: 22px;
 }
