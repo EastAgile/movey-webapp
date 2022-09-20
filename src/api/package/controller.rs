@@ -80,7 +80,6 @@ pub async fn register_package(
             hints.join("; ")
         )));
     }
-    let package_name = github_data.name.clone();
     let result = Package::create_from_crawled_data(
         &req.github_repo_url,
         &github_data.description.clone(),
@@ -93,18 +92,19 @@ pub async fn register_package(
     );
     match result {
         Ok(res) => Ok(HttpResponse::Ok().body(res.slug)),
-        Err(Error::Database(DBError::DatabaseError(kind, _))) => {
+        Err(Error::Database(DBError::DatabaseError(kind, slug))) => {
             let domain = std::env::var("JELLY_DOMAIN").expect("JELLY_DOMAIN is not set");
+            let package_slug = slug.message();
             let error_message = format!(
                 "Cannot upload package.\n{}",
                 match kind {
                     DatabaseErrorKind::UniqueViolation => format!(
-                        "Version already exists for package at {domain}/packages/{package_name}. \
+                        "Version already exists for package at {domain}/packages/{package_slug}. \
                     Please commit your changes to Github and try again."
                     ),
                     DatabaseErrorKind::ForeignKeyViolation => format!(
                         "Only owners can update new versions. Please check the package information at \
-                    {domain}/packages/{package_name}."
+                    {domain}/packages/{package_slug}."
                     ),
                     _ => "Something went wrong, please try again later.".to_string(),
                 }

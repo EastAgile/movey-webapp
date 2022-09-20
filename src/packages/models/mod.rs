@@ -320,13 +320,13 @@ impl Package {
                     // return package version already exists error
                     return Err(Error::Database(DBError::DatabaseError(
                         DatabaseErrorKind::UniqueViolation,
-                        Box::new(String::from("Version already exists")),
+                        Box::new(record.slug),
                     )));
                 }
             } else {
                 return Err(Error::Database(DBError::DatabaseError(
                     DatabaseErrorKind::ForeignKeyViolation,
-                    Box::new(String::from("Only owners can update new versions")),
+                    Box::new(record.slug),
                 )));
             }
 

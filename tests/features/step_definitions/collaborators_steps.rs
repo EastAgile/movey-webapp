@@ -284,7 +284,7 @@ async fn url_in_transfer_email(world: &mut TestWorld, url: String) {
 async fn on_package_details_page(world: &mut TestWorld) {
     assert_eq!(
         world.driver.current_url().await.unwrap(),
-        format!("{}{}", world.root_url, "packages/test%20package"),
+        format!("{}{}", world.root_url, "packages/test-package"),
     );
 }
 
