@@ -24,9 +24,13 @@ Movey{% endif %}{% endblock %}
 <div class="package-show-container">
     <div class="package-info-container">
         <div class="package-name-version">
-        <div class="package-name">{{package.name}}</div>
+            <div class="package-name">{{package.name}}</div>
             <div class="package-version">{{package_version.version}}</div>
         </div>
+        <a class="package-repository-url" href="{{package.repository_url}}" target="_blank">
+            <div class="icon-vector"></div>
+            <div class="url">{{package.repository_url | replace(from="https://", to="")}}</div>
+        </a>
         <div class="package-description">{{package.description}}</div>
     </div>
     <div class="horizontal-line"></div>
@@ -47,14 +51,14 @@ Movey{% endif %}{% endblock %}
     </div>
     {% endif %}
         <div class="package-content-tabs">
-            <div onclick="location.href='/packages/{{package.name}}';"
+            <div onclick="location.href='/packages/{{package.slug}}';"
                 class="content-tab tab-readme {% if package_tab == 'readme' %}active{% endif %}">
-                <a href="/packages/{{package.name}}">
+                <a href="/packages/{{package.slug}}">
                     <div class="tab-icon tab-icon-readme" title="move package readme tab"></div>
                     <div class="tab-name">Readme</div>
                 </a>
             </div>
-            <div onclick="location.href='/packages/{{package.name}}/versions';"
+            <div onclick="location.href='/packages/{{package.slug}}/versions';"
                 class="content-tab tab-versions {% if package_tab == 'versions' %}active{% endif %}">
                 <a href="/packages/{{package.slug}}/versions">
                     <div class="tab-icon tab-icon-versions" title="move package versions tab"></div>

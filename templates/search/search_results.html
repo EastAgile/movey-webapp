@@ -25,11 +25,11 @@
     <div id="package-list-container">
         <div class="package-list">
             {% for package in packages %}
-            <div class="package-list-item" onclick="location.href='/packages/{{ package.name }}';">
+            <div class="package-list-item" onclick="location.href='/packages/{{ package.slug }}';">
                 <div class="left-wrapper">
                     <div class="package-list-item-title">
                         <h1>
-                            <a href="/packages/{{ package.name }}"><span>{{ package.name | truncate(length=16)}}</span></a>&nbsp;
+                            <a href="/packages/{{ package.slug }}"><span>{{ package.name | truncate(length=16)}}</span></a>&nbsp;
                             <span class="version-number">{{ package.version }}</span>
                         </h1>
                     </div>

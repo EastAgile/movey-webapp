@@ -53,12 +53,12 @@
           keyword.length >= 3 ? $.ajax({
             type: 'POST',
             dataType:"json",
-            url: '/api/v1/search_package/',
+            url: '/api/v1/packages/search/',
             contentType: "application/json",
             processData: false,
             headers:{},
             data: JSON.stringify({ "search_query": keyword }),
-            success: function (data, status, xhr) {
+            success: function (data) {
               return data
             },
             error: function(xhr, status, errorThrown){

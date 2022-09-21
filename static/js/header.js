@@ -27,7 +27,7 @@ class Header {
     checkForLoggedInUser() {
         $.ajax({
             method: 'GET',
-            url: '/api/v1/me',
+            url: '/api/v1/settings/me',
             success: (data) => {
                 $(".header-container .search-li").removeClass('hide');
                 if(data.id) {

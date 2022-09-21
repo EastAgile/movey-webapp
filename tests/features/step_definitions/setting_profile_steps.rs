@@ -1,6 +1,8 @@
 use cucumber::{then, when};
 use mainlib::{
-    accounts::Account, api::services::setting::controllers::profile::LoggedInUser, test::DB_POOL,
+    accounts::Account,
+    api::setting::controllers::profile::LoggedInUser,
+    test::DB_POOL,
 };
 use reqwest::StatusCode;
 use thirtyfour::prelude::*;
@@ -14,7 +16,7 @@ use super::super::world::TestWorld;
 async fn get_logged_in_user(world: &mut TestWorld) {
     let client = reqwest::Client::new();
     let res = client
-        .get(format!("{}api/v1/me", world.root_url))
+        .get(format!("{}api/v1/settings/me", world.root_url))
         .header(
             "Cookie",
             format!(

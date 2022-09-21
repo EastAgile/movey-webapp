@@ -62,7 +62,7 @@ impl error::Error for Error {
             | Error::ApiNotFound(_, _)
             | Error::ApiForbidden(_, _)
             | Error::ApiUnauthorized(_, _)
-            | Error::ApiBadRequest(_, _)=> None,
+            | Error::ApiBadRequest(_, _) => None,
         }
     }
 }
@@ -134,39 +134,36 @@ impl ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
         use super::utils::api_errors::*;
 
-        // Returning an Internal Server Error will trigger actix
-        // to log the error automatically
         let (template, mut response) = match self {
             Error::ApiServerError(e) => return server_error(e),
             Error::ApiNotFound(msg, e) => return not_found(msg, e),
             Error::ApiForbidden(msg, e) => return forbidden(msg, e),
             Error::ApiUnauthorized(msg, e) => return unauthorized(msg, e),
             Error::ApiBadRequest(msg, e) => return bad_request(msg, e),
-            
+
             Error::ActixWeb(e) => {
                 let status_code = e.as_response_error().status_code();
                 if status_code.is_server_error() {
-                    ("503.html", HttpResponse::InternalServerError())
+                    ("500.html", HttpResponse::InternalServerError())
                 } else if status_code == StatusCode::NOT_FOUND {
                     ("404.html", HttpResponse::NotFound())
                 } else {
                     ("400.html", HttpResponse::BadRequest())
                 }
             }
-
             Error::Anyhow(_) | Error::Generic(_) | Error::Database(DBError::NotFound) => {
                 ("404.html", HttpResponse::NotFound())
             }
             Error::Json(_) | Error::InvalidPassword | Error::InvalidAccountToken => {
                 ("400.html", HttpResponse::BadRequest())
             }
-            Error::Pool(_)
-            | Error::Database(_)
-            | Error::Template(_)
-            | Error::Radix(_)
-            | Error::PasswordHasher(_)
-            | Error::Reqwest(_) => ("503.html", HttpResponse::InternalServerError()),
+            _ => ("500.html", HttpResponse::InternalServerError()),
         };
+        // Returning an Internal Server Error will trigger actix
+        // to log the error automatically so we don't have to
+        if template != "500.html" {
+            error!("{:?}", error::Error::source(&self));
+        }
         match TERA.read() {
             Ok(engine) => {
                 match engine
@@ -187,10 +184,6 @@ impl ResponseError for Error {
                 HttpResponse::InternalServerError().body("")
             }
         }
-    }
-
-    fn status_code(&self) -> StatusCode {
-        StatusCode::INTERNAL_SERVER_ERROR
     }
 }
 
