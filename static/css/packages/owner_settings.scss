@@ -254,7 +254,7 @@
 
           &.header {
             font-weight: 500;
-            width: 380px;
+            width: 224px;
           }
 
           &.collaborators_settings {
@@ -287,6 +287,7 @@
               &.transfer {
                 color: #658f72;
                 background-color: #effff4;
+                margin-right: 4px;
 
                 &:hover {
                   color: #658f72;

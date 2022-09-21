@@ -242,7 +242,7 @@
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.header {
   font-weight: 500;
-  width: 380px;
+  width: 224px;
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings {
   display: flex;
@@ -277,6 +277,7 @@
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings .ownership_btn.transfer {
   color: #658f72;
   background-color: #effff4;
+  margin-right: 4px;
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings .ownership_btn.transfer:hover {
   color: #658f72;
