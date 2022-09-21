@@ -164,6 +164,8 @@
   color: var(--dark-blue-color);
   display: flex;
   flex-direction: column;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .email_address.header {
   font-weight: 500;
@@ -172,11 +174,6 @@
   color: var(--gray-color);
   opacity: 80%;
   font-size: 18px;
-}
-@media screen and (max-width: 843px) {
-  .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .email_address {
-    overflow-wrap: break-word;
-  }
 }
 @media screen and (min-width: 258px) and (max-width: 455px) {
   .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .email_address {
@@ -224,7 +221,7 @@
   }
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission {
-  width: 49%;
+  width: 224px;
   font-weight: 500;
   font-size: 18px;
   line-height: 24px;
