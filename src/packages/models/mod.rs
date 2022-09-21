@@ -18,6 +18,8 @@ use crate::github_service::GithubRepoData;
 use crate::package_collaborators::package_collaborator::{PackageCollaborator, Role};
 use jelly::Result;
 use mockall_double::double;
+use rayon::prelude::*;
+
 #[cfg(test)]
 mod tests;
 
@@ -45,7 +47,7 @@ pub struct Package {
     pub total_downloads_count: i32,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub slug: String,
+    pub slug: Option<String>,
 }
 
 type PackageColumns = (
@@ -85,7 +87,7 @@ pub struct PackageSearchResult {
     #[sql_type = "Timestamptz"]
     pub updated_at: NaiveDateTime,
     #[sql_type = "Text"]
-    pub slug: String,
+    pub slug: Option<String>,
     #[sql_type = "Text"]
     pub version: String,
 }
@@ -193,6 +195,54 @@ pub enum PackageVersionSort {
 }
 
 impl Package {
+    pub fn hmm(pool: &DieselPgPool) -> Result<()> {
+
+        // conn.transaction(|| -> Result<()> {
+        let conn = pool.get()?;
+            let results: Vec<Package> = packages
+                .select(PACKAGE_COLUMNS)
+                .load(&conn)?;
+            results.into_par_iter().for_each(|p| {
+                let conn = pool.get().unwrap();
+                let original_slug = slug::slugify(p.name);
+                let mut new_slug = original_slug.clone();
+                loop {
+                    let is_existed = packages
+                        .filter(slug.eq(new_slug.clone()))
+                        .count()
+                        .get_result(&conn);
+                    if let Ok(0) = is_existed {
+                        diesel::update(packages.filter(packages::id.eq(p.id)))
+                            .set(packages::slug.eq(new_slug.clone()))
+                            .execute(&conn).unwrap();
+                        break;
+                    } else {
+                        new_slug = format!("{}-{}", &original_slug, generate_secure_alphanumeric_string(4));
+                    }
+                }
+            });
+            // for p in results {
+            //     let original_slug = slug::slugify(p.name);
+            //     let mut new_slug = original_slug.clone();
+            //     loop {
+            //         let is_existed = packages
+            //             .filter(slug.eq(new_slug.clone()))
+            //             .count()
+            //             .get_result(&conn);
+            //         if let Ok(0) = is_existed {
+            //             diesel::update(packages.filter(packages::id.eq(p.id)))
+            //                 .set(packages::slug.eq(new_slug.clone()))
+            //                 .execute(&conn)?;
+            //             break;
+            //         } else {
+            //             new_slug = format!("{}-{}", &original_slug, generate_secure_alphanumeric_string(4));
+            //         }
+            //     }
+            // };
+            Ok(())
+        // })
+    }
+
     pub fn count(pool: &DieselPgPool) -> Result<i64> {
         let connection = pool.get()?;
         let result = packages

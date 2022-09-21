@@ -363,3 +363,11 @@ pub async fn packages_index(
         ctx
     })
 }
+
+pub async fn hmmm(
+    request: HttpRequest
+) -> Result<HttpResponse> {
+    let db = request.db_pool()?;
+    Package::hmm(db)?;
+    Ok(HttpResponse::Ok().body(""))
+}
