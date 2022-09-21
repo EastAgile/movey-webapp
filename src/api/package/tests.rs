@@ -43,7 +43,7 @@ async fn register_package_create_new_packages() {
     assert!(response.is_ok());
     let resp = response.unwrap();
     assert_eq!(resp.status(), StatusCode::OK);
-    assert_eq!(resp.body().as_ref().unwrap(), &Body::from("name1"));
+    assert_eq!(resp.body().as_ref().unwrap(), &Body::from("name-1"));
     assert_eq!(Package::count(&DB_POOL).unwrap(), 1);
 }
 
