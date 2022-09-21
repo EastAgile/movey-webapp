@@ -122,7 +122,7 @@
       }
 
       @include tablet-screen {
-        width: 600px;;
+        width: 600px;
       }
 
       @include mobile-screen {
@@ -137,7 +137,8 @@
         justify-content: space-around;
         height: 80px;
         position: relative;
-
+        padding: 4px;
+        
         @include small-screen {
           flex-flow: row nowrap;
         }
@@ -155,11 +156,10 @@
         &.header {
           height: 50px;
           background: #d9dde7;
-      
+
           @include mobile-screen {
             display: none;
           }
-        
         }
 
         .email_address {
@@ -170,18 +170,17 @@
           color: var(--dark-blue-color);
           display: flex;
           flex-direction: column;
+          overflow-wrap: break-word;
+          word-break: break-word;
 
           &.header {
-            font-weight: 500;
+            font-weight: 700;
           }
 
           span {
             color: var(--gray-color);
             opacity: 80%;
             font-size: 18px;
-          }
-          @include small-screen {
-            overflow-wrap: break-word;
           }
 
           @include mobile-screen {
@@ -195,7 +194,6 @@
               content: "Email: ";
               font-weight: bold;
               width: fit-content;
-              
             }
           }
         }
@@ -212,9 +210,10 @@
           font-size: 18px;
           line-height: 24px;
           color: var(--dark-blue-color);
+          margin-left: 20px;
 
           &.header {
-            font-weight: 500;
+            font-weight: 700;
           }
 
           @include mobile-screen {
@@ -230,13 +229,11 @@
                 content: "Role: ";
                 font-weight: bold;
               }
-            } 
+            }
           }
-
         }
 
         .permission {
-          width: 49%;
           font-weight: 500;
           font-size: 18px;
           line-height: 24px;
@@ -247,8 +244,12 @@
           }
 
           &.header {
-            font-weight: 500;
-            width: 224px;
+            width: 380px;
+            font-weight: 700;
+
+            @include small-screen {
+              width: 224px;
+            }
           }
 
           &.collaborators_settings {
@@ -257,7 +258,7 @@
             justify-content: space-between;
             width: 380px;
 
-            @include mobile-screen { 
+            @include mobile-screen {
               width: 248px;
               justify-content: space-between;
             }
@@ -435,7 +436,8 @@
     color: #333333;
   }
 
-  .close-button {}
+  .close-button {
+  }
 }
 
 #error_modal {
