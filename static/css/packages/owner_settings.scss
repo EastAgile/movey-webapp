@@ -185,14 +185,17 @@
             opacity: 80%;
             font-size: 18px;
           }
+          @include small-screen {
+            overflow-wrap: break-word;
+          }
 
           @include mobile-screen {
             width: 100%;
             margin-right: 0px;
             padding: 2px;
-            overflow-wrap: break-word;
             display: inline;
-            
+            overflow-wrap: break-word;
+
             &:before {
               content: "Email: ";
               font-weight: bold;
