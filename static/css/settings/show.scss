@@ -597,10 +597,11 @@
           border-radius: 4px;
           margin: 10px 0;
           padding: 10px 16px;
-          display: block;
           border: none;
-          white-space: pre;
           overflow: scroll;
+          display: block;
+          margin-top: 4px;
+          white-space: normal;
         }
 
         h1,
