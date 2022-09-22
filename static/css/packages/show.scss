@@ -410,7 +410,7 @@
         color: var(--dark-blue-color);
         font-size: 20px;
         margin-bottom: 40px;
-        word-wrap: break-word;
+        word-wrap: break-all;
         overflow-wrap: break-word;
 
         code {
@@ -419,10 +419,19 @@
           border-radius: 4px;
           margin: 0;
           padding: 5px 8px;
-          display: inline-block;
           border: none;
-          white-space: pre;
-          overflow: hidden;
+          display: inline-flex;
+          margin-top: 4px;
+          white-space: normal;
+          word-break: break-all;
+          
+          @include mobile-screen {
+            overflow-x: scroll;
+          }
+
+          @include small-mobile-screen {
+            overflow-x: scroll;
+          }
         }
 
         pre {

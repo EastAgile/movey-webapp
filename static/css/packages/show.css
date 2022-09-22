@@ -386,7 +386,7 @@
   color: var(--dark-blue-color);
   font-size: 20px;
   margin-bottom: 40px;
-  word-wrap: break-word;
+  word-wrap: break-all;
   overflow-wrap: break-word;
 }
 .package-show-container .package-content-container .package-detail-container .package-readme-content code {
@@ -395,10 +395,21 @@
   border-radius: 4px;
   margin: 0;
   padding: 5px 8px;
-  display: block;
   border: none;
-  white-space: pre;
-  overflow: scroll;
+  display: inline-flex;
+  margin-top: 4px;
+  white-space: normal;
+  word-break: break-all;
+}
+@media screen and (min-width: 258px) and (max-width: 455px) {
+  .package-show-container .package-content-container .package-detail-container .package-readme-content code {
+    overflow-x: scroll;
+  }
+}
+@media screen and (min-width: 240px) and (max-width: 257px) {
+  .package-show-container .package-content-container .package-detail-container .package-readme-content code {
+    overflow-x: scroll;
+  }
 }
 .package-show-container .package-content-container .package-detail-container .package-readme-content pre {
   background-color: var(--gray-background-color);
