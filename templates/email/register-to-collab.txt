@@ -1,6 +1,6 @@
 Register To Collaborate
 
-A user on Movey invited you to collaborate on the Move package "{{ package_name }}", but it looks like you haven't sign up yet.
+A user on Movey invited you to collaborate on the Move package "{{ package_name }}", but it looks like you haven't signed up yet.
 
 To start collaborating, please create your account by following this link:
 

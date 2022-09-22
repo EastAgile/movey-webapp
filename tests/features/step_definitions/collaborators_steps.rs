@@ -469,7 +469,7 @@ async fn outsider_receives_invitation_email(_world: &mut TestWorld) {
     assert!(content.contains("To: not_in_system@host.com"));
     assert!(content.contains("Register To Collaborate"));
     assert!(content.contains("Subject: You have been invited to collaborate on test package"));
-    assert!(content.contains("A user on Movey invited you to collaborate on the Move package \"test package\", but it looks like you haven't sign up yet."));
+    assert!(content.contains("A user on Movey invited you to collaborate on the Move package \"test package\", but it looks like you haven't signed up yet."));
     assert!(content
         .contains("To start collaborating, please create your account by following this link"));
     assert!(content.contains("/accounts/register?redirect=/profile"));

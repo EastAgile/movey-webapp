@@ -100,7 +100,7 @@ class Collaborator {
           this.messageReturn(data.msg, true);
         } else {
           this.updateRow(this.userName, "External");
-          this.messageReturn(data.msg, false);
+          this.messageReturn(data.msg, true);
         }
       },
       error: (data) => {
