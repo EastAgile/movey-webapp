@@ -422,7 +422,14 @@
           display: inline-block;
           border: none;
           white-space: pre;
-          overflow: hidden;
+          
+          @include mobile-screen {
+            overflow-x: scroll;
+          }
+
+          @include small-mobile-screen {
+            overflow-x: scroll;
+          }
         }
 
         pre {
