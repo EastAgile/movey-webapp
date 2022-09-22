@@ -127,7 +127,7 @@
       }
 
       @include tablet-screen {
-        width: 600px;;
+        width: 600px;
       }
 
       @include mobile-screen {
@@ -160,11 +160,10 @@
         &.header {
           height: 50px;
           background: #d9dde7;
-      
+
           @include mobile-screen {
             display: none;
           }
-        
         }
 
         .email_address {
@@ -175,6 +174,8 @@
           color: var(--dark-blue-color);
           display: flex;
           flex-direction: column;
+          overflow-wrap: break-word;
+          word-break: break-word;
 
           &.header {
             font-weight: 500;
@@ -184,9 +185,6 @@
             color: var(--gray-color);
             opacity: 80%;
             font-size: 18px;
-          }
-          @include small-screen {
-            overflow-wrap: break-word;
           }
 
           @include mobile-screen {
@@ -200,7 +198,6 @@
               content: "Email: ";
               font-weight: bold;
               width: fit-content;
-              
             }
           }
         }
@@ -235,13 +232,12 @@
                 content: "Role: ";
                 font-weight: bold;
               }
-            } 
+            }
           }
-
         }
 
         .permission {
-          width: 49%;
+          width: 224px;
           font-weight: 500;
           font-size: 18px;
           line-height: 24px;
@@ -263,7 +259,7 @@
             justify-content: space-between;
             width: 380px;
 
-            @include mobile-screen { 
+            @include mobile-screen {
               width: 248px;
               justify-content: space-between;
             }
