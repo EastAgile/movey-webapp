@@ -438,7 +438,14 @@
           display: inline-block;
           border: none;
           white-space: pre;
-          overflow-x: scroll;
+          
+          @include mobile-screen {
+            overflow-x: scroll;
+          }
+
+          @include small-mobile-screen {
+            overflow-x: scroll;
+          }
         }
 
         pre {
