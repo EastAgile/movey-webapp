@@ -11,9 +11,7 @@ class PackageShow {
         var converter = new showdown.Converter({
             'tables': 'true'
         });
-        this.readmeElement.html(converter.makeHtml(this.readmeElement.html()));
-        // Somehow this make render of &amp; &lt; and &gt; normal
-        this.readmeElement.html(this.readmeElement.html().replace(/&amp;/g, '&'));
+        this.readmeElement.html(converter.makeHtml(this.readmeElement.text()));
         this.packageDescription.html(converter.makeHtml(this.packageDescription.html()));
         this.instructionElement.on('click', (e) => {
             navigator.clipboard.writeText(this.instructionElement.find('.instruction-command').text());
