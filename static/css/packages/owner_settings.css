@@ -134,6 +134,7 @@
   justify-content: space-around;
   height: 80px;
   position: relative;
+  padding: 4px;
 }
 @media screen and (max-width: 843px) {
   .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row {
@@ -172,7 +173,7 @@
   word-break: break-word;
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .email_address.header {
-  font-weight: 500;
+  font-weight: 700;
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .email_address span {
   color: var(--gray-color);
@@ -204,9 +205,10 @@
   font-size: 18px;
   line-height: 24px;
   color: var(--dark-blue-color);
+  margin-left: 20px;
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles.header {
-  font-weight: 500;
+  font-weight: 700;
 }
 @media screen and (min-width: 258px) and (max-width: 455px) {
   .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .roles {
@@ -225,7 +227,6 @@
   }
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission {
-  width: 224px;
   font-weight: 500;
   font-size: 18px;
   line-height: 24px;
@@ -238,8 +239,13 @@
   }
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.header {
-  font-weight: 500;
-  width: 224px;
+  width: 380px;
+  font-weight: 700;
+}
+@media screen and (max-width: 843px) {
+  .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.header {
+    width: 224px;
+  }
 }
 .package-settings-container .collaborators_wrapper .collaborators_table .collaborator_row .permission.collaborators_settings {
   display: flex;
