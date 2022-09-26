@@ -314,6 +314,7 @@
 #remove_owner_modal .new-token-container {
   display: flex;
   align-items: center;
+  margin-top: 24px;
 }
 #new_collaborator_modal .new-token-container .new-token-name,
 #transfer_owner_modal .new-token-container .new-token-name,
