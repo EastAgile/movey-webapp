@@ -15,15 +15,6 @@ async fn access_public_profile(world: &mut TestWorld) {
         .unwrap()
 }
 
-#[when("I access a package details page")]
-async fn access_test_package_details(world: &mut TestWorld) {
-    world
-        .driver
-        .get(format!("{}/packages/test-package", world.root_url))
-        .await
-        .unwrap()
-}
-
 #[when("I click on the owner name")]
 async fn click_on_owner_name(world: &mut TestWorld) {
     let owner_name = world
@@ -74,5 +65,5 @@ async fn see_packages_in_public_profile(world: &mut TestWorld) {
         .await
         .unwrap();
     let package_name = package_name.text().await.unwrap();
-    assert!(package_name.contains("test-package"));
+    assert!(package_name.contains("Æúű--cool?"));
 }

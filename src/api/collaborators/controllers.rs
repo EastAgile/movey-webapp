@@ -18,7 +18,7 @@ use serde_json::json;
 
 pub async fn add_collaborators(
     request: HttpRequest,
-    Path(package_name): Path<String>,
+    Path(package_slug): Path<String>,
     json: web::Json<CollaboratorJson>,
 ) -> Result<HttpResponse> {
     if !request_utils::is_authenticated(&request)? {
@@ -27,7 +27,7 @@ pub async fn add_collaborators(
     let db = request.db_pool().map_err(|e| ApiServerError(Box::new(e)))?;
     let conn = db.get().map_err(|e| ApiServerError(Box::new(e)))?;
 
-    let package = Package::get_by_name(&package_name, db)
+    let package = Package::get_by_slug(&package_slug, &conn)
         .map_err(|e| ApiNotFound(MSG_PACKAGE_NOT_FOUND, Box::new(e)))?;
 
     let user = request.user().map_err(|e| ApiServerError(Box::new(e)))?;
@@ -85,7 +85,7 @@ pub async fn add_collaborators(
 
 pub async fn transfer_ownership(
     request: HttpRequest,
-    Path(package_name): Path<String>,
+    Path(package_slug): Path<String>,
     json: web::Json<CollaboratorJson>,
 ) -> Result<HttpResponse> {
     if !request_utils::is_authenticated(&request)? {
@@ -94,7 +94,7 @@ pub async fn transfer_ownership(
     let db = request.db_pool().map_err(|e| ApiServerError(Box::new(e)))?;
     let conn = db.get().map_err(|e| ApiServerError(Box::new(e)))?;
 
-    let package = Package::get_by_name(&package_name, db)
+    let package = Package::get_by_slug(&package_slug, &conn)
         .map_err(|e| ApiNotFound(MSG_PACKAGE_NOT_FOUND, Box::new(e)))?;
 
     let invited_account = Account::get_by_email_or_gh_login(&json.user, db)
@@ -193,7 +193,7 @@ pub async fn handle_invite(
 
 pub async fn remove_collaborator(
     request: HttpRequest,
-    Path(package_name): Path<String>,
+    Path(package_slug): Path<String>,
     json: web::Json<CollaboratorJson>,
 ) -> Result<HttpResponse> {
     if !request_utils::is_authenticated(&request)? {
@@ -202,7 +202,7 @@ pub async fn remove_collaborator(
     let db = request.db_pool().map_err(|e| ApiServerError(Box::new(e)))?;
     let conn = db.get().map_err(|e| ApiServerError(Box::new(e)))?;
 
-    let package = Package::get_by_name(&package_name, db)
+    let package = Package::get_by_slug(&package_slug, &conn)
         .map_err(|e| ApiNotFound(MSG_PACKAGE_NOT_FOUND, Box::new(e)))?;
 
     let user = request.user().map_err(|e| ApiServerError(Box::new(e)))?;

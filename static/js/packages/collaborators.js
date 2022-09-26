@@ -14,6 +14,9 @@ class Collaborator {
     this.userNameInput = $(".collaborators_input");
     this.packageName = $(".package-name")[0];
 
+    // pathname should be something like /packages/<package-slug>/collaborators
+    this.packageSlug = window.location.pathname.split('/')[2];
+
     this.init();
   }
 
@@ -81,7 +84,7 @@ class Collaborator {
     if (!collaboratorEmail || !this.userName) return;
     let collaboratorUrl =
       "/api/v1/collaborators/packages/" +
-      this.packageName.innerHTML +
+      this.packageSlug +
       "/create";
     $.ajax({
       type: "POST",
@@ -108,7 +111,7 @@ class Collaborator {
 
   transferOwnership = () => {
     let collaboratorUrl =
-      "/api/v1/collaborators/packages/" + this.packageName.innerHTML + "/transfer";
+      "/api/v1/collaborators/packages/" + this.packageSlug + "/transfer";
 
     $.ajax({
       type: "POST",
@@ -138,7 +141,7 @@ class Collaborator {
 
   removeCollaborator = () => {
     let collaboratorUrl =
-        "/api/v1/collaborators/packages/" + this.packageName.innerHTML + "/remove";
+        "/api/v1/collaborators/packages/" + this.packageSlug + "/remove";
 
     $.ajax({
       type: "DELETE",

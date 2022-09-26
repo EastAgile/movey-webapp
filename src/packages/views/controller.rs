@@ -23,11 +23,11 @@ struct PackageShowParams {
 
 pub async fn show_package(
     request: HttpRequest,
-    Path(package_name): Path<String>,
+    Path(package_slug): Path<String>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     let conn = db.get()?;
-    let package = Package::get_by_name(&package_name, db)?;
+    let package = Package::get_by_slug(&package_slug, &conn)?;
     let collaborators = PackageCollaborator::get_by_package_id(package.id, &conn)?;
 
     let default_version: String = String::from("");
@@ -42,7 +42,7 @@ pub async fn show_package(
             PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, db)?;
         package_version = versions[0].clone();
     } else {
-        package_version = package.get_version(version, db)?
+        package_version = package.get_version(version, &conn)?
     }
 
     let (account_name, account_slug_url) = presenter::make_account_name(&package, db)?;
@@ -72,11 +72,11 @@ struct VersionParams {
 
 pub async fn show_package_versions(
     request: HttpRequest,
-    Path(package_name): Path<String>,
+    Path(package_slug): Path<String>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     let conn = db.get()?;
-    let package = Package::get_by_name(&package_name, db)?;
+    let package = Package::get_by_slug(&package_slug, &conn)?;
     let package_latest_version =
         &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, db)?[0];
     let collaborators = PackageCollaborator::get_by_package_id(package.id, &conn)?;
@@ -111,11 +111,11 @@ pub async fn show_package_versions(
 
 pub async fn show_package_settings(
     request: HttpRequest,
-    Path(package_name): Path<String>,
+    Path(package_slug): Path<String>,
 ) -> Result<HttpResponse> {
     let db_pool = request.db_pool()?;
     let db_connection = db_pool.get()?;
-    let package = Package::get_by_name(&package_name, db_pool)?;
+    let package = Package::get_by_slug(&package_slug, &db_connection)?;
     let package_latest_version =
         &PackageVersion::from_package_id(package.id, &PackageVersionSort::Latest, &db_pool)?[0];
 

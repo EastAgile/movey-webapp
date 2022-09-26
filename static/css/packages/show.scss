@@ -26,6 +26,22 @@
       }
     }
 
+    .package-repository-url {
+      display: flex;
+
+      .icon-vector {
+        content: url("/static/resources/vector.svg");
+        margin-right: 8px;
+        height: 22px;
+      }
+
+      .url {
+        font-size: 20px;
+        line-height: 22px;
+        color: var(--gray-color);
+      }
+    }
+
     .package-description {
       font-size: 24px;
       color: var(--gray-color);

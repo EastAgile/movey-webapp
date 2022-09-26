@@ -21,6 +21,19 @@
   font-size: 24px;
   color: var(--gray-color);
 }
+.package-show-container .package-info-container .package-repository-url {
+  display: flex;
+}
+.package-show-container .package-info-container .package-repository-url .icon-vector {
+  content: url("/static/resources/vector.svg");
+  margin-right: 8px;
+  height: 22px;
+}
+.package-show-container .package-info-container .package-repository-url .url {
+  font-size: 20px;
+  line-height: 22px;
+  color: var(--gray-color);
+}
 .package-show-container .package-info-container .package-description {
   font-size: 24px;
   color: var(--gray-color);

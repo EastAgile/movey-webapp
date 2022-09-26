@@ -18,5 +18,5 @@ pub async fn accept_invite_with_token(
         return request.render(503, "503.html", Context::new());
     }
     let package = Package::get(invitation.package_id, request.db_pool()?)?;
-    request.redirect(&format!("/packages/{}", package.name))
+    request.redirect(&format!("/packages/{}", package.slug))
 }
