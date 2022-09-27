@@ -8,8 +8,10 @@ class PackageShow {
     }
 
     init() {
-        var converter = new showdown.Converter();
-        this.readmeElement.html(converter.makeHtml(this.readmeElement.html()));
+        var converter = new showdown.Converter({
+            'tables': 'true'
+        });
+        this.readmeElement.html(converter.makeHtml(this.readmeElement.text()));
         this.packageDescription.html(converter.makeHtml(this.packageDescription.html()));
         this.instructionElement.on('click', (e) => {
             navigator.clipboard.writeText(this.instructionElement.find('.instruction-command').text());
@@ -18,7 +20,7 @@ class PackageShow {
                 $('.copy-tooltip').hide();
             }, 400);
         });
-        Array.from($(".package-readme-content a")).forEach( e => e.setAttribute('target', '_blank') );
+        Array.from($(".package-readme-content a")).forEach(e => e.setAttribute('target', '_blank'));
         this.packageSizeElement.text(this.niceBytes(this.packageSizeElement.data("value")));
     }
 
@@ -26,9 +28,9 @@ class PackageShow {
     niceBytes(x) {
         const units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
         let l = 0, n = parseInt(x, 10) || 0;
-        while(n >= 1024 && ++l){
-            n = n/1024;
+        while (n >= 1024 && ++l) {
+            n = n / 1024;
         }
-        return(n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l]);
+        return (n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l]);
     }
 }
