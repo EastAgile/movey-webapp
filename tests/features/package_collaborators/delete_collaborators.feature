@@ -16,7 +16,7 @@ Feature: Delete collaborators
     When I access the package Settings tab
     Then I should see the invited collaborator email
     When I click the 'Remove' button
-    Then I should see a remove owner modal with text 'You are removing this collaborator "collaborator@host.com" from package "test package"'
+    Then I should see a remove owner modal with text 'You are removing this collaborator "collaborator@host.com" from package "test package".'
     When I click the 'Confirm' button
     Then I should see the invitation is deleted
 
@@ -33,7 +33,7 @@ Feature: Delete collaborators
       When I close the invite modal
       Then I should see the invited external email
       When I click the 'Remove' button
-      Then I should see a remove owner modal with text 'You are removing this collaborator "not_in_system@host.com" from package "test package"'
+      Then I should see a remove owner modal with text 'You are removing this collaborator "not_in_system@host.com" from package "test package".'
       When I click the 'Confirm' button
       Then I should see the invitation is deleted
 
@@ -45,10 +45,10 @@ Feature: Delete collaborators
     When I access the package detail page of my package
     And I access the package Settings tab
     And I transfer ownership to a collaborator
-    Then I should see a modal with text 'Ownership transfer invitation is created successfully.'
+    Then I should see a modal with text 'An ownership transfer invitation has been sent to collaborator collaborator@host.com.'
     When I close the modal
     When I click the 'Remove' button
-    Then I should see a remove owner modal with text 'You are removing this collaborator "collaborator@host.com" from package "test package"'
+    Then I should see a remove owner modal with text 'You are removing this collaborator "collaborator@host.com" from package "test package".'
     When I click the 'Confirm' button
     Then I should see the ownership transfer invitation is deleted
 
@@ -60,7 +60,7 @@ Feature: Delete collaborators
     When I access the package detail page of my package
     And I access the package Settings tab
     When I click the 'Remove' button of the other collaborator
-    Then I should see a remove owner modal with text 'You are removing this collaborator "collaborator@host.com" from package "test package"'
+    Then I should see a remove owner modal with text 'You are removing this collaborator "collaborator@host.com" from package "test package".'
     When I click the 'Confirm' button
     Then I can see the collaborator is removed from table
     

@@ -254,7 +254,7 @@ async fn receive_invitation_email(_world: &mut TestWorld) {
     assert!(content.contains("From: movey@eastagile.com"));
     assert!(content.contains("To: collaborator@host.com"));
     assert!(content.contains("New Collaborator Invitation"));
-    assert!(content.contains("You got invited as a collaborator on the package test package."));
+    assert!(content.contains("You got invited as a collaborator on the Move package \"test package\"."));
 }
 
 #[then("She (the collaborator) should receive an ownership invitation email")]
@@ -265,8 +265,8 @@ async fn receive_ownership_invitation_email(_world: &mut TestWorld) {
 
     assert!(content.contains("From: movey@eastagile.com"));
     assert!(content.contains("To: collaborator@host.com"));
-    assert!(content.contains("New Collaborator Invitation"));
-    assert!(content.contains("You got invited as a collaborator on the package test package."));
+    assert!(content.contains("New Ownership Invitation"));
+    assert!(content.contains("The owner would like to transfer ownership of their Move package \"test package\" to you."));
 }
 
 #[then(regex = r"^She should see that the url to accept the transfer has '(.+)'$")]
@@ -469,9 +469,9 @@ async fn outsider_receives_invitation_email(_world: &mut TestWorld) {
     assert!(content.contains("To: not_in_system@host.com"));
     assert!(content.contains("Register To Collaborate"));
     assert!(content.contains("Subject: You have been invited to collaborate on test package"));
-    assert!(content.contains("A user on Movey invited you to collaborate on the package test package, but it looks like you haven't sign up yet."));
+    assert!(content.contains("A user on Movey invited you to collaborate on the Move package \"test package\", but it looks like you haven't signed up yet."));
     assert!(content
-        .contains("To start collaborating, please create your account and start working on this."));
+        .contains("To start collaborating, please create your account by following this link"));
     assert!(content.contains("/accounts/register?redirect=/profile"));
 }
 
