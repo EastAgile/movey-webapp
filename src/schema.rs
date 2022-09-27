@@ -105,7 +105,7 @@ table! {
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
         tsv -> Tsvector,
-        slug -> Nullable<Text>,
+        slug -> Text,
     }
 }
 
