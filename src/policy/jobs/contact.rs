@@ -4,7 +4,7 @@ use std::pin::Pin;
 
 use jelly::anyhow::Error;
 use jelly::email::Email;
-use jelly::jobs::{Job, JobState, DEFAULT_QUEUE};
+use jelly::jobs::{Job, JobState};
 use jelly::serde::{Deserialize, Serialize};
 use jelly::tera::Context;
 
@@ -21,7 +21,6 @@ impl Job for SendContactRequestEmail {
     type State = JobState;
     type Future = Pin<Box<dyn Future<Output = Result<(), Error>> + Send>>;
     const NAME: &'static str = "SendContactRequestEmailJob";
-    const QUEUE: &'static str = DEFAULT_QUEUE;
 
     fn run(self, state: JobState) -> Self::Future {
         Box::pin(async move {
@@ -61,7 +60,6 @@ impl Job for SendContactEmail {
     type Future = Pin<Box<dyn Future<Output = Result<(), Error>> + Send>>;
 
     const NAME: &'static str = "SendContactEmail";
-    const QUEUE: &'static str = DEFAULT_QUEUE;
 
     fn run(self, state: JobState) -> Self::Future {
         Box::pin(async move {
