@@ -399,6 +399,8 @@ async fn create_package_works() {
                 readme_content: "readme_content".to_string(),
                 description: "".to_string(),
                 size: 0,
+                stars_count: 0,
+                forks_count: 0,
                 url: "".to_string(),
                 rev: "".to_string(),
             })
@@ -435,6 +437,8 @@ async fn create_package_works() {
                 readme_content: "readme_content".to_string(),
                 description: "".to_string(),
                 size: 0,
+                stars_count: 0,
+                forks_count: 0,
                 url: "".to_string(),
                 rev: "".to_string(),
             })
@@ -483,6 +487,8 @@ async fn create_package_works() {
                 readme_content: "readme_content".to_string(),
                 description: "".to_string(),
                 size: 0,
+                stars_count: 0,
+                forks_count: 0,
                 url: "".to_string(),
                 rev: "".to_string(),
             })
@@ -523,6 +529,8 @@ async fn get_versions_by_latest() {
                 readme_content: "first_readme_content".to_string(),
                 description: "".to_string(),
                 size: 0,
+                stars_count: 0,
+                forks_count: 0,
                 url: "".to_string(),
                 rev: "".to_string(),
             })
@@ -577,6 +585,8 @@ async fn get_versions_by_oldest() {
                 readme_content: "first_readme_content".to_string(),
                 description: "".to_string(),
                 size: 0,
+                stars_count: 0,
+                forks_count: 0,
                 url: "".to_string(),
                 rev: "".to_string(),
             })
@@ -629,6 +639,8 @@ async fn get_versions_by_most_downloads() {
                 readme_content: "first_readme_content".to_string(),
                 description: "".to_string(),
                 size: 0,
+                stars_count: 0,
+                forks_count: 0,
                 url: "".to_string(),
                 rev: "".to_string(),
             })
@@ -739,6 +751,8 @@ async fn increase_download_count_works() {
                 readme_content: "first_readme_content".to_string(),
                 description: "".to_string(),
                 size: 0,
+                stars_count: 0,
+                forks_count: 0,
                 url: "".to_string(),
                 rev: "".to_string(),
             })
@@ -794,6 +808,8 @@ async fn increase_download_count_for_nonexistent_package() {
                 readme_content: "first_readme_content".to_string(),
                 description: "".to_string(),
                 size: 0,
+                stars_count: 0,
+                forks_count: 0,
                 url: "".to_string(),
                 rev: "".to_string(),
             })
@@ -885,6 +901,8 @@ async fn increase_download_count_for_multiple_versions() {
                 readme_content: "first_readme_content".to_string(),
                 description: "".to_string(),
                 size: 0,
+                stars_count: 0,
+                forks_count: 0,
                 url: "".to_string(),
                 rev: "".to_string(),
             })

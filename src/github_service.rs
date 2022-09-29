@@ -24,6 +24,8 @@ pub struct GithubRepoData {
     pub readme_content: String,
     pub description: String,
     pub size: i32,
+    pub stars_count: i32,
+    pub forks_count: i32,
     pub url: String,
     pub rev: String,
 }
@@ -45,6 +47,8 @@ impl Hash for GithubRepoData {
 pub struct GithubRepoInfo {
     pub description: Option<String>,
     pub size: i32,
+    pub stargazers_count: i32,
+    pub forks_count: i32,
     pub default_branch: String,
 }
 
@@ -164,6 +168,8 @@ impl GithubService {
                 readme_content,
                 description: github_info.description.unwrap_or_else(|| "".to_string()),
                 size: github_info.size,
+                stars_count: github_info.stargazers_count,
+                forks_count: github_info.forks_count,
                 // this field is overwritten in the crawler, modified this to save default branch
                 url: github_info.default_branch,
                 rev,
@@ -179,6 +185,8 @@ impl GithubService {
                     readme_content,
                     description: github_info.description.unwrap_or_else(|| "".to_string()),
                     size: github_info.size,
+                    stars_count: github_info.stargazers_count,
+                    forks_count: github_info.forks_count,
                     // this field is overwritten in the crawler, modified this to save default branch
                     url: github_info.default_branch,
                     rev,
@@ -305,6 +313,8 @@ mod tests {
             then.status(200).json_body(json!({
                 "description": "test description",
                 "size": 1,
+                "stargazers_count": 2,
+                "forks_count": 3,
                 "default_branch": "test branch",
             }));
         });
@@ -313,6 +323,8 @@ mod tests {
         server_mock.assert();
         assert_eq!(result.description, Some("test description".to_string()));
         assert_eq!(result.size, 1);
+        assert_eq!(result.stargazers_count, 2);
+        assert_eq!(result.forks_count, 3);
         assert_eq!(result.default_branch, "test branch");
     }
 
@@ -469,6 +481,8 @@ mod tests {
             then.status(200).json_body(json!({
                 "description": "test description",
                 "size": 10,
+                "stargazers_count": 20,
+                "forks_count": 30,
                 "default_branch": "test-default-branch",
             }));
         });
@@ -511,6 +525,8 @@ mod tests {
         assert_eq!(gh_repo_data.readme_content, "test readme content");
         assert_eq!(gh_repo_data.description, "test description");
         assert_eq!(gh_repo_data.size, 10);
+        assert_eq!(gh_repo_data.stars_count, 20);
+        assert_eq!(gh_repo_data.forks_count, 30);
         assert_eq!(gh_repo_data.url, "test-default-branch");
         assert_eq!(gh_repo_data.rev, "rev");
     }

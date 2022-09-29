@@ -48,6 +48,8 @@ pub struct Package {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub slug: String,
+    pub stars_count: i32,
+    pub forks_count: i32,
 }
 
 type PackageColumns = (
@@ -59,6 +61,8 @@ type PackageColumns = (
     packages::created_at,
     packages::updated_at,
     packages::slug,
+    packages::stars_count,
+    packages::forks_count,
 );
 
 pub const PACKAGE_COLUMNS: PackageColumns = (
@@ -70,6 +74,8 @@ pub const PACKAGE_COLUMNS: PackageColumns = (
     packages::created_at,
     packages::updated_at,
     packages::slug,
+    packages::stars_count,
+    packages::forks_count,
 );
 
 #[derive(Debug, Serialize, Deserialize, QueryableByName, Queryable)]
@@ -88,6 +94,10 @@ pub struct PackageSearchResult {
     pub updated_at: NaiveDateTime,
     #[sql_type = "Text"]
     pub slug: String,
+    #[sql_type = "Integer"]
+    pub stars_count: i32,
+    #[sql_type = "Integer"]
+    pub forks_count: i32,
     #[sql_type = "Text"]
     pub version: String,
 }
@@ -114,6 +124,10 @@ pub enum PackageSortField {
     NewlyAdded,
     #[serde(alias = "recently_updated")]
     RecentlyUpdated,
+    #[serde(alias = "most_stars")]
+    MostStars,
+    #[serde(alias = "most_forks")]
+    MostForks,
 }
 
 // Convert to a value used in view template
@@ -125,6 +139,8 @@ impl std::fmt::Display for PackageSortField {
             PackageSortField::MostDownloads => "most_downloads",
             PackageSortField::NewlyAdded => "newly_added",
             PackageSortField::RecentlyUpdated => "recently_updated",
+            PackageSortField::MostStars => "most_stars",
+            PackageSortField::MostForks => "most_forks",
         };
         write!(f, "{}", enum_name)
     }
@@ -139,6 +155,8 @@ impl PackageSortField {
             PackageSortField::MostDownloads => "total_downloads_count",
             PackageSortField::NewlyAdded => "created_at",
             PackageSortField::RecentlyUpdated => "updated_at",
+            PackageSortField::MostStars => "stars_count",
+            PackageSortField::MostForks => "forks_count",
         })
     }
 }
@@ -426,8 +444,8 @@ impl Package {
             .inner_join(package_collaborators::table)
             .filter(package_collaborators::account_id.eq(owner_id))
             .inner_join(package_versions::table)
-            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, packages::slug, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
-            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, packages.slug")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
+            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, packages::slug, packages::stars_count, packages::forks_count, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
+            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, packages.slug, packages.stars_count, packages.forks_count")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
             .load::<PackageSearchResult>(&connection)?;
 
         Ok(result)
@@ -456,8 +474,8 @@ impl Package {
             .inner_join(package_collaborators::table)
             .filter(package_collaborators::account_id.eq(owner_id).and(package_collaborators::role.eq(Role::Owner as i32)))
             .inner_join(package_versions::table)
-            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, packages::slug, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
-            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, packages.slug")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
+            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, packages::slug, packages::stars_count, packages::forks_count, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
+            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, packages.slug, packages.stars_count, packages.forks_count")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
             .order(diesel::dsl::sql::<diesel::sql_types::Text>(&order_query))
             .load_with_pagination(&connection, Some(page), Some(per_page))?;
 
@@ -597,6 +615,7 @@ impl Package {
                     -1,
                     github_data.size,
                     None,
+                    
                     github_data,
                     pool,
                 )?
@@ -657,10 +676,10 @@ impl Package {
 
         let result: (Vec<PackageSearchResult>, i64, i64) = packages::table
             .inner_join(package_versions::table)
-            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, packages::slug, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
+            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, packages::slug, packages::stars_count, packages::forks_count, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
             .filter(name.ilike(format!("%{}%", search_query))
                 .or(tsv.matches(plainto_tsquery(search_query))))
-            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, packages.slug")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
+            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, packages.slug, packages.stars_count, packages.forks_count")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
             .order(diesel::dsl::sql::<diesel::sql_types::Text>(&order_query))
             .load_with_pagination(&connection, Some(page), Some(per_page))?;
 
@@ -687,8 +706,8 @@ impl Package {
 
         let result: (Vec<PackageSearchResult>, i64, i64) = packages::table
             .inner_join(package_versions::table)
-            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, packages::slug, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
-            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, packages.slug")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
+            .select((packages::id, packages::name, packages::description, packages::total_downloads_count, packages::created_at, packages::updated_at, packages::slug, packages::stars_count, packages::forks_count, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version")))
+            .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, packages.slug, packages.stars_count, packages.forks_count")) // workaround since diesel 1.x doesn't support GROUP_BY dsl yet
             .order(diesel::dsl::sql::<diesel::sql_types::Text>(&order_query))
             .load_with_pagination(&connection, Some(page), Some(per_page))?;
 
