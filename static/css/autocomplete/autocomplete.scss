@@ -166,8 +166,32 @@ input[type="text"]:focus {
 
 .suggestion-content {
   flex-direction: column;
+  flex-grow: 1;
   align-items: flex-start !important;
   background: none !important;
+  width: 100%;
+  overflow: hidden;
+}
+
+.package-stars-and-forks {
+  display: flex;
+  align-items: center;
+  padding-top: 8px;
+
+  .stars-count,
+  .forks-count {
+    color: var(--dark-blue-color);
+    display: flex;
+    align-items: center;
+  }
+
+  .stars-count {
+    margin-right: 16px;
+
+    img {
+      margin-right: 3px;
+    }
+  }
 }
 
 .overflow-scroll {

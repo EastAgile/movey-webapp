@@ -642,14 +642,14 @@ impl Package {
     pub fn auto_complete_search(
         search_query: &str,
         pool: &DieselPgPool,
-    ) -> Result<Vec<(String, String, String, String)>> {
+    ) -> Result<Vec<(String, String, String, String, i32, i32)>> {
         let connection = pool.get()?;
-        let result: Vec<(String, String, String, String)> = packages::table
+        let result: Vec<(String, String, String, String, i32, i32)> = packages::table
             .inner_join(package_versions::table)
             .filter(name.ilike(format!("%{}%", search_query)))
             .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, slug"))
-            .select((packages::name, packages::description, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version"), packages::slug))
-            .load::<(String, String, String, String)>(&connection)?;
+            .select((packages::name, packages::description, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version"), packages::slug, packages::stars_count, packages::forks_count))
+            .load::<(String, String, String, String, i32, i32)>(&connection)?;
 
         Ok(result)
     }
@@ -828,6 +828,8 @@ pub struct NewTestPackage {
     pub description: String,
     pub repository_url: String,
     pub total_downloads_count: i32,
+    pub stars_count: i32,
+    pub forks_count: i32,
     pub slug: String,
 }
 
@@ -887,6 +889,8 @@ impl Package {
         repo_url: &String,
         package_description: &String,
         package_downloads_count: i32,
+        total_stars_count: i32,
+        total_forks_count: i32,
         pool: &DieselPgPool,
     ) -> Result<i32> {
         let connection = pool.get()?;
@@ -896,6 +900,8 @@ impl Package {
             description: package_description.to_string(),
             repository_url: repo_url.to_string(),
             total_downloads_count: package_downloads_count,
+            stars_count: total_stars_count,
+            forks_count: total_forks_count,
             slug: slugify_package_name(package_name),
         };
 
@@ -924,6 +930,8 @@ impl Package {
         repo_url: &String,
         package_description: &String,
         package_downloads_count: i32,
+        total_stars_count: i32,
+        total_forks_count: i32,
         pool: &DieselPgPool,
     ) -> Result<i32> {
         let conn = pool.get().unwrap();
@@ -933,6 +941,8 @@ impl Package {
             description: package_description.to_string(),
             repository_url: repo_url.to_string(),
             total_downloads_count: package_downloads_count,
+            stars_count: total_stars_count,
+            forks_count: total_forks_count,
             slug: package_name.to_string(),
         };
         let record = diesel::insert_into(packages::table)

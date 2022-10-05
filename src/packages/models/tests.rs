@@ -959,6 +959,8 @@ async fn get_badge_info() {
         &"".to_string(),
         &"description 1".to_string(),
         1500,
+        10,
+        2,
         &DB_POOL,
     )
     .unwrap();
