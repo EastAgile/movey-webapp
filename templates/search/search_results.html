@@ -30,20 +30,20 @@
             <div class="package-list-item" onclick="location.href='/packages/{{ package.slug }}';">
                 <div class="left-wrapper">
                     <div class="package-list-item-title">
-                        <h1>
+                        <h1 class="package-title">
                             <a href="/packages/{{ package.slug }}"><span>{{ package.name | truncate(length=16)}}</span></a>&nbsp;
                             <span class="version-number">{{ package.version }}</span>
+                            <div class="package-stars-and-forks">
+                                <div class='stars-count'>
+                                    <img src='/static/resources/star.svg' alt="Star icon of Movey website">
+                                    <span>{{ package.stars_count }}</span>
+                                </div>
+                                <div class='forks-count'>
+                                    <img src='/static/resources/fork.svg' alt="Fork icon of Movey website">
+                                    <span>{{ package.forks_count }}</span>
+                                </div>
+                            </div>
                         </h1>
-                    </div>
-                    <div class="package-stars-and-forks">
-                        <div class='stars-count'>
-                            <img src='/static/resources/star.svg' alt="Star icon of Movey website">
-                            <b>{{ package.stars_count }}</b>
-                        </div>
-                        <div class='forks-count'>
-                            <img src='/static/resources/fork.svg' alt="Fork icon of Movey website">
-                            <b>{{ package.forks_count }}</b>
-                        </div>
                     </div>
                     <div class="package-summary">{% if package.description == '' %} No description {% else %} {{ package.description | truncate(length=70)}} {% endif %}</div>
                 </div>

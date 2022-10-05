@@ -74,7 +74,12 @@
       display: flex;
 
       .suggestion-content {
+        padding-right: 48px;
         text-align: left;
+
+        @include small-screen {
+          padding-right: 24px;
+        }
       }
 
       .package-name {
