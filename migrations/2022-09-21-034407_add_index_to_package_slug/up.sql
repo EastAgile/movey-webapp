@@ -1,1 +1,1 @@
-CREATE UNIQUE INDEX packages_slug_idx ON packages (slug);
+CREATE UNIQUE INDEX IF NOT EXISTS packages_slug_idx ON packages (slug);

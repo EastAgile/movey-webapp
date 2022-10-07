@@ -5,7 +5,7 @@ use std::pin::Pin;
 use jelly::accounts::OneTimeUseTokenGenerator;
 use jelly::anyhow::{anyhow, Error};
 use jelly::email::Email;
-use jelly::jobs::{Job, JobState, DEFAULT_QUEUE};
+use jelly::jobs::{Job, JobState};
 use jelly::serde::{Deserialize, Serialize};
 use jelly::tera::Context;
 
@@ -27,7 +27,6 @@ impl Job for SendResetPasswordEmail {
     type Future = Pin<Box<dyn Future<Output = Result<(), Error>> + Send>>;
 
     const NAME: &'static str = "SendResetPasswordEmailJob";
-    const QUEUE: &'static str = DEFAULT_QUEUE;
 
     fn run(self, state: JobState) -> Self::Future {
         Box::pin(async move {
@@ -70,7 +69,6 @@ impl Job for SendPasswordWasResetEmail {
     type Future = Pin<Box<dyn Future<Output = Result<(), Error>> + Send>>;
 
     const NAME: &'static str = "SendPasswordWasResetEmailJob";
-    const QUEUE: &'static str = DEFAULT_QUEUE;
 
     fn run(self, state: JobState) -> Self::Future {
         Box::pin(async move {

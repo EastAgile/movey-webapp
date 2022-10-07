@@ -1,6 +1,6 @@
 use jelly::jobs::{JobState, WorkerConfig};
 
-use self::{
+use {
     invite_collaborator::{SendCollaboratorInvitationEmail, SendRegisterToCollabEmail},
     transfer_ownership::SendOwnershipTransferEmail,
 };

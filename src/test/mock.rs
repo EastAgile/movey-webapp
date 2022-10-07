@@ -58,6 +58,8 @@ impl GithubService {
                     readme_content: "readme_content1".to_string(),
                     description: "".to_string(),
                     size: 0,
+                    stars_count: 0,
+                    forks_count: 0,
                     url: "".to_string(),
                     rev: "".to_string(),
                 })

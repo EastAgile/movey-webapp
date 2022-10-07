@@ -56,6 +56,22 @@
                         {{ package_version.license }}
                     </div>
                 </div>
+                <div class="package-metadata-content">
+                    <div class="package-metadata-title">
+                        Stars
+                    </div>
+                    <div class="package-metadata-value">
+                        {{ package.stars_count }}
+                    </div>
+                </div>
+                <div class="package-metadata-content">
+                    <div class="package-metadata-title">
+                        Forks
+                    </div>
+                    <div class="package-metadata-value">
+                        {{ package.forks_count }}
+                    </div>
+                </div>
 
                 {% if package_version.total_size > 0 %}
                 <div class="package-metadata-content">
