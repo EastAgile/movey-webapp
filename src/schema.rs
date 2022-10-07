@@ -106,6 +106,8 @@ table! {
         updated_at -> Timestamptz,
         tsv -> Tsvector,
         slug -> Text,
+        stars_count -> Int4,
+        forks_count -> Int4,
     }
 }
 
