@@ -12,6 +12,8 @@ async fn package_in_db(_world: &mut TestWorld) {
         &"repo_url".to_string(),
         &"Random number generators and other randomness functionality.".to_string(),
         1000,
+        10,
+        2,
         &DB_POOL,
     )
     .unwrap();
@@ -21,6 +23,8 @@ async fn package_in_db(_world: &mut TestWorld) {
         &"Procedurally defined macro for automatically deriving rand::Rand for structs and enums"
             .to_string(),
         5000,
+        11,
+        5,
         &DB_POOL,
     )
     .unwrap();
@@ -29,6 +33,8 @@ async fn package_in_db(_world: &mut TestWorld) {
         &"repo_url".to_string(),
         &"Fake data generators for lorem ipsum, names, emails, and more".to_string(),
         2500,
+        12,
+        6,
         &DB_POOL,
     )
     .unwrap();
@@ -37,6 +43,8 @@ async fn package_in_db(_world: &mut TestWorld) {
         &"repo_url".to_string(),
         &"Generate customizable random types with the rand crate".to_string(),
         300,
+        18,
+        9,
         &DB_POOL,
     )
     .unwrap();
@@ -153,6 +161,8 @@ async fn see_sorted_items(world: &mut TestWorld, field: String) {
     let expected_names = match field.as_str() {
         "name" => vec!["faker_rand", "rand", "rand_derive2", "random_derive"],
         "most_downloads" => vec!["random_derive", "faker_rand", "rand", "rand_derive2"],
+        "most_stars" => vec!["rand_derive2", "faker_rand", "random_derive", "rand"],
+        "most_forks" => vec!["rand_derive2", "faker_rand", "random_derive", "rand"],
         "newly_added" => vec!["rand_derive2", "faker_rand", "random_derive", "rand"],
         "recently_updated" => vec!["rand_derive2", "faker_rand", "random_derive", "rand"],
         _ => vec![],

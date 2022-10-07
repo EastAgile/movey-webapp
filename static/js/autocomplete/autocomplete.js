@@ -54,7 +54,7 @@ class AutoComplete {
     input.classList.add("input-has-item");
     wrapper.classList.add("autocomplete-shadow");
 
-    let descriptionWidth = $(".autocomplete-main-wrapper").width() - 120;
+    // let descriptionWidth = $(".autocomplete-main-wrapper").width() - 120;
 
     this.suggestions.forEach((suggestion, index) => {
       const option = this.getOptionValue(suggestion[0]);
@@ -65,26 +65,70 @@ class AutoComplete {
 
       const packageDescription = document.createElement("div");
       packageDescription.setAttribute("class", "package-description");
-      packageDescription.setAttribute("style", "width:" + descriptionWidth + "px");
+      // packageDescription.setAttribute("style", "width:" + descriptionWidth + "px");
       packageDescription.innerHTML = suggestion[1];
 
-      const packageVersion = document.createElement("div")
+      const packageVersion = document.createElement("div");
       packageVersion.setAttribute("class", "package-version");
-      packageVersion.innerHTML = suggestion[2]
+      packageVersion.innerHTML = suggestion[2];
+
+      const packageStarsAndForks = document.createElement("div");
+      packageStarsAndForks.setAttribute("class", "package-stars-and-forks");
+
+      // stars count
+      const starsCountContainer = document.createElement("div");
+      starsCountContainer.setAttribute("class", "stars-count");
+      
+      const starIcon = document.createElement("img");
+      starIcon.setAttribute("src", "/static/resources/star-active.svg");
+
+      const starsCount = document.createElement("b");
+      starsCount.innerHTML = suggestion[4];
+
+      starsCountContainer.appendChild(starIcon);
+      starsCountContainer.appendChild(starsCount);
+
+      packageStarsAndForks.appendChild(starsCountContainer);
+
+      // forks count
+      const forksCountContainer = document.createElement("div");
+      forksCountContainer.setAttribute("class", "forks-count");
+
+      const forkIcon = document.createElement("img");
+      forkIcon.setAttribute("src", "/static/resources/fork-active.svg");
+
+      const forksCount = document.createElement("b");
+      forksCount.innerHTML = suggestion[5];
+
+      forksCountContainer.appendChild(forkIcon);
+      forksCountContainer.appendChild(forksCount);
+
+      packageStarsAndForks.appendChild(forksCountContainer);
+
       const node = document.createElement("div");
       const suggesstionContent = document.createElement("div");
       suggesstionContent.setAttribute("class", "suggestion-content");
       node.setAttribute('id', 'suggestion' + index)
+      node.setAttribute('style', 'display: flex');
       suggesstionContent.appendChild(packageName);
       suggesstionContent.appendChild(packageDescription);
+
+      const suggestionExtraContent = document.createElement("div");
+      suggestionExtraContent.setAttribute("class", "suggestion-extra-content");
+      suggestionExtraContent.appendChild(packageVersion);
+      if (option !== NO_MATCHES_FOUND[0]) {
+        console.log(option);
+        suggestionExtraContent.appendChild(packageStarsAndForks);
+      }
+
       node.appendChild(suggesstionContent);
-      node.appendChild(packageVersion);
+      node.appendChild(suggestionExtraContent);
 
       if (this.currentChoiceIndex === index)
         node.classList.add("autocomplete-item-hover");
 
       // add event click, mouseover and mouse leave
-      if (option !== NO_MATCHES_FOUND) {
+      if (option !== NO_MATCHES_FOUND[0]) {
         node.addEventListener("click", () => {
           input.value = option;
           this.reDisplay(true);

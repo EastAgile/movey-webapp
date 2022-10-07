@@ -164,8 +164,29 @@ input[type=text]:focus {
 
 .suggestion-content {
   flex-direction: column;
+  flex-grow: 1;
   align-items: flex-start !important;
   background: none !important;
+  width: 100%;
+  overflow: hidden;
+}
+
+.package-stars-and-forks {
+  display: flex;
+  align-items: center;
+  padding-top: 8px;
+}
+.package-stars-and-forks .stars-count,
+.package-stars-and-forks .forks-count {
+  color: var(--dark-blue-color);
+  display: flex;
+  align-items: center;
+}
+.package-stars-and-forks .stars-count {
+  margin-right: 16px;
+}
+.package-stars-and-forks .stars-count img {
+  margin-right: 3px;
 }
 
 .overflow-scroll {
