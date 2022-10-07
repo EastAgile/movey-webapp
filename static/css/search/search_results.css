@@ -99,6 +99,11 @@ body {
   padding: 12px;
   cursor: pointer;
 }
+.content-wrapper #package-list-container .package-list .package-list-item .package-title {
+  display: flex;
+  align-items: baseline;
+  min-width: 100%;
+}
 @media screen and (min-width: 1280px) {
   .content-wrapper #package-list-container .package-list .package-list-item {
     height: 135px;
@@ -133,18 +138,39 @@ body {
 .content-wrapper #package-list-container .package-list .package-list-item .left-wrapper .package-stars-and-forks {
   display: flex;
   align-items: center;
+  font-size: 24px;
 }
 .content-wrapper #package-list-container .package-list .package-list-item .left-wrapper .package-stars-and-forks .stars-count, .content-wrapper #package-list-container .package-list .package-list-item .left-wrapper .package-stars-and-forks .forks-count {
   color: #808FB0;
+  font-weight: 400;
   display: flex;
   align-items: center;
 }
 .content-wrapper #package-list-container .package-list .package-list-item .left-wrapper .package-stars-and-forks .stars-count {
-  margin-right: 25px;
+  margin-right: 12px;
 }
 .content-wrapper #package-list-container .package-list .package-list-item .left-wrapper .package-stars-and-forks .stars-count img {
-  color: yellow;
+  width: 22px;
+  min-width: 22px;
   margin-right: 3px;
+}
+@media screen and (min-width: 844px) and (max-width: 1280px) {
+  .content-wrapper #package-list-container .package-list .package-list-item .left-wrapper .package-stars-and-forks {
+    font-size: 16px;
+  }
+  .content-wrapper #package-list-container .package-list .package-list-item .left-wrapper .package-stars-and-forks .stars-count img, .content-wrapper #package-list-container .package-list .package-list-item .left-wrapper .package-stars-and-forks .forks-count img {
+    width: 16px;
+    min-width: 16px;
+  }
+}
+@media screen and (max-width: 843px) {
+  .content-wrapper #package-list-container .package-list .package-list-item .left-wrapper .package-stars-and-forks {
+    font-size: 16px;
+  }
+  .content-wrapper #package-list-container .package-list .package-list-item .left-wrapper .package-stars-and-forks .stars-count img, .content-wrapper #package-list-container .package-list .package-list-item .left-wrapper .package-stars-and-forks .forks-count img {
+    width: 16px;
+    min-width: 16px;
+  }
 }
 @media screen and (min-width: 1280px) {
   .content-wrapper #package-list-container .package-list .package-list-item .left-wrapper {
@@ -249,8 +275,8 @@ body {
     height: 36px;
   }
 }
-.content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title h1,
-.content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title h1 a {
+.content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title .package-title,
+.content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title .package-title a {
   font-weight: bold;
   color: var(--dark-blue-color);
   margin: 0 20px 0 0;
@@ -258,20 +284,21 @@ body {
   white-space: nowrap;
 }
 @media screen and (min-width: 1280px) {
-  .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title h1,
-.content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title h1 a {
+  .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title .package-title,
+.content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title .package-title a {
     font-size: 32px;
   }
 }
 @media screen and (max-width: 1280px) {
-  .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title h1,
-.content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title h1 a {
+  .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title .package-title,
+.content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title .package-title a {
     font-size: 24px;
   }
 }
 .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title .version-number {
   font-weight: normal;
   color: var(--gray-color);
+  margin: 0 20px 0 0;
 }
 @media screen and (min-width: 1280px) {
   .content-wrapper #package-list-container .package-list .left-wrapper .package-list-item-title .version-number {
