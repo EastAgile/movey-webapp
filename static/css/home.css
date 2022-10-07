@@ -75,7 +75,13 @@
   display: flex;
 }
 .home-container .search-container #suggestions > div .suggestion-content {
+  padding-right: 48px;
   text-align: left;
+}
+@media screen and (max-width: 843px) {
+  .home-container .search-container #suggestions > div .suggestion-content {
+    padding-right: 24px;
+  }
 }
 .home-container .search-container #suggestions > div .package-name {
   grid-area: package-name;

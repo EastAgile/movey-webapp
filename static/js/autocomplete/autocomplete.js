@@ -54,8 +54,6 @@ class AutoComplete {
     input.classList.add("input-has-item");
     wrapper.classList.add("autocomplete-shadow");
 
-    // let descriptionWidth = $(".autocomplete-main-wrapper").width() - 120;
-
     this.suggestions.forEach((suggestion, index) => {
       const option = this.getOptionValue(suggestion[0]);
 
@@ -65,7 +63,6 @@ class AutoComplete {
 
       const packageDescription = document.createElement("div");
       packageDescription.setAttribute("class", "package-description");
-      // packageDescription.setAttribute("style", "width:" + descriptionWidth + "px");
       packageDescription.innerHTML = suggestion[1];
 
       const packageVersion = document.createElement("div");

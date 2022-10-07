@@ -93,6 +93,12 @@ body {
         padding: 12px;
         cursor: pointer;
 
+        .package-title {
+          display: flex;
+          align-items: baseline;
+          min-width: 100%;
+        }
+
         @include large-screen {
           height: 135px;
           padding-bottom: 20px;
@@ -128,19 +134,40 @@ body {
           .package-stars-and-forks {
             display: flex;
             align-items: center;
+            font-size: 24px;
             
             .stars-count, .forks-count {
               color: #808FB0;
+              font-weight: 400;
               display: flex;
               align-items: center;
             }
 
             .stars-count {
-              margin-right: 25px;
+              margin-right: 12px;
 
               img {
-                  color: yellow;
-                  margin-right: 3px;
+                width: 22px;
+                min-width: 22px;
+                margin-right: 3px;
+              }
+            }
+
+            @include medium-screen {
+              font-size: 16px;
+
+              .stars-count img, .forks-count img {
+                width: 16px;
+                min-width: 16px;
+              }
+            }
+
+            @include small-screen {
+              font-size: 16px;
+
+              .stars-count img, .forks-count img {
+                width: 16px;
+                min-width: 16px;
               }
             }
           }
@@ -252,8 +279,8 @@ body {
             height: 36px;
           }
 
-          h1,
-          h1 a {
+          .package-title,
+          .package-title a {
             font-weight: bold;
             color: var(--dark-blue-color);
             margin: 0 20px 0 0;
@@ -272,6 +299,7 @@ body {
           .version-number {
             font-weight: normal;
             color: var(--gray-color);
+            margin: 0 20px 0 0;
 
             @include large-screen {
               font-size: 24px;
