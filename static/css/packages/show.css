@@ -524,44 +524,8 @@
   display: flex;
   flex-flow: row wrap;
 }
-.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-metadata .package-total-download {
+.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-metadata .package-information-title {
   width: 100%;
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 12px;
-}
-.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-metadata .package-total-download .package-download-icon {
-  width: 24px;
-  height: 24px;
-  background-repeat: no-repeat;
-  background-image: url("/static/resources/packages/package_total_download_gray.svg");
-  margin-right: 10px;
-}
-.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-metadata .package-total-download .package-download-count {
-  color: #808fb0;
-  font-weight: 700;
-  font-size: 24px;
-  line-height: 20px;
-  margin-bottom: 16px;
-}
-.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-metadata .package-download-info {
-  width: 100%;
-  margin-bottom: 32px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-}
-.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-metadata .package-download-info .package-download-number {
-  color: var(--dark-blue-color);
-  font-weight: 700;
-  font-size: 24px;
-  line-height: 20px;
-}
-.package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-metadata .package-download-info .package-download-figure {
-  width: 321px;
-  height: 56px;
-  background-repeat: no-repeat;
-  background-image: url("/static/resources/packages/package_download_figure.svg");
 }
 .package-show-container .package-content-container .package-detail-container .package-sidebar .package-information .package-metadata .package-metadata-content {
   width: 45%;
@@ -766,26 +730,6 @@
 @media screen and (max-width: 843px) {
   .package-show-container .package-content-container .package-versions-container .package-version-list .package-version-item .package-version-number {
     flex-basis: 25%;
-  }
-}
-.package-show-container .package-content-container .package-versions-container .package-version-list .package-version-item .package-download {
-  display: flex;
-  align-items: center;
-}
-.package-show-container .package-content-container .package-versions-container .package-version-list .package-version-item .package-download .package-download-icon {
-  width: 24px;
-  height: 24px;
-  background-repeat: no-repeat;
-  background-image: url("/static/resources/packages/package_total_download.svg");
-  margin-right: 10px;
-}
-.package-show-container .package-content-container .package-versions-container .package-version-list .package-version-item .package-download .package-download-count {
-  color: #808fb0;
-  line-height: 30px;
-}
-@media screen and (max-width: 843px) {
-  .package-show-container .package-content-container .package-versions-container .package-version-list .package-version-item .package-download .package-download-count {
-    font-size: 12px;
   }
 }
 .package-show-container .package-content-container .package-versions-container .package-version-list .package-version-item .package-version-timeline {

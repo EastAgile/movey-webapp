@@ -27,10 +27,6 @@ Movey{% endif %}{% endblock %}
             <div class="package-name">{{package.name}}</div>
             <div class="package-version">{{package_version.version}}</div>
         </div>
-        <a class="package-repository-url" href="{{package.repository_url}}" target="_blank">
-            <div class="icon-vector"></div>
-            <div class="url">{{package.repository_url | replace(from="https://", to="")}}</div>
-        </a>
         <div class="package-description">{{package.description}}</div>
     </div>
     <div class="horizontal-line"></div>

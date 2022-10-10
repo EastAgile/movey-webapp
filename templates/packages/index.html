@@ -27,7 +27,6 @@
                     data-url="/packages/"
             >
                 <option value="name">Name</option>
-                <option value="most_downloads">Most Downloads</option>
                 <option value="most_stars">Most Stars</option>
                 <option value="most_forks">Most Forks</option>
                 <option value="newly_added">Newly Added</option>
@@ -60,10 +59,6 @@
                     <div class="package-summary">{% if package.description == '' %} No description {% else %} {{ package.description | truncate(length=70)}} {% endif %}</div>
                 </div>
                 <div class="right-wrapper">
-                    <div class='download-count'>
-                        <img src='/static/resources/download_icon.svg' alt="Download icon of Movey website">
-                        <b>{{ package.total_downloads_count }}</b>
-                    </div>
                     {% if sort_type == 'newly_added' %}
                     <div class='update-timestamp'>
                         <img src='/static/resources/packages/package_version_icon.svg' alt="upload icon">
