@@ -176,25 +176,6 @@
                         }
                     }
 
-                    .download-count {
-                        color: var(--dark-blue-color);
-                        margin-right: 25px;
-                        display: flex;
-                        align-items: center;
-                        max-width: 150px;
-                        flex-grow: 1;
-
-                        img {
-                            margin-right: 8px;
-                        }
-
-                        @include medium-small-screen {
-                            margin-right: 0;
-                            margin-bottom: 0;
-                            max-width: unset;
-                        }
-                    }
-
                     img {
                         @include large-screen {
                             width: 20px;
