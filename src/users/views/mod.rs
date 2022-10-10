@@ -18,7 +18,7 @@ pub async fn get_public_profile(
     let db = request.db_pool()?;
 
     if params.field.is_none() {
-        params.field = Some(PackageSortField::Name);
+        params.field = Some(PackageSortField::NewlyAdded);
     }
     if params.order.is_none() {
         params.order = if let Some(PackageSortField::Name) = params.field {
