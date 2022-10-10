@@ -591,49 +591,8 @@
             display: flex;
             flex-flow: row wrap;
 
-            .package-total-download {
+            .package-information-title {
               width: 100%;
-              display: flex;
-              align-items: flex-start;
-              margin-bottom: 12px;
-
-              .package-download-icon {
-                width: 24px;
-                height: 24px;
-                background-repeat: no-repeat;
-                background-image: url("/static/resources/packages/package_total_download_gray.svg");
-                margin-right: 10px;
-              }
-
-              .package-download-count {
-                color: #808fb0;
-                font-weight: 700;
-                font-size: 24px;
-                line-height: 20px;
-                margin-bottom: 16px;
-              }
-            }
-
-            .package-download-info {
-              width: 100%;
-              margin-bottom: 32px;
-              display: flex;
-              align-items: flex-end;
-              justify-content: space-between;
-
-              .package-download-number {
-                color: var(--dark-blue-color);
-                font-weight: 700;
-                font-size: 24px;
-                line-height: 20px;
-              }
-
-              .package-download-figure {
-                width: 321px;
-                height: 56px;
-                background-repeat: no-repeat;
-                background-image: url("/static/resources/packages/package_download_figure.svg");
-              }
             }
 
             .package-metadata-content {
@@ -874,28 +833,6 @@
 
             @include small-screen {
               flex-basis: 25%;
-            }
-          }
-
-          .package-download {
-            display: flex;
-            align-items: center;
-
-            .package-download-icon {
-              width: 24px;
-              height: 24px;
-              background-repeat: no-repeat;
-              background-image: url("/static/resources/packages/package_total_download.svg");
-              margin-right: 10px;
-            }
-
-            .package-download-count {
-              color: #808fb0;
-              line-height: 30px;
-
-              @include small-screen {
-                font-size: 12px;
-              }
             }
           }
 

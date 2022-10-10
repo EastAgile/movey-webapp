@@ -34,7 +34,6 @@
       <select name="packages-sort" class="packages-sort" data-sort="{{ sort_type }}"
         data-url="/users/{{ account.slug }}">
         <option value="name">Name</option>
-        <option value="most_downloads">Most Downloads</option>
         <option value="most_stars">Most Stars</option>
         <option value="most_forks">Most Forks</option>
         <option value="newly_added">Newly Added</option>
@@ -58,11 +57,11 @@
               &nbsp;
               <span class="version-number">{{ package.version }}</span>
               <div class="package-stars-and-forks">
-                <div class='stars-count'>
+                <div class='stars-count' title="Number of stars">
                     <img src='/static/resources/star.svg' alt="Star icon of Movey website">
                     <span>{{ package.stars_count }}</span>
                 </div>
-                <div class='forks-count'>
+                <div class='forks-count' title="Number of forks">
                     <img src='/static/resources/fork.svg' alt="Fork icon of Movey website">
                     <span>{{ package.forks_count }}</span>
                 </div>
@@ -78,10 +77,6 @@
           </div>
         </div>
         <div class="right-wrapper">
-          <div class='download-count'>
-            <img src='/static/resources/download_icon.svg'>
-            <b>{{ package.total_downloads_count }}</b>
-          </div>
           {% if sort_type == 'newly_added' %}
           <div class='update-timestamp'>
             <img src='/static/resources/packages/package_version_icon.svg' alt="upload icon">

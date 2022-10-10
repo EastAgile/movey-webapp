@@ -17,16 +17,6 @@ pub async fn click_on_profile_tokens_tab(world: &mut TestWorld) {
     tokens_tab_element.click().await.unwrap();
 }
 
-#[when("I click on the downloads tab")]
-pub async fn click_on_profile_downloads_tab(world: &mut TestWorld) {
-    let downloads_tab_element = world
-        .driver
-        .find_element(By::ClassName("tab-dependents"))
-        .await
-        .unwrap();
-    downloads_tab_element.click().await.unwrap();
-}
-
 #[then("I should see the profile tokens page")]
 pub async fn see_profile_tokens_page(world: &mut TestWorld) {
     let tokens_title = world
@@ -35,16 +25,6 @@ pub async fn see_profile_tokens_page(world: &mut TestWorld) {
         .await
         .unwrap();
     assert_eq!(tokens_title.text().await.unwrap(), "Access Tokens")
-}
-
-#[then("I should see the profile downloads page")]
-pub async fn see_profile_downloads_page(world: &mut TestWorld) {
-    let downloads_title = world
-        .driver
-        .find_element(By::ClassName("total_package"))
-        .await
-        .unwrap();
-    assert_eq!(downloads_title.text().await.unwrap(), "0 Downloads")
 }
 
 #[given("I have an existing api token")]

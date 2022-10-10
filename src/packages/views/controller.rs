@@ -256,7 +256,7 @@ pub async fn show_search_results(
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if search.field.is_none() {
-        search.field = Some(PackageSortField::Name);
+        search.field = Some(PackageSortField::NewlyAdded);
     }
     if search.order.is_none() {
         search.order = if let Some(PackageSortField::Name) = search.field {
@@ -323,7 +323,7 @@ pub async fn packages_index(
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if params.field.is_none() {
-        params.field = Some(PackageSortField::Name);
+        params.field = Some(PackageSortField::NewlyAdded);
     }
     if params.order.is_none() {
         params.order = if let Some(PackageSortField::Name) = params.field {
