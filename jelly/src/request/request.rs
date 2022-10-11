@@ -34,8 +34,10 @@ impl Render for HttpRequest {
         // it's blank if a User is anonymous (not authenticated).
         let user = self.user()?;
         let messages = self.get_flash_messages()?;
+        let ga4_id = env::var("GA4_ID").expect("Unable to pull GA4_ID");
         context.insert("user", &user);
         context.insert("flash_messages", &messages);
+        context.insert("ga4_id", &ga4_id);
         for (k, v) in env::vars() {
             if k.starts_with("JELLY_") {
                 context.insert(k, &v);

@@ -27,6 +27,16 @@
     <script src="/static/js/search/search_bar.js"></script>
     <script src="/static/js/header.js"></script>
 
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ga4_id}}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', '{{ga4_id}}');
+    </script>
+
     {% block meta %}{% endblock %}
     {% block css %}{% endblock %}
     {% block javascript %}{% endblock %}
