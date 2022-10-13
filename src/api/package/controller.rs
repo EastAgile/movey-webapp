@@ -17,6 +17,7 @@ use crate::test::mock::GithubService;
 
 use crate::api::package::view::PackageBadgeRespond;
 use crate::packages::Package;
+use crate::packages::models::{PackageSortField, PackageSortOrder};
 use crate::settings::models::token::ApiToken;
 use crate::utils::presenter::validate_version;
 
@@ -162,7 +163,14 @@ pub async fn search_package(
     res: web::Json<PackageSearch>,
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
-    let packages_result = Package::auto_complete_search(&res.search_query, db)?;
+    let field = Some(PackageSortField::MostStars);
+    let order = Some(PackageSortOrder::Desc);
+    let packages_result = Package::auto_complete_search(
+        &res.search_query,
+        field.as_ref().unwrap(),
+        order.as_ref().unwrap(),
+        db,
+    )?;
     Ok(HttpResponse::Ok().json(packages_result))
 }
 
