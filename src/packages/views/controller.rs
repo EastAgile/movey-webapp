@@ -256,7 +256,7 @@ pub async fn show_search_results(
 ) -> Result<HttpResponse> {
     let db = request.db_pool()?;
     if search.field.is_none() {
-        search.field = Some(PackageSortField::NewlyAdded);
+        search.field = Some(PackageSortField::MostStars);
     }
     if search.order.is_none() {
         search.order = if let Some(PackageSortField::Name) = search.field {

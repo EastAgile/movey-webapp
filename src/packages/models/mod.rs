@@ -643,14 +643,21 @@ impl Package {
 
     pub fn auto_complete_search(
         search_query: &str,
+        sort_field: &PackageSortField,
+        sort_order: &PackageSortOrder,
         pool: &DieselPgPool,
     ) -> Result<Vec<(String, String, String, String, i32, i32)>> {
         let connection = pool.get()?;
+        let field = sort_field.to_column_name();
+        let order = sort_order.to_order_direction();
+        let order_query = format!("packages.{} {}", field, order);
+
         let result: Vec<(String, String, String, String, i32, i32)> = packages::table
             .inner_join(package_versions::table)
             .filter(name.ilike(format!("%{}%", search_query)))
             .filter(diesel::dsl::sql("TRUE GROUP BY packages.id, name, description, total_downloads_count, packages.created_at, packages.updated_at, slug"))
             .select((packages::name, packages::description, diesel::dsl::sql::<diesel::sql_types::Text>("max(version) as version"), packages::slug, packages::stars_count, packages::forks_count))
+            .order(diesel::dsl::sql::<diesel::sql_types::Text>(&order_query))
             .load::<(String, String, String, String, i32, i32)>(&connection)?;
 
         Ok(result)
