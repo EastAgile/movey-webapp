@@ -129,7 +129,20 @@ impl GithubService {
                         description = description.chars().take(100).collect();
                         github_info.description = Some(description);
                     }
-                    readme_content = content
+
+                    let formatted_readme_src_http =
+                        format!("src=\"{}", readme_url.replace("README.md", ""),);
+                    let formatted_readme_src_markdown =
+                        format!("]({}", readme_url.replace("README.md", ""),);
+
+                    // Add prefix url for linkable content in readme file such as: images, link...
+                    let formatted_readme_content = content
+                        .replace("src=\"", &formatted_readme_src_http)
+                        .replace(&format!("{}http", &formatted_readme_src_http), "src=\"http")
+                        .replace("](", &formatted_readme_src_markdown)
+                        .replace(&format!("{}http", &formatted_readme_src_markdown), "](http");
+
+                    readme_content = formatted_readme_content
                 }
                 _ => {
                     warn!("Error getting README.md content. url: {}", readme_url);
@@ -491,7 +504,7 @@ mod tests {
                 .path("/EastAgile/ea-movey/rev/README.md")
                 .header("User-Agent", APP_USER_AGENT)
                 .header("authorization", format!("token {}", &access_token));
-            then.status(200).body("test readme content");
+            then.status(200).body("test readme content - <img src=\"one\" /> - <img src=\"http://two\" /> - [three](three) - [four](http://four)");
         });
 
         let move_toml = MoveToml {
@@ -509,20 +522,19 @@ mod tests {
         });
 
         let gh_service = GithubService::new();
+        let repo_url = format!("{}/EastAgile/ea-movey", server.base_url());
         let gh_repo_data = gh_service
-            .fetch_repo_data(
-                &format!("{}/EastAgile/ea-movey", server.base_url()),
-                None,
-                Some("rev".to_string()),
-            )
+            .fetch_repo_data(&repo_url, None, Some("rev".to_string()))
             .unwrap();
+
+        let expected_readme_content = format!("test readme content - <img src=\"{}/rev/one\" /> - <img src=\"http://two\" /> - [three]({}/rev/three) - [four](http://four)", &repo_url, &repo_url);
 
         description_and_size_mock.assert();
         readme_mock.assert();
         move_toml_mock.assert();
         assert_eq!(gh_repo_data.name, "test package name");
         assert_eq!(gh_repo_data.version, "0.0.0");
-        assert_eq!(gh_repo_data.readme_content, "test readme content");
+        assert_eq!(gh_repo_data.readme_content, expected_readme_content);
         assert_eq!(gh_repo_data.description, "test description");
         assert_eq!(gh_repo_data.size, 10);
         assert_eq!(gh_repo_data.stars_count, 20);
