@@ -166,8 +166,12 @@ impl ResponseError for Error {
         }
         match TERA.read() {
             Ok(engine) => {
+                let mut context = Context::new();
+                let ga4_id = env::var("GA4_ID").expect("Unable to pull GA4_ID");
+                context.insert("ga4_id", &ga4_id);
+
                 match engine
-                    .render(template, &Context::new())
+                    .render(template, &context)
                     .map_err(Error::from)
                 {
                     Ok(body) => response
