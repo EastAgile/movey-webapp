@@ -15,6 +15,7 @@ fn setup_external_invitation() -> ExternalInvitation {
         &"1.0.0".to_string(),
         &"".to_string(),
         &"".to_string(),
+        &"".to_string(),
         -1,
         -1,
         Some(uid),

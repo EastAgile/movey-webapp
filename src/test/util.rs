@@ -54,6 +54,7 @@ pub fn create_stub_packages(account_id: i32, num_of_packages: i32) {
             &"0.0.0".to_string(),
             &"".to_string(),
             &"".to_string(),
+            &"".to_string(),
             10,
             200,
             Some(account_id),

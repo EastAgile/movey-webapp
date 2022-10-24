@@ -22,6 +22,7 @@ pub struct GithubRepoData {
     pub name: String,
     pub version: String,
     pub readme_content: String,
+    pub license: String,
     pub description: String,
     pub size: i32,
     pub stars_count: i32,
@@ -50,6 +51,14 @@ pub struct GithubRepoInfo {
     pub stargazers_count: i32,
     pub forks_count: i32,
     pub default_branch: String,
+    pub license: Option<GithubLicenseInfo>,
+}
+
+#[derive(Clone, Default, Deserialize)]
+pub struct GithubLicenseInfo {
+    pub key: String,
+    pub name: String,
+    pub url: String,
 }
 
 #[derive(Deserialize)]
@@ -174,11 +183,17 @@ impl GithubService {
             }
         };
 
+        let license = match github_info.license {
+            Some(license) => license.name,
+            None => "".to_string(),
+        };
+
         match toml::from_str::<MoveToml>(&move_toml_content) {
             Ok(move_toml) => Ok(GithubRepoData {
                 name: move_toml.package.name,
                 version: move_toml.package.version,
                 readme_content,
+                license,
                 description: github_info.description.unwrap_or_else(|| "".to_string()),
                 size: github_info.size,
                 stars_count: github_info.stargazers_count,
@@ -196,6 +211,7 @@ impl GithubService {
                     name: String::from(""),
                     version: String::from(""),
                     readme_content,
+                    license,
                     description: github_info.description.unwrap_or_else(|| "".to_string()),
                     size: github_info.size,
                     stars_count: github_info.stargazers_count,

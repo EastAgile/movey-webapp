@@ -17,6 +17,7 @@ fn setup_invitation(is_transferring: Option<bool>) -> OwnerInvitation {
         &"1.0.0".to_string(),
         &"".to_string(),
         &"".to_string(),
+        &"".to_string(),
         -1,
         -1,
         Some(invited_by_uid),

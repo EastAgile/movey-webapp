@@ -14,6 +14,7 @@ fn setup_collaborator() -> (i32, i32) {
         &"1.0.0".to_string(),
         &"".to_string(),
         &"".to_string(),
+        &"".to_string(),
         -1,
         -1,
         Some(owner_id),

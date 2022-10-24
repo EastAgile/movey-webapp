@@ -56,6 +56,7 @@ impl GithubService {
                     name: "name1".to_string(),
                     version: "0.1.0".to_string(),
                     readme_content: "readme_content1".to_string(),
+                    license: "license".to_string(),
                     description: "".to_string(),
                     size: 0,
                     stars_count: 0,
