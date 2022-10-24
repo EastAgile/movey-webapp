@@ -57,6 +57,8 @@ pub fn create_stub_packages(account_id: i32, num_of_packages: i32) {
             &"".to_string(),
             10,
             200,
+            0,
+            0,
             Some(account_id),
             &DB_POOL,
         )

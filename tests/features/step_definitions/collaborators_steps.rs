@@ -29,6 +29,8 @@ async fn owner_of_package(world: &mut TestWorld) {
         &"rev".to_string(),
         2,
         100,
+        0,
+        0,
         None,
         &DB_POOL,
     )
@@ -963,6 +965,8 @@ async fn collaborator_of_package(world: &mut TestWorld) {
         &"rev".to_string(),
         2,
         100,
+        0,
+        0,
         None,
         &DB_POOL,
     )

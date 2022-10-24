@@ -26,6 +26,8 @@ pub async fn upload_packages(world: &mut TestWorld) {
         &"rev".to_string(),
         2,
         100,
+        0,
+        0,
         Some(world.first_account.id),
         &DB_POOL,
     )
@@ -40,6 +42,8 @@ pub async fn upload_packages(world: &mut TestWorld) {
         &"rev".to_string(),
         2,
         100,
+        0,
+        0,
         Some(world.first_account.id),
         &DB_POOL,
     )
