@@ -18,6 +18,8 @@ async fn package_in_system(world: &mut TestWorld) {
         &"rev".to_string(),
         2,
         100,
+        0,
+        0,
         Some(world.first_account.id),
         &DB_POOL,
     )
@@ -32,6 +34,8 @@ async fn package_in_system(world: &mut TestWorld) {
         &"rev".to_string(),
         2,
         100,
+        0,
+        0,
         None,
         &DB_POOL,
     )
@@ -46,6 +50,8 @@ async fn package_in_system(world: &mut TestWorld) {
         &"rev".to_string(),
         2,
         100,
+        0,
+        0,
         None,
         &DB_POOL,
     )
@@ -101,6 +107,8 @@ async fn package_in_subdir(world: &mut TestWorld) {
         &"rev".to_string(),
         2,
         100,
+        0,
+        0,
         None,
         &DB_POOL,
     )
@@ -149,6 +157,8 @@ async fn upload_a_package(_world: &mut TestWorld) {
         &"rev".to_string(),
         2,
         100,
+        0,
+        0,
         None,
         &DB_POOL,
     )

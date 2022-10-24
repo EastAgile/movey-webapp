@@ -17,6 +17,8 @@ fn setup_collaborator() -> (i32, i32) {
         &"".to_string(),
         -1,
         -1,
+        0,
+        0,
         Some(owner_id),
         &DB_POOL,
     )

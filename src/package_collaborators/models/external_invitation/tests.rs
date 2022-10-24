@@ -18,6 +18,8 @@ fn setup_external_invitation() -> ExternalInvitation {
         &"".to_string(),
         -1,
         -1,
+        0,
+        0,
         Some(uid),
         &DB_POOL,
     )

@@ -112,6 +112,8 @@ pub struct NewPackage {
     pub description: String,
     pub repository_url: String,
     pub slug: String,
+    pub stars_count: i32,
+    pub forks_count: i32,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -280,6 +282,8 @@ impl Package {
                             description: package_description.to_string(),
                             repository_url: repo_url.to_string(),
                             slug: slugify_package_name(&github_data.name),
+                            stars_count: github_data.stars_count,
+                            forks_count: github_data.forks_count,
                         };
                         let maximum_allowed_collisions = std::env::var("MAX_COLLISIONS_ALLOWED")
                             .unwrap_or_else(|_| "3".to_string())
@@ -858,6 +862,8 @@ impl Package {
         version_rev: &String,
         version_files: i32,
         version_size: i32,
+        package_stars_count: i32,
+        package_forks_count: i32,
         account_id_: Option<i32>,
         pool: &DieselPgPool,
     ) -> Result<i32> {
@@ -867,6 +873,8 @@ impl Package {
             description: package_description.to_string(),
             repository_url: repo_url.to_string(),
             slug: slugify_package_name(package_name),
+            stars_count: package_stars_count,
+            forks_count: package_forks_count,
         };
 
         let record = diesel::insert_into(packages::table)

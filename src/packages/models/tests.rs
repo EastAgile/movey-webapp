@@ -17,6 +17,8 @@ fn setup(account_id_: Option<i32>) -> Result<()> {
         &"".to_string(),
         0,
         0,
+        0,
+        0,
         account_id_,
         pool,
     )?;
@@ -30,6 +32,8 @@ fn setup(account_id_: Option<i32>) -> Result<()> {
         &"".to_string(),
         0,
         0,
+        0,
+        0,
         account_id_,
         pool,
     )?;
@@ -41,6 +45,8 @@ fn setup(account_id_: Option<i32>) -> Result<()> {
         &"".to_string(),
         &"".to_string(),
         &"".to_string(),
+        0,
+        0,
         0,
         0,
         account_id_,
@@ -745,6 +751,8 @@ async fn increase_download_count_works() {
         rev_,
         20,
         100,
+        0,
+        0,
         Some(uid),
         &DB_POOL,
     )
@@ -893,6 +901,8 @@ async fn increase_download_count_for_multiple_versions() {
         &rev1,
         20,
         100,
+        0,
+        0,
         None,
         &DB_POOL,
     )
