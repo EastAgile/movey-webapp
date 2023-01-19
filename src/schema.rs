@@ -1,4 +1,20 @@
-table! {
+// @generated automatically by Diesel CLI.
+
+diesel::table! {
+    use diesel::sql_types::*;
+    use diesel_full_text_search::{TsVector as Tsvector};
+
+    _sqlx_migrations (version) {
+        version -> Int8,
+        description -> Text,
+        installed_on -> Timestamptz,
+        success -> Bool,
+        checksum -> Bytea,
+        execution_time -> Int8,
+    }
+}
+
+diesel::table! {
     use diesel::sql_types::*;
     use diesel_full_text_search::{TsVector as Tsvector};
 
@@ -20,7 +36,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     use diesel::sql_types::*;
     use diesel_full_text_search::{TsVector as Tsvector};
 
@@ -34,7 +50,23 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
+    use diesel::sql_types::*;
+    use diesel_full_text_search::{TsVector as Tsvector};
+
+    domains (id) {
+        id -> Int4,
+        name -> Varchar,
+        domain -> Varchar,
+        price -> Nullable<Numeric>,
+        owner_address -> Varchar,
+        resolver -> Nullable<Varchar>,
+        status -> Nullable<Varchar>,
+        expiry -> Nullable<Int4>,
+    }
+}
+
+diesel::table! {
     use diesel::sql_types::*;
     use diesel_full_text_search::{TsVector as Tsvector};
 
@@ -46,7 +78,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     use diesel::sql_types::*;
     use diesel_full_text_search::{TsVector as Tsvector};
 
@@ -60,7 +92,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     use diesel::sql_types::*;
     use diesel_full_text_search::{TsVector as Tsvector};
 
@@ -73,7 +105,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     use diesel::sql_types::*;
     use diesel_full_text_search::{TsVector as Tsvector};
 
@@ -92,7 +124,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     use diesel::sql_types::*;
     use diesel_full_text_search::{TsVector as Tsvector};
 
@@ -111,19 +143,33 @@ table! {
     }
 }
 
-joinable!(api_tokens -> accounts (account_id));
-joinable!(external_invitations -> accounts (invited_by_user_id));
-joinable!(external_invitations -> packages (package_id));
-joinable!(owner_invitations -> packages (package_id));
-joinable!(package_collaborators -> packages (package_id));
-joinable!(package_versions -> packages (package_id));
+diesel::table! {
+    use diesel::sql_types::*;
+    use diesel_full_text_search::{TsVector as Tsvector};
 
-allow_tables_to_appear_in_same_query!(
+    users (id) {
+        id -> Int4,
+        name -> Varchar,
+        email -> Varchar,
+    }
+}
+
+diesel::joinable!(api_tokens -> accounts (account_id));
+diesel::joinable!(external_invitations -> accounts (invited_by_user_id));
+diesel::joinable!(external_invitations -> packages (package_id));
+diesel::joinable!(owner_invitations -> packages (package_id));
+diesel::joinable!(package_collaborators -> packages (package_id));
+diesel::joinable!(package_versions -> packages (package_id));
+
+diesel::allow_tables_to_appear_in_same_query!(
+    _sqlx_migrations,
     accounts,
     api_tokens,
+    domains,
     external_invitations,
     owner_invitations,
     package_collaborators,
     package_versions,
     packages,
+    users,
 );
