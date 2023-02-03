@@ -1,7 +1,7 @@
 # Movey
 
-[![CircleCI](https://circleci.com/gh/EastAgile/ea-movey.svg?style=svg&circle-token=8834c48b8b7b9a7c69b4d5ffd8c953fa9b8865ac)](https://app.circleci.com/pipelines/github/EastAgile/ea-movey)
-[![Coverage Status](https://coveralls.io/repos/github/EastAgile/ea-movey/badge.svg?branch=master&t=wtVyiP)](https://coveralls.io/github/EastAgile/ea-movey?branch=master)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/EastAgile/movey-webapp/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/EastAgile/movey-webapp/tree/main)
+[![Coverage Status](https://coveralls.io/repos/github/EastAgile/movey-webapp/badge.svg?branch=main)](https://coveralls.io/github/EastAgile/movey-webapp?branch=main)
 
 Source code for [Movey](https://movey.net) - the [Move](https://github.com/move-language/move) package registry.
 
